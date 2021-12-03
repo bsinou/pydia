@@ -1,0 +1,162 @@
+package org.sinou.android.pydia.services;
+
+import com.pydio.cells.api.Client;
+import com.pydio.cells.api.Credentials;
+import com.pydio.cells.api.CustomEncoder;
+import com.pydio.cells.api.ErrorCodes;
+import com.pydio.cells.api.SDKException;
+import com.pydio.cells.api.Server;
+import com.pydio.cells.api.ServerURL;
+import com.pydio.cells.api.Store;
+import com.pydio.cells.api.Transport;
+import com.pydio.cells.client.CellsClient;
+import com.pydio.cells.client.ClientFactory;
+import com.pydio.cells.legacy.P8Credentials;
+import com.pydio.cells.transport.CellsTransport;
+import com.pydio.cells.transport.ServerFactory;
+import com.pydio.cells.transport.ServerURLImpl;
+import com.pydio.cells.transport.StateID;
+import com.pydio.cells.transport.auth.CredentialService;
+import com.pydio.cells.utils.Log;
+import com.pydio.cells.utils.MemoryStore;
+
+import org.sinou.android.pydia.S3Client;
+import org.sinou.android.pydia.auth.Database;
+import org.sinou.android.pydia.model.AccountRecord;
+import org.sinou.android.pydia.model.Session;
+import org.sinou.android.pydia.utils.AndroidCustomEncoder;
+
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Map;
+
+public class SessionFactory extends ClientFactory {
+
+    private final AccountService accountService;
+    private final CredentialService credentialService;
+
+    // Locally store a cache of known sessions
+    private final Store<Session> sessions = new MemoryStore<>();
+
+    public SessionFactory(CredentialService credentialService, Store<Server> serverStore, Store<Transport> transportStore, AccountService accountService) {
+        super(credentialService, serverStore, transportStore);
+        this.accountService = accountService;
+        this.credentialService = credentialService;
+        initAppData();
+    }
+
+    public void loadKnownAccounts() {
+        List<AccountRecord> records = accountService.loadPersistedAccounts();
+        sessions.clear();
+        for (AccountRecord record : records) {
+            Session session = new Session(record);
+            sessions.put(record.id(), session);
+        }
+    }
+
+    @Override
+    public void unregisterAccount(String id) throws SDKException {
+        // TODO Make this more robust
+        accountService.unregisterAccount(id);
+
+        if (sessions.get(id) != null) {
+            sessions.remove(id);
+        }
+
+        super.unregisterAccount(id);
+    }
+
+    public Session registerSession(ServerURL serverURL, Credentials credentials) throws SDKException {
+
+        // TODO better handling of already existing sessions / accounts
+        String accountId = ServerFactory.accountID(credentials.getUsername(), serverURL);
+        // This also stores the password or retrieved token via the CredentialService
+        registerAccountCredentials(serverURL, credentials);
+
+        Server server = getServer(serverURL.getId());
+        AccountRecord account = AccountRecord.fromServer(credentials.getUsername(), server);
+        accountService.registerAccount(account);
+
+        Session session = new Session(account, getTransport(accountId));
+        sessions.put(account.id(), session);
+
+        return session;
+    }
+
+    public Session resurrectSession(AccountRecord accountRecord, Credentials credentials) throws SDKException {
+        ServerURL serverURL;
+        StateID stateID = StateID.fromId(accountRecord.id());
+        try {
+            // TODO also handle trustManager for ServerURL
+            serverURL = ServerURLImpl.fromAddress(stateID.getServerUrl(), accountRecord.skipVerify());
+        } catch (MalformedURLException e) {
+            // Should never happen, URL is sanitized before persistence
+            throw new SDKException(e);
+        }
+        registerAccountCredentials(serverURL, credentials);
+
+        Session session = new Session(accountRecord, getTransport(accountRecord.id()));
+        sessions.put(accountRecord.id(), session);
+        return session;
+    }
+
+    public Session unlockSession(String id) throws SDKException {
+        Session session = sessions.get(id);
+        if (Session.STATUS_ONLINE.equals(session.getStatus())) {
+            return session;
+        }
+
+        session.setStatus(Session.STATUS_LOADING);
+
+        StateID stateID = StateID.fromId(id);
+        ServerURL serverURL;
+        // TODO handle here to have a ServerURL object with a certificate manager.
+        try {
+            serverURL = ServerURLImpl.fromAddress(session.getAccount().url(), session.getAccount().skipVerify());
+        } catch (MalformedURLException me) { // This should never happen here, URL is sanitized before persistence.
+            Log.e("Internal error", "Could not restore account " + id);
+            throw new SDKException(ErrorCodes.panic);
+        }
+
+        Server server = getServer(id);
+        Transport transport = getTransport(id);
+
+        if (transport == null) {
+            server = registerServer(serverURL);
+            Credentials credentials;
+            if (session.isLegacy()) {
+                credentials = new P8Credentials(session.getUser(), Database.password(id));
+                registerAccountCredentials(serverURL, credentials);
+            } else {
+                restoreAccount(serverURL, stateID.getUsername());
+            }
+            transport = getTransport(id);
+        }
+
+        session.setOnline(serverURL, server, transport);
+        return session;
+    }
+
+    public Map<String, Session> getSessions() {
+        return sessions.getAll();
+    }
+
+    public Session getSession(String id) {
+        return sessions.get(id);
+    }
+
+    @Override
+    protected CellsClient getCellsClient(CellsTransport transport) {
+        return new CellsClient(transport, new S3Client(transport));
+    }
+
+    public Client getUnlockedClient(String accountId) throws SDKException {
+        Session session = unlockSession(accountId);
+        return getClient(session.getTransport());
+    }
+
+    @Override
+    public CustomEncoder getEncoder() {
+        return new AndroidCustomEncoder();
+    }
+}

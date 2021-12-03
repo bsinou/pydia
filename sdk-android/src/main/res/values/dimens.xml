@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <!-- Application wide params -->
+    <dimen name="text_title_size">18sp</dimen>
+    <dimen name="text_text_size">12sp</dimen>
+
+    <!-- Temporary tests -->
+    <dimen name="dummy_list_item_height">72dp</dimen>
+
+
+
+    <!-- MAIN LAYOUT-->
+    <dimen name="offline_status_bar_height">96dp</dimen>
+    <dimen name="action_bar_height">72dp</dimen>
+    <dimen name="action_bar_button_dim">35dp</dimen>
+
+    <!-- Navigation drawer -->
+    <dimen name="nav_header_height">100dp</dimen>
+    <dimen name="nav_margin">8dp</dimen>
+    <dimen name="nav_padding">24dp</dimen>
+
+    <!-- FAB -->
+    <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Recycler view -->
+
+    <!-- 1. List -->
+    <dimen name="list_item_margin">16dp</dimen>
+
+
+    <!-- New browser -->
+    <dimen name="listNodeRowHeight">72dp</dimen>
+    <dimen name="listIconSize">32dp</dimen>
+    <dimen name="listIconMargin">16dp</dimen>
+    <dimen name="listDecoratorSize">12dp</dimen>
+
+</resources>

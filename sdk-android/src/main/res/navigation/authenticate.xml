@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    app:startDestination="@+id/ask_url_fragment">
+
+    <fragment
+        android:id="@+id/ask_url_fragment"
+        android:label="Enter Server URL"
+        android:name="org.sinou.android.pydia.auth.ServerUrlFragment"
+        tools:layout="@layout/fragment_recycler">
+        <action
+            android:id="@+id/launchOAuthFlow"
+            app:destination="@+id/auth_callback_fragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/auth_callback_fragment"
+        android:label="Enter Server URL"
+        android:name="org.sinou.android.pydia.auth.OAuthCallbabackFragment"
+        tools:layout="@layout/fragment_auth_callback">
+        <argument
+            android:name="server_url"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+</navigation>

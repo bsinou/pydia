@@ -1,0 +1,51 @@
+<?xml version= "1.0" encoding= "utf-8" ?>
+
+<!--
+This is the main layout that is used for most of the activities in our apps.
+
+It provides a unique layout with:
+   - the toolbar with a home icon to open the drawer, a title and the "more" menu (that is dynamically updated)
+   - the left drawer
+   - a fragment place holder to include our specific layouts.
+   -->
+
+<!--<androidx.coordinatorlayout.widget.CoordinatorLayout-->
+<LinearLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+
+    tools:context="org.sinou.android.pydia.BrowseActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimaryDark"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:menu="@menu/more_menu"
+            app:popupTheme="@style/AppTheme.PopupOverlay" >
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/browse_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/browse" />
+
+</LinearLayout>

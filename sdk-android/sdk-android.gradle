@@ -1,0 +1,104 @@
+plugins {
+    id 'com.android.application'
+    id 'androidx.navigation.safeargs'
+    id 'kotlin-android'
+
+}
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion ownVersions['android.sdk.compile'] as int
+    buildToolsVersion ownVersions['android.build.tools']
+
+    defaultConfig {
+
+        versionCode ownVersions['sdk-android.code'] as int
+        versionName ownVersions['sdk-android.name']
+
+        minSdkVersion ownVersions['android.sdk.min'] as int
+        targetSdkVersion ownVersions['android.sdk.target'] as int
+
+        consumerProguardFiles 'consumer-rules.pro'
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            versionNameSuffix = '-dev'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests {
+            // Encapsulates options for controlling how Gradle executes local unit tests. For a list
+            // of all the options you can specify, read Gradle's reference documentation: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/testing/Test.html
+
+            // Avoid RuntimeException of type: Method w in android.util.Log not mocked. See http://g.co/androidstudio/not-mocked for details.
+            includeAndroidResources = true
+            returnDefaultValues = true
+
+            all {
+                // Skip integration tests by default
+                if (System.properties['test.profile'] != 'integration') {
+                    exclude '**/integration/*'
+                }
+            }
+        }
+
+        unitTests {
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+
+dependencies {
+
+    if (useLocalSdkJava) {
+        api project(":sdk-java")
+        println "[DEBUG] Using local java SDK"
+    } else {
+        println "[WARNING] **Not** using local SDK "
+        api "com.pydio.cells:cells-sdk-java:${ownVersions['java.sdk']}"
+        println "[DEBUG] Retrieve java sdk from maven repo"
+    }
+
+    implementation 'com.google.android.material:material:1.4.0'
+
+    implementation 'androidx.navigation:navigation-ui:2.3.5'
+    implementation 'androidx.navigation:navigation-fragment:2.3.5'
+    implementation "androidx.constraintlayout:constraintlayout:2.1.2"
+
+    implementation "androidx.room:room-runtime:2.3.0"
+    kapt "androidx.room:room-compiler:2.3.0"
+
+    implementation "com.amazonaws:aws-android-sdk-s3:$awsS3AndroidSdk"
+
+    implementation "io.gsonfire:gson-fire:$gsonFire"
+    implementation "commons-codec:commons-codec:$commonsCodec"
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+
+    // TESTS ONLY
+    testImplementation "junit:junit:$junit"
+    testImplementation "androidx.test.ext:junit:$androidxTestJunit"
+    testImplementation "com.google.truth:truth:$gtruth"
+    testImplementation "org.robolectric:robolectric:$robolectric"
+    testImplementation "androidx.test.espresso:espresso-core:$espressoCore"
+}

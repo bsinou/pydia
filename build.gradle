@@ -1,0 +1,112 @@
+buildscript {
+    ext.kotlin_version = '1.6.0'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.0.3"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.5"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    // Publish the generated resources as Maven Artifacts.
+    id 'maven-publish'
+//    id 'kotlin-android'
+}
+
+// Retrieve local context
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+retrieveFromEnv(localProperties) // There must be a more elegant way to do this...
+
+def versionProperties = new Properties()
+versionProperties.load(new FileInputStream(rootProject.file("versions.properties")))
+
+// Manage optional local sdk-java submodule
+def sdkJavaCheck = new File( 'sdk-java/sdk-java.gradle' )
+
+// Expose custom properties to all modules in the project.
+ext {
+    githubUrl = 'https://github.com/bsinou/pydia.git'
+
+    // Expose properties retrieved from files to child projects
+    configs = localProperties
+    ownVersions = versionProperties
+
+    // Shortcut to enable building the Android layers without checking out the sdk-java repository
+    useLocalSdkJava = sdkJavaCheck.exists()
+
+    // Define All non-android Third Party versions in a single place
+    awsS3AndroidSdk = "2.23.0"
+    commonsCodec = "1.15"
+
+    gsonFire = "1.8.5"
+    junit = "4.13.2"
+    androidxTestJunit = "1.1.3"
+    gtruth = "1.1.2"
+    robolectric = "4.5.1"
+    espressoCore = "3.4.0"
+
+}
+
+allprojects {
+
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+}
+
+
+/* Factorise some of the methods used in various sub projects */
+
+// Pre-create generic common pom configuration:
+ext.getBasePom = { repoURL  ->
+    return {
+        licenses {
+            license {
+                name "The Apache Software License, Version 2.0"
+                url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution "repo"
+            }
+        }
+
+        developers {
+            developer {
+                id "bsinou"
+                name "Bruno Sinou"
+                email "bruno.sinou@posteo.de"
+            }
+        }
+
+        scm {
+            url repoURL
+        }
+    }
+}
+
+// Override local.properties sensitive values with environment parameter
+def static retrieveFromEnv (Properties props) {
+
+    def tmpValue = System.getenv('ANDROID_KEYSTORE_PATH')
+    if (tmpValue != null){
+        props['keystore.path'] = tmpValue
+    }
+    tmpValue = System.getenv('ANDROID_KEYSTORE_PWD')
+    if (tmpValue != null){
+        props['keystore.pwd'] = tmpValue
+    }
+    tmpValue = System.getenv('ANDROID_SIGNKEY_ALIAS')
+    if (tmpValue != null){
+        props['signkey.alias'] = tmpValue
+    }
+    tmpValue = System.getenv('ANDROID_SIGNKEY_PWD')
+    if (tmpValue != null){
+        props['signkey.pwd'] = tmpValue
+    }
+}

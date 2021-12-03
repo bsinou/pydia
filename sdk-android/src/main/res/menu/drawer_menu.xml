@@ -1,0 +1,64 @@
+<?xml version= "1.0" encoding= "utf-8" ?>
+
+<menu
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    tools:showIn="navigation_view">
+
+    <item
+        android:id="@+id/quick_access"
+        android:title="@string/quick_access"
+        android:visible="true">
+
+        <menu android:id="@+id/quick_access_menu">
+            <item
+                android:id="@+id/splash_fragment"
+                android:icon="@android:drawable/ic_dialog_info"
+                android:title="Splash" />
+            <item
+                android:id="@+id/dummy_list_fragment"
+                android:icon="@android:drawable/stat_sys_download_done"
+                android:title="Dummy list" />
+            <item
+                android:id="@+id/recycler_fragment"
+                android:icon="@android:drawable/gallery_thumb"
+                android:title="Recycler" />
+            <item
+                android:id="@+id/bookmarks"
+                android:icon="@android:drawable/star_off"
+                android:title="@string/bookmarks" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/my_workspaces"
+        android:title="@string/my_workspaces"
+        android:visible="true"
+        app:showAsAction="always">
+        <menu android:id="@+id/my_workspaces_menu" >
+            <group android:id="@+id/drawer_my_workspace_section" />
+            <group android:id="@+id/drawer_shared_workspaces_section" />
+        </menu>
+    </item>
+
+    <group>
+        <item
+            android:id="@+id/settings"
+            android:icon="@android:drawable/star_off"
+            android:title="@string/settings" />
+
+        <item
+            android:id="@+id/clear_cache"
+            android:icon="@android:drawable/ic_notification_clear_all"
+            android:title="@string/clear_cache" />
+
+        <item
+            android:id="@+id/about"
+            android:icon="@android:drawable/ic_menu_help"
+            android:title="@string/about" />
+    </group>
+
+</menu>

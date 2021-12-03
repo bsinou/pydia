@@ -1,0 +1,18 @@
+## This file exposes expected configuration that must be exposed in your 
+## 'local.properties' file that * MUST NOT* be checked into your Version Control System:
+## it contains sensitive information specific to your setup.
+
+## Simply copy paste as "local.properties" file and fill in the different values.
+
+###### SENSITIVE INFORMATION: PAY EXTRA ATTENTION #######
+keystore.pwd=<put your keystore>
+signkey.pwd=<put your signing key>
+######### UNTIL HERE #################################
+
+keystore.path=<path to your local java Keystore>
+signkey.alias=<alias of the signing key>
+
+# Android config
+sdk.dir=/path/to/your/android/base/dir
+apk.out.dir.release=/path/to/your/apk/*RELEASE*/build/dir
+apk.out.dir.debug=/path/to/your/apk/*DEBUG*/build/dir

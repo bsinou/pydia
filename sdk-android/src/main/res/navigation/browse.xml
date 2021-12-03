@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    app:startDestination="@+id/browser_fragment">
+
+    <fragment
+        android:id="@+id/browser_fragment"
+        android:label="Browsing"
+        android:name="org.sinou.android.pydia.browse.RecyclerFragment"
+        tools:layout="@layout/fragment_recycler">
+        <argument
+            android:name="itemTitle"
+            app:argType="string"
+            android:defaultValue="Test" />
+        <action
+            android:id="@+id/openItem"
+            app:destination="@+id/browser_fragment"/>
+    </fragment>
+
+</navigation>

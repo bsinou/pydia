@@ -7,7 +7,7 @@
 
     android:layout_width= "match_parent"
     android:layout_height= "wrap_content"
-    android:background= "@color/colorPrimaryVariant"
+    android:background= "@color/colorPrimaryLight"
 
     android:gravity= "bottom"
     android:orientation= "vertical"
@@ -15,7 +15,7 @@
     android:paddingTop= "@dimen/nav_margin"
     android:paddingRight= "@dimen/nav_margin"
     android:paddingBottom= "@dimen/nav_margin"
-    android:theme= "@style/HeaderTheme" >
+    android:theme= "@style/AppTheme" >
 
     <ImageView
         android:id= "@+id/imageView"

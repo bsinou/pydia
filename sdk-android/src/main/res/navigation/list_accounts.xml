@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/AccountListFragment">
+
+    <fragment
+        android:id="@+id/AccountListFragment"
+        android:name="org.sinou.android.pydia.ui.accounts.AccountListFragment"
+        android:label="@string/account_details_title"
+        tools:layout="@layout/fragment_account_list">
+        <action
+            android:id="@+id/action_show_account_details"
+            app:destination="@id/AccountDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/AccountDetailsFragment"
+        android:name="org.sinou.android.pydia.ui.accounts.AccountDetailsFragment"
+        android:label="@string/account_details_title"
+        tools:layout="@layout/fragment_account_details">
+    </fragment>
+</navigation>

@@ -10,6 +10,13 @@
 
 
     <!-- Main Menu (left drawer) -->
+    <string name="nav_header_title">Navigation header title</string>
+    <string name="nav_header_subtitle">Navigation header subtitle</string>
+    <string name="nav_header_desc">Navigation header description</string>
+
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
+
     <string name="quick_access">Quick Access</string>
     <string name="offline_files">Offline Files</string>
     <string name="bookmarks">Bookmarks</string>
@@ -18,6 +25,7 @@
     <string name="parameter">Parameters</string>
     <string name="clear_cache">Clear Cache</string>
     <string name="about">About</string>
+
 
     <!-- Ask URL dialog -->
     <string name="ask_url_title">Enter your server URL</string>
@@ -28,6 +36,14 @@
 
     <string name="oauth_callback_waiting">Authentication process has been launched</string>
     <string name="oauth_callback_cancel">Cancel</string>
+    <string name="title_activity_list_accounts">ListAccounts</string>
 
+    <!-- Account management -->
+    <string name="account_list_title">account_list_title</string>
+    <string name="account_list_desc">account_list_description</string>
+    <string name="account_list_none">No account has been configured yet...</string>
+
+    <string name="account_details_title">Account detail title</string>
+    <string name="account_details_desc">Account details description</string>
 
 </resources>

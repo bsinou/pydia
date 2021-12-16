@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:background="@color/colorPrimary"
     android:orientation="vertical"
-    android:textColor="@color/colorOnPrimary"
+    android:textColor="@color/colorTextPrimary"
 
     >
 
@@ -15,7 +15,7 @@
         android:id="@+id/menu_title"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:background="@color/colorPrimaryVariant"
+        android:background="@color/colorPrimaryDark"
         android:gravity="center"
         android:textAllCaps="true"
         android:textColor="@android:color/white" />
@@ -28,7 +28,7 @@
         android:layout_marginVertical="4dp"
         android:layout_marginHorizontal="16dp"
         android:gravity="center"
-        android:textColor="@color/colorOnPrimary"
+        android:textColor="@color/colorTextPrimary"
 
         />
 
@@ -40,8 +40,8 @@
         android:layout_marginHorizontal="16dp"
         android:text="Important item"
         android:gravity="center"
-        android:textColor="@color/colorOnPrimary"
-        android:buttonTint="@color/colorOnPrimary"
+        android:textColor="@color/colorTextPrimary"
+        android:buttonTint="@color/colorPrimaryLight"
         />
 
     <TextView
@@ -54,7 +54,7 @@
 
         android:gravity="center"
         android:text="Change title"
-        android:textColor="@color/colorOnPrimary"
+        android:textColor="@color/colorTextPrimary"
         />
 
 </LinearLayout>

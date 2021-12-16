@@ -8,25 +8,20 @@ import android.util.Log;
 
 import com.pydio.cells.api.SDKException;
 import com.pydio.cells.api.Server;
-import com.pydio.cells.api.ServerURL;
 import com.pydio.cells.api.Store;
 import com.pydio.cells.api.Transport;
-import com.pydio.cells.legacy.P8Server;
-import com.pydio.cells.transport.CellsServer;
 import com.pydio.cells.transport.ClientData;
-import com.pydio.cells.transport.ServerURLImpl;
 import com.pydio.cells.transport.auth.CredentialService;
 import com.pydio.cells.transport.auth.Token;
 import com.pydio.cells.utils.MemoryStore;
 
 import org.sinou.android.pydia.auth.Database;
 import org.sinou.android.pydia.auth.DbTokenStore;
-import org.sinou.android.pydia.auth.OAuthCallbackManager;
+import org.sinou.android.pydia.ui.auth.OAuthCallbackManager;
 import org.sinou.android.pydia.auth.PasswordStore;
 import org.sinou.android.pydia.model.Session;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.data
+package org.sinou.android.pydia.data.ktx
 
 import android.content.Context
 import androidx.room.Database

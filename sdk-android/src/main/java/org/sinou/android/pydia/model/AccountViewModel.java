@@ -1,23 +1,35 @@
 package org.sinou.android.pydia.model;
 
+import android.app.Application;
+
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import org.sinou.android.pydia.data.Account;
+import org.sinou.android.pydia.data.AccountRepository;
 
 import java.util.List;
 
-public class AccountViewModel extends ViewModel {
+public class AccountViewModel extends AndroidViewModel {
 
-    private MutableLiveData<List<Account>> accounts;
+    private AccountRepository repository;
+
+    private LiveData<List<Account>> accounts;
+
+
+    public AccountViewModel (Application application) {
+        super(application);
+        repository = new AccountRepository(application);
+        accounts = repository.listAccounts();
+    }
+
     public LiveData<List<Account>> getAccounts() {
-        if (accounts == null) {
-            accounts = new MutableLiveData<List<Account>>();
-            loadAccounts();
-        }
         return accounts;
     }
+
+    public void insert(Account account) { repository.insert(account); }
+
 
     private void loadAccounts() {
         // Do an asynchronous operation to fetch users.

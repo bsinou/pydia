@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name" translatable="false">Pydia!</string>
     <string name="package_name" translatable="false">org.sinou.android.pydia</string>
     <string name="app_persistence_key" translatable="false">org.sinou.android.pydia</string>
-
-    <string name="nav_header_title">Navigation header title</string>
-    <string name="nav_header_subtitle">Navigation header subtitle</string>
-    <string name="nav_header_desc">Navigation header description</string>
-
-    <string name="nav_open">Open</string>
-    <string name="nav_close">Close</string>
 
 </resources>

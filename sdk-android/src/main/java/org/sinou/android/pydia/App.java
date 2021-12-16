@@ -5,8 +5,8 @@ import android.content.Context;
 
 import com.pydio.cells.api.SDKException;
 
-import org.sinou.android.pydia.auth.OAuthCallbackManager;
-import org.sinou.android.pydia.data.AccountDatabase;
+import org.sinou.android.pydia.ui.auth.OAuthCallbackManager;
+import org.sinou.android.pydia.data.ktx.AccountDatabase;
 import org.sinou.android.pydia.services.AccountService;
 import org.sinou.android.pydia.services.BackendService;
 import org.sinou.android.pydia.services.SessionFactory;

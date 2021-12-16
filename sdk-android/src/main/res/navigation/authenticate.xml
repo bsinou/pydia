@@ -10,7 +10,7 @@
     <fragment
         android:id="@+id/ask_url_fragment"
         android:label="Enter Server URL"
-        android:name="org.sinou.android.pydia.auth.ServerUrlFragment"
+        android:name="org.sinou.android.pydia.ui.auth.ServerUrlFragment"
         tools:layout="@layout/fragment_recycler">
         <action
             android:id="@+id/launchOAuthFlow"
@@ -20,7 +20,7 @@
     <fragment
         android:id="@+id/auth_callback_fragment"
         android:label="Enter Server URL"
-        android:name="org.sinou.android.pydia.auth.OAuthCallbabackFragment"
+        android:name="org.sinou.android.pydia.ui.auth.OAuthCallbabackFragment"
         tools:layout="@layout/fragment_auth_callback">
         <argument
             android:name="server_url"

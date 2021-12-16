@@ -15,7 +15,7 @@ import com.pydio.cells.utils.Log;
 import com.pydio.cells.utils.Str;
 
 import org.sinou.android.pydia.auth.AuthenticationEventHandler;
-import org.sinou.android.pydia.auth.OAuthCallbackManager;
+import org.sinou.android.pydia.ui.auth.OAuthCallbackManager;
 import org.sinou.android.pydia.model.State;
 
 public class Authenticate extends AppCompatActivity implements AppNames, AuthenticationEventHandler {
@@ -86,7 +86,7 @@ public class Authenticate extends AppCompatActivity implements AppNames, Authent
 
     public void onError(String error, String description) {
         // String message = getResources().getString(R.string.authentication_failed);
-        showMessage("AUthentication failed....");
+        showMessage("Authentication failed....");
         Log.e(Log.TAG_AUTH, error.concat(": ").concat(description));
     }
 

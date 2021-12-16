@@ -80,25 +80,10 @@ dependencies {
         println "[DEBUG] Retrieve java sdk from maven repo"
     }
 
-    implementation 'com.google.android.material:material:1.4.0'
+    // dependencies are defined in root build.gradle file.
+    implementation libraries
+    kapt librariesKapt
 
-    implementation 'androidx.navigation:navigation-ui:2.3.5'
-    implementation 'androidx.navigation:navigation-fragment:2.3.5'
-    implementation "androidx.constraintlayout:constraintlayout:2.1.2"
-
-    implementation "androidx.room:room-runtime:2.3.0"
-    kapt "androidx.room:room-compiler:2.3.0"
-
-    implementation "com.amazonaws:aws-android-sdk-s3:$awsS3AndroidSdk"
-
-    implementation "io.gsonfire:gson-fire:$gsonFire"
-    implementation "commons-codec:commons-codec:$commonsCodec"
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-
-    // TESTS ONLY
-    testImplementation "junit:junit:$junit"
-    testImplementation "androidx.test.ext:junit:$androidxTestJunit"
-    testImplementation "com.google.truth:truth:$gtruth"
-    testImplementation "org.robolectric:robolectric:$robolectric"
-    testImplementation "androidx.test.espresso:espresso-core:$espressoCore"
+    testImplementation testLibraries
+    androidTestImplementation androidTestLibraries
 }

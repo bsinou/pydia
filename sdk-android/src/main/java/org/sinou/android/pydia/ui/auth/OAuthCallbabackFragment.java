@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.auth;
+package org.sinou.android.pydia.ui.auth;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

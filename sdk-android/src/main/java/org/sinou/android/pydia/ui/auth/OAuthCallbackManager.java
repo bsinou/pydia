@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.auth;
+package org.sinou.android.pydia.ui.auth;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -19,6 +19,7 @@ import com.pydio.cells.utils.Log;
 
 import org.sinou.android.pydia.App;
 import org.sinou.android.pydia.Authenticate;
+import org.sinou.android.pydia.auth.AuthenticationEventHandler;
 import org.sinou.android.pydia.model.AccountRecord;
 import org.sinou.android.pydia.model.State;
 import org.sinou.android.pydia.services.SessionFactory;

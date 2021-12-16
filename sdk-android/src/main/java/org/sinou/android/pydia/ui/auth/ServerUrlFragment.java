@@ -1,5 +1,6 @@
-package org.sinou.android.pydia.auth;
+package org.sinou.android.pydia.ui.auth;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -13,12 +14,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.pydio.cells.api.SDKException;
+import com.pydio.cells.api.Server;
 import com.pydio.cells.api.ServerURL;
 import com.pydio.cells.transport.ServerURLImpl;
+import com.pydio.cells.utils.Log;
 import com.pydio.cells.utils.Str;
 
+import org.sinou.android.pydia.App;
 import org.sinou.android.pydia.R;
+import org.sinou.android.pydia.services.SessionFactory;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 /**
@@ -40,6 +47,7 @@ public class ServerUrlFragment extends Fragment {
 
     // Until we resolve to a server, serverURL is the reference,
     private ServerURL serverURL;
+    private Server server;
     private byte[] certificateData;
     private boolean processing;
 
@@ -50,6 +58,7 @@ public class ServerUrlFragment extends Fragment {
         fragmentRoot = inflater.inflate(R.layout.fragment_ask_url, container, false);
 
         urlEditText = fragmentRoot.findViewById(R.id.url_edit_text);
+        urlEditText.setText("https://demo.pydio.com");
         urlEditText.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 onActionButtonClicked(v);
@@ -64,7 +73,6 @@ public class ServerUrlFragment extends Fragment {
 //        statusLayout = fragmentRoot.findViewById(R.id.status_layout);
 //        setStatusEditing();
 
-        // Inflate the layout for this fragment
         return fragmentRoot;
     }
 
@@ -83,6 +91,8 @@ public class ServerUrlFragment extends Fragment {
         if (Str.empty(host)) {
             // TODO i18n
 //            showMessage("Please provide your server address.");
+
+            Log.e(TAG, "Empty URL. Aborting...");
             return;
         }
 
@@ -91,23 +101,65 @@ public class ServerUrlFragment extends Fragment {
         } catch (MalformedURLException e) {
             // TODO i18n
 //            showMessage("Not a valid URL");
+            Log.e(TAG, "Not a valid URL. Aborting...");
             return;
         }
 
-        setStatusLoading();
 
-/*
-        final RegisterServer registerServerTask = new RegisterServer(serverURL);
-        registerServerTask.onFailure(this::handleRegistrationError);
-        registerServerTask.onComplete(() -> handleOK(registerServerTask.getServer()));
-        Worker worker = new Worker(registerServerTask);
-        worker.execute();
-*/
+        ping();
+
     }
 
+
+    public void ping() {
+        new insertAsyncTask().execute(serverURL);
+    }
+
+
+    private  class insertAsyncTask extends AsyncTask<ServerURL, Void, Void> {
+
+
+        @Override
+        protected Void doInBackground(final ServerURL... params) {
+            try {
+                params[0].ping();
+            } catch (IOException | SDKException e) {
+                Log.e(TAG, "could not ping " + params[0].getId());
+                e.printStackTrace();
+                return null;
+            }
+            try {
+                SessionFactory factory = App.getSessionFactory();
+                // TODO double check if the factory is ready ?
+                server = factory.registerServer(params[0]);
+            } catch (SDKException e) {
+
+                Log.e(TAG, "could not register server with ID " + params[0].getId());
+                e.printStackTrace();
+                return null;
+                //            if (e.getCode() == ErrorCodes.not_pydio_server) {
+//                return ErrorInfo.fromException(ErrorInfo.unsupportedServer, new Exception(serverURL.getId() + " is not a Pydio server"));
+//            }
+//            return ErrorInfo.fromException(e.getCode(), new Exception("Cannot resolve " + serverURL.getId(), e));
+
+
+/*            if (e instanceof SSLPeerUnverifiedException) {
+                return ErrorInfo.fromException(ErrorInfo.serverSSLNotVerified,
+                        new IOException("Warning: " + serverURL.getId() + " has no valid certificate", e));
+            }
+            if (e instanceof SSLHandshakeException) {
+                return ErrorInfo.fromException(ErrorInfo.sslError,
+                        new IOException("Danger: certificate for " + serverURL.getId() + " is not correct", e));
+            }
+            return ErrorInfo.fromException(ErrorInfo.remoteNotFound, new IOException("Could not reach server at " + serverURL.getId(), e));*/
+            }
+            return null;
+        }
+    }
+
+
 /*
-    private void resolveServer() {
-        hideKeyBoard(urlEditText);
+    hideKeyBoard(urlEditText);
 
         String host = urlEditText.getText().toString();
         if (Str.empty(host)) {

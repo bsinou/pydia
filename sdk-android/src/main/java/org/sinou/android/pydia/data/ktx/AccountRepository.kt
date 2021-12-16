@@ -1,7 +1,6 @@
-package org.sinou.android.pydia.data
+package org.sinou.android.pydia.data.ktx
 
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.LiveData
 
 class AccountRepository(private val accountDao: AccountDao) {
 

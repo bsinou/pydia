@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.data
+package org.sinou.android.pydia.data.ktx
 
 class AccountViewModelTest
 

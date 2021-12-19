@@ -8,8 +8,8 @@
 
     <dimen name="text_title_size">20sp</dimen>
     <dimen name="text_body_size">12sp</dimen>
-    <dimen name="text_accent_size">14sp</dimen>
-    <dimen name="text_padding_small">8dp</dimen>
+    <dimen name="text_accent_size">16sp</dimen>
+    <dimen name="text_padding_small">4dp</dimen>
     <dimen name="text_padding_medium">16dp</dimen>
 
     <dimen name="list_icon_size">24dp</dimen>
@@ -35,6 +35,6 @@
     <dimen name="list_item_margin">16dp</dimen>
 
     <!-- Accounts -->
-    <dimen name="list_account_item_height">72dp</dimen>
+    <dimen name="list_account_item_height">64dp</dimen>
 
 </resources>

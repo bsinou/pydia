@@ -23,9 +23,10 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
             android:backgroundTint="@color/colorPrimaryDark"
-            android:textSize="16sp"
-
-            app:srcCompat="@android:drawable/ic_menu_add" />
+            android:tint="@color/colorTextPrimary"
+            android:padding="2dp"
+            app:maxImageSize="32dp"
+            app:srcCompat="@drawable/ic_baseline_person_add_24" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

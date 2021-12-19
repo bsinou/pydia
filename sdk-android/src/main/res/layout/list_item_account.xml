@@ -1,41 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout
+<layout
 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/text_padding_medium">
+    <data>
+        <variable
+            name="account"
+            type="org.sinou.android.pydia.room.account.Account" />
+    </data>
 
-    <ImageView
-        android:id="@+id/account_avatar"
-        style="@style/avatar_icon"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_baseline_person_24"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-<!--    tools:srcCompat="@drawable/ic_baseline_person_24"-->
-    <TextView
-        android:id="@+id/account_title"
-        style="@style/text_list_primary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_padding_medium">
 
-        app:layout_constraintStart_toEndOf="@+id/account_avatar"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="https://demo.pydio.com" />
+        <!--    style="@style/avatar_icon"-->
 
-    <TextView
-        android:id="@+id/account_description"
-        style="@style/text_list_secondary"
-        app:layout_constraintTop_toBottomOf="@+id/account_title"
-        app:layout_constraintStart_toEndOf="@+id/account_avatar"
-        tools:text="admin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/account_avatar"
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/list_account_item_height"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/ic_baseline_person_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+
+            app:layout_constraintTop_toTopOf="parent" />
+        <!--    tools:srcCompat="@drawable/ic_baseline_person_24"-->
+        <TextView
+            android:id="@+id/account_title"
+            style="@style/text_list_primary"
+
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/account_avatar"
+            app:layout_constraintTop_toTopOf="@+id/account_avatar"
+            tools:text="https://demo.pydio.com"
+            app:account_primary_text="@{account}"/>
+
+        <TextView
+            android:id="@+id/account_description"
+            style="@style/text_list_secondary"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="@+id/account_title"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/account_title"
+            app:layout_constraintTop_toBottomOf="@+id/account_title"
+            tools:text="admin@https://demo.pydio.com"
+            app:account_secondary_text="@{account}"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Application wide params -->
+    <dimen name="margin">16dp</dimen>
+    <dimen name="icon_size">64dp</dimen>
+    <dimen name="triple_margin">48dp</dimen>
+
+    <dimen name="text_title_size">20sp</dimen>
+    <dimen name="text_body_size">12sp</dimen>
+    <dimen name="text_accent_size">14sp</dimen>
+    <dimen name="text_padding_small">8dp</dimen>
+    <dimen name="text_padding_medium">16dp</dimen>
+
+    <dimen name="list_icon_size">24dp</dimen>
+    <dimen name="list_icon_margin">8dp</dimen>
+
+    <!-- Main layout -->
+    <dimen name="offline_status_bar_height">96dp</dimen>
+    <dimen name="action_bar_height">72dp</dimen>
+    <dimen name="action_bar_button_dim">35dp</dimen>
+
+    <!-- Navigation drawer -->
+    <dimen name="drawer_header_height">100dp</dimen>
+    <dimen name="nav_margin">8dp</dimen>
+    <dimen name="nav_padding">24dp</dimen>
+    <dimen name="nav_vertical_margin">8dp</dimen>
+    <dimen name="nav_horizontal_margin">8dp</dimen>
+
+    <!-- FAB -->
+    <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Browser -->
+    <dimen name="listNodeRowHeight">72dp</dimen>
+    <dimen name="list_item_margin">16dp</dimen>
+
+    <!-- Accounts -->
+    <dimen name="list_account_item_height">72dp</dimen>
+
+</resources>

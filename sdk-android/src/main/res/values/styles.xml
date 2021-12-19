@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="text_body">
+        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">@dimen/text_body_size</item>
+    </style>
+
+    <style name="text_title" parent="text_body">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/text_title_size</item>
+    </style>
+
+    <style name="text_list_primary" parent="text_body">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/text_accent_size</item>
+    </style>
+
+    <style name="text_list_secondary" parent="text_body">
+    </style>
+
+    <style name="avatar_icon" >
+        <item name="android:layout_width">@dimen/icon_size</item>
+        <item name="android:layout_height">@dimen/icon_size</item>
+        <item name="android:layout_marginStart">@dimen/text_padding_medium</item>
+        <item name="android:layout_marginEnd">@dimen/text_padding_medium</item>
+        <item name="android:layout_marginTop">@dimen/text_padding_small</item>
+        <item name="android:layout_marginBottom">@dimen/text_padding_small</item>
+    </style>
+
+    <style name="text_view_style">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">
+            @android:style/TextAppearance.Large
+        </item>
+        <item name="android:background">@color/colorPrimaryLight</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
+
+    <style name="button_style" parent="android:style/Widget.Material.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:textAppearance">@android:style/TextAppearance.Large</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
+
+    <!-- Button Styles -->
+    <style name="GoButton" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/colorPrimaryLight</item>
+        <item name="colorControlHighlight">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="SkipButton" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
+        <item name="android:textColor">@color/grey_button_color</item>
+        <item name="colorControlHighlight">@color/skip_red_color</item>
+    </style>
+
+</resources>

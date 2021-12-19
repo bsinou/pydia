@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="application_title" translatable="false">Pydia!</string>
+
+    <!-- Welcome Page -->
+    <string name="welcome_title">Welcome to Pydia!</string>
+    <string name="welcome_text">The Pydio Cells Client for Android.</string>
+    <string name="welcome_no_account_instructions">First, you have to configure your connection to your remote Pydio Cells server...</string>
+    <string name="welcome_add_account_button">Configure a connection</string>
+
+    <string name="about_welcome_text">The Pydio Cells Client for Android.</string>
+
+    <!-- About Page -->
+    <string name="about_page_version_title">Pydio</string>
+    <string name="about_page_troubleshooting_title">Troubleshooting</string>
+    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS. More info on:</string>
+    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you:</string>
+    <string name="version_name_display">Version name: %s</string>
+    <string name="version_code_display">Version code: %s</string>
+    <string name="version_date_display">Version date: %s</string>
+    <string name="help_button_support">Pydio Android Support</string>
+
+    <!-- Main Menu (left drawer) -->
+    <string name="nav_header_title">Navigation header title</string>
+    <string name="nav_header_subtitle">Navigation header subtitle</string>
+    <string name="nav_header_desc">Navigation header description</string>
+
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
+
+    <string name="quick_access">Quick Access</string>
+    <string name="offline_files">Offline Files</string>
+    <string name="bookmarks">Bookmarks</string>
+    <string name="my_workspaces">My Workspaces</string>
+    <string name="settings">Settings</string>
+    <string name="parameter">Parameters</string>
+    <string name="clear_cache">Clear Cache</string>
+    <string name="about">About</string>
+    <string name="home">Home</string>
+
+
+    <!-- Ask URL dialog -->
+    <string name="ask_url_title">Add account</string>
+    <string name="ask_url_desc">Enter your server URL</string>
+    <string name="ask_url_help">Please provide an address like https://files.example.com</string>
+    <string name="ask_url_cancel">Cancel</string>
+    <string name="ask_url_confirm">OK</string>
+
+    <string name="oauth_callback_waiting">Authentication process has been launched</string>
+    <string name="oauth_callback_cancel">Cancel</string>
+    <string name="title_activity_list_accounts">ListAccounts</string>
+
+    <!-- Account management -->
+    <string name="account_list_title">Accounts</string>
+    <string name="account_list_desc">Manage already registered remote servers</string>
+    <string name="account_list_none">No account has been configured yet...</string>
+
+    <string name="p8_credentials_title">Login</string>
+    <string name="p8_credentials_desc">Please enter your credentials</string>
+
+    <string name="account_details_title">Account detail title</string>
+    <string name="account_details_desc">Account details description</string>
+
+    <!-- Browse management -->
+    <string name="browse_list_title">Browse</string>
+    <string name="choose_workspace_title">Workspaces</string>
+    <string name="browse_list_desc">Browse your remote servers</string>
+    <string name="browse_list_none">Empty</string>
+
+</resources>

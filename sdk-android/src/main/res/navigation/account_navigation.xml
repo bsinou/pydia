@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/account_navigation"
+    app:startDestination="@id/account_list_destination">
+
+<!--    app:startDestination="@id/server_url_fragment"-->
+
+    <fragment
+        android:id="@+id/account_list_destination"
+        android:name="org.sinou.android.pydia.account.AccountListFragment"
+        android:label="@string/account_list_title"
+        tools:layout="@layout/fragment_account_list">
+        <action
+            android:id="@+id/action_account_list_fragment_to_server_url_fragment"
+            app:destination="@id/server_url_fragment" />
+        <action
+            android:id="@+id/action_account_list_fragment_to_account_details_fragment"
+            app:destination="@id/account_details_fragment" />
+        <action
+            android:id="@+id/action_account_list_destination_to_server_url_destination"
+            app:destination="@id/server_url_destination" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/account_details_fragment"
+        android:name="org.sinou.android.pydia.account.AccountDetailsFragment"
+        android:label="@string/account_details_desc"
+        tools:layout="@layout/fragment_account_details"></fragment>
+
+    <fragment
+        android:id="@+id/server_url_destination"
+        android:name="org.sinou.android.pydia.account.ServerUrlFragment"
+        android:label="@string/ask_url_title"
+        tools:layout="@layout/fragment_server_url">
+        <!-- Actions:
+        - launch OAuth flow
+        - OAuth Call back ?
+        - Cancel and back
+        - go to p8 cred fragment
+        -->
+        <action
+            android:id="@+id/action_server_url_fragment_to_p8_credentials_fragment"
+            app:destination="@id/p8_credentials_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/p8_credentials_fragment"
+        android:name="org.sinou.android.pydia.account.P8CredentialsFragment"
+        android:label="@string/p8_credentials_title"
+        tools:layout="@layout/fragment_p8_credentials">
+        <action
+            android:id="@+id/action_p8_credentials_fragment_to_account_list_fragment"
+            app:destination="@id/account_list_destination" />
+    </fragment>
+
+</navigation>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/text_padding_medium">
+
+    <ImageView
+        android:id="@+id/account_avatar"
+        style="@style/avatar_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_person_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+<!--    tools:srcCompat="@drawable/ic_baseline_person_24"-->
+    <TextView
+        android:id="@+id/account_title"
+        style="@style/text_list_primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toEndOf="@+id/account_avatar"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="https://demo.pydio.com" />
+
+    <TextView
+        android:id="@+id/account_description"
+        style="@style/text_list_secondary"
+        app:layout_constraintTop_toBottomOf="@+id/account_title"
+        app:layout_constraintStart_toEndOf="@+id/account_avatar"
+        tools:text="admin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

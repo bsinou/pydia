@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    app:startDestination="@id/landing_destination">
+
+    <fragment
+        android:id="@+id/landing_destination"
+        android:name="org.sinou.android.pydia.home.LandingFragment"
+        android:label="Landing in Pydia"
+        tools:layout="@layout/fragment_landing">
+        <!--        <action-->
+        <!--            android:id="@+id/action_landing_destination_to_hello_destination"-->
+        <!--            app:destination="@id/hello_destination" />-->
+    </fragment>
+
+    <fragment
+        android:id="@+id/about_destination"
+        android:name="org.sinou.android.pydia.home.AboutFragment"
+        android:label="About Pydia"
+        tools:layout="@layout/fragment_about">
+    </fragment>
+
+    <fragment
+        android:id="@+id/hello_destination"
+        android:name="org.sinou.android.pydia.home.HelloFragment"
+        android:label="Hello Fragment"
+        tools:layout="@layout/fragment_hello">
+    </fragment>
+
+</navigation>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_about_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/about_version_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/about_welcome_text"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/about_version_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/version_name_display"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/about_version_title" />
+        <TextView
+            android:id="@+id/about_version_code"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/version_code_display"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/about_version_name" />
+        <TextView
+            android:id="@+id/about_version_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/version_date_display"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/about_version_code" />
+        <TextView
+            android:id="@+id/about_copyright_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/copyright_string"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/about_version_date" />
+
+        <TextView
+            android:id="@+id/about_trademark"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/about_page_copyright"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/about_copyright_date" />
+
+        <Button
+            android:id="@+id/main_website_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/main_website"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/about_trademark" />
+
+        <TextView
+            android:id="@+id/about_troubleshooting_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/about_page_troubleshooting_title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/main_website_button" />
+
+        <TextView
+            android:id="@+id/get_support_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/about_page_get_help"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/about_troubleshooting_title" />
+
+        <Button
+            android:id="@+id/send_support_mail_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/help_button_support"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/get_support_text" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

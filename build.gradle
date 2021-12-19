@@ -1,0 +1,221 @@
+
+buildscript {
+
+    // Define the version of  the libraries we use.
+    // Rather implement a BOM mechanism that also takes care of having the java-sdk locally or not
+    ext {
+        // global variables
+        kotlin_version = '1.6.10'
+
+        // local variables (use def)
+
+        def lifecycle_version = '2.4.0'
+        def lifecycle_ext_version = '2.2.0'
+
+        def coroutines_android_version = '1.5.2'
+        def work_version = '2.7.1'
+        def room_version = '2.3.0'
+        def androidx_core_version  = '1.7.0'
+
+        def appcompat_version = '1.4.0'
+        def material_version = '1.4.0'
+        def navigation_version = '2.3.5'
+        def constraint_layout_version = '2.1.2'
+
+        // Define All non-android Third Party versions in a single place
+        def aws_s3_sdk_version = '2.23.0'
+        def commons_codec_version = '1.15'
+        def gson_version = '2.8.6'
+//        def gsonFire = '1.8.5'
+//        def retrofit_gson_version = '2.9.0'
+//        def retrofit_version = '2.9.0'
+
+        // Test libraries
+        def androidx_test_version = '1.2.0'
+        def espresso_version = '3.4.0'
+
+        def junit_version = '4.13.2'
+        def truth_version = '1.1.3'
+        def robolectric_version = '4.5.1'
+//        def androidx_test_junit = '1.1.3'
+
+        /* DEFINE PACKAGES
+        *  That are then picked by modules */
+
+        libraries = [
+                // Kotlin standard library
+                "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
+
+                // Coroutines
+                "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_android_version",
+                "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_android_version",
+
+                // Android UI and appcompat
+                "androidx.appcompat:appcompat:$appcompat_version",
+                "androidx.core:core:$androidx_core_version",
+
+                "com.google.android.material:material:$material_version",
+                "androidx.constraintlayout:constraintlayout:$constraint_layout_version",
+
+                // Jetpack librairies
+
+                // Navigation UI
+                "androidx.navigation:navigation-ui-ktx:$navigation_version",
+                "androidx.navigation:navigation-fragment-ktx:$navigation_version",
+                // ViewModel and LiveData
+                "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version",
+                "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version",
+                // "androidx.lifecycle:lifecycle-extensions:$lifecycle_ext_version",
+                // Room for database, work for background
+                "androidx.room:room-ktx:$room_version",
+                "androidx.work:work-runtime-ktx:$work_version",
+
+                // network & serialization
+                "com.amazonaws:aws-android-sdk-s3:$aws_s3_sdk_version",
+                "com.google.code.gson:gson:$gson_version",
+                //"io.gsonfire:gson-fire:$gsonFire",
+
+                //"com.squareup.retrofit2:converter-gson:$retrofit_gson_version",
+                //"com.squareup.retrofit2:retrofit:$retrofit_version",
+                "commons-codec:commons-codec:$commons_codec_version",
+        ]
+
+        librariesKapt = [
+                "androidx.room:room-compiler:$room_version",
+        ]
+
+//        librariesDebug = [
+//                "com.google.truth:truth:$truth_version",
+//        ]
+
+        testLibraries = [
+                "junit:junit:$junit_version",
+                // "androidx.test.ext:junit:$androidxTestJunit",
+
+                // Coroutines testing
+                "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_android_version",
+
+                // mocks
+                "org.mockito:mockito-core:3.12.4",
+
+                //  Architecture Components testing libraries
+                "androidx.arch.core:core-testing:2.1.0",
+                "com.google.truth:truth:$truth_version",
+
+        ]
+
+        androidTestLibraries = [
+                "junit:junit:$junit_version",
+                "androidx.test:runner:$androidx_test_version",
+                "androidx.test:rules:$androidx_test_version",
+
+                // Espresso
+                "androidx.test.espresso:espresso-core:$espresso_version",
+                "androidx.test.espresso:espresso-contrib:$espresso_version",
+                "androidx.test.espresso:espresso-intents:$espresso_version",
+
+                //  Architecture Components testing libraries
+                "androidx.arch.core:core-testing:2.1.0",
+                "androidx.work:work-testing:$work_version",
+
+                // Coroutines testing
+                "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_android_version",
+                "org.robolectric:robolectric:$robolectric_version",
+        ]
+    }
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.0.4"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.5"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    // Publish the generated resources as Maven Artifacts.
+    id 'maven-publish'
+//    id 'kotlin-android'
+}
+
+// Retrieve local context
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+retrieveFromEnv(localProperties) // There must be a more elegant way to do this...
+
+def versionProperties = new Properties()
+versionProperties.load(new FileInputStream(rootProject.file("versions.properties")))
+
+// Manage optional local sdk-java submodule
+def sdkJavaCheck = new File('sdk-java/sdk-java.gradle')
+
+// Expose custom properties to all modules in the project.
+ext {
+    githubUrl = 'https://github.com/bsinou/pydia.git'
+
+    // Expose properties retrieved from files to child projects
+    configs = localProperties
+    ownVersions = versionProperties
+
+    // Shortcut to enable building the Android layers without checking out the sdk-java repository
+    useLocalSdkJava = sdkJavaCheck.exists()
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+}
+
+/* Factorise some of the methods used in various sub projects */
+// Pre-create generic common pom configuration:
+ext.getBasePom = { repoURL ->
+    return {
+        licenses {
+            license {
+                name "The Apache Software License, Version 2.0"
+                url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution "repo"
+            }
+        }
+
+        developers {
+            developer {
+                id "bsinou"
+                name "Bruno Sinou"
+                email "bruno.sinou@posteo.de"
+            }
+        }
+
+        scm {
+            url repoURL
+        }
+    }
+}
+
+// Override local.properties sensitive values with environment parameter
+def static retrieveFromEnv(Properties props) {
+
+    def tmpValue = System.getenv('ANDROID_KEYSTORE_PATH')
+    if (tmpValue != null) {
+        props['keystore.path'] = tmpValue
+    }
+    tmpValue = System.getenv('ANDROID_KEYSTORE_PWD')
+    if (tmpValue != null) {
+        props['keystore.pwd'] = tmpValue
+    }
+    tmpValue = System.getenv('ANDROID_SIGNKEY_ALIAS')
+    if (tmpValue != null) {
+        props['signkey.alias'] = tmpValue
+    }
+    tmpValue = System.getenv('ANDROID_SIGNKEY_PWD')
+    if (tmpValue != null) {
+        props['signkey.pwd'] = tmpValue
+    }
+}

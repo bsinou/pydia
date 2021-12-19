@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="package_name" translatable="false">org.sinou.android.pydia</string>
+    <string name="app_persistence_key" translatable="false">org.sinou.android.pydia</string>
+    <string name="copyright_string" translatable="false">© 2022 Bruno SINOU</string>
+    <string name="main_website" translatable="false">https://sinou.org</string>
+    <string name="support_email" translatable="false">bruno@sinou.org</string>
+
+</resources>

@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
-import org.sinou.android.pydia.room.account.AccountDatabase
+import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.services.AccountRepository
 import java.io.File
 
@@ -37,7 +37,7 @@ class CellsApp : Application() {
     private fun initServices() {
         updateClientData()
         accountRepository = AccountRepository(
-            AccountDatabase.getDatabase(this.applicationContext),
+            AccountDB.getDatabase(this.applicationContext),
             baseDir()?.absolutePath
         )
     }

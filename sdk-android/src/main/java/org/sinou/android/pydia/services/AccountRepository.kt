@@ -13,10 +13,10 @@ import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.room.account.Account
-import org.sinou.android.pydia.room.account.AccountDatabase
+import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
 
-class AccountRepository(private val accountDB: AccountDatabase, private val workingDir: String?) {
+class AccountRepository(private val accountDB: AccountDB, private val workingDir: String?) {
 
     private val encoder: CustomEncoder = AndroidCustomEncoder()
 

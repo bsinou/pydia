@@ -6,13 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.room.account.Account
-import org.sinou.android.pydia.room.account.AccountDatabase
+import org.sinou.android.pydia.room.account.AccountDB
 
 /**
  * Central ViewModel when dealing with a user's accounts.
  */
 class AccountListViewModel(
-    val database: AccountDatabase,
+    val database: AccountDB,
     application: Application
 ) : AndroidViewModel(application) {
 

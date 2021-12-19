@@ -7,12 +7,11 @@ import com.pydio.cells.transport.auth.CredentialService;
 import com.pydio.cells.transport.auth.Token;
 import com.pydio.cells.utils.MemoryStore;
 
-import org.sinou.android.pydia.room.account.AccountDao;
-import org.sinou.android.pydia.room.account.AccountDatabase;
+import org.sinou.android.pydia.room.account.AccountDB;
 
 public class AccountService {
 
-    private final AccountDatabase accountDB;
+    private final AccountDB accountDB;
     private final String workingDir;
 
     /* Stores and Factory */
@@ -23,7 +22,7 @@ public class AccountService {
     private final CredentialService credentialService;
     private final SessionFactory sessionFactory;
 
-    public AccountService(AccountDatabase accountDB, String workingDir) {
+    public AccountService(AccountDB accountDB, String workingDir) {
         this.accountDB = accountDB;
         this.workingDir = workingDir;
 

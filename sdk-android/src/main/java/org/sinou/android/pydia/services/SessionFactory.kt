@@ -8,18 +8,18 @@ import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
-import org.sinou.android.pydia.room.account.AccountDatabase
+import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.room.account.LegacyCredentials
 import org.sinou.android.pydia.room.account.RToken
 
 class SessionFactory(
-    accountDB: AccountDatabase,
+    accountDB: AccountDB,
     serverStore: Store<Server?>,
     transportStore: Store<Transport?>
 ) : ClientFactory(credService(accountDB), serverStore, transportStore) {
 
     companion object {
-        fun credService(accountDB: AccountDatabase): CredentialService {
+        fun credService(accountDB: AccountDB): CredentialService {
             return CredentialService(TokenStore(accountDB), PasswordStore(accountDB))
         }
     }
@@ -29,7 +29,7 @@ class SessionFactory(
     }
 
 
-    class PasswordStore(private val accountDB: AccountDatabase) : Store<String> {
+    class PasswordStore(private val accountDB: AccountDB) : Store<String> {
 
         override fun put(id: String, password: String) {
             val cred = LegacyCredentials(accountID = id, password = password)
@@ -54,7 +54,7 @@ class SessionFactory(
 
     }
 
-    class TokenStore(private val accountDB: AccountDatabase) : Store<Token> {
+    class TokenStore(private val accountDB: AccountDB) : Store<Token> {
 
         override fun put(id: String, token: Token) {
 

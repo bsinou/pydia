@@ -8,21 +8,19 @@ import com.pydio.cells.client.ClientFactory;
 import com.pydio.cells.transport.CellsTransport;
 import com.pydio.cells.transport.auth.CredentialService;
 
-import org.sinou.android.pydia.room.account.AccountDatabase;
-
-import java.util.Map;
+import org.sinou.android.pydia.room.account.AccountDB;
 
 public class SessionFactory_old extends ClientFactory {
 
 
-    private final AccountDatabase accountDB;
+    private final AccountDB accountDB;
 
 /*
     private final AccountService accountService;
     private final CredentialService credentialService;
 */
 
-    public SessionFactory_old(AccountDatabase accountDB, CredentialService credentialService, Store<Server> serverStore, Store<Transport> transportStore) {
+    public SessionFactory_old(AccountDB accountDB, CredentialService credentialService, Store<Server> serverStore, Store<Transport> transportStore) {
         super(credentialService, serverStore, transportStore);
     this.accountDB = accountDB;
     }

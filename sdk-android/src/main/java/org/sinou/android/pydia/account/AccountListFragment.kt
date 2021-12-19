@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentAccountListBinding
-import org.sinou.android.pydia.room.account.AccountDatabase
+import org.sinou.android.pydia.room.account.AccountDB
 
 class AccountListFragment : Fragment() {
 
@@ -26,7 +26,7 @@ class AccountListFragment : Fragment() {
         )
 
         val application = requireNotNull(this.activity).application
-        val dataSource = AccountDatabase.getDatabase(application)
+        val dataSource = AccountDB.getDatabase(application)
         val viewModelFactory = AccountListViewModelFactory(dataSource, application)
 
         val accountListViewModel: AccountListViewModel by viewModels { viewModelFactory }

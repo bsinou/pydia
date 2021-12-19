@@ -1,25 +1,20 @@
-package org.sinou.android.pydia.room.account
+package org.sinou.android.pydia.room.browse
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
+@Database(entities = arrayOf(TreeNode::class), version = 1, exportSchema = false)
+abstract class TreeNodeDB : RoomDatabase() {
 
-@Database(entities = arrayOf(Account::class, RToken::class, LegacyCredentials::class), version = 1, exportSchema = false)
-abstract class AccountDatabase : RoomDatabase() {
-
-    abstract fun accountDao(): AccountDao
-
-    abstract fun tokenDao(): TokenDao
-
-    abstract fun legacyCredentialsDao(): LegacyCredentialsDao
+    abstract fun treeNodeDao(): TreeNodeDao
 
     companion object {
         @Volatile
-        private var INSTANCE: AccountDatabase? = null
+        private var INSTANCE: TreeNodeDB? = null
 
-        fun getDatabase(context: Context): AccountDatabase {
+        fun getDatabase(context: Context): TreeNodeDB {
             val tempInstance = INSTANCE
             if (tempInstance != null) {
                 return tempInstance
@@ -27,8 +22,8 @@ abstract class AccountDatabase : RoomDatabase() {
             synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    AccountDatabase::class.java,
-                    "accounts"
+                    TreeNodeDB::class.java,
+                    "tree_nodes"
                 ).build()
                 INSTANCE = instance
                 return instance

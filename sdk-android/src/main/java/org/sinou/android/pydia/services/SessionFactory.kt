@@ -14,6 +14,7 @@ import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.room.account.RLegacyCredentials
 import org.sinou.android.pydia.room.account.RToken
@@ -122,7 +123,7 @@ class SessionFactory(
         return CellsClient(transport, S3Client(transport))
     }
 
-    fun listWorkspaces(accountID: String) {
+    suspend fun listWorkspaces(accountID: String) = withContext(Dispatchers.IO) {
         try {
             val client: Client = getUnlockedClient(accountID)
                 ?: throw SDKException(
@@ -208,5 +209,4 @@ class SessionFactory(
             throw RuntimeException("forbidden action: cannot list all tokens")
         }
     }
-
 }

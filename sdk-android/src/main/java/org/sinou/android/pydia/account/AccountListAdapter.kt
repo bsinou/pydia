@@ -13,10 +13,9 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemAccountBinding
 import org.sinou.android.pydia.room.account.RLiveSession
-import org.sinou.android.pydia.services.AccountService
 
-class AccountListAdapter(private val accountService: AccountService) :
-    ListAdapter<RLiveSession, AccountListAdapter.ViewHolder>(SessionDiffCallback()) {
+class AccountListAdapter(private val onItemClicked: (accountID: String, action: String) -> Unit) :
+    ListAdapter<RLiveSession, AccountListAdapter.ViewHolder>(LiveSessionDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -24,11 +23,14 @@ class AccountListAdapter(private val accountService: AccountService) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent, accountService)
+        return ViewHolder.from(parent, onItemClicked)
     }
 
-    // We pass the account service to each view holder via the constructor...
-    class ViewHolder(val binding: ListItemAccountBinding, val srv: AccountService) :
+    // We pass a click listener to each view holder via the constructor...
+    class ViewHolder(
+        val binding: ListItemAccountBinding,
+        val onItemClicked: (accountID: String, action: String) -> Unit
+    ) :
         RecyclerView.ViewHolder(binding.root) {
         private val TAG = "ViewHolder<Account>"
 
@@ -46,32 +48,25 @@ class AccountListAdapter(private val accountService: AccountService) :
             }
 
             binding.accountDeleteButton.setOnClickListener {
-                Log.i(
-                    TAG,
-                    "... delete clicked: ${stateID.username}@${stateID.serverUrl} - service: ${srv.toString()}"
-                )
-
-                // TODO how can we launch a coroutine from here
-//                suspend {
-//                    withContext(Dispatchers.IO) {
-//                        srv.forgetAccount(item.accountID)
-//                    }
-//                }
+                onItemClicked(item.accountID, "forget")
             }
 
             binding.executePendingBindings()
         }
 
         companion object {
-            fun from(parent: ViewGroup, srv: AccountService): ViewHolder {
+            fun from(
+                parent: ViewGroup,
+                onItemClicked: (accountID: String, action: String) -> Unit
+            ): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = ListItemAccountBinding.inflate(layoutInflater, parent, false)
-                return ViewHolder(binding, srv)
+                return ViewHolder(binding, onItemClicked)
             }
         }
     }
 
-    class SessionDiffCallback : DiffUtil.ItemCallback<RLiveSession>() {
+    class LiveSessionDiffCallback : DiffUtil.ItemCallback<RLiveSession>() {
         override fun areItemsTheSame(oldItem: RLiveSession, newItem: RLiveSession): Boolean {
             // Used when order changes for instance
             return oldItem.accountID == newItem.accountID
@@ -84,5 +79,4 @@ class AccountListAdapter(private val accountService: AccountService) :
             return oldItem == newItem
         }
     }
-
 }

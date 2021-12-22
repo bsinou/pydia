@@ -29,7 +29,7 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
 
     private var viewModelJob = Job()
 
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     // First step, we have nothing then an address
     private val _serverAddress = MutableLiveData<String>()
@@ -76,7 +76,7 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
 
     fun pingAddress(serverAddress: String) {
         _serverAddress.value = serverAddress
-        uiScope.launch {
+        vmScope.launch {
 
             switchLoading(true)
 
@@ -97,7 +97,7 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
     }
 
     fun registerServer(serverURL: ServerURL) {
-        uiScope.launch {
+        vmScope.launch {
             switchLoading(true)
             val server = doRegister(serverURL)
             server?.let {
@@ -109,7 +109,7 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
 
     fun logToP8(login: String, password: String, captcha: String?) {
         // TODO validate passed parameters
-        uiScope.launch {
+        vmScope.launch {
             switchLoading(true)
             _errorMessage.value = doP8Auth(login, password, captcha)
             switchLoading(false)
@@ -117,7 +117,7 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
     }
 
     fun launchOAuthProcess(currServer: Server) {
-        uiScope.launch {
+        vmScope.launch {
             switchLoading(true)
             _launchOAuthIntent.value = doLaunchOAuthProcess(currServer)
         }

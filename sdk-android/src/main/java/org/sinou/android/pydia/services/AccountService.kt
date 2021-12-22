@@ -68,7 +68,7 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
         }
     }
 
-    suspend fun forgetAccount(accountID: String) {
+    suspend fun forgetAccount(accountID: String) = withContext(Dispatchers.IO) {
         try {
             accountDB.sessionDao().forgetSession(accountID)
             // retrieve account and delete by uid if found.

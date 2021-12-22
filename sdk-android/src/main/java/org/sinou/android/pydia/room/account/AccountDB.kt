@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = arrayOf(RAccount::class, RToken::class, LegacyCredentials::class, RSession::class),
+    entities = arrayOf(RAccount::class, RToken::class, RLegacyCredentials::class, RSession::class),
     views = arrayOf(RLiveSession::class),
     version = 1,
     exportSchema = false,

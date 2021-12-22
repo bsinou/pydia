@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.room.account.AccountDB
-import org.sinou.android.pydia.room.account.LegacyCredentials
+import org.sinou.android.pydia.room.account.RLegacyCredentials
 import org.sinou.android.pydia.room.account.RToken
 import org.sinou.android.pydia.room.account.RSession
 
@@ -145,7 +145,7 @@ class SessionFactory(
     class PasswordStore(private val accountDB: AccountDB) : Store<String> {
 
         override fun put(id: String, password: String) {
-            val cred = LegacyCredentials(accountID = id, password = password)
+            val cred = RLegacyCredentials(accountID = id, password = password)
             accountDB.legacyCredentialsDao().insert(cred)
         }
 

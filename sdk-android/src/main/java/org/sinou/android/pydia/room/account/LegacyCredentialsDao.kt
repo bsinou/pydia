@@ -10,15 +10,15 @@ import androidx.room.Query
 interface LegacyCredentialsDao {
 
     @Insert
-    fun insert(credentials: LegacyCredentials)
+    fun insert(credentials: RLegacyCredentials)
 
     @Update
-    fun update(credentials: LegacyCredentials)
+    fun update(credentials: RLegacyCredentials)
 
     @Delete
-    fun delete(credentials: LegacyCredentials)
+    fun delete(credentials: RLegacyCredentials)
 
     @Query("SELECT * FROM legacy_credentials_table WHERE account_id = :accountId LIMIT 1")
-    fun getCredential(accountId: String): LegacyCredentials?
+    fun getCredential(accountId: String): RLegacyCredentials?
 
 }

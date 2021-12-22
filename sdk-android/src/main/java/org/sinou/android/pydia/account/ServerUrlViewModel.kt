@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
@@ -14,12 +15,15 @@ import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.auth.jwt.OAuthConfig
 import kotlinx.coroutines.*
-import org.sinou.android.pydia.services.AccountRepository
+import org.sinou.android.pydia.services.AccountService
 import java.net.MalformedURLException
 import java.util.*
 
-/** Central viewModel to manage registration of a new server */
-class ServerUrlViewModel(private val accountRepository: AccountRepository) : ViewModel() {
+/**
+ * Manages the registration of a new server.
+ *
+ * TODO Should also be the reference for the callback OAuth states.*/
+class ServerUrlViewModel(private val accountService: AccountService) : ViewModel() {
 
     private val TAG = "ServerUrlViewModel"
 
@@ -112,7 +116,7 @@ class ServerUrlViewModel(private val accountRepository: AccountRepository) : Vie
         }
     }
 
-    fun launchOAuthProcess(currServer: Server){
+    fun launchOAuthProcess(currServer: Server) {
         uiScope.launch {
             switchLoading(true)
             _launchOAuthIntent.value = doLaunchOAuthProcess(currServer)
@@ -147,7 +151,7 @@ class ServerUrlViewModel(private val accountRepository: AccountRepository) : Vie
             Log.i(TAG, "Launch P8 Auth for ${creds.username}@${currUrl.url}")
             var id: String? = null
             try {
-                id = accountRepository.registerAccount(currUrl, creds)
+                id = accountService.registerAccount(currUrl, creds)
             } catch (e: SDKException) {
                 errorMsg = e.message ?: "Invalid credentials, please try again"
             }
@@ -168,7 +172,7 @@ class ServerUrlViewModel(private val accountRepository: AccountRepository) : Vie
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = uri
             // Register the state for the enable the callback
-            accountRepository.inProcessCallbacks.put(oAuthState, currServer.serverURL)
+            accountService.inProcessCallbacks.put(oAuthState, currServer.serverURL)
             intent
         }
     }
@@ -204,7 +208,7 @@ class ServerUrlViewModel(private val accountRepository: AccountRepository) : Vie
             Log.i(TAG, "About to register the server ${su.id}")
             var newServer: Server? = null
             try {
-                newServer = accountRepository.sessionFactory.registerServer(su)
+                newServer = accountService.sessionFactory.registerServer(su)
 
             } catch (e: SDKException) {
                 updateErrorMsg(
@@ -231,4 +235,17 @@ class ServerUrlViewModel(private val accountRepository: AccountRepository) : Vie
     init {
         Log.i(TAG, "$TAG created!")
     }
+
+    class ServerUrlViewModelFactory(
+        private val accountService: AccountService
+    ) : ViewModelProvider.Factory {
+        @Suppress("unchecked_cast")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(ServerUrlViewModel::class.java)) {
+                return ServerUrlViewModel(accountService) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
+    }
+
 }

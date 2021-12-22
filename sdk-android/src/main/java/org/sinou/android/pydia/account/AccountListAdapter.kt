@@ -1,18 +1,22 @@
 package org.sinou.android.pydia.account
 
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.annotation.NonNull
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.pydio.cells.transport.StateID
+import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemAccountBinding
-import org.sinou.android.pydia.room.account.Account
+import org.sinou.android.pydia.room.account.RSession
+import org.sinou.android.pydia.services.AccountService
 
-class AccountListAdapter : ListAdapter<Account, AccountListAdapter.ViewHolder>(AccountDiffCallback()) {
-
-    private val TAG = "AccountListAdapter"
+class AccountListAdapter(private val accountService: AccountService) :
+    ListAdapter<RSession, AccountListAdapter.ViewHolder>(AccountDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -20,47 +24,60 @@ class AccountListAdapter : ListAdapter<Account, AccountListAdapter.ViewHolder>(A
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
+        return ViewHolder.from(parent, accountService)
     }
 
-    class ViewHolder(val binding: ListItemAccountBinding) : RecyclerView.ViewHolder(binding.root) {
+    // We pass the account service to each view holder via the constructor...
+    class ViewHolder(val binding: ListItemAccountBinding, val srv: AccountService) :
+        RecyclerView.ViewHolder(binding.root) {
         private val TAG = "ViewHolder<Account>"
 
-        fun bind(item: Account) {
+        fun bind(item: RSession) {
 
-            binding.account = item
+            binding.session = item
 
+            val stateID = StateID.fromId(item.accountID)
             // TODO also retrieve user's avatar for configured account in the current remote
             binding.root.setOnClickListener {
-                Log.i(TAG, "... item clicked: ${item.username}@${item.url}")
-                //val toBrowseIntent = Intent(requireActivity(), AccountActivity::class.java)
-//            // Launch the account activity with a new intent
-//            // TODO not yet plugged
-//            // toBrowseIntent.putExtra(AppNames.KEY_DESTINATION, "ServerUrlFragment")
-//            startActivity(toBrowseIntent);
+                Log.i(TAG, "... item clicked: ${stateID.username}@${stateID.serverUrl}")
+                val toBrowseIntent = Intent(binding.root.context, BrowseActivity::class.java)
+                toBrowseIntent.putExtra(AppNames.EXTRA_STATE, stateID.id)
+                startActivity(binding.root.context, toBrowseIntent, null)
+            }
+
+            binding.accountDeleteButton.setOnClickListener {
+                Log.i(
+                    TAG,
+                    "... delete clicked: ${stateID.username}@${stateID.serverUrl} - service: ${srv.toString()}"
+                )
+
+                // TODO how can we launch a coroutine from here
+//                suspend {
+//                    withContext(Dispatchers.IO) {
+//                        srv.forgetAccount(item.accountID)
+//                    }
+//                }
             }
 
             binding.executePendingBindings()
         }
 
         companion object {
-            fun from(parent: ViewGroup): ViewHolder {
+            fun from(parent: ViewGroup, srv: AccountService): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = ListItemAccountBinding.inflate(layoutInflater, parent, false)
-//                val view = layoutInflater
-//                    .inflate(R.layout.list_item_account, parent, false)
-                return ViewHolder(binding)
+                return ViewHolder(binding, srv)
             }
         }
     }
 
-    class AccountDiffCallback : DiffUtil.ItemCallback<Account>() {
-        override fun areItemsTheSame(oldItem: Account, newItem: Account): Boolean {
+    class AccountDiffCallback : DiffUtil.ItemCallback<RSession>() {
+        override fun areItemsTheSame(oldItem: RSession, newItem: RSession): Boolean {
             // Used when order changes for instance
-            return oldItem.uid == newItem.uid
+            return oldItem.accountID == newItem.accountID
         }
 
-        override fun areContentsTheSame(oldItem: Account, newItem: Account): Boolean {
+        override fun areContentsTheSame(oldItem: RSession, newItem: RSession): Boolean {
             // This relies on Room's auto-generated equality to check
             // if the corresponding view needs to be redrawn.
             // This can be further configured in more complex scenarii

@@ -11,7 +11,7 @@
     <fragment
         android:id="@+id/landing_destination"
         android:name="org.sinou.android.pydia.home.LandingFragment"
-        android:label="Landing in Pydia"
+        android:label="@string/welcome_title"
         tools:layout="@layout/fragment_landing">
         <!--        <action-->
         <!--            android:id="@+id/action_landing_destination_to_hello_destination"-->
@@ -21,14 +21,14 @@
     <fragment
         android:id="@+id/about_destination"
         android:name="org.sinou.android.pydia.home.AboutFragment"
-        android:label="About Pydia"
+        android:label="@string/about_title"
         tools:layout="@layout/fragment_about">
     </fragment>
 
     <fragment
         android:id="@+id/hello_destination"
         android:name="org.sinou.android.pydia.home.HelloFragment"
-        android:label="Hello Fragment"
+        android:label="@string/about"
         tools:layout="@layout/fragment_hello">
     </fragment>
 

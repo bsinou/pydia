@@ -3,17 +3,24 @@
 
     <!-- Application wide params -->
     <dimen name="margin">16dp</dimen>
-    <dimen name="icon_size">64dp</dimen>
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_large">32dp</dimen>
+    <dimen name="icon_size">48dp</dimen>
     <dimen name="triple_margin">48dp</dimen>
 
-    <dimen name="text_title_size">20sp</dimen>
-    <dimen name="text_body_size">12sp</dimen>
-    <dimen name="text_accent_size">16sp</dimen>
-    <dimen name="text_padding_small">4dp</dimen>
+    <dimen name="text_body_size">14sp</dimen>
+    <dimen name="text_title_size">24sp</dimen>
+    <dimen name="text_accent_size">18sp</dimen>
+    <dimen name="text_padding_x_small">4dp</dimen>
+    <dimen name="text_padding_small">8dp</dimen>
     <dimen name="text_padding_medium">16dp</dimen>
+    <dimen name="text_padding_large">24dp</dimen>
 
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="list_icon_margin">8dp</dimen>
+    <dimen name="list_button_size">24dp</dimen>
+    <dimen name="list_button_padding">@dimen/text_padding_small</dimen>
+    <dimen name="list_button_margin">@dimen/margin_small</dimen>
 
     <!-- Main layout -->
     <dimen name="offline_status_bar_height">96dp</dimen>
@@ -31,8 +38,8 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <!-- Browser -->
-    <dimen name="listNodeRowHeight">72dp</dimen>
-    <dimen name="list_item_margin">16dp</dimen>
+    <dimen name="listNodeRowHeight">64dp</dimen>
+    <dimen name="list_item_margin">8dp</dimen>
 
     <!-- Accounts -->
     <dimen name="list_account_item_height">64dp</dimen>

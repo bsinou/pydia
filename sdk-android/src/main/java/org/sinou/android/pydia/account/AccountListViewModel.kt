@@ -1,12 +1,13 @@
 package org.sinou.android.pydia.account
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.*
-import org.sinou.android.pydia.room.account.Account
+import androidx.lifecycle.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import org.sinou.android.pydia.room.account.RAccount
 import org.sinou.android.pydia.room.account.AccountDB
+import org.sinou.android.pydia.room.account.RSession
 
 /**
  * Central ViewModel when dealing with a user's accounts.
@@ -19,35 +20,47 @@ class AccountListViewModel(
     private val TAG = "AccountListViewModel"
 
     private var viewModelJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
     }
 
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private var activeAccount = MutableLiveData<RAccount?>()
 
-    private var activeAccount = MutableLiveData<Account?>()
+    private val _sessions = database.sessionDao().getLiveSessions()
+    val sessions: LiveData<List<RSession>>
+        get() = _sessions
 
-    private val _accounts = database.accountDao().getAllAccounts()
-    val accounts: LiveData<List<Account>>
-        get() = _accounts
 
-    init {
-        initializeActiveAccount()
-    }
+//    init {
+//        initializeActiveAccount()
+//    }
+//
+//    private fun initializeActiveAccount() {
+//        uiScope.launch {
+//            val act = doGetActiveAccount()
+//            activeAccount.value = act
+//        }
+//    }
+//
+//    private suspend fun doGetActiveAccount(): Account? {
+//        return withContext(Dispatchers.IO) {
+//            database.accountDao().getActiveAccount()
+//        }
+//    }
 
-    private fun initializeActiveAccount() {
-        uiScope.launch {
-            val act = doGetActiveAccount()
-            activeAccount.value = act
+    class AccountListViewModelFactory(
+        private val accountDB: AccountDB,
+        private val application: Application
+    ) : ViewModelProvider.Factory {
+        @Suppress("unchecked_cast")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(AccountListViewModel::class.java)) {
+                return AccountListViewModel(accountDB, application) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
-
-    private suspend fun doGetActiveAccount(): Account? {
-        return withContext(Dispatchers.IO) {
-            database.accountDao().getActiveAccount()
-        }
-    }
-
 }

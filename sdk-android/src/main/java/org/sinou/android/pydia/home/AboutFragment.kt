@@ -1,6 +1,5 @@
 package org.sinou.android.pydia.home
 
-import android.content.pm.PackageInfo
 import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.os.Bundle

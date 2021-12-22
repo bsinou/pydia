@@ -15,11 +15,9 @@ class BrowseGridFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         val binding: FragmentBrowseListBinding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_browse_grid, container, false
         )
-
         return binding.root
     }
 }

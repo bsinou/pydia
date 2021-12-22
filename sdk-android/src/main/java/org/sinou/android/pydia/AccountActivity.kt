@@ -39,6 +39,11 @@ class AccountActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         handleIntent(intent)
     }
 
+    override fun onPause() {
+        Log.i(TAG, "onPause, intent: $intent")
+        super.onPause()
+    }
+
     fun handleIntent(inIntent: Intent) {
         if (Intent.ACTION_VIEW == intent.action) {
             val uri = inIntent.data ?: return
@@ -48,7 +53,7 @@ class AccountActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             val code: String = uri.getQueryParameter(AppNames.KEY_CODE)!!
             val state: String = uri.getQueryParameter(AppNames.KEY_STATE)!!
             launch {
-                CellsApp.instance.accountRepository.handleOAuthResponse(state, code)
+                CellsApp.instance.accountService.handleOAuthResponse(state, code)
             }
         }
     }

@@ -3,13 +3,17 @@ package org.sinou.android.pydia.room.browse
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
 
 @Entity(tableName = "tree_node_table")
 data class TreeNode(
 
     @PrimaryKey(autoGenerate = true) val uid: Int = 0,
 
-    // TODO make a DB pro account
+    // TODO Rather make one DB per account. Is it possible?
     @ColumnInfo(name = "account_id") val accountID: String,
 
     @ColumnInfo(name = "workspace") val workspace: String,

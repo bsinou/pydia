@@ -15,7 +15,9 @@
             style="@style/text_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/welcome_title"
+            android:layout_marginTop="@dimen/margin_large"
+            android:text="@string/welcome_subtitle"
+            android:textAlignment="center"
             app:layout_constraintBottom_toTopOf="@+id/welcome_subtitle_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -28,6 +30,7 @@
             style="@style/text_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAlignment="center"
             android:text="@string/welcome_text"
             app:layout_constraintBottom_toTopOf="@+id/welcome_hint_text"
             app:layout_constraintEnd_toEndOf="parent"
@@ -39,20 +42,23 @@
         <TextView
             android:id="@+id/welcome_hint_text"
             style="@style/text_body"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/welcome_no_account_instructions"
+            android:layout_marginStart="@dimen/text_padding_large"
+            android:layout_marginBottom="@dimen/margin"
+            android:layout_marginEnd="@dimen/text_padding_large"
 
+            android:text="@string/welcome_no_account_instructions"
             app:layout_constraintBottom_toTopOf="@+id/add_account_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/welcome_subtitle_text" />
+            />
 
         <Button
             android:id="@+id/add_account_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="@dimen/margin_large"
             android:text="@string/welcome_add_account_button"
             android:theme="@style/GoButton"
             app:layout_constraintBottom_toBottomOf="parent"

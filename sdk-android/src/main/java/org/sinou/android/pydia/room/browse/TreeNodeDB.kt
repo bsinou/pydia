@@ -1,9 +1,8 @@
 package org.sinou.android.pydia.room.browse
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
+import org.sinou.android.pydia.room.Converters
 
 @Database(entities = arrayOf(TreeNode::class), version = 1, exportSchema = false)
 abstract class TreeNodeDB : RoomDatabase() {

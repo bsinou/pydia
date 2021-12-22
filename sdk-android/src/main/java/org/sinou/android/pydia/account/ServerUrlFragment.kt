@@ -26,7 +26,7 @@ class ServerUrlFragment : Fragment() {
 
     private val TAG = "ServerUrlFragment"
 
-    val viewModelFactory = ServerUrlViewModelFactory(CellsApp.instance.accountRepository)
+    val viewModelFactory = ServerUrlViewModel.ServerUrlViewModelFactory(CellsApp.instance.accountService)
     private val viewModel: ServerUrlViewModel by activityViewModels { viewModelFactory }
 
     private lateinit var binding: FragmentServerUrlBinding

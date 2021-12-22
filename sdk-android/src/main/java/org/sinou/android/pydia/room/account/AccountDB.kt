@@ -5,7 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = arrayOf(Account::class, RToken::class, LegacyCredentials::class, Session::class), version = 1, exportSchema = false)
+@Database(
+    entities = arrayOf(RAccount::class, RToken::class, LegacyCredentials::class, RSession::class),
+    views = arrayOf(RLiveSession::class),
+    version = 1,
+    exportSchema = false,
+)
 abstract class AccountDB : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
@@ -15,6 +20,8 @@ abstract class AccountDB : RoomDatabase() {
     abstract fun legacyCredentialsDao(): LegacyCredentialsDao
 
     abstract fun sessionDao(): SessionDao
+
+    abstract fun liveSessionDao(): LiveSessionDao
 
     companion object {
         @Volatile

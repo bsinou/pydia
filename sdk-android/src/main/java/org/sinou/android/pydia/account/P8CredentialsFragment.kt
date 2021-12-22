@@ -10,6 +10,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainActivity
 import org.sinou.android.pydia.R
@@ -20,7 +21,7 @@ class P8CredentialsFragment : Fragment() {
 
     private val TAG = "P8CredentialsFragment"
 
-    private val viewModelFactory = ServerUrlViewModelFactory(CellsApp.instance.accountRepository)
+    private val viewModelFactory = ServerUrlViewModel.ServerUrlViewModelFactory(CellsApp.instance.accountService)
     private val viewModel: ServerUrlViewModel by activityViewModels { viewModelFactory }
 
     private lateinit var binding: FragmentP8CredentialsBinding
@@ -40,7 +41,7 @@ class P8CredentialsFragment : Fragment() {
             Log.i(TAG, "... Got an account navigating to browse activity")
             accountId?.let {
                 val toBrowseIntent = Intent(requireActivity(), MainActivity::class.java)
-                toBrowseIntent.putExtra("state_id", accountId)
+                toBrowseIntent.putExtra(AppNames.EXTRA_STATE, accountId)
                 startActivity(toBrowseIntent);
             }
         })

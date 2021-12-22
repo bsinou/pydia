@@ -1,21 +1,19 @@
 package org.sinou.android.pydia.room.account
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
+import org.sinou.android.pydia.room.Converters
 
 @Entity(tableName = "session_table")
-data class Session(
+@TypeConverters(Converters::class)
+data class RSession(
 
-    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
-
+    @PrimaryKey
     @ColumnInfo(name = "account_id") val accountID: String,
 
-    @ColumnInfo(name = "lifecycle_state") val lifecycleState: String, // foreground, background or idle
+    @ColumnInfo(name = "base_dir") val baseDir: String,
 
-    @ColumnInfo(name = "base_dir") var baseDir: String,
+    @ColumnInfo(name = "lifecycle_state") var lifecycleState: String, // foreground, background or idle
 
-    @ColumnInfo(name = "auth_status") val authStatus: String,
 
     @ColumnInfo(name = "workspaces") var workspaces: List<String>?,
 
@@ -25,4 +23,4 @@ data class Session(
 
     @ColumnInfo(name = "share_cache") var shareCache: List<String>?,
 
-)
+    )

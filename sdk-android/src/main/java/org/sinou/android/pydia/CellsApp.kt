@@ -6,42 +6,68 @@ import android.content.pm.PackageManager
 import android.os.Build
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
+import com.pydio.cells.utils.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.sinou.android.pydia.room.account.AccountDB
-import org.sinou.android.pydia.services.AccountRepository
+import org.sinou.android.pydia.room.browse.TreeNodeDB
+import org.sinou.android.pydia.services.AccountService
+import org.sinou.android.pydia.services.NodeService
 import java.io.File
 
 /**
- * Main entry point of the Pydia application.
+ * Main entry point of the Pydio client application.
  *
  * Does nothing exotic to begin with */
 class CellsApp : Application() {
+
+    private val TAG = "CellsApp"
+
+    private val applicationScope = CoroutineScope(Dispatchers.Default)
 
     companion object {
         lateinit var instance: CellsApp
             private set
     }
 
-    lateinit var accountRepository: AccountRepository
+    lateinit var accountService: AccountService
+    lateinit var nodeService: NodeService
 
     override fun onCreate() {
         super.onCreate()
         instance = this
-        initServices()
+
+        delayedInit()
+    }
+
+    private fun delayedInit(){
+        applicationScope.launch {
+            updateClientData()
+            initServices()
+            // TODO also set-up worker tasks tasks
+
+            Log.i(TAG, "Delayed init terminated")
+        }
     }
 
     fun baseDir(): File? {
         return baseContext.filesDir
     }
 
-    // TODO make this in another thread
     private fun initServices() {
-        updateClientData()
-        accountRepository = AccountRepository(
+
+        accountService = AccountService(
             AccountDB.getDatabase(this.applicationContext),
             baseDir()?.absolutePath
         )
-    }
 
+        nodeService = NodeService(
+            TreeNodeDB.getDatabase(this.applicationContext) ,
+            accountService,
+            baseDir()?.absolutePath,
+        )
+    }
 
     @Throws(SDKException::class)
     private fun updateClientData() {
@@ -64,7 +90,6 @@ class CellsApp : Application() {
         ClientData.version = packageInfo.versionName
         ClientData.versionCode = packageInfo.versionCode
         ClientData.platform = getAndroidVersion()
-
     }
 
     private fun getAndroidVersion(): String? {

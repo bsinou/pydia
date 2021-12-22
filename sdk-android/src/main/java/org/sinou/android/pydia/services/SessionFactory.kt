@@ -1,22 +1,31 @@
 package org.sinou.android.pydia.services
 
-import com.pydio.cells.api.Server
-import com.pydio.cells.api.Store
-import com.pydio.cells.api.Transport
+import android.util.Log
+import com.pydio.cells.api.*
+import com.pydio.cells.api.ui.Node
 import com.pydio.cells.client.CellsClient
 import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
+import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
+import com.pydio.cells.utils.MemoryStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.room.account.LegacyCredentials
 import org.sinou.android.pydia.room.account.RToken
+import org.sinou.android.pydia.room.account.RSession
 
 class SessionFactory(
-    accountDB: AccountDB,
-    serverStore: Store<Server?>,
-    transportStore: Store<Transport?>
+    private val accountDB: AccountDB,
+    private val serverStore: Store<Server?>,
+    private val transportStore: Store<Transport?>
 ) : ClientFactory(credService(accountDB), serverStore, transportStore) {
+
+    private val TAG = "SessionFactory"
 
     companion object {
         fun credService(accountDB: AccountDB): CredentialService {
@@ -24,8 +33,112 @@ class SessionFactory(
         }
     }
 
+    private val tokenStore = TokenStore(accountDB)
+    private val passwordStore = PasswordStore(accountDB)
+
+    // Locally store a cache of known sessions
+    private val sessions: Store<RSession> = MemoryStore<RSession>()
+
+
+    init {
+        GlobalScope.launch(Dispatchers.IO) {
+            val accounts = accountDB.accountDao().getAccounts()
+            for (account in accounts) {
+                resurrectSession(StateID(account.username, account.url).accountId)
+            }
+            Log.i(TAG, "... Session factory initialised")
+        }
+    }
+
+
+    @Throws(SDKException::class)
+    fun getUnlockedClient(accountID: String): Client? {
+//        val session: Session = sessions.get(accountId) ?: throw SDKException(
+//            ErrorCodes.internal_error,
+//            "no session defined for account " + accountId
+//        )
+
+        var transport = transportStore.get(accountID)
+        if (transport == null) {
+            resurrectSession(accountID)
+            transport = transportStore.get(accountID) ?: throw SDKException(
+                ErrorCodes.internal_error,
+                "could not resurect session for " + accountID
+            )
+        }
+
+        return getClient(transport)
+    }
+
+
+    fun resurrectSession(accountID: String) {
+
+        val stateID = StateID.fromId(accountID)
+        val account = accountDB.accountDao().getAccount(stateID.username, stateID.serverUrl)
+        if (account == null) {
+            Log.e(TAG, "No account for $accountID, cannot resurrect session")
+            return
+        }
+
+        val serverURL = ServerURLImpl.fromAddress(stateID.serverUrl, account.skipVerify)
+
+        var server = serverStore.get(accountID)
+        if (server == null) {
+            server = registerServer(serverURL)
+        }
+
+        var transport = transportStore.get(accountID)
+        if (transport == null) {
+
+            try {
+                restoreAccount(serverURL, stateID.username)
+            } catch (e: Exception) {
+                Log.e(TAG, "could not restore account: " + e.message)
+            }
+/*
+            var credentials: Credentials?
+            if (account.isLegacy) {
+                val pwd = passwordStore.get(accountID)
+                if (Str.empty(pwd)) {
+                    Log.e(TAG, "No password found for $accountID, cannot resurrect session")
+                    return
+                }
+                credentials = P8Credentials(stateID.username, pwd)
+            } else {
+                val token = tokenStore.get(accountID)
+                if (token == null) {
+                    Log.e(TAG, "No token found for $accountID, cannot resurrect session")
+                    return
+                }
+                credentials = JWTCredentials(stateID.username, token)
+            }
+
+            registerAccountCredentials(serverURL, credentials)
+*/
+        }
+    }
+
     override fun getCellsClient(transport: CellsTransport?): CellsClient? {
         return CellsClient(transport, S3Client(transport))
+    }
+
+    fun listWorkspaces(accountID: String) {
+        try {
+            val client: Client = getUnlockedClient(accountID)
+                ?: throw SDKException(
+                    ErrorCodes.internal_error,
+                    "no client found for account " + accountID
+                )
+            val nextPage = client.workspaceList { node: Node? ->
+                Log.i(TAG, "Found workspace " + node?.path)
+            }
+
+        } catch (e: SDKException) {
+            Log.e(TAG, "could not perform ls for " + accountID)
+            e.printStackTrace()
+        }
+        Log.i(TAG, "workspace listed for " + accountID)
+
     }
 
 

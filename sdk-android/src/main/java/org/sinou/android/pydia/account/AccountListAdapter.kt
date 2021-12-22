@@ -12,11 +12,11 @@ import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemAccountBinding
-import org.sinou.android.pydia.room.account.RSession
+import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.services.AccountService
 
 class AccountListAdapter(private val accountService: AccountService) :
-    ListAdapter<RSession, AccountListAdapter.ViewHolder>(AccountDiffCallback()) {
+    ListAdapter<RLiveSession, AccountListAdapter.ViewHolder>(SessionDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -32,7 +32,7 @@ class AccountListAdapter(private val accountService: AccountService) :
         RecyclerView.ViewHolder(binding.root) {
         private val TAG = "ViewHolder<Account>"
 
-        fun bind(item: RSession) {
+        fun bind(item: RLiveSession) {
 
             binding.session = item
 
@@ -71,13 +71,13 @@ class AccountListAdapter(private val accountService: AccountService) :
         }
     }
 
-    class AccountDiffCallback : DiffUtil.ItemCallback<RSession>() {
-        override fun areItemsTheSame(oldItem: RSession, newItem: RSession): Boolean {
+    class SessionDiffCallback : DiffUtil.ItemCallback<RLiveSession>() {
+        override fun areItemsTheSame(oldItem: RLiveSession, newItem: RLiveSession): Boolean {
             // Used when order changes for instance
             return oldItem.accountID == newItem.accountID
         }
 
-        override fun areContentsTheSame(oldItem: RSession, newItem: RSession): Boolean {
+        override fun areContentsTheSame(oldItem: RLiveSession, newItem: RLiveSession): Boolean {
             // This relies on Room's auto-generated equality to check
             // if the corresponding view needs to be redrawn.
             // This can be further configured in more complex scenarii

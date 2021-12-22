@@ -3,7 +3,9 @@ package org.sinou.android.pydia.browse
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import androidx.room.Query
 import kotlinx.coroutines.*
+import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.room.account.RSession
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
@@ -30,9 +32,9 @@ class ForegroundSessionViewModel(
         viewModelJob.cancel()
     }
 
-    private var _currentSession = MutableLiveData<RSession?>()
-    val activeRSession: LiveData<RSession?>
-        get() = _currentSession
+    private var _liveSession = accountService.accountDB.liveSessionDao().getLiveSession(accountID)
+    val liveSession: LiveData<RLiveSession?>
+        get() = _liveSession
 
     private var _isActive = false
     val isActiveSession: Boolean
@@ -44,7 +46,7 @@ class ForegroundSessionViewModel(
         while (isActiveSession) {
             Log.i(
                 TAG,
-                "Watching ${accountID} - already having a session ${!(null == activeRSession?.value)}"
+                "Watching ${accountID} - already having a session ${!(null == liveSession?.value)}"
             )
             accountService.sessionFactory.listWorkspaces(accountID)
             delay(TimeUnit.SECONDS.toMillis(3))
@@ -52,7 +54,7 @@ class ForegroundSessionViewModel(
     }
 
     fun setForeground(accountID: String) {
-        initializeSession(accountID)
+        _liveSession =  accountService.accountDB.liveSessionDao().getLiveSession(accountID)
     }
 
     fun resume() {
@@ -66,7 +68,7 @@ class ForegroundSessionViewModel(
 
     private fun initializeSession(accountID: String) =
         viewModelScope.launch {
-            _currentSession.value = getSessionFromDB(accountID)
+            //  _currentSession.value = getSessionFromDB(accountID)
             // watchSession()
         }
 

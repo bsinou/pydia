@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import org.sinou.android.pydia.room.account.RAccount
 import org.sinou.android.pydia.room.account.AccountDB
+import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.room.account.RSession
 
 /**
@@ -29,8 +30,8 @@ class AccountListViewModel(
 
     private var activeAccount = MutableLiveData<RAccount?>()
 
-    private val _sessions = database.sessionDao().getLiveSessions()
-    val sessions: LiveData<List<RSession>>
+    private val _sessions = database.liveSessionDao().getLiveSessions()
+    val sessions: LiveData<List<RLiveSession>>
         get() = _sessions
 
 

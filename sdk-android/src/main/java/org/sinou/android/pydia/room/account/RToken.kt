@@ -7,18 +7,18 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "token_table")
 data class RToken(
 
-    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
-
+    @PrimaryKey
     @ColumnInfo(name = "account_id") val accountID: String,
-
-    // Set by Cells layers to contain the corresponding encoded accountID
-    @ColumnInfo(name = "subject") val subject: String?,
 
     // value is the real useful token => access_token in OAuth2
     @ColumnInfo(name = "value") val value: String,
 
+    // Set by Cells layers to contain the corresponding encoded accountID
+    @ColumnInfo(name = "subject") val subject: String?,
+
     // idToken contains encoded information about current session, typically the claims
-    @ColumnInfo(name = "id_token") val idToken: String,
+    // It is null when dealing with P8 legacy tokens
+    @ColumnInfo(name = "id_token") val idToken: String?,
 
     @ColumnInfo(name = "scope") val scope: String?,
 

@@ -6,7 +6,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "legacy_credentials_table")
 data class RLegacyCredentials(
-    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
+
+    @PrimaryKey
     @ColumnInfo(name = "account_id") val accountID: String,
+
     @ColumnInfo(name = "password") val password: String,
 )

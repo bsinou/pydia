@@ -11,5 +11,4 @@ public interface AppNames {
 
     String KEY_CODE = "code";
     String KEY_STATE = "state";
-
 }

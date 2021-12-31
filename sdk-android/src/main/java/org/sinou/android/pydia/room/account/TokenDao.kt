@@ -17,7 +17,6 @@ interface TokenDao {
     @Query("SELECT * FROM token_table WHERE account_id = :accountID LIMIT 1")
     fun getToken(accountID: String): RToken?
 
-    @Query("DELETE FROM token_table WHERE account_id = :accountId")
-    fun delete(accountId: String)
-
+    @Query("DELETE FROM token_table WHERE account_id = :accountID")
+    fun forgetToken(accountID: String)
 }

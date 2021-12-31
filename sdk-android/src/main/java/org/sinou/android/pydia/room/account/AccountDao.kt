@@ -11,7 +11,7 @@ interface AccountDao {
     @Update
     fun update(account: RAccount)
 
-    @Query("DELETE FROM session_table WHERE account_id = :accountID")
+    @Query("DELETE FROM account_table WHERE account_id = :accountID")
     fun forgetAccount(accountID: String)
 
     @Query("SELECT * FROM account_table WHERE account_id = :accountID LIMIT 1")

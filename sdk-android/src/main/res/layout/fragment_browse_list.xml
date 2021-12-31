@@ -10,8 +10,8 @@
     <!-- Beginning of the visible layout -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".account.BrowseGridFragment">
+        android:layout_height="match_parent">
+
 
     </LinearLayout>
 </layout>

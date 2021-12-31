@@ -10,10 +10,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.MainActivity
-import org.sinou.android.pydia.R
+import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentP8CredentialsBinding
 
 /** Handle user filled credentials for P8 remote servers */
@@ -40,7 +37,7 @@ class P8CredentialsFragment : Fragment() {
         viewModel.accountID.observe(requireActivity(), Observer { accountId ->
             Log.i(TAG, "... Got an account navigating to browse activity")
             accountId?.let {
-                val toBrowseIntent = Intent(requireActivity(), MainActivity::class.java)
+                val toBrowseIntent = Intent(requireActivity(), BrowseActivity::class.java)
                 toBrowseIntent.putExtra(AppNames.EXTRA_STATE, accountId)
                 startActivity(toBrowseIntent);
             }

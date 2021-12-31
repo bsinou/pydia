@@ -2,7 +2,6 @@ package org.sinou.android.pydia.services
 
 import android.util.Log
 import com.pydio.cells.api.*
-import com.pydio.cells.api.ui.Node
 import com.pydio.cells.client.CellsClient
 import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
@@ -14,11 +13,10 @@ import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.room.account.RLegacyCredentials
-import org.sinou.android.pydia.room.account.RToken
 import org.sinou.android.pydia.room.account.RSession
+import org.sinou.android.pydia.room.account.RToken
 
 class SessionFactory(
     private val accountDB: AccountDB,
@@ -64,7 +62,7 @@ class SessionFactory(
             resurrectSession(accountID)
             transport = transportStore.get(accountID) ?: throw SDKException(
                 ErrorCodes.internal_error,
-                "could not resurect session for " + accountID
+                "could not resurrect session for " + accountID
             )
         }
 
@@ -123,26 +121,6 @@ class SessionFactory(
         return CellsClient(transport, S3Client(transport))
     }
 
-    suspend fun listWorkspaces(accountID: String) = withContext(Dispatchers.IO) {
-        try {
-            val client: Client = getUnlockedClient(accountID)
-                ?: throw SDKException(
-                    ErrorCodes.internal_error,
-                    "no client found for account " + accountID
-                )
-            val nextPage = client.workspaceList { node: Node? ->
-                Log.i(TAG, "Found workspace " + node?.path)
-            }
-
-        } catch (e: SDKException) {
-            Log.e(TAG, "could not perform ls for " + accountID)
-            e.printStackTrace()
-        }
-        Log.i(TAG, "workspace listed for " + accountID)
-
-    }
-
-
     class PasswordStore(private val accountDB: AccountDB) : Store<String> {
 
         override fun put(id: String, password: String) {
@@ -192,13 +170,12 @@ class SessionFactory(
             if (rToken != null) {
                 token = Token()
                 token.value = rToken.value
-
             }
             return token
         }
 
         override fun remove(id: String) {
-            accountDB.tokenDao().delete(id)
+            accountDB.tokenDao().forgetToken(id)
         }
 
         override fun clear() {

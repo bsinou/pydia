@@ -3,8 +3,9 @@ package org.sinou.android.pydia.services
 import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.pydio.cells.api.*
+import com.pydio.cells.api.ui.Node
+import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.Token
@@ -13,8 +14,8 @@ import com.pydio.cells.transport.auth.jwt.IdToken
 import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.sinou.android.pydia.room.account.RAccount
 import org.sinou.android.pydia.room.account.AccountDB
+import org.sinou.android.pydia.room.account.RAccount
 import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.room.account.RSession
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
@@ -44,10 +45,8 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
 
     fun registerAccount(serverURL: ServerURL, credentials: Credentials): String? {
         try {
-
-            val state = StateID(credentials.username, serverURL.toString());
-            val existingAccount =
-                accountDB.accountDao().getAccount(credentials.username, serverURL.toString())
+            val state = StateID(credentials.username, serverURL.id);
+            val existingAccount = accountDB.accountDao().getAccount(state.accountId)
 
             sessionFactory.registerAccountCredentials(serverURL, credentials)
             val server: Server = sessionFactory.getServer(serverURL.id)
@@ -70,10 +69,18 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
 
     suspend fun forgetAccount(accountID: String) = withContext(Dispatchers.IO) {
         try {
-            accountDB.sessionDao().forgetSession(accountID)
-            // retrieve account and delete by uid if found.
-            accountDB.accountDao().forgetAccount(accountID)
-       } catch (e: Exception) {
+            // First retrieve the account to forget to know if it is legacy or not
+            accountDB.accountDao().getAccount(accountID)?.let {
+                if (it.isLegacy) {
+                    accountDB.legacyCredentialsDao().forgetPassword(accountID)
+                } else {
+                    accountDB.tokenDao().forgetToken(accountID)
+                }
+                accountDB.sessionDao().forgetSession(accountID)
+                accountDB.accountDao().forgetAccount(accountID)
+            }
+
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
@@ -111,7 +118,38 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
         }
     }
 
-    /** Cells Credential flow management */
+    suspend fun refreshWorkspaceList(accountID: String) = withContext(Dispatchers.IO) {
+        try {
+            val workspaces = mutableListOf<WorkspaceNode>()
+                val client: Client = sessionFactory.getUnlockedClient(accountID)
+                ?: throw SDKException(
+                    ErrorCodes.internal_error,
+                    "no client found for account " + accountID
+                )
+            client.workspaceList { node: Node? ->
+                if (node is WorkspaceNode){
+                    workspaces.add(node)
+                }
+            }
+
+            // Update cache in session
+            val session = accountDB.sessionDao().getSession(accountID)
+            if (session != null){
+                val wss = mutableListOf<String>()
+                for (ws in workspaces){
+                    wss.add(ws.slug)
+                }
+                session.workspaces = wss
+                accountDB.sessionDao().update(session)
+            }
+       } catch (e: SDKException) {
+            Log.e(TAG, "could not perform ls for " + accountID)
+            e.printStackTrace()
+        }
+    }
+
+    /** Cells' Credentials flow management */
+
     suspend fun handleOAuthResponse(oauthState: String, code: String) {
         withContext(Dispatchers.IO) {
             val serverURL = inProcessCallbacks.get(oauthState)
@@ -173,7 +211,7 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
             isLegacy = server.isLegacy,
             welcomeMessage = server.getWelcomeMessage(),
             // FIXME define the correct auth status possible:
-            // typically: no-credentials, expired, refreshing, conected
+            // typically: no-credentials, expired, refreshing, connected
             authStatus = "connected",
         )
     }

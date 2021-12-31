@@ -46,9 +46,9 @@ class ForegroundSessionViewModel(
         while (isActiveSession) {
             Log.i(
                 TAG,
-                "Watching ${accountID} - already having a session ${!(null == liveSession?.value)}"
+                "Watching ${accountID} - already having a session ${liveSession?.value}"
             )
-            accountService.sessionFactory.listWorkspaces(accountID)
+            accountService.refreshWorkspaceList(accountID)
             delay(TimeUnit.SECONDS.toMillis(3))
         }
     }

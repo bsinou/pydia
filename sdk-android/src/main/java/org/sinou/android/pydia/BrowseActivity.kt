@@ -51,7 +51,7 @@ class BrowseActivity : AppCompatActivity() {
 
 
         buildNavigationLayout()
-        binding.navView.setNavigationItemSelectedListener(onMenuItemSelected);
+        binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
 
     }
 

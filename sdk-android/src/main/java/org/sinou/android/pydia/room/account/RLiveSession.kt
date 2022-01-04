@@ -3,6 +3,7 @@ package org.sinou.android.pydia.room.account
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import androidx.room.TypeConverters
+import com.pydio.cells.api.ui.WorkspaceNode
 import org.sinou.android.pydia.room.Converters
 
 @DatabaseView(
@@ -24,7 +25,7 @@ import org.sinou.android.pydia.room.Converters
 @TypeConverters(Converters::class)
 data class RLiveSession(
     @ColumnInfo(name = "account_id") val accountID: String,
-    @ColumnInfo(name = "workspaces") var workspaces: List<String>?,
+    @ColumnInfo(name = "workspaces") var workspaces: List<WorkspaceNode>?,
     @ColumnInfo(name = "offline_roots") var offlineRoots: List<String>?,
     @ColumnInfo(name = "bookmark_cache") var bookmarkCache: List<String>?,
     @ColumnInfo(name = "share_cache") var shareCache: List<String>?,

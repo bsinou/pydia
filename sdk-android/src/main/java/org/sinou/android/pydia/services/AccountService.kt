@@ -14,6 +14,7 @@ import com.pydio.cells.transport.auth.jwt.IdToken
 import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.room.account.RAccount
 import org.sinou.android.pydia.room.account.RLiveSession
@@ -29,14 +30,14 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
 
     private val encoder: CustomEncoder = AndroidCustomEncoder()
 
-    private val TAG = "AccountRepository"
+    private val TAG = "AccountService"
 
     // Local stores to cache live objects
-    private val servers = MemoryStore<Server>()
-    private val transports = MemoryStore<Transport>()
+//    private val servers = MemoryStore<Server>()
+//    private val transports = MemoryStore<Transport>()
 
     // Expose the session factory for clients to retrieve clients
-    val sessionFactory: SessionFactory = SessionFactory(accountDB, servers, transports)
+    val sessionFactory: SessionFactory = SessionFactory.getSessionFactory(accountDB)
 
     // Temporary keep track of all states that have been generated for OAuth processes
     val inProcessCallbacks = mutableMapOf<String, ServerURL>()
@@ -51,6 +52,9 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
             sessionFactory.registerAccountCredentials(serverURL, credentials)
             val server: Server = sessionFactory.getServer(serverURL.id)
             val account = toAccount(credentials.username, server)
+
+            // At this point we assume we have been connected or an error has already been thrown
+            account.authStatus = AppNames.AUTH_STATUS_CONNECTED
 
             if (existingAccount == null) { // creation
                 accountDB.accountDao().insert(account)
@@ -121,28 +125,20 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
     suspend fun refreshWorkspaceList(accountID: String) = withContext(Dispatchers.IO) {
         try {
             val workspaces = mutableListOf<WorkspaceNode>()
-                val client: Client = sessionFactory.getUnlockedClient(accountID)
-                ?: throw SDKException(
-                    ErrorCodes.internal_error,
-                    "no client found for account " + accountID
-                )
+            val client: Client = sessionFactory.getUnlockedClient(accountID)
             client.workspaceList { node: Node? ->
-                if (node is WorkspaceNode){
+                if (node is WorkspaceNode) {
                     workspaces.add(node)
                 }
             }
 
-            // Update cache in session
+            // Update WS cache in session row
             val session = accountDB.sessionDao().getSession(accountID)
-            if (session != null){
-                val wss = mutableListOf<String>()
-                for (ws in workspaces){
-                    wss.add(ws.slug)
-                }
-                session.workspaces = wss
+            if (session != null) {
+                session.workspaces = workspaces.sorted()
                 accountDB.sessionDao().update(session)
             }
-       } catch (e: SDKException) {
+        } catch (e: SDKException) {
             Log.e(TAG, "could not perform ls for " + accountID)
             e.printStackTrace()
         }
@@ -210,9 +206,7 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
             skipVerify = server.serverURL.skipVerify(),
             isLegacy = server.isLegacy,
             welcomeMessage = server.getWelcomeMessage(),
-            // FIXME define the correct auth status possible:
-            // typically: no-credentials, expired, refreshing, connected
-            authStatus = "connected",
+            authStatus = AppNames.AUTH_STATUS_NEW,
         )
     }
 

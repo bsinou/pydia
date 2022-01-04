@@ -20,4 +20,7 @@ interface LegacyCredentialsDao {
     @Query("SELECT * FROM legacy_credentials_table WHERE account_id = :accountID LIMIT 1")
     fun getCredential(accountID: String): RLegacyCredentials?
 
+    @Query("SELECT * FROM legacy_credentials_table")
+    fun getAll(): List<RLegacyCredentials>
+
 }

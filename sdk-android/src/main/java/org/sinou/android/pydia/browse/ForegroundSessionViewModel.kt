@@ -27,11 +27,6 @@ class ForegroundSessionViewModel(
     private var viewModelJob = Job()
     private val viewModelScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
-
     private var _liveSession = accountService.accountDB.liveSessionDao().getLiveSession(accountID)
     val liveSession: LiveData<RLiveSession?>
         get() = _liveSession
@@ -39,7 +34,6 @@ class ForegroundSessionViewModel(
     private var _isActive = false
     val isActiveSession: Boolean
         get() = _isActive
-
 
     // TODO handle network status
     private fun watchSession() = viewModelScope.launch {
@@ -51,6 +45,11 @@ class ForegroundSessionViewModel(
             accountService.refreshWorkspaceList(accountID)
             delay(TimeUnit.SECONDS.toMillis(3))
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
     }
 
     fun setForeground(accountID: String) {
@@ -74,16 +73,13 @@ class ForegroundSessionViewModel(
 
 
     private suspend fun getSessionFromDB(accountID: String): RSession? {
-        Log.i(TAG, "Retrieving session from DB")
         return withContext(Dispatchers.IO) {
-            Log.i(TAG, "Retrieving session from DB 2")
-
+            Log.i(TAG, "Account ID: "+ accountID + ", account DB: "+ accountService.accountDB.toString())
             var session = accountService.accountDB.sessionDao().getSession(accountID)
+            var liveSession = accountService.accountDB.liveSessionDao().getSession(accountID)
 //            if (session?.authStatus != "online") {
 //                session = null
 //            }
-            Log.i(TAG, "Retrieving session from DB 3")
-
             session
         }
     }

@@ -1,6 +1,7 @@
 package org.sinou.android.pydia.room.account
 
 import androidx.room.*
+import com.pydio.cells.api.ui.WorkspaceNode
 import org.sinou.android.pydia.room.Converters
 
 @Entity(tableName = "session_table")
@@ -14,8 +15,7 @@ data class RSession(
 
     @ColumnInfo(name = "lifecycle_state") var lifecycleState: String, // foreground, background or idle
 
-
-    @ColumnInfo(name = "workspaces") var workspaces: List<String>?,
+    @ColumnInfo(name = "workspaces") var workspaces: List<WorkspaceNode>?,
 
     @ColumnInfo(name = "offline_roots") var offlineRoots: List<String>?,
 

@@ -12,16 +12,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/text_padding_x_small">
 
-        <!--    style="@style/avatar_icon"-->
-
         <ImageView
             android:id="@+id/workspace_icon"
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_margin="@dimen/margin_small"
+
             android:src="@drawable/ic_baseline_person_24"
+
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -35,15 +33,25 @@
 
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="3dp"
-            android:layout_marginStart="@dimen/text_padding_x_small"
-            app:layout_constraintStart_toEndOf="@+id/workspace_icon"
 
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/workspace_desc"
+            app:layout_constraintBottom_toTopOf="@+id/workspace_desc"
 
             tools:text="My Files" />
+
+        <TextView
+            android:id="@+id/workspace_desc"
+            style="@style/text_list_secondary"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintBottom_toBottomOf="@id/workspace_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/workspace_icon"
+
+            tools:text="Your personal files" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

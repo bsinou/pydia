@@ -6,13 +6,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
+import com.pydio.cells.api.ui.WorkspaceNode
 import org.sinou.android.pydia.R
 
 class WsListAdapter(
     private val onItemClicked: (slug: String, action: String) -> Unit
 ) : RecyclerView.Adapter<WsListAdapter.ViewHolder>() {
 
-    var data = listOf<String>()
+    var data = listOf<WorkspaceNode>()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -22,7 +23,9 @@ class WsListAdapter(
 
     override fun onBindViewHolder(holder: WsListAdapter.ViewHolder, position: Int) {
         val item = data[position]
-        holder.titleView.text = item
+        holder.slug = item.id
+        holder.titleView.text = item.label
+        holder.descView.text = item.description
     }
 
     override fun onCreateViewHolder(@NonNull parent: ViewGroup, viewType: Int): ViewHolder {
@@ -36,19 +39,22 @@ class WsListAdapter(
         itemView: View
     ) :
         RecyclerView.ViewHolder(itemView) {
-        private val TAG = "ViewHolder<Workspace>"
+//        private val TAG = "ViewHolder<Workspace>"
 
+        var slug: String? = ""
         lateinit var titleView: TextView
+        lateinit var descView: TextView
 
         constructor(v: View, onItemClicked: (slug: String, action: String) -> Unit) : this(v) {
             // Define click listener for the ViewHolder's View.
             v.setOnClickListener(View.OnClickListener { v ->
                 onItemClicked(
-                    titleView.text.toString(),
+                    slug!!,
                     "navigate"
                 )
             })
             titleView = v.findViewById<View>(R.id.workspace_title) as TextView
+            descView = v.findViewById<View>(R.id.workspace_desc) as TextView
         }
     }
 

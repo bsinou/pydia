@@ -6,44 +6,99 @@ import com.pydio.cells.client.CellsClient
 import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
-import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.room.account.RLegacyCredentials
-import org.sinou.android.pydia.room.account.RSession
+import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.room.account.RToken
 
 class SessionFactory(
     private val accountDB: AccountDB,
-    private val serverStore: Store<Server?>,
-    private val transportStore: Store<Transport?>
-) : ClientFactory(credService(accountDB), serverStore, transportStore) {
+    serverStore: Store<Server>,
+    transportStore: Store<Transport>,
+    credentialService: CredentialService,
+) : ClientFactory(credentialService, serverStore, transportStore) {
 
     private val TAG = "SessionFactory"
 
+
     companion object {
-        fun credService(accountDB: AccountDB): CredentialService {
-            return CredentialService(TokenStore(accountDB), PasswordStore(accountDB))
+
+        @Volatile
+        private var INSTANCE: SessionFactory? = null
+
+        // Locally store a cache of known sessions
+        @Volatile
+        private lateinit var sessions: Store<RLiveSession>
+
+        @Volatile
+        private lateinit var servers: Store<Server>
+
+        @Volatile
+        private lateinit var transports: Store<Transport>
+
+        @Volatile
+        private lateinit var tokenStore: Store<Token>
+
+        @Volatile
+        private lateinit var pwdStore: Store<String>
+
+        @Volatile
+        private lateinit var credentialService: CredentialService
+
+        fun getSessionFactory(accountDB: AccountDB): SessionFactory {
+            val tempInstance = INSTANCE
+            if (tempInstance != null) {
+                return tempInstance
+            }
+
+            synchronized(this) {
+                servers = MemoryStore()
+                transports = MemoryStore()
+                sessions = MemoryStore()
+                tokenStore = TokenStore(accountDB)
+                pwdStore = PasswordStore(accountDB)
+                credentialService = CredentialService(tokenStore, pwdStore)
+                val instance = SessionFactory(
+                    accountDB,
+                    servers,
+                    transports,
+                    credentialService
+                )
+                INSTANCE = instance
+                return instance
+            }
+        }
+
+        fun fromRToken(rToken: RToken): Token {
+            val currToken = Token()
+            currToken.tokenType = rToken.tokenType
+            currToken.value = rToken.value
+            currToken.subject = rToken.subject
+            currToken.expiresIn = rToken.expiresIn
+            currToken.expirationTime = rToken.expirationTime
+            currToken.idToken = rToken.idToken
+            currToken.refreshToken = rToken.refreshToken
+            currToken.scope = rToken.scope
+            return currToken
         }
     }
-
-    private val tokenStore = TokenStore(accountDB)
-    private val passwordStore = PasswordStore(accountDB)
-
-    // Locally store a cache of known sessions
-    private val sessions: Store<RSession> = MemoryStore<RSession>()
-
 
     init {
         GlobalScope.launch(Dispatchers.IO) {
             val accounts = accountDB.accountDao().getAccounts()
             for (account in accounts) {
-                resurrectSession(StateID(account.username, account.url).accountId)
+                try {
+                    restoreSession(account.accountID)
+                } catch (e: SDKException) {
+                    Log.e(TAG, "Cannot restore session for " + account.accountID + ": " + e.message)
+                }
             }
             Log.i(TAG, "... Session factory initialised")
         }
@@ -51,69 +106,66 @@ class SessionFactory(
 
 
     @Throws(SDKException::class)
-    fun getUnlockedClient(accountID: String): Client? {
-//        val session: Session = sessions.get(accountId) ?: throw SDKException(
-//            ErrorCodes.internal_error,
-//            "no session defined for account " + accountId
-//        )
+    fun getUnlockedClient(accountID: String): Client {
 
-        var transport = transportStore.get(accountID)
-        if (transport == null) {
-            resurrectSession(accountID)
-            transport = transportStore.get(accountID) ?: throw SDKException(
-                ErrorCodes.internal_error,
-                "could not resurrect session for " + accountID
-            )
+        sessions.get(accountID) ?: run {
+            restoreSession(accountID)
         }
 
-        return getClient(transport)
+        sessions.get(accountID).let {
+            if (it.authStatus.equals(AppNames.AUTH_STATUS_CONNECTED)) {
+                return getClient(transports.get(accountID)!!)
+            } else {
+                throw SDKException(
+                    ErrorCodes.authentication_required,
+                    "cannot unlock session for $accountID, auth status:" + it.authStatus
+                )
+            }
+        }
+
+//        // We should never reach this point
+//        throw SDKException(
+//            ErrorCodes.unknown_account,
+//            "No account for $accountID, cannot restore session"
+//        )
     }
 
+    @Throws(SDKException::class)
+    fun restoreSession(accountID: String) {
 
-    fun resurrectSession(accountID: String) {
+        val account = accountDB.accountDao().getAccount(accountID)
+            ?: throw SDKException(
+                ErrorCodes.unknown_account,
+                "No account for $accountID, cannot restore session"
+            )
 
-        val stateID = StateID.fromId(accountID)
-        val account = accountDB.accountDao().getAccount(stateID.username, stateID.serverUrl)
-        if (account == null) {
-            Log.e(TAG, "No account for $accountID, cannot resurrect session")
-            return
-        }
+        try {
 
-        val serverURL = ServerURLImpl.fromAddress(stateID.serverUrl, account.skipVerify)
+            val serverURL = ServerURLImpl.fromAddress(account.url, account.skipVerify)
+            // TODO probably useless
+            servers.get(accountID) ?: registerServer(serverURL)
+            transports.get(accountID) ?: restoreAccount(serverURL, account.username)
 
-        var server = serverStore.get(accountID)
-        if (server == null) {
-            server = registerServer(serverURL)
-        }
+            val session = accountDB.liveSessionDao().getSession(accountID) ?: throw SDKException(
+                ErrorCodes.internal_error,
+                "Session for $accountID should exist at this point"
+            )
+            sessions.put(accountID, session)
 
-        var transport = transportStore.get(accountID)
-        if (transport == null) {
-
-            try {
-                restoreAccount(serverURL, stateID.username)
-            } catch (e: Exception) {
-                Log.e(TAG, "could not restore account: " + e.message)
-            }
-/*
-            var credentials: Credentials?
-            if (account.isLegacy) {
-                val pwd = passwordStore.get(accountID)
-                if (Str.empty(pwd)) {
-                    Log.e(TAG, "No password found for $accountID, cannot resurrect session")
-                    return
+        } catch (se: SDKException) {
+            Log.e(TAG, "could not resurrect session: " + se.message)
+            // Handle well known errors and transfer the error to the caller
+            when (se.code) {
+                ErrorCodes.authentication_required -> {
+                    account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                    accountDB.accountDao().update(account)
                 }
-                credentials = P8Credentials(stateID.username, pwd)
-            } else {
-                val token = tokenStore.get(accountID)
-                if (token == null) {
-                    Log.e(TAG, "No token found for $accountID, cannot resurrect session")
-                    return
+                ErrorCodes.token_expired -> {
+                    account.authStatus = AppNames.AUTH_STATUS_EXPIRED
+                    accountDB.accountDao().update(account)
                 }
-                credentials = JWTCredentials(stateID.username, token)
             }
-
-            registerAccountCredentials(serverURL, credentials)
-*/
+            throw se
         }
     }
 
@@ -125,6 +177,12 @@ class SessionFactory(
 
         override fun put(id: String, password: String) {
             val cred = RLegacyCredentials(accountID = id, password = password)
+            if (accountDB.legacyCredentialsDao().getCredential(id) == null) {
+                accountDB.legacyCredentialsDao().insert(cred)
+            } else {
+                accountDB.legacyCredentialsDao().update(cred)
+            }
+
             accountDB.legacyCredentialsDao().insert(cred)
         }
 
@@ -133,7 +191,7 @@ class SessionFactory(
         }
 
         override fun remove(id: String) {
-            // TODO
+            accountDB.legacyCredentialsDao().forgetPassword(id)
         }
 
         override fun clear() {
@@ -141,15 +199,17 @@ class SessionFactory(
         }
 
         override fun getAll(): MutableMap<String, String> {
-            throw RuntimeException("foridden action: cannot list all password")
+            val allCreds: MutableMap<String, String> = HashMap()
+            for (cred in accountDB.legacyCredentialsDao().getAll()) {
+                allCreds[cred.accountID] = cred.password
+            }
+            return allCreds
         }
-
     }
 
     class TokenStore(private val accountDB: AccountDB) : Store<Token> {
 
         override fun put(id: String, token: Token) {
-
             val rToken = RToken(
                 accountID = id,
                 idToken = token.idToken,
@@ -161,15 +221,18 @@ class SessionFactory(
                 refreshToken = token.refreshToken,
                 tokenType = token.tokenType
             )
-            accountDB.tokenDao().insert(rToken)
+            if (accountDB.tokenDao().getToken(id) == null) {
+                accountDB.tokenDao().insert(rToken)
+            } else {
+                accountDB.tokenDao().update(rToken)
+            }
         }
 
         override fun get(id: String): Token? {
             val rToken = accountDB.tokenDao().getToken(id)
             var token: Token? = null
             if (rToken != null) {
-                token = Token()
-                token.value = rToken.value
+                token = fromRToken(rToken)
             }
             return token
         }
@@ -183,7 +246,11 @@ class SessionFactory(
         }
 
         override fun getAll(): MutableMap<String, Token> {
-            throw RuntimeException("forbidden action: cannot list all tokens")
+            val allCreds: MutableMap<String, Token> = HashMap()
+            for (token in accountDB.tokenDao().getAll()) {
+                allCreds[token.accountID] = fromRToken(token)
+            }
+            return allCreds
         }
     }
 }

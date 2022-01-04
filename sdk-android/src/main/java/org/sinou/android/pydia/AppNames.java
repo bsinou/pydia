@@ -11,4 +11,11 @@ public interface AppNames {
 
     String KEY_CODE = "code";
     String KEY_STATE = "state";
+
+    // TODO finalize auth state management
+    String AUTH_STATUS_NEW = "new";
+    String AUTH_STATUS_NO_CREDS = "no-credentials";
+    String AUTH_STATUS_EXPIRED = "expired";
+    String AUTH_STATUS_REFRESHING = "refreshing";
+    String AUTH_STATUS_CONNECTED = "connected";
 }

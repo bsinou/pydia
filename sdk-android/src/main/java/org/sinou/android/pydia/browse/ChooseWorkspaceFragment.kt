@@ -20,6 +20,7 @@ class ChooseWorkspaceFragment : Fragment() {
     private val TAG = "ChooseWorkspaceFragment"
 
     private lateinit var accountID: String
+    private lateinit var sessionVM: ForegroundSessionViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,7 +39,7 @@ class ChooseWorkspaceFragment : Fragment() {
             }
         }
 
-        val application = requireNotNull(this.activity).application
+        val application = requireActivity().application
         val viewModelFactory = ForegroundSessionViewModel.ForegroundSessionViewModelFactory(
             CellsApp.instance.accountService,
             CellsApp.instance.nodeService,
@@ -46,23 +47,17 @@ class ChooseWorkspaceFragment : Fragment() {
             application,
         )
 
-        val foregroundSessionViewModel: ForegroundSessionViewModel by viewModels { viewModelFactory }
-        //      val foregroundSessionViewModel: ForegroundSessionViewModel by viewModels { }
-
+        val tmpVM: ForegroundSessionViewModel by viewModels { viewModelFactory }
+        sessionVM = tmpVM
 
         val adapter = WsListAdapter { slug, action -> onWsClicked(slug, action) }
         binding.workspaces.adapter = adapter
-
-        foregroundSessionViewModel.liveSession.observe(viewLifecycleOwner, Observer {
+        sessionVM.liveSession.observe(viewLifecycleOwner, Observer {
             it?.let {
-
-                if (it.workspaces != null ){
-                    val currWss = it.workspaces?:listOf()
-                    adapter.data = currWss
-                }
-               }
+                val currWss = it.workspaces ?: listOf()
+                adapter.data = currWss.sorted()
+            }
         })
-
 
         return binding.root
     }
@@ -77,6 +72,16 @@ class ChooseWorkspaceFragment : Fragment() {
             else -> return;// do nothing
         }
         // Toast.makeText(requireActivity(), "pos: $accountID, action ID: $action", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sessionVM.resume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sessionVM.pause()
     }
 
 }

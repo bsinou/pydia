@@ -19,7 +19,7 @@ class BrowseActivity : AppCompatActivity() {
 
     private val TAG = "BrowseActivity"
 
-    private lateinit var sessionVM: ForegroundSessionViewModel
+//    private lateinit var sessionVM: ForegroundSessionViewModel
 
     private lateinit var binding: ActivityBrowseBinding
     private lateinit var navController: NavController
@@ -46,8 +46,8 @@ class BrowseActivity : AppCompatActivity() {
                 this.application,
             )
 
-        val tmpVM: ForegroundSessionViewModel by viewModels { foregroundSessionVMF }
-        sessionVM = tmpVM
+//        val tmpVM: ForegroundSessionViewModel by viewModels { foregroundSessionVMF }
+//        sessionVM = tmpVM
 
 
         buildNavigationLayout()
@@ -76,13 +76,13 @@ class BrowseActivity : AppCompatActivity() {
     override fun onResume() {
         Log.i(TAG, "onResume, intent: $intent")
         super.onResume()
-        sessionVM.resume()
+//         sessionVM.resume()
     }
 
     override fun onPause() {
         Log.i(TAG, "onPause, intent: $intent")
         super.onPause()
-        sessionVM.pause()
+   //      sessionVM.pause()
     }
 
 

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/text_padding_x_small">
+
+        <ImageView
+            android:id="@+id/node_thumb"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_margin="@dimen/margin_small"
+
+            android:src="@drawable/ic_baseline_person_24"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/colorAvatarDefault"
+            />
+
+        <TextView
+            android:id="@+id/node_label"
+            style="@style/text_list_primary"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/node_desc"
+            app:layout_constraintBottom_toTopOf="@+id/node_desc"
+
+            tools:text="Folder 1" />
+
+        <TextView
+            android:id="@+id/node_desc"
+            style="@style/text_list_secondary"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintBottom_toBottomOf="@id/node_thumb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/node_thumb"
+
+            tools:text="Your personal files" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -6,15 +6,17 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
-import com.pydio.cells.api.ui.WorkspaceNode
+import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.R
+import org.sinou.android.pydia.room.browse.RTreeNode
 
-class WsListAdapter(
-    private val onItemClicked: (slug: String, action: String) -> Unit
-) : RecyclerView.Adapter<WsListAdapter.ViewHolder>() {
+class NodeListAdapter(
+    private val parentStateID: StateID,
+    private val onItemClicked: (stateID: StateID, command: String) -> Unit
+) : RecyclerView.Adapter<NodeListAdapter.ViewHolder>() {
 
-    var data = listOf<WorkspaceNode>()
+    var data = listOf<RTreeNode>()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -22,17 +24,17 @@ class WsListAdapter(
 
     override fun getItemCount(): Int = data.size
 
-    override fun onBindViewHolder(holder: WsListAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: NodeListAdapter.ViewHolder, position: Int) {
         val item = data[position]
-        holder.slug = item.id
-        holder.titleView.text = item.label
-        holder.descView.text = item.description
+        holder.node = item
+        holder.labelView.text = item.name
+        holder.descView.text = item.parentPath
     }
 
     override fun onCreateViewHolder(@NonNull parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val view = layoutInflater.inflate(R.layout.list_item_workspace, parent, false)
-        return WsListAdapter.ViewHolder(view, onItemClicked)
+        val view = layoutInflater.inflate(R.layout.list_item_node, parent, false)
+        return NodeListAdapter.ViewHolder(view, parentStateID, onItemClicked)
     }
 
     // We pass a click listener to each view holder via the constructor...
@@ -42,22 +44,23 @@ class WsListAdapter(
         RecyclerView.ViewHolder(itemView) {
 //        private val TAG = "ViewHolder<Workspace>"
 
-        var slug: String? = ""
-        lateinit var titleView: TextView
+        var node: RTreeNode? = null
+        lateinit var labelView: TextView
         lateinit var descView: TextView
 
-        constructor(v: View, onItemClicked: (slug: String, action: String) -> Unit) : this(v) {
+        constructor(v: View, parentStateID: StateID, onItemClicked: (stateID: StateID, action: String) -> Unit) : this(v) {
             // Define click listener for the ViewHolder's View.
             v.setOnClickListener(View.OnClickListener { v ->
-                slug?.let {
+                node?.let {
+                    val child = parentStateID.child(it.name)
                     onItemClicked(
-                        it,
+                        child,
                         BrowseActivity.NAVIGATE
                     )
                 }
             })
-            titleView = v.findViewById<View>(R.id.workspace_title) as TextView
-            descView = v.findViewById<View>(R.id.workspace_desc) as TextView
+            labelView = v.findViewById<View>(R.id.node_label) as TextView
+            descView = v.findViewById<View>(R.id.node_desc) as TextView
         }
     }
 

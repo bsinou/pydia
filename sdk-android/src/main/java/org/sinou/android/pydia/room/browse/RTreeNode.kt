@@ -1,20 +1,19 @@
 package org.sinou.android.pydia.room.browse
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
+import androidx.room.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.pydio.cells.transport.StateID
+import org.sinou.android.pydia.room.Converters
 import java.lang.reflect.Type
+import java.util.*
 
 @Entity(tableName = "tree_node_table")
-data class TreeNode(
+@TypeConverters(Converters::class)
+data class RTreeNode(
 
-    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
-
-    // TODO Rather make one DB per account. Is it possible?
-    @ColumnInfo(name = "account_id") val accountID: String,
+    @PrimaryKey
+    @ColumnInfo(name = "encoded_state") val encodedState: String,
 
     @ColumnInfo(name = "workspace") val workspace: String,
 
@@ -36,6 +35,5 @@ data class TreeNode(
 
     @ColumnInfo(name = "is_shared") val isShared: Boolean = false,
 
-    @ColumnInfo(name = "json_meta") val jsonMeta: String?,
-
+    @ColumnInfo(name = "meta") val meta: Properties,
 )

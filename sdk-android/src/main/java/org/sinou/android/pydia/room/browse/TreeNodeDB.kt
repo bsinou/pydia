@@ -2,9 +2,8 @@ package org.sinou.android.pydia.room.browse
 
 import android.content.Context
 import androidx.room.*
-import org.sinou.android.pydia.room.Converters
 
-@Database(entities = arrayOf(TreeNode::class), version = 1, exportSchema = false)
+@Database(entities = arrayOf(RTreeNode::class), version = 1, exportSchema = false)
 abstract class TreeNodeDB : RoomDatabase() {
 
     abstract fun treeNodeDao(): TreeNodeDao

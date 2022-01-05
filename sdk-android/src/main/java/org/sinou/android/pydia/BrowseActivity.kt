@@ -19,6 +19,11 @@ class BrowseActivity : AppCompatActivity() {
 
     private val TAG = "BrowseActivity"
 
+    companion object {
+        val NAVIGATE = "navigate"
+    }
+
+
 //    private lateinit var sessionVM: ForegroundSessionViewModel
 
     private lateinit var binding: ActivityBrowseBinding
@@ -38,13 +43,13 @@ class BrowseActivity : AppCompatActivity() {
             encodedState = intent.getStringExtra(AppNames.EXTRA_STATE)
         }
 
-        val foregroundSessionVMF =
-            ForegroundSessionViewModel.ForegroundSessionViewModelFactory(
-                CellsApp.instance.accountService,
-                CellsApp.instance.nodeService,
-                encodedState!!,
-                this.application,
-            )
+//        val foregroundSessionVMF =
+//            ForegroundSessionViewModel.ForegroundSessionViewModelFactory(
+//                CellsApp.instance.accountService,
+//                CellsApp.instance.nodeService,
+//                encodedState!!,
+//                this.application,
+//            )
 
 //        val tmpVM: ForegroundSessionViewModel by viewModels { foregroundSessionVMF }
 //        sessionVM = tmpVM
@@ -84,7 +89,6 @@ class BrowseActivity : AppCompatActivity() {
         super.onPause()
    //      sessionVM.pause()
     }
-
 
     val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
         Log.i(TAG, "... Item selected: #${it.itemId}")

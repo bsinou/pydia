@@ -1,31 +1,35 @@
 package org.sinou.android.pydia.room.browse
 
+import android.view.ViewParent
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
+import com.pydio.cells.transport.StateID
+import org.sinou.android.pydia.room.Converters
+import org.sinou.android.pydia.room.account.RSession
 
 @Dao
+@TypeConverters(Converters::class)
 interface TreeNodeDao {
 
     @Insert
-    fun insert(treeNode: TreeNode)
+    fun insert(treeNode: RTreeNode)
 
     @Update
-    fun update(treeNode: TreeNode)
+    fun update(treeNode: RTreeNode)
 
-    @Query("SELECT * FROM tree_node_table WHERE account_id = :accountID AND parent_path = :path")
-    fun ls(accountID: String, path: String): LiveData<List<TreeNode>>
+    @Query("SELECT * FROM tree_node_table WHERE encoded_state = :encodedState LIMIT 1")
+    fun getNode(encodedState: String): RTreeNode?
 
-    @Query("SELECT * FROM tree_node_table WHERE account_id = :accountID AND is_bookmarked = 1")
-    fun getBookmarked(accountID: String): LiveData<List<TreeNode>>
-
-    @Query("SELECT * FROM tree_node_table WHERE account_id = :accountID AND is_shared = 1")
-    fun getShared(accountID: String): LiveData<List<TreeNode>>
-
-    @Query("SELECT * FROM tree_node_table WHERE account_id = :accountID AND is_offline = 1")
-    fun getOfflineRoots(accountID: String): LiveData<List<TreeNode>>
+    @Query("SELECT * FROM tree_node_table WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ")
+    fun ls(encodedParentStateID: String, parentPath: String): LiveData<List<RTreeNode>>
+//
+//    @Query("SELECT * FROM tree_node_table WHERE account_id = :accountID AND is_bookmarked = 1")
+//    fun getBookmarked(accountID: String): LiveData<List<RTreeNode>>
+//
+//    @Query("SELECT * FROM tree_node_table WHERE account_id = :accountID AND is_shared = 1")
+//    fun getShared(accountID: String): LiveData<List<RTreeNode>>
+//
+//    @Query("SELECT * FROM tree_node_table WHERE account_id = :accountID AND is_offline = 1")
+//    fun getOfflineRoots(accountID: String): LiveData<List<RTreeNode>>
 
 }

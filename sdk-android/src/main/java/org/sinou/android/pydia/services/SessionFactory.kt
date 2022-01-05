@@ -182,8 +182,6 @@ class SessionFactory(
             } else {
                 accountDB.legacyCredentialsDao().update(cred)
             }
-
-            accountDB.legacyCredentialsDao().insert(cred)
         }
 
         override fun get(id: String): String? {

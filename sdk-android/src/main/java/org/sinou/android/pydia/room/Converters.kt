@@ -5,7 +5,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.WorkspaceNode
+import com.pydio.cells.transport.StateID
 import java.lang.reflect.Type
+import java.util.*
+import kotlin.collections.ArrayList
 
 class Converters {
 
@@ -32,6 +35,28 @@ class Converters {
     @TypeConverter
     fun fromWorkspaces(list: List<WorkspaceNode>): String {
         return Gson().toJson(list)
+    }
+
+    @TypeConverter
+    fun toProperties(value: String): Properties {
+        val propType: Type = object : TypeToken<Properties>() {}.getType()
+        return Gson().fromJson(value, propType)
+    }
+
+    @TypeConverter
+    fun fromProperties(meta: Properties): String {
+        return Gson().toJson(meta)
+    }
+
+    @TypeConverter
+    fun toStateID(value: String): StateID {
+        val propType: Type = object : TypeToken<StateID>() {}.getType()
+        return Gson().fromJson(value, propType)
+    }
+
+    @TypeConverter
+    fun fromStateID(stateID: StateID): String {
+        return Gson().toJson(stateID)
     }
 
 

@@ -11,13 +11,22 @@
         android:name="org.sinou.android.pydia.browse.ChooseWorkspaceFragment"
         android:label="@string/choose_workspace_title"
         tools:layout="@layout/fragment_choose_workspace">
+        <action
+            android:id="@+id/action_choose_workspace_destination_to_browse_list_destination"
+            app:destination="@id/browse_folder_destination" />
     </fragment>
 
     <fragment
-        android:id="@+id/browse_list_destination"
-        android:name="org.sinou.android.pydia.browse.BrowseListFragment"
+        android:id="@+id/browse_folder_destination"
+        android:name="org.sinou.android.pydia.browse.BrowseFolderFragment"
         android:label="@string/browse_list_title"
-        tools:layout="@layout/fragment_browse_list">
+        tools:layout="@layout/fragment_browse_folder">
+        <action
+            android:id="@+id/action_browse_list_destination_self"
+            app:destination="@id/browse_folder_destination" />
+        <argument
+            android:name="state"
+            app:argType="string" />
     </fragment>
 
 </navigation>

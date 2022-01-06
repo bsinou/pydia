@@ -14,7 +14,7 @@ buildscript {
 
         def coroutines_android_version = '1.5.2'
         def work_version = '2.7.1'
-        def room_version = '2.3.0'
+        def room_version = '2.4.0'
         def androidx_core_version  = '1.7.0'
 
         def appcompat_version = '1.4.0'

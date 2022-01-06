@@ -15,7 +15,7 @@ import org.sinou.android.pydia.room.Converters
             "account_table.url, " +
             "account_table.username, " +
             "account_table.auth_status, " +
-            "account_table.skip_verify, " +
+            "account_table.tls_mode, " +
             "account_table.is_legacy, " +
             "account_table.server_label, " +
             "account_table.welcome_message " +
@@ -33,8 +33,8 @@ data class RLiveSession(
     @ColumnInfo(name = "url") val url: String,
     @ColumnInfo(name = "username") val username: String,
     @ColumnInfo(name = "auth_status") var authStatus: String,
-    @ColumnInfo(name = "skip_verify") var skipVerify: Boolean = false,
-    @ColumnInfo(name = "is_legacy") var isLegacy: Boolean = false,
+    @ColumnInfo(name = "tls_mode") var tlsMode: Int,
+    @ColumnInfo(name = "is_legacy") var isLegacy: Boolean,
     @ColumnInfo(name = "server_label") val serverLabel: String?,
     @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
 )

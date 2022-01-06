@@ -26,7 +26,8 @@ class ServerUrlFragment : Fragment() {
 
     private val TAG = "ServerUrlFragment"
 
-    val viewModelFactory = ServerUrlViewModel.ServerUrlViewModelFactory(CellsApp.instance.accountService)
+    val viewModelFactory =
+        ServerUrlViewModel.ServerUrlViewModelFactory(CellsApp.instance.accountService)
     private val viewModel: ServerUrlViewModel by activityViewModels { viewModelFactory }
 
     private lateinit var binding: FragmentServerUrlBinding
@@ -42,26 +43,30 @@ class ServerUrlFragment : Fragment() {
 
         binding.actionButton.setOnClickListener { goForPing(it) }
 
-        viewModel.launchOAuthIntent.observe(requireActivity(), Observer { intent ->
-            Log.i(TAG, "... ReadyToAuth")
-            intent?.let {
-                startActivity(intent)
-                viewModel.authLaunched()
-            }
-        })
-
         viewModel.server.observe(requireActivity(), Observer { server ->
             Log.i(TAG, "... LaunchingAuth")
             server?.let {
                 if (it.isLegacy) { // Navigate to in app auth
                     Log.i(TAG, "... Legacy server => display p8cred fragment")
+
+                    val urlStr = server.serverURL.toJson()
                     val action =
-                        ServerUrlFragmentDirections.actionServerUrlFragmentToP8CredentialsFragment()
+                        ServerUrlFragmentDirections.actionServerUrlFragmentToP8CredentialsFragment(
+                            urlStr
+                        )
                     binding.serverUrlFragment.findNavController().navigate(action)
                 } else { // Launch OAuth Process
                     Log.i(TAG, "... Cells server => launch OAuth flow")
                     viewModel.launchOAuthProcess(server)
                 }
+                viewModel.authLaunched()
+            }
+        })
+
+        viewModel.launchOAuthIntent.observe(requireActivity(), Observer { intent ->
+            Log.i(TAG, "... ReadyToAuth")
+            intent?.let {
+                startActivity(intent)
                 viewModel.authLaunched()
             }
         })
@@ -87,6 +92,4 @@ class ServerUrlFragment : Fragment() {
 
         hideKeyboard()
     }
-
-
 }

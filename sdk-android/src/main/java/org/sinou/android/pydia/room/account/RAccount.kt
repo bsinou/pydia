@@ -16,7 +16,8 @@ data class RAccount(
 
     @ColumnInfo(name = "auth_status") var authStatus: String,
 
-    @ColumnInfo(name = "skip_verify") var skipVerify: Boolean = false,
+    // 0 = normal, 1 = skip verify, 2 = custom certificate (to be implemented)
+    @ColumnInfo(name = "tls_mode") var tlsMode: Int = 0,
 
     @ColumnInfo(name = "is_legacy") var isLegacy: Boolean = false,
 

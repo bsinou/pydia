@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
-import com.pydio.cells.legacy.P8Credentials
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.auth.jwt.OAuthConfig
@@ -50,11 +49,6 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
     private val _server = MutableLiveData<Server?>()
     val server: LiveData<Server?>
         get() = _server
-
-    // Account ID is non-null when a server has been correctly registered, with valid credentials
-    private val _accountID = MutableLiveData<String?>()
-    val accountID: LiveData<String?>
-        get() = _accountID
 
     // Manage UI
     private val _isLoading = MutableLiveData<Boolean>()
@@ -107,15 +101,6 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
         }
     }
 
-    fun logToP8(login: String, password: String, captcha: String?) {
-        // TODO validate passed parameters
-        vmScope.launch {
-            switchLoading(true)
-            _errorMessage.value = doP8Auth(login, password, captcha)
-            switchLoading(false)
-        }
-    }
-
     fun launchOAuthProcess(currServer: Server) {
         vmScope.launch {
             switchLoading(true)
@@ -141,27 +126,6 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
         }
     }
 
-    private suspend fun doP8Auth(login: String, password: String, captcha: String?): String? {
-        val creds = P8Credentials(login, password, captcha)
-
-        val currUrl = serverUrl.value ?: return null
-        var errorMsg: String? = null
-
-        val accountIDStr = withContext(Dispatchers.IO) {
-            Log.i(TAG, "Launch P8 Auth for ${creds.username}@${currUrl.url}")
-            var id: String? = null
-            try {
-                id = accountService.registerAccount(currUrl, creds)
-            } catch (e: SDKException) {
-                errorMsg = e.message ?: "Invalid credentials, please try again"
-            }
-            id
-        }
-        if (accountIDStr != null) {
-            _accountID.value = accountIDStr
-        }
-        return errorMsg
-    }
 
     private suspend fun doLaunchOAuthProcess(currServer: Server): Intent? {
 

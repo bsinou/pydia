@@ -11,7 +11,6 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.transport.auth.credentials.JWTCredentials
 import com.pydio.cells.transport.auth.jwt.IdToken
-import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
@@ -203,7 +202,7 @@ class AccountService(val accountDB: AccountDB, private val workingDir: String?) 
             username = username,
             url = server.url(),
             serverLabel = server.label,
-            skipVerify = server.serverURL.skipVerify(),
+            tlsMode = if (server.serverURL.skipVerify()) 1 else 0,
             isLegacy = server.isLegacy,
             welcomeMessage = server.getWelcomeMessage(),
             authStatus = AppNames.AUTH_STATUS_NEW,

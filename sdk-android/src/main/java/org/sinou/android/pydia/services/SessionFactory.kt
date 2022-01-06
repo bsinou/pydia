@@ -140,8 +140,8 @@ class SessionFactory(
             )
 
         try {
-
-            val serverURL = ServerURLImpl.fromAddress(account.url, account.skipVerify)
+            val skipVerify = account.tlsMode == 1
+            val serverURL = ServerURLImpl.fromAddress(account.url, skipVerify)
             // TODO probably useless
             servers.get(accountID) ?: registerServer(serverURL)
             transports.get(accountID) ?: restoreAccount(serverURL, account.username)

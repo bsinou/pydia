@@ -57,6 +57,9 @@
         <action
             android:id="@+id/action_p8_credentials_fragment_to_account_list_fragment"
             app:destination="@id/account_list_destination" />
+        <argument
+            android:name="serverUrlString"
+            app:argType="string" />
     </fragment>
 
 </navigation>

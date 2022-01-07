@@ -21,7 +21,7 @@ data class RTreeNode(
 
     @ColumnInfo(name = "name") val name: String,
 
-    @ColumnInfo(name = "type") var type: String,
+    @ColumnInfo(name = "mime") var mime: String,
 
     @ColumnInfo(name = "local_mod_ts") var localModificationTS: Long,
 
@@ -33,7 +33,9 @@ data class RTreeNode(
 
     @ColumnInfo(name = "is_bookmarked") var isBookmarked: Boolean = false,
 
-    @ColumnInfo(name = "is_shared") val isShared: Boolean = false,
+    @ColumnInfo(name = "is_shared") var isShared: Boolean = false,
 
     @ColumnInfo(name = "meta") val meta: Properties,
-)
+
+    @ColumnInfo(name = "sort_name") var sortName: String?,
+    )

@@ -1,10 +1,12 @@
 package org.sinou.android.pydia.browse
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
@@ -61,13 +63,26 @@ class NodeListAdapter(
 
 class TreeNodeDiffCallback : DiffUtil.ItemCallback<RTreeNode>() {
 
+    private val tag = "TreeNodeDiffCallback"
+
     override fun areItemsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
-        return oldItem.encodedState == newItem.encodedState
+
+        val same = oldItem.encodedState == newItem.encodedState
+        if (!same){
+            Log.d(tag, "${oldItem.encodedState} != ${newItem.encodedState}")
+        }
+        return same
     }
 
     override fun areContentsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
         // Thanks to Room: RTreeNode is a @Data class and gets equality based on
         // equality of each fields (column) for free.
-        return oldItem == newItem
+        val same = oldItem == newItem
+        if (!same){
+            Log.d(tag, "Found new content for ${oldItem.encodedState}")
+            Log.d(tag, "old meta: \n${Gson().toJson(oldItem.meta)}")
+            Log.d(tag, "new meta: \n${Gson().toJson(newItem.meta)}")
+        }
+        return same
     }
 }

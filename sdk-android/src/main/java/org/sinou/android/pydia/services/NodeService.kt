@@ -1,10 +1,12 @@
 package org.sinou.android.pydia.services
 
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.CustomEncoder
 import com.pydio.cells.api.SDKException
+import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.PageOptions
@@ -14,6 +16,7 @@ import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.room.browse.TreeNodeDB
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
+import java.util.*
 
 class NodeService(
     private val nodeDB: TreeNodeDB,
@@ -96,17 +99,39 @@ class NodeService(
         }
 
         fun toRTreeNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-            return RTreeNode(
+            var node =  RTreeNode(
                 encodedState = stateID.id,
                 workspace = stateID.workspace,
                 parentPath = stateID.parentFile,
                 name = stateID.fileName,
-                type = "todo",
+                mime = fileNode.mimeType,
+                remoteModificationTS = fileNode.lastModified(),
                 localModificationTS = 0,
-                remoteModificationTS = 0,
                 lastCheckTS = 0,
                 meta = fileNode.properties,
+                sortName = "",
             )
+
+            // Use Android library to precise MimeType when possible
+            if (SdkNames.NODE_MIME_DEFAULT.equals(node.mime)){
+                node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
+            }
+
+            // Add a technical name to easily have a canonical sorting by default,
+            // that is: folders, files, recycle bin.
+            node.sortName = when(node.mime){
+                SdkNames.NODE_MIME_FOLDER -> "2_${node.name}"
+                SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
+                else -> "5_${node.name}"
+            }
+
+            return node
+        }
+
+        fun getMimeType(url: String, fallback: String = "*/*"): String {
+            return MimeTypeMap.getFileExtensionFromUrl(url)
+                ?.run { MimeTypeMap.getSingleton().getMimeTypeFromExtension(url.lowercase()) }
+                ?: fallback
         }
     }
 }

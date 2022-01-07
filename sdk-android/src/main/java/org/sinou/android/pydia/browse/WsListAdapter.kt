@@ -5,60 +5,70 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.NonNull
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.api.ui.WorkspaceNode
+import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BrowseActivity
-import org.sinou.android.pydia.R
+import org.sinou.android.pydia.databinding.ListItemWorkspaceBinding
 
 class WsListAdapter(
     private val onItemClicked: (slug: String, action: String) -> Unit
-) : RecyclerView.Adapter<WsListAdapter.ViewHolder>() {
-
-    var data = listOf<WorkspaceNode>()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-
-    override fun getItemCount(): Int = data.size
+) : ListAdapter<WorkspaceNode, WsListAdapter.ViewHolder>(WorkspaceNodeDiffCallback()) {
 
     override fun onBindViewHolder(holder: WsListAdapter.ViewHolder, position: Int) {
-        val item = data[position]
-        holder.slug = item.id
-        holder.titleView.text = item.label
-        holder.descView.text = item.description
+        val item = getItem(position)
+        holder.bind(item)
     }
 
-    override fun onCreateViewHolder(@NonNull parent: ViewGroup, viewType: Int): ViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val view = layoutInflater.inflate(R.layout.list_item_workspace, parent, false)
-        return WsListAdapter.ViewHolder(view, onItemClicked)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder.from(parent).with(onItemClicked)
     }
 
-    // We pass a click listener to each view holder via the constructor...
-    class ViewHolder(
-        itemView: View
-    ) :
-        RecyclerView.ViewHolder(itemView) {
-//        private val TAG = "ViewHolder<Workspace>"
+    class ViewHolder private constructor(val binding: ListItemWorkspaceBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        var slug: String? = ""
-        lateinit var titleView: TextView
-        lateinit var descView: TextView
+        fun bind(item: WorkspaceNode) {
+            binding.workspace = item
+            binding.executePendingBindings()
+        }
 
-        constructor(v: View, onItemClicked: (slug: String, action: String) -> Unit) : this(v) {
-            // Define click listener for the ViewHolder's View.
-            v.setOnClickListener(View.OnClickListener { v ->
-                slug?.let {
+        fun with(onItemClicked: (slug: String, command: String) -> Unit)
+                : ViewHolder {
+
+            binding.root.setOnClickListener {
+                binding.workspace?.let {
                     onItemClicked(
-                        it,
+                        it.slug,
                         BrowseActivity.NAVIGATE
                     )
                 }
-            })
-            titleView = v.findViewById<View>(R.id.workspace_title) as TextView
-            descView = v.findViewById<View>(R.id.workspace_desc) as TextView
+            }
+            return this
+        }
+
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ListItemWorkspaceBinding.inflate(layoutInflater, parent, false)
+                return ViewHolder(binding)
+            }
         }
     }
-
 }
+
+class WorkspaceNodeDiffCallback : DiffUtil.ItemCallback<WorkspaceNode>() {
+
+    override fun areItemsTheSame(oldItem: WorkspaceNode, newItem: WorkspaceNode): Boolean {
+        return oldItem.slug == newItem.slug
+    }
+
+    override fun areContentsTheSame(oldItem: WorkspaceNode, newItem: WorkspaceNode): Boolean {
+        // Thanks to Room: SleepNight is a @Data class and gets equality based on
+        // equality of each fields (column) for free.
+        return oldItem == newItem
+    }
+}
+
+

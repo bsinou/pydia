@@ -61,8 +61,8 @@ class BrowseFolderFragment : Fragment() {
         treeFolderVM.children.observe(
             viewLifecycleOwner,
             {
-                    adapter.data = it
-
+                // When Adapter is a List adapter
+                adapter.submitList(it)
             },
         )
 

@@ -6,6 +6,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="node"
+            type="org.sinou.android.pydia.room.browse.RTreeNode" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
 
         android:layout_width="match_parent"
@@ -18,12 +24,12 @@
             android:layout_height="@dimen/icon_size"
             android:layout_margin="@dimen/margin_small"
 
-            android:src="@drawable/ic_baseline_person_24"
-
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/colorAvatarDefault"
+            tools:srcCompat="@drawable/ic_baseline_folder_24"
+            app:nodeThumb="@{node}"
             />
 
         <TextView
@@ -37,7 +43,9 @@
             app:layout_constraintStart_toStartOf="@+id/node_desc"
             app:layout_constraintBottom_toTopOf="@+id/node_desc"
 
-            tools:text="Folder 1" />
+            tools:text="Folder 1"
+            app:nodeTitle="@{node}"
+            />
 
         <TextView
             android:id="@+id/node_desc"
@@ -50,7 +58,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/node_thumb"
 
-            tools:text="Your personal files" />
+            tools:text="Your personal files"
+            app:nodeDesc="@{node}"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

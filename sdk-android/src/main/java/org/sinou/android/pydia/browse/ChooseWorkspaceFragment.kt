@@ -69,11 +69,10 @@ class ChooseWorkspaceFragment : Fragment() {
             {
                 it?.let {
                     val currWss = it.workspaces ?: listOf()
-                    adapter.data = currWss.sorted()
+                    adapter.submitList(currWss.sorted())
                 }
             },
         )
-
         return binding.root
     }
 

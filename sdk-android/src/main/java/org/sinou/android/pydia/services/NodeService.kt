@@ -103,7 +103,8 @@ class NodeService(
 
         fun dataDir(filesDir: File, stateID: StateID, type: String): File {
             val ps = File.pathSeparator
-            var path = filesDir.absolutePath + ps + stateID.accountId + ps + type
+            var path = filesDir.absolutePath + ps + "data" + ps +
+                    stateID.accountId + ps + type
             return File(path)
         }
 

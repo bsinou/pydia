@@ -19,13 +19,14 @@ import org.sinou.android.pydia.room.account.RAccount
 import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.room.account.RSession
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
+import java.io.File
 
 /**
  * AccountService is the single source of truth for accounts, sessions and auth in the app.
  * It takes care of both local caching of session info and authentication against the remote
  * servers. It holds a SessionFactory that gives access to the SDK client
  */
-class AccountService(val accountDB: AccountDB, private val workingDir: String?) {
+class AccountService(val accountDB: AccountDB, private val baseDir: File) {
 
     private val encoder: CustomEncoder = AndroidCustomEncoder()
 

@@ -51,18 +51,18 @@ class CellsApp : Application() {
         }
     }
 
-    fun baseDir(): File? {
-        val appDir = baseContext.getApplicationInfo().dataDir
-        Log.w(tag, "Data dir: $appDir")
-        Log.w(tag, "File dir: $filesDir")
-        return filesDir
-    }
+ //    fun baseDir(): File? {
+ //        val appDir = baseContext.getApplicationInfo().dataDir
+ //        Log.w(tag, "Data dir: $appDir")
+ //        Log.w(tag, "File dir: $filesDir")
+ //        return filesDir
+ //    }
 
     private fun initServices() {
 
         accountService = AccountService(
             AccountDB.getDatabase(this.applicationContext),
-            baseDir()?.absolutePath
+            filesDir
         )
 
         nodeService = NodeService(

@@ -12,16 +12,18 @@ import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.room.browse.TreeNodeDB
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
-import java.util.*
+import org.sinou.android.sandbox.kotlin.coroutines.ThumbDownloader
+import java.io.File
 
 class NodeService(
     private val nodeDB: TreeNodeDB,
     private val accountService: AccountService,
-    private val workingDir: String?
+    private val filesDir: File
 ) {
     private val TAG = "NodeService"
 
@@ -31,7 +33,6 @@ class NodeService(
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
         return nodeDB.treeNodeDao().ls(stateID.id, stateID.file)
     }
-
 
 //    fun searchUnder(stateID: StateID): LiveData<List<RTreeNode>> {
 //        var encodedId = stateID.id
@@ -49,6 +50,7 @@ class NodeService(
             val page = firstPage()
             val dao = nodeDB.treeNodeDao()
 
+            val downloader = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, "thumbs"))
             val nextPage = client.ls(
                 stateID.workspace, stateID.file, page
             ) { node: Node? ->
@@ -60,8 +62,10 @@ class NodeService(
                     val rNode = toRTreeNode(childStateID, node)
                     val old = dao.getNode(childStateID.id)
                     if (old == null) {
-                        //Log.i(TAG, "About to insert " + childStateID)
                         dao.insert(rNode)
+                        launch {
+                            downloader.orderThumbDL(childStateID.id)
+                        }
                     } else {
                         // Log.i(TAG, "About to update " + childStateID)
                         dao.update(rNode)
@@ -81,7 +85,6 @@ class NodeService(
             }
 */
 
-
         } catch (e: SDKException) {
             Log.e(TAG, "could not perform ls for " + stateID.id)
             e.printStackTrace()
@@ -98,8 +101,14 @@ class NodeService(
             return page
         }
 
+        fun dataDir(filesDir: File, stateID: StateID, type: String): File {
+            val ps = File.pathSeparator
+            var path = filesDir.absolutePath + ps + stateID.accountId + ps + type
+            return File(path)
+        }
+
         fun toRTreeNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-            var node =  RTreeNode(
+            var node = RTreeNode(
                 encodedState = stateID.id,
                 workspace = stateID.workspace,
                 parentPath = stateID.parentFile,
@@ -113,13 +122,13 @@ class NodeService(
             )
 
             // Use Android library to precise MimeType when possible
-            if (SdkNames.NODE_MIME_DEFAULT.equals(node.mime)){
+            if (SdkNames.NODE_MIME_DEFAULT.equals(node.mime)) {
                 node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
             }
 
             // Add a technical name to easily have a canonical sorting by default,
             // that is: folders, files, recycle bin.
-            node.sortName = when(node.mime){
+            node.sortName = when (node.mime) {
                 SdkNames.NODE_MIME_FOLDER -> "2_${node.name}"
                 SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
                 else -> "5_${node.name}"

@@ -4,9 +4,9 @@ import android.app.Application
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
-import com.pydio.cells.utils.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ import java.io.File
  * Does nothing exotic to begin with */
 class CellsApp : Application() {
 
-    private val TAG = "CellsApp"
+    private val tag = "CellsApp"
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
 
@@ -47,12 +47,15 @@ class CellsApp : Application() {
             initServices()
             // TODO also set-up worker tasks tasks
 
-            Log.i(TAG, "Delayed init terminated")
+            Log.i(tag, "Delayed init terminated")
         }
     }
 
     fun baseDir(): File? {
-        return baseContext.filesDir
+        val appDir = baseContext.getApplicationInfo().dataDir
+        Log.w(tag, "Data dir: $appDir")
+        Log.w(tag, "File dir: $filesDir")
+        return filesDir
     }
 
     private fun initServices() {
@@ -65,7 +68,7 @@ class CellsApp : Application() {
         nodeService = NodeService(
             TreeNodeDB.getDatabase(this.applicationContext) ,
             accountService,
-            baseDir()?.absolutePath,
+            filesDir,
         )
     }
 

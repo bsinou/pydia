@@ -26,18 +26,17 @@ class CellsApp : Application() {
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
 
+    lateinit var accountService: AccountService
+    lateinit var nodeService: NodeService
+
     companion object {
         lateinit var instance: CellsApp
             private set
     }
 
-    lateinit var accountService: AccountService
-    lateinit var nodeService: NodeService
-
     override fun onCreate() {
         super.onCreate()
         instance = this
-
         delayedInit()
     }
 
@@ -45,28 +44,22 @@ class CellsApp : Application() {
         applicationScope.launch {
             updateClientData()
             initServices()
-            // TODO also set-up worker tasks tasks
+
+            // TODO also set-up worker tasks
 
             Log.i(tag, "Delayed init terminated")
         }
     }
 
- //    fun baseDir(): File? {
- //        val appDir = baseContext.getApplicationInfo().dataDir
- //        Log.w(tag, "Data dir: $appDir")
- //        Log.w(tag, "File dir: $filesDir")
- //        return filesDir
- //    }
-
     private fun initServices() {
 
         accountService = AccountService(
-            AccountDB.getDatabase(this.applicationContext),
+            AccountDB.getDatabase(applicationContext),
             filesDir
         )
 
         nodeService = NodeService(
-            TreeNodeDB.getDatabase(this.applicationContext) ,
+            TreeNodeDB.getDatabase(applicationContext) ,
             accountService,
             filesDir,
         )

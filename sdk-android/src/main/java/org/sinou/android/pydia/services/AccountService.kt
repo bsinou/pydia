@@ -42,6 +42,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
     // Temporary keep track of all states that have been generated for OAuth processes
     val inProcessCallbacks = mutableMapOf<String, ServerURL>()
 
+
     val liveSessions: LiveData<List<RLiveSession>> = accountDB.liveSessionDao().getLiveSessions()
 
     fun registerAccount(serverURL: ServerURL, credentials: Credentials): String? {
@@ -146,26 +147,27 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
 
     /** Cells' Credentials flow management */
 
-    suspend fun handleOAuthResponse(oauthState: String, code: String) {
+    suspend fun handleOAuthResponse(oauthState: String, code: String): String? =
         withContext(Dispatchers.IO) {
+            var accountID: String? = null
             val serverURL = inProcessCallbacks.get(oauthState)
-            if (serverURL != null) {
-                try {
-                    val transport =
-                        sessionFactory.getAnonymousTransport(serverURL.getId()) as CellsTransport
-                    val token = transport.getTokenFromCode(code, encoder)
-                    manageRetrievedToken(transport, oauthState, token)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Could not finalize credential auth flow")
-                    e.printStackTrace()
-                }
-            } else {                // Ignore callback
+            if (serverURL == null) {
                 Log.i(TAG, "Ignored call back with unknown state: ${oauthState}")
+                return@withContext accountID
             }
+            try {
+                val transport =
+                    sessionFactory.getAnonymousTransport(serverURL.getId()) as CellsTransport
+                val token = transport.getTokenFromCode(code, encoder)
+                accountID = manageRetrievedToken(transport, token)
+            } catch (e: Exception) {
+                Log.e(TAG, "Could not finalize credential auth flow")
+                e.printStackTrace()
+            }
+            return@withContext accountID
         }
-    }
 
-    private fun manageRetrievedToken(transport: CellsTransport, oauthState: String, token: Token) {
+    private fun manageRetrievedToken(transport: CellsTransport, token: Token) : String {
         val idToken = IdToken.parse(encoder, token.idToken)
         val accountID = StateID(idToken.claims.name, transport.server.url())
         val jwtCredentials = JWTCredentials(accountID.username, token)
@@ -193,6 +195,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         // Adapt poll and tasks
         // check if it was a background thread
         // redirectToCallerWithNewState(State.fromAccountId(accountID.id), oauthState)
+        return accountID.id
     }
 
 
@@ -223,7 +226,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         return newSession
     }
 
-    //    public void createLocalFolders(String accountID) throws SDKException {
+//    public void createLocalFolders(String accountID) throws SDKException {
 //
 //        String baseFolderPath = baseLocalFolderPath(accountID);
 //        File file = new File(baseFolderPath);

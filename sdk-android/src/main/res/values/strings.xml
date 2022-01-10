@@ -4,6 +4,15 @@
 
     <string name="application_title" translatable="false">Pydia!</string>
 
+    <!-- GENERIC MESSAGES -->
+
+    <!-- Button Labels -->
+    <string name="button_cancel">Cancel</string>
+    <string name="button_ok">OK</string>
+    <string name="button_confirm">OK!</string>
+
+    <!-- PAGE SPECIFIC MESSAGES -->
+
     <!-- Welcome Page -->
     <string name="welcome_title">Welcome in Pydio!</string>
     <string name="welcome_subtitle">The Pydio Cells Client for Android</string>
@@ -46,8 +55,6 @@
     <string name="ask_url_title">Add account</string>
     <string name="ask_url_desc">Enter your server URL</string>
     <string name="ask_url_help">Please provide an address like https://files.example.com</string>
-    <string name="ask_url_cancel">Cancel</string>
-    <string name="ask_url_confirm">OK</string>
 
     <string name="oauth_callback_waiting">Authentication process has been launched</string>
     <string name="oauth_callback_cancel">Cancel</string>
@@ -56,7 +63,10 @@
     <!-- Account management -->
     <string name="account_list_title">Manage Accounts</string>
     <string name="account_list_desc">Manage already registered remote servers</string>
-    <string name="account_list_none">No account has been configured yet...</string>
+    <string name="account_list_none">No account has been configured yet…</string>
+
+    <string name="oauth_flow_title">Getting OAuth 2 credentials</string>
+    <string name="oauth_flow_desc">Login to your remote server (via your preferred web browser) in process…</string>
 
     <string name="p8_credentials_title">Login</string>
     <string name="p8_credentials_desc">Please enter your credentials</string>

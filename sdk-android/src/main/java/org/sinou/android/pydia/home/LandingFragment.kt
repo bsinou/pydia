@@ -5,11 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import org.sinou.android.pydia.AccountActivity
 import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.AuthActivity
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentLandingBinding
 
@@ -30,10 +29,8 @@ class LandingFragment : Fragment(), AppNames {
 
         binding.addAccountButton.setOnClickListener {
             // Launch the account activity with a new intent
-            val toBrowseIntent = Intent(requireActivity(), AccountActivity::class.java)
-            // TODO not yet plugged
-            // toBrowseIntent.putExtra(AppNames.KEY_DESTINATION, "ServerUrlFragment")
-            startActivity(toBrowseIntent);
+            val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
+            startActivity(toAuthIntent);
         }
 
         setHasOptionsMenu(true)

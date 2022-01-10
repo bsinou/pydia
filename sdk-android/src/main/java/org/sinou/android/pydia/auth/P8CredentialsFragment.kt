@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.account
+package org.sinou.android.pydia.auth
 
 import android.content.Intent
 import android.os.Bundle

@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.account
+package org.sinou.android.pydia.auth
 
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
@@ -24,13 +23,12 @@ import org.sinou.android.pydia.utils.hideKeyboard
  */
 class ServerUrlFragment : Fragment() {
 
-    private val TAG = "ServerUrlFragment"
-
-    val viewModelFactory =
-        ServerUrlViewModel.ServerUrlViewModelFactory(CellsApp.instance.accountService)
-    private val viewModel: ServerUrlViewModel by activityViewModels { viewModelFactory }
+    private val fTag = "ServerUrlFragment"
 
     private lateinit var binding: FragmentServerUrlBinding
+    private val viewModelFactory =
+        ServerUrlViewModel.ServerUrlViewModelFactory(CellsApp.instance.accountService)
+    private val viewModel: ServerUrlViewModel by activityViewModels { viewModelFactory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,37 +39,27 @@ class ServerUrlFragment : Fragment() {
             inflater, R.layout.fragment_server_url, container, false
         )
 
-        binding.actionButton.setOnClickListener { goForPing(it) }
+        binding.actionButton.setOnClickListener { goForPing() }
 
-        viewModel.server.observe(requireActivity(), Observer { server ->
-            Log.i(TAG, "... LaunchingAuth")
+        viewModel.server.observe(requireActivity(), { server ->
+            Log.i(fTag, "... LaunchingAuth")
             server?.let {
+                val urlStr = server.serverURL.toJson()
                 if (it.isLegacy) { // Navigate to in app auth
-                    Log.i(TAG, "... Legacy server => display p8cred fragment")
-
-                    val urlStr = server.serverURL.toJson()
-                    val action =
-                        ServerUrlFragmentDirections.actionServerUrlFragmentToP8CredentialsFragment(
-                            urlStr
-                        )
+                    Log.i(fTag, "... Legacy server => display p8cred fragment")
+                    val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(urlStr)
                     binding.serverUrlFragment.findNavController().navigate(action)
                 } else { // Launch OAuth Process
-                    Log.i(TAG, "... Cells server => launch OAuth flow")
-                    viewModel.launchOAuthProcess(server)
+                    Log.i(fTag, "... Cells server => launch OAuth flow")
+                    val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(urlStr)
+                    binding.serverUrlFragment.findNavController().navigate(action)
+                    // viewModel.launchOAuthProcess(server)
                 }
                 viewModel.authLaunched()
             }
         })
 
-        viewModel.launchOAuthIntent.observe(requireActivity(), Observer { intent ->
-            Log.i(TAG, "... ReadyToAuth")
-            intent?.let {
-                startActivity(intent)
-                viewModel.authLaunched()
-            }
-        })
-
-        viewModel.errorMessage.observe(requireActivity(), Observer { msg ->
+        viewModel.errorMessage.observe(requireActivity(), { msg ->
             msg?.let {
                 Toast.makeText(requireActivity().application, msg, Toast.LENGTH_LONG).show()
             }
@@ -80,7 +68,7 @@ class ServerUrlFragment : Fragment() {
         return binding.root
     }
 
-    fun goForPing(v: View) {
+    private fun goForPing() {
 
         viewModel.pingAddress(binding.urlEditText.text.toString())
         binding.apply {

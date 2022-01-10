@@ -9,8 +9,6 @@
     android:id="@+id/account_navigation"
     app:startDestination="@id/account_list_destination">
 
-<!--    app:startDestination="@id/server_url_fragment"-->
-
     <fragment
         android:id="@+id/account_list_destination"
         android:name="org.sinou.android.pydia.account.AccountListFragment"
@@ -32,34 +30,5 @@
         android:name="org.sinou.android.pydia.account.AccountDetailsFragment"
         android:label="@string/account_details_desc"
         tools:layout="@layout/fragment_account_details"></fragment>
-
-    <fragment
-        android:id="@+id/server_url_destination"
-        android:name="org.sinou.android.pydia.account.ServerUrlFragment"
-        android:label="@string/ask_url_title"
-        tools:layout="@layout/fragment_server_url">
-        <!-- Actions:
-        - launch OAuth flow
-        - OAuth Call back ?
-        - Cancel and back
-        - go to p8 cred fragment
-        -->
-        <action
-            android:id="@+id/action_server_url_fragment_to_p8_credentials_fragment"
-            app:destination="@id/p8_credentials_fragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/p8_credentials_fragment"
-        android:name="org.sinou.android.pydia.account.P8CredentialsFragment"
-        android:label="@string/p8_credentials_title"
-        tools:layout="@layout/fragment_p8_credentials">
-        <action
-            android:id="@+id/action_p8_credentials_fragment_to_account_list_fragment"
-            app:destination="@id/account_list_destination" />
-        <argument
-            android:name="serverUrlString"
-            app:argType="string" />
-    </fragment>
 
 </navigation>

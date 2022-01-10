@@ -13,15 +13,14 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import org.sinou.android.pydia.databinding.ActivityAccountBinding
 
 /**
- * Centralizes identification and authentification.
+ * Manage accounts (after they are created).
  */
 class AccountActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
-    private val TAG = "AccountActivity"
+    private val tag = "AccountActivity"
 
     private lateinit var binding: ActivityAccountBinding
     private lateinit var navController: NavController
@@ -30,32 +29,17 @@ class AccountActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_account)
         buildNavigationLayout()
-        binding.navView.setNavigationItemSelectedListener(onMenuItemSelected);
+        binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
     }
 
     override fun onResume() {
-        Log.i(TAG, "onResume, intent: $intent")
+        Log.i(tag, "onResume")
         super.onResume()
-        handleIntent(intent)
     }
 
     override fun onPause() {
-        Log.i(TAG, "onPause, intent: $intent")
+        Log.i(tag, "onPause")
         super.onPause()
-    }
-
-    fun handleIntent(inIntent: Intent) {
-        if (Intent.ACTION_VIEW == intent.action) {
-            val uri = inIntent.data ?: return
-//            if (uri == null) {
-//                finish(); return
-//            }
-            val code: String = uri.getQueryParameter(AppNames.KEY_CODE)!!
-            val state: String = uri.getQueryParameter(AppNames.KEY_STATE)!!
-            launch {
-                CellsApp.instance.accountService.handleOAuthResponse(state, code)
-            }
-        }
     }
 
     private fun buildNavigationLayout() {
@@ -78,8 +62,8 @@ class AccountActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     }
 
-    val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
-        Log.i(TAG, "... Item selected: #${it.itemId}")
+    private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
+        Log.i(tag, "... Item selected: #${it.itemId}")
         var done = true
         when (it.itemId) {
             R.id.home_destination -> startActivity(Intent(this, MainActivity::class.java))
@@ -90,5 +74,4 @@ class AccountActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         }
         done
     }
-
 }

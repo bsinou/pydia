@@ -1,5 +1,6 @@
 package org.sinou.android.pydia.account
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import kotlinx.coroutines.*
+import org.sinou.android.pydia.AuthActivity
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.browse.ForegroundSessionViewModel
@@ -40,7 +42,6 @@ class AccountListFragment : Fragment() {
             AccountListViewModel.AccountListViewModelFactory(dataSource, application)
 
         val accountListViewModel: AccountListViewModel by viewModels { viewModelFactory }
-        val foregroundSessionViewModel: ForegroundSessionViewModel by viewModels { viewModelFactory }
 
         val adapter =
             AccountListAdapter { accountID, action -> onAccountClicked(accountID, action) }
@@ -56,7 +57,9 @@ class AccountListFragment : Fragment() {
         // foregroundSessionViewModel.activeSession.observe()
 
         binding.fab.setOnClickListener {
-            it.findNavController().navigate(R.id.server_url_destination)
+            // it.findNavController().navigate(R.id.server_url_destination)
+            val toBrowseIntent = Intent(requireActivity(), AuthActivity::class.java)
+            startActivity(toBrowseIntent);
         }
 
         setHasOptionsMenu(true)

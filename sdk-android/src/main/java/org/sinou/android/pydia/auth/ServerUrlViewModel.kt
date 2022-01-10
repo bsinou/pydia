@@ -1,7 +1,5 @@
-package org.sinou.android.pydia.account
+package org.sinou.android.pydia.auth
 
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,21 +8,20 @@ import androidx.lifecycle.ViewModelProvider
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
-import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.ServerURLImpl
-import com.pydio.cells.transport.auth.jwt.OAuthConfig
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.services.AccountService
 import java.net.MalformedURLException
-import java.util.*
 
 /**
- * Manages the registration of a new server.
- *
- * TODO Should also be the reference for the callback OAuth states.*/
+ * Manages the declaration of a new server, by:
+ * - checking existence of the target URL
+ * - validating TLS status
+ * - retrieving server type (Cells or P8)
+ */
 class ServerUrlViewModel(private val accountService: AccountService) : ViewModel() {
 
-    private val TAG = "ServerUrlViewModel"
+    private val tag = "ServerUrlViewModel"
 
     private var viewModelJob = Job()
 
@@ -59,15 +56,6 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-    private val _launchOAuthIntent = MutableLiveData<Intent?>()
-    val launchOAuthIntent: LiveData<Intent?>
-        get() = _launchOAuthIntent
-
-    fun authLaunched() {
-        _server.value = null
-        _launchOAuthIntent.value = null
-    }
-
     fun pingAddress(serverAddress: String) {
         _serverAddress.value = serverAddress
         vmScope.launch {
@@ -101,11 +89,8 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
         }
     }
 
-    fun launchOAuthProcess(currServer: Server) {
-        vmScope.launch {
-            switchLoading(true)
-            _launchOAuthIntent.value = doLaunchOAuthProcess(currServer)
-        }
+    fun authLaunched() {
+        _server.value = null
     }
 
     private fun switchLoading(newState: Boolean) {
@@ -114,62 +99,25 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
 
     private suspend fun doPing(serverAddress: String): ServerURL? {
         return withContext(Dispatchers.IO) {
-            Log.i(TAG, "Perform real ping to $serverAddress")
+            Log.i(tag, "Perform real ping to $serverAddress")
             var newURL: ServerURL? = null
             try {
                 newURL = ServerURLImpl.fromAddress(serverAddress)
                 newURL.ping()
             } catch (e: MalformedURLException) {
                 updateErrorMsg(e.message ?: "Invalid address, please update")
+            } catch (e: Exception){
+                updateErrorMsg(e.message ?: "Invalid address, please update")
+                e.printStackTrace()
             }
             newURL
         }
     }
 
-
-    private suspend fun doLaunchOAuthProcess(currServer: Server): Intent? {
-
-        return withContext(Dispatchers.IO) {
-            val cfg: OAuthConfig = currServer.getOAuthConfig()
-            val oAuthState = generateOAuthState(12)
-            val uri: Uri = generateUriData(cfg, oAuthState)
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = uri
-            // Register the state for the enable the callback
-            accountService.inProcessCallbacks.put(oAuthState, currServer.serverURL)
-            intent
-        }
-    }
-
-    private val SEED_CHARS = "abcdef1234567890"
-
-    private fun generateOAuthState(length: Int): String {
-        val sb = StringBuilder()
-        val rand = Random()
-        for (i in 0 until length) {
-            sb.append(SEED_CHARS.get(rand.nextInt(SEED_CHARS.length)))
-        }
-        return sb.toString()
-    }
-
-    fun generateUriData(cfg: OAuthConfig, state: String): Uri {
-        var uriBuilder = Uri.parse(cfg.authorizeEndpoint).buildUpon()
-        uriBuilder = uriBuilder.appendQueryParameter("state", state)
-            .appendQueryParameter("scope", cfg.scope)
-            .appendQueryParameter("client_id", ClientData.getClientId())
-            .appendQueryParameter("response_type", "code")
-            .appendQueryParameter("redirect_uri", cfg.redirectURI)
-        if (cfg.audience != null && "" != cfg.audience) {
-            uriBuilder.appendQueryParameter("audience_id", cfg.audience)
-        }
-        return uriBuilder.build()
-    }
-
-
     private suspend fun doRegister(su: ServerURL): Server? {
 
         return withContext(Dispatchers.IO) {
-            Log.i(TAG, "About to register the server ${su.id}")
+            Log.i(tag, "About to register the server ${su.id}")
             var newServer: Server? = null
             try {
                 newServer = accountService.sessionFactory.registerServer(su)
@@ -191,13 +139,13 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
     }
 
     override fun onCleared() {
-        Log.i(TAG, "$TAG destroyed!")
+        Log.i(tag, "$tag destroyed!")
         super.onCleared()
         viewModelJob.cancel()
     }
 
     init {
-        Log.i(TAG, "$TAG created!")
+        Log.i(tag, "Created")
     }
 
     class ServerUrlViewModelFactory(

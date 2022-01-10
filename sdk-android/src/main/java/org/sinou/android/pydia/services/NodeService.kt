@@ -50,7 +50,7 @@ class NodeService(
             val page = firstPage()
             val dao = nodeDB.treeNodeDao()
 
-            val downloader = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, "thumbs"))
+            // val downloader = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, "thumbs"))
             val nextPage = client.ls(
                 stateID.workspace, stateID.file, page
             ) { node: Node? ->
@@ -63,9 +63,9 @@ class NodeService(
                     val old = dao.getNode(childStateID.id)
                     if (old == null) {
                         dao.insert(rNode)
-                        launch {
-                            downloader.orderThumbDL(childStateID.id)
-                        }
+//                        launch {
+//                            downloader.orderThumbDL(childStateID.id)
+//                        }
                     } else {
                         // Log.i(TAG, "About to update " + childStateID)
                         dao.update(rNode)

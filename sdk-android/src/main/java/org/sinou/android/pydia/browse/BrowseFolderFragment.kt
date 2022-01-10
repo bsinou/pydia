@@ -73,7 +73,7 @@ class BrowseFolderFragment : Fragment() {
         Log.i(TAG, "ID: $stateID, do $command")
 
         when (command) {
-            BrowseActivity.NAVIGATE -> {
+            BrowseActivity.actionNavigate -> {
                 val action =
                     BrowseFolderFragmentDirections.actionBrowseListDestinationSelf(stateID.id)
                 binding.browseFolderFragment.findNavController().navigate(action)

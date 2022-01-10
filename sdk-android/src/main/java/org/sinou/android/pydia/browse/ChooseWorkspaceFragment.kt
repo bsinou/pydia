@@ -80,7 +80,7 @@ class ChooseWorkspaceFragment : Fragment() {
         Log.i(TAG, "ID: $slug, do $command")
 
         when (command) {
-            BrowseActivity.NAVIGATE -> {
+            BrowseActivity.actionNavigate -> {
                 val state = StateID.fromId(accountID).withPath("/${slug}")
                 val action =
                     ChooseWorkspaceFragmentDirections.actionChooseWorkspaceDestinationToBrowseListDestination(

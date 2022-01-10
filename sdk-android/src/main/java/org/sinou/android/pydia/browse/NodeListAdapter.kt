@@ -44,7 +44,7 @@ class NodeListAdapter(
                     // TODO only navigate with folders.
                     onItemClicked(
                         parentStateID.child(it.name),
-                        BrowseActivity.NAVIGATE
+                        BrowseActivity.actionNavigate
                     )
                 }
             }

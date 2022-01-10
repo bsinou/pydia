@@ -28,8 +28,7 @@ class ThumbDownloader(val client: Client, val nodeDB: TreeNodeDB, val filesDir: 
     private val queue = Channel<String>()
 
     init {
-        filesDir.mkdirs()
-
+        // filesDir.mkdirs()
     }
 
     private fun download(encodedState: String) {

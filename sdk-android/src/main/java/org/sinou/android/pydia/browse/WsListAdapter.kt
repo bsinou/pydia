@@ -1,15 +1,11 @@
 package org.sinou.android.pydia.browse
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.annotation.NonNull
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.api.ui.WorkspaceNode
-import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemWorkspaceBinding
 
@@ -41,7 +37,7 @@ class WsListAdapter(
                 binding.workspace?.let {
                     onItemClicked(
                         it.slug,
-                        BrowseActivity.NAVIGATE
+                        BrowseActivity.actionNavigate
                     )
                 }
             }

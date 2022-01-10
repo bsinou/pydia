@@ -3,22 +3,17 @@ package org.sinou.android.sandbox.kotlin.coroutines
 import android.util.Log
 import com.google.gson.Gson
 import com.pydio.cells.api.Client
-import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.sinou.android.pydia.room.browse.TreeNodeDB
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.*
 import kotlin.coroutines.coroutineContext
-
 
 class ThumbDownloader(val client: Client, val nodeDB: TreeNodeDB, val filesDir: File) {
 
@@ -27,9 +22,9 @@ class ThumbDownloader(val client: Client, val nodeDB: TreeNodeDB, val filesDir: 
     private val doneChannel = Channel<Boolean>()
     private val queue = Channel<String>()
 
-    init {
-        // filesDir.mkdirs()
-    }
+    private var dlJob = Job()
+    private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
+
 
     private fun download(encodedState: String) {
         val state = StateID.fromId(encodedState)
@@ -93,10 +88,11 @@ class ThumbDownloader(val client: Client, val nodeDB: TreeNodeDB, val filesDir: 
         initialize()
     }
 
-    fun initialize() = runBlocking(block = {
-        launch { waitForDone() }
-        launch { processThumbDL() }
-    })
+    fun initialize() {
+        filesDir.mkdirs()
+        dlScope.launch { waitForDone() }
+        dlScope.launch { processThumbDL() }
+    }
 
     suspend fun waitForDone() {
         for (msg in doneChannel) {

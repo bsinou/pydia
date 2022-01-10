@@ -12,7 +12,6 @@ import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.room.browse.TreeNodeDB
@@ -50,7 +49,8 @@ class NodeService(
             val page = firstPage()
             val dao = nodeDB.treeNodeDao()
 
-            // val downloader = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, "thumbs"))
+            val downloader = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, "thumbs"))
+
             val nextPage = client.ls(
                 stateID.workspace, stateID.file, page
             ) { node: Node? ->
@@ -102,7 +102,7 @@ class NodeService(
         }
 
         fun dataDir(filesDir: File, stateID: StateID, type: String): File {
-            val ps = File.pathSeparator
+            val ps = File.separator
             var path = filesDir.absolutePath + ps + "data" + ps +
                     stateID.accountId + ps + type
             return File(path)

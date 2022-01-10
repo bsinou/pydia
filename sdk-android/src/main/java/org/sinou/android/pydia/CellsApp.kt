@@ -14,7 +14,6 @@ import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.room.browse.TreeNodeDB
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
-import java.io.File
 
 /**
  * Main entry point of the Pydio client application.
@@ -40,13 +39,11 @@ class CellsApp : Application() {
         delayedInit()
     }
 
-    private fun delayedInit(){
+    private fun delayedInit() {
         applicationScope.launch {
             updateClientData()
             initServices()
-
             // TODO also set-up worker tasks
-
             Log.i(tag, "Delayed init terminated")
         }
     }
@@ -59,7 +56,7 @@ class CellsApp : Application() {
         )
 
         nodeService = NodeService(
-            TreeNodeDB.getDatabase(applicationContext) ,
+            TreeNodeDB.getDatabase(applicationContext),
             accountService,
             filesDir,
         )
@@ -69,9 +66,8 @@ class CellsApp : Application() {
     private fun updateClientData() {
 
         val packageName: String = this.packageName
-        val packageInfo: PackageInfo
-        packageInfo = try {
-            applicationContext.getPackageManager().getPackageInfo(packageName, 0)
+        val packageInfo: PackageInfo = try {
+            applicationContext.packageManager.getPackageInfo(packageName, 0)
         } catch (e: PackageManager.NameNotFoundException) {
             throw SDKException("Could not retrieve PackageInfo for $packageName", e)
         }
@@ -88,10 +84,9 @@ class CellsApp : Application() {
         ClientData.platform = getAndroidVersion()
     }
 
-    private fun getAndroidVersion(): String? {
+    private fun getAndroidVersion(): String {
         val release = Build.VERSION.RELEASE
         val sdkVersion = Build.VERSION.SDK_INT
         return "AndroidSDK" + sdkVersion + "v" + release
     }
-
 }

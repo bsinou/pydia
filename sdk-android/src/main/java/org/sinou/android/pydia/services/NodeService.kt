@@ -12,11 +12,12 @@ import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.room.browse.TreeNodeDB
+import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
-import org.sinou.android.sandbox.kotlin.coroutines.ThumbDownloader
 import java.io.File
 
 class NodeService(
@@ -24,7 +25,7 @@ class NodeService(
     private val accountService: AccountService,
     private val filesDir: File
 ) {
-    private val TAG = "NodeService"
+    private val tag = "NodeService"
 
     private val encoder: CustomEncoder = AndroidCustomEncoder()
     private val utf8Slash = encoder.utf8Encode("/")
@@ -56,17 +57,34 @@ class NodeService(
             ) { node: Node? ->
 
                 if (node == null || node !is FileNode) {
-                    Log.w(TAG, "could not store node: $node")
+                    Log.w(tag, "could not store node: $node")
                 } else {
                     val childStateID = stateID.child(node.label)
                     val rNode = toRTreeNode(childStateID, node)
                     val old = dao.getNode(childStateID.id)
                     if (old == null) {
                         dao.insert(rNode)
-//                        launch {
-//                            downloader.orderThumbDL(childStateID.id)
-//                        }
+                        // TODO also check if image has changed
+                        if (node.isImage) {
+                            launch {
+                                downloader.orderThumbDL(childStateID.id)
+                            }
+                        }
                     } else {
+                        var hasChanged = false
+                        if (old.remoteModificationTS != node.lastModified()){
+                            Log.e(tag, "${old.name} has changed, \n" +
+                                    "old TS: ${old.remoteModificationTS}, \n" +
+                                    "new TS  ${node.lastModified()}")
+                            dao.update(rNode)
+                            hasChanged = true
+                        }
+                        if (node.isImage && (hasChanged || old.thumbFilename == null)) {
+                            launch {
+                                downloader.orderThumbDL(childStateID.id)
+                            }
+                        }
+
                         // Log.i(TAG, "About to update " + childStateID)
                         dao.update(rNode)
                     }
@@ -86,7 +104,7 @@ class NodeService(
 */
 
         } catch (e: SDKException) {
-            Log.e(TAG, "could not perform ls for " + stateID.id)
+            Log.e(tag, "could not perform ls for " + stateID.id)
             e.printStackTrace()
         }
     }
@@ -103,9 +121,7 @@ class NodeService(
 
         fun dataDir(filesDir: File, stateID: StateID, type: String): File {
             val ps = File.separator
-            var path = filesDir.absolutePath + ps + "data" + ps +
-                    stateID.accountId + ps + type
-            return File(path)
+            return File(filesDir.absolutePath + ps + stateID.accountId + ps + type)
         }
 
         fun toRTreeNode(stateID: StateID, fileNode: FileNode): RTreeNode {
@@ -115,11 +131,12 @@ class NodeService(
                 parentPath = stateID.parentFile,
                 name = stateID.fileName,
                 mime = fileNode.mimeType,
+                etag = fileNode.eTag,
+                size = fileNode.size,
+                isBookmarked = fileNode.isBookmark,
+                isShared = fileNode.isShared,
                 remoteModificationTS = fileNode.lastModified(),
-                localModificationTS = 0,
-                lastCheckTS = 0,
                 meta = fileNode.properties,
-                sortName = "",
             )
 
             // Use Android library to precise MimeType when possible

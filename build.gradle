@@ -26,6 +26,8 @@ buildscript {
         def aws_s3_sdk_version = '2.23.0'
         def commons_codec_version = '1.15'
         def gson_version = '2.8.6'
+
+        def glide_version = '4.12.0'
 //        def gsonFire = '1.8.5'
 //        def retrofit_gson_version = '2.9.0'
 //        def retrofit_version = '2.9.0'
@@ -74,7 +76,7 @@ buildscript {
                 "com.amazonaws:aws-android-sdk-s3:$aws_s3_sdk_version",
                 "com.google.code.gson:gson:$gson_version",
                 //"io.gsonfire:gson-fire:$gsonFire",
-
+                "com.github.bumptech.glide:glide:$glide_version",
                 //"com.squareup.retrofit2:converter-gson:$retrofit_gson_version",
                 //"com.squareup.retrofit2:retrofit:$retrofit_version",
                 "commons-codec:commons-codec:$commons_codec_version",
@@ -82,6 +84,7 @@ buildscript {
 
         librariesKapt = [
                 "androidx.room:room-compiler:$room_version",
+                "com.github.bumptech.glide:compiler:$glide_version",
         ]
 
 //        librariesDebug = [

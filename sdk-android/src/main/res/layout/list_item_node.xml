@@ -7,6 +7,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="node"
             type="org.sinou.android.pydia.room.browse.RTreeNode" />
@@ -27,10 +28,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/colorAvatarDefault"
-            tools:srcCompat="@drawable/ic_baseline_folder_24"
             app:nodeThumb="@{node}"
-            />
+            tools:srcCompat="@drawable/ic_baseline_folder_24" />
 
         <TextView
             android:id="@+id/node_label"
@@ -39,13 +38,50 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
 
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/node_desc"
             app:layout_constraintBottom_toTopOf="@+id/node_desc"
+            app:layout_constraintStart_toStartOf="@+id/node_desc"
 
-            tools:text="Folder 1"
             app:nodeTitle="@{node}"
-            />
+            tools:text="Folder 1" />
+
+        <LinearLayout
+            android:id="@+id/flags_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginTop="@dimen/margin_small"
+            android:animateLayoutChanges="true"
+            android:gravity="center_horizontal"
+            app:layout_constraintStart_toEndOf="@+id/node_label"
+            app:layout_constraintTop_toTopOf="@+id/node_label">
+
+
+            <ImageView
+                android:id="@+id/flag_offline"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:src="@drawable/ic_baseline_offline_pin_24"
+                android:visibility="gone"
+                app:offline="@{node}"/>
+
+            <ImageView
+                android:id="@+id/flag_bookmark"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:src="@drawable/ic_baseline_bookmark_24"
+                android:visibility="gone"
+                app:bookmark="@{node}"/>
+
+
+            <ImageView
+                android:id="@+id/flag_shared"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:src="@drawable/ic_baseline_link_24"
+                android:visibility="gone"
+                app:shared="@{node}"/>
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/node_desc"
@@ -59,9 +95,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/node_thumb"
 
-            tools:text="Your personal files"
             app:nodeDesc="@{node}"
-            />
+            tools:text="Your personal files" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -33,18 +33,53 @@ class MainActivity : AppCompatActivity() {
 
     private var nextPage: Intent? = null
 
-
     companion object {
+        const val tickDuration = 1000L
         const val logoCrossFadeDurationMillis = 300
         const val spacingAfterFadeDurationMillis = 150
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Compute next destination
-        chooseFirstPage()
+        if (intent.categories.contains(Intent.CATEGORY_LAUNCHER)) {
+            chooseFirstPage()
+            fadeOut(savedInstanceState)
+//        } else {
+//            doInflate()
+        }
+    }
 
-        fadeOut(savedInstanceState)
+    override fun onPause() {
+        super.onPause()
+        Log.i(tag, "onPause")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.i(tag, "onResume")
+        // doInflate()
+    }
+
+    //    suspend fun waitForIt() = lifecycleScope.launch {
+//        repeat (10){ // we wait at tlea ten seconds before crashing
+//            if (CellsApp.instance.ready){
+//                return@launch;
+//            }
+//            delay(tickDuration)
+//        }
+//    }
+
+    suspend fun waitForIt() {
+        repeat(10) { // we wait at tlea ten seconds before crashing
+            Log.i(tag, "tic")
+            if (CellsApp.instance.ready) {
+                Log.i(tag, "#### ready")
+                return;
+            }
+            delay(tickDuration)
+        }
     }
 
     // Called when ready
@@ -91,23 +126,25 @@ class MainActivity : AppCompatActivity() {
     private fun chooseFirstPage() {
         val act = this
         CoroutineScope(Dispatchers.Default).launch {
+            waitForIt()
+            Log.i(tag, "###### toc")
             val accounts = CellsApp.instance.accountService.accountDB.accountDao().getAccounts()
-         //   lifecycleScope.launch {
-                val size = accounts?.size ?: -1
-                nextPage = when {
-                    size == 0 -> Intent(act, AuthActivity::class.java)
-                    size == 1 -> {
-                        val tmp = Intent(act, BrowseActivity::class.java)
-                        tmp.putExtra(
-                            AppNames.EXTRA_STATE,
-                            (accounts as List<RAccount>)[0].accountID
-                        )
-                        tmp
-                    }
-                    size > 1 -> Intent(act, AccountActivity::class.java)
-                    else -> null
+            //   lifecycleScope.launch {
+            val size = accounts?.size ?: -1
+            nextPage = when {
+                size == 0 -> Intent(act, AuthActivity::class.java)
+                size == 1 -> {
+                    val tmp = Intent(act, BrowseActivity::class.java)
+                    tmp.putExtra(
+                        AppNames.EXTRA_STATE,
+                        (accounts as List<RAccount>)[0].accountID
+                    )
+                    tmp
                 }
-           // }
+                size > 1 -> Intent(act, AccountActivity::class.java)
+                else -> null
+            }
+            // }
         }
 
 //        var accounts: List<RAccount>? = null

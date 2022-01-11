@@ -25,8 +25,12 @@ class CellsApp : Application() {
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
 
+    // rather use an Application model that raises a flag when everything is setup.
+    var ready = false
+
     lateinit var accountService: AccountService
     lateinit var nodeService: NodeService
+
 
     companion object {
         lateinit var instance: CellsApp
@@ -45,6 +49,7 @@ class CellsApp : Application() {
             initServices()
             // TODO also set-up worker tasks
             Log.i(tag, "Delayed init terminated")
+            ready = true
         }
     }
 

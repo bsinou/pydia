@@ -1,4 +1,4 @@
-package org.sinou.android.sandbox.kotlin.coroutines
+package org.sinou.android.pydia.transfer
 
 import android.util.Log
 import com.google.gson.Gson
@@ -7,15 +7,23 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.IoHelpers
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import org.sinou.android.pydia.room.browse.TreeNodeDB
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.*
 import kotlin.coroutines.coroutineContext
 
-class ThumbDownloader(val client: Client, val nodeDB: TreeNodeDB, val filesDir: File) {
+class ThumbDownloader(
+    private val client: Client,
+    private val nodeDB: TreeNodeDB,
+    private val filesDir: File,
+    private val thumbSize: Int = 100,
+    ) {
 
     private val tag = "ThumbDownloader"
 
@@ -25,29 +33,40 @@ class ThumbDownloader(val client: Client, val nodeDB: TreeNodeDB, val filesDir: 
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
 
-
     private fun download(encodedState: String) {
         val state = StateID.fromId(encodedState)
 
-        var rNode = nodeDB.treeNodeDao().getNode(encodedState)
+        val rNode = nodeDB.treeNodeDao().getNode(encodedState)
         if (rNode == null) {
             // No node found, aborting
             Log.w(tag, "No node found for $state, aborting thumb DL")
             return
         }
         // Prepare a "light" FileNode that is used to get the thumbnail
-        // This might be refactored once we have reached MVP
-        var node = FileNode()
+        // This will be refactored once we have reached MVP
+        val node = FileNode()
         node.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, state.workspace)
         node.setProperty(SdkNames.NODE_PROPERTY_PATH, state.file)
-        node.setProperty(SdkNames.NODE_PROPERTY_META_JSON_ENCODED, Gson().toJson(rNode.meta))
 
-        val thumbTargetPath = filesDir.absolutePath + File.separator + state.fileName + ".jpg"
-        val target = File(thumbTargetPath as String)
+        if (!client.isLegacy){
+            // node.setProperty(SdkNames.NODE_PROPERTY_ETAG, rNode.etag)
+            node.setProperty(
+                SdkNames.NODE_PROPERTY_REMOTE_THUMBS,
+                rNode.meta.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)
+            )
+        }
+
+        val targetName = targetName(node)
+        if (Str.empty(targetName)) return
+
         var out: FileOutputStream? = null
         try {
-            out = FileOutputStream(target)
-            client.getPreviewData(node, 100, out)
+            out = FileOutputStream(File(targetPath(targetName!!)))
+            client.getPreviewData(node, thumbSize, out)
+
+            // Then set the thumb name in current node
+            rNode.thumbFilename = targetName
+            nodeDB.treeNodeDao().update(rNode)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             Log.e(tag, "Could not retrieve thumb for " + state + ": " + se.message)
         } catch (ioe: IOException) {
@@ -57,6 +76,37 @@ class ThumbDownloader(val client: Client, val nodeDB: TreeNodeDB, val filesDir: 
                 "could not write newly downloaded thumb to the local device for "
                         + state + ": " + ioe.message
             )
+        } finally {
+            IoHelpers.closeQuietly(out)
+        }
+    }
+
+    private fun targetPath(targetName: String): String {
+        return  filesDir.absolutePath + File.separator + targetName
+    }
+
+    private fun targetName(currNode: FileNode): String? {
+        if (client.isLegacy){
+            return UUID.randomUUID().toString() + ".jpg"
+        } else {
+            // FIXME this code has been copied from the Cells Client for the MVP
+            val remoteThumbsJson = currNode.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)
+            if (Str.empty(remoteThumbsJson)) {
+                return null
+            }
+            val gson = Gson()
+            val thumbs = gson.fromJson(remoteThumbsJson,Map::class.java)
+            var thumbPath: String? = null
+            for ((key, value) in thumbs) {
+                if (thumbPath == null) {
+                    thumbPath = value as String
+                }
+                val size = (key as String) .toInt()
+                if (size > 0 && size >= thumbSize) {
+                    return value as String
+                }
+            }
+            return thumbPath
         }
     }
 
@@ -69,7 +119,7 @@ class ThumbDownloader(val client: Client, val nodeDB: TreeNodeDB, val filesDir: 
         doneChannel.send(true)
     }
 
-    suspend fun processThumbDL() {
+    private suspend fun processThumbDL() {
         for (msg in queue) { // iterate over incoming messages
             when (msg) {
                 "done" -> {
@@ -88,13 +138,13 @@ class ThumbDownloader(val client: Client, val nodeDB: TreeNodeDB, val filesDir: 
         initialize()
     }
 
-    fun initialize() {
+    private fun initialize() {
         filesDir.mkdirs()
         dlScope.launch { waitForDone() }
         dlScope.launch { processThumbDL() }
     }
 
-    suspend fun waitForDone() {
+    private suspend fun waitForDone() {
         for (msg in doneChannel) {
             println("Finished processing the queue, exiting...")
             queue.close()

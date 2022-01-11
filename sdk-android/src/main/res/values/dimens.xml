@@ -22,6 +22,9 @@
     <dimen name="list_button_padding">@dimen/text_padding_small</dimen>
     <dimen name="list_button_margin">@dimen/margin_small</dimen>
 
+    <!-- Decorators -->
+    <dimen name="list_item_flag_decorator">12dp</dimen>
+    
     <!-- Main layout -->
     <dimen name="offline_status_bar_height">96dp</dimen>
     <dimen name="action_bar_height">72dp</dimen>

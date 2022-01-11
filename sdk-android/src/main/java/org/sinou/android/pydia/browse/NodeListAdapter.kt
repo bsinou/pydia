@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
@@ -68,21 +67,39 @@ class TreeNodeDiffCallback : DiffUtil.ItemCallback<RTreeNode>() {
     override fun areItemsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
 
         val same = oldItem.encodedState == newItem.encodedState
-        if (!same){
+        if (!same) {
             Log.d(tag, "${oldItem.encodedState} != ${newItem.encodedState}")
         }
         return same
     }
 
     override fun areContentsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
-        // Thanks to Room: RTreeNode is a @Data class and gets equality based on
-        // equality of each fields (column) for free.
-        val same = oldItem == newItem
-        if (!same){
-            Log.d(tag, "Found new content for ${oldItem.encodedState}")
-            Log.d(tag, "old meta: \n${Gson().toJson(oldItem.meta)}")
-            Log.d(tag, "new meta: \n${Gson().toJson(newItem.meta)}")
+
+        var same = oldItem.remoteModificationTS == newItem.remoteModificationTS
+
+        if (same && newItem.thumbFilename != null) {
+            same = newItem.thumbFilename.equals(oldItem.thumbFilename)
         }
-        return same
+
+        val flagChanged = newItem.isBookmarked == oldItem.isBookmarked
+                &&  newItem.isOfflineRoot == oldItem.isOfflineRoot
+                &&  newItem.isShared == oldItem.isShared
+
+
+        // With Room: we should get  equality based on equality of each fields (column) for free
+        // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
+        // remote modif timestamp and thumb filename.
+
+        // More logs to investigate
+//        if (!same){
+//            Log.d(tag, "Found new content for ${oldItem.encodedState}")
+//            Log.d(tag, "Old TS: ${oldItem.remoteModificationTS}, " +
+//                    "new TS: ${newItem.remoteModificationTS}")
+//            Log.d(tag, "Old thumb: ${oldItem.thumbFilename}, " +
+//                    "new thumb: ${newItem.thumbFilename}")
+////            Log.d(tag, "old item: \n${Gson().toJson(oldItem)}")
+////            Log.d(tag, "new item: \n${Gson().toJson(newItem)}")
+//        }
+        return same && flagChanged
     }
 }

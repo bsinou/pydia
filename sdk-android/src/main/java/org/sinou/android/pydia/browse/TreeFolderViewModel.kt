@@ -46,7 +46,7 @@ class TreeFolderViewModel(
             )
             nodeService.pull(stateID)
             children.value?.size
-            delay(TimeUnit.SECONDS.toMillis(3))
+            delay(TimeUnit.SECONDS.toMillis(10))
         }
     }
 

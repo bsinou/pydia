@@ -46,3 +46,4 @@ data class RTreeNode(
 
     @ColumnInfo(name = "local") var localFilename: String? = null,
 )
+

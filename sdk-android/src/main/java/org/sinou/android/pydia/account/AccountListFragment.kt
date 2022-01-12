@@ -76,7 +76,6 @@ class AccountListFragment : Fragment() {
                 val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
                 toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, server.serverURL.toJson())
                 toAuthIntent.putExtra(AppNames.EXTRA_SERVER_IS_LEGACY, server.isLegacy)
-
                 startActivity(toAuthIntent);
             }
             AccountActivity.actionLogout -> lifecycleScope.launch {

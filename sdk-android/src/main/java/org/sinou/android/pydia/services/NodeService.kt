@@ -44,6 +44,10 @@ class NodeService(
 //    }
 
 
+    suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
+        nodeDB.treeNodeDao().getNode(stateID.id)
+    }
+
     suspend fun pull(stateID: StateID) = withContext(Dispatchers.IO) {
         try {
             val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
@@ -72,10 +76,12 @@ class NodeService(
                         }
                     } else {
                         var hasChanged = false
-                        if (old.remoteModificationTS != node.lastModified()){
-                            Log.e(tag, "${old.name} has changed, \n" +
-                                    "old TS: ${old.remoteModificationTS}, \n" +
-                                    "new TS  ${node.lastModified()}")
+                        if (old.remoteModificationTS != node.lastModified()) {
+                            Log.e(
+                                tag, "${old.name} has changed, \n" +
+                                        "old TS: ${old.remoteModificationTS}, \n" +
+                                        "new TS  ${node.lastModified()}"
+                            )
                             dao.update(rNode)
                             hasChanged = true
                         }
@@ -104,6 +110,20 @@ class NodeService(
             Log.e(tag, "could not perform ls for " + stateID.id)
             e.printStackTrace()
         }
+    }
+
+    suspend fun getGetOrDownloadFile(rTreeNode: RTreeNode): File? = withContext(Dispatchers.IO) {
+
+        rTreeNode.localFilename?.let {
+            val file = File(it)
+            // TODO also insure we have the latest version when connected
+            if (file.exists()) {
+                return@withContext file
+            }
+        }
+
+
+        null
     }
 
 

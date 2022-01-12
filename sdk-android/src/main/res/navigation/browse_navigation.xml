@@ -22,7 +22,7 @@
         android:label="@string/browse_list_title"
         tools:layout="@layout/fragment_browse_folder">
         <action
-            android:id="@+id/action_browse_list_destination_self"
+            android:id="@+id/action_browse_self"
             app:destination="@id/browse_folder_destination" />
         <argument
             android:name="state"

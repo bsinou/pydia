@@ -1,30 +1,26 @@
 package org.sinou.android.pydia.browse
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.NavigationUI
+import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.FileNodeUtils
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.BrowseActivity
-import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.R
+import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.isFolder
-import java.io.File
 
 class BrowseFolderFragment : Fragment() {
 
@@ -129,28 +125,29 @@ class BrowseFolderFragment : Fragment() {
 
             val rTreeNode = CellsApp.instance.nodeService.getNode(stateID) ?: return@launch
 
-            if (isFolder(rTreeNode)){
+            if (isFolder(rTreeNode)) {
                 val action = BrowseFolderFragmentDirections.actionBrowseSelf(stateID.id)
                 binding.browseFolderFragment.findNavController().navigate(action)
             } else {
 
+                val file = CellsApp.instance.nodeService.getGetOrDownloadFile(rTreeNode)
+                file?.let {
+                    // thx to https://stackoverflow.com/questions/56598480/couldnt-find-meta-data-for-provider-with-authority
+                    val uri = FileProvider.getUriForFile(
+                        requireContext(),
+                        BuildConfig.APPLICATION_ID + ".fileprovider", file
+                    );
 
-//
-//
-//                File path = new File(getFilesDir(), "dl");
-//                File file = new File(path, filename);
-//
-//                // Get URI and MIME type of file
-//                Uri uri = FileProvider.getUriForFile(this, App.PACKAGE_NAME + ".fileprovider", file);
-//                String mime = getContentResolver().getType(uri);
-//
-//                // Open file with user selected app
-//                Intent intent = new Intent();
-//                intent.setAction(Intent.ACTION_VIEW);
-//                intent.setDataAndType(uri, mime);
-//                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                startActivity(intent);
-
+                    var mime = rTreeNode.mime
+                    if (SdkNames.NODE_MIME_DEFAULT.equals(mime)) {
+                        mime = NodeService.getMimeType(rTreeNode.name)
+                    }
+                    val intent = Intent()
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setDataAndType(uri, mime);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                }
             }
 
         }

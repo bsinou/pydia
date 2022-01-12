@@ -3,7 +3,8 @@ package org.sinou.android.pydia;
 public interface AppNames {
 
     // TODO  make this generic
-    String KEY_PREFIX_ = "org.sinou.android.pydia.";
+    String KEY_PREFIX = "org.sinou.android.pydia";
+    String KEY_PREFIX_ = KEY_PREFIX + ".";
 
     /* SHARED PREFERENCE KEYS */
     String PREF_KEY_LAST_STATE = "last_state";

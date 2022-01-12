@@ -116,7 +116,7 @@ class CellsApp : Application() {
     }
 
     fun lastState(): StateID? {
-        return getPreference(AppNames.PREF_KEY_LAST_STATE)?.let { StateID.fromId(it) } ?: null
+        return getPreference(AppNames.PREF_KEY_LAST_STATE)?.let { StateID.fromId(it) }
     }
 
     fun wasHere(state: StateID) {

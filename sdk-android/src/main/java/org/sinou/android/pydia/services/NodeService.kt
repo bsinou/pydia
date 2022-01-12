@@ -11,6 +11,7 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.IoHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,6 +20,9 @@ import org.sinou.android.pydia.room.browse.TreeNodeDB
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.*
 
 class NodeService(
     private val nodeDB: TreeNodeDB,
@@ -26,6 +30,9 @@ class NodeService(
     private val filesDir: File
 ) {
     private val tag = "NodeService"
+
+    private val THUMB_DIR = "thumbs"
+    private val FILES_DIR = "files"
 
     private val encoder: CustomEncoder = AndroidCustomEncoder()
     private val utf8Slash = encoder.utf8Encode("/")
@@ -54,7 +61,7 @@ class NodeService(
             val page = firstPage()
             val dao = nodeDB.treeNodeDao()
 
-            val downloader = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, "thumbs"))
+            val downloader = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, THUMB_DIR))
 
             val nextPage = client.ls(
                 stateID.workspace, stateID.file, page
@@ -112,6 +119,7 @@ class NodeService(
         }
     }
 
+
     suspend fun getGetOrDownloadFile(rTreeNode: RTreeNode): File? = withContext(Dispatchers.IO) {
 
         rTreeNode.localFilename?.let {
@@ -122,8 +130,38 @@ class NodeService(
             }
         }
 
+        val stateID = rTreeNode.getStateID()
+        val baseDir = dataDir(filesDir, stateID, FILES_DIR)
+        val targetFile = File(baseDir, stateID.path.substring(1))
+        targetFile.parentFile.mkdirs()
+        var out: FileOutputStream? = null
+        try {
+            val sf = accountService.sessionFactory
+            val client: Client = sf.getUnlockedClient(stateID.accountId)
+            out = FileOutputStream(targetFile)
 
-        null
+            // TODO handle progress
+            client.download(stateID.workspace, stateID.file, out, null)
+
+            // Success persist change
+            rTreeNode.localFilename = targetFile.absolutePath
+            rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
+
+            nodeDB.treeNodeDao().update(rTreeNode)
+        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
+            Log.e(tag, "could not perform DL for " + stateID.id)
+            se.printStackTrace()
+            return@withContext null
+        } catch (ioe: IOException) {
+            // TODO handle this: what should we do ?
+            Log.e(tag, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
+            ioe.printStackTrace()
+            return@withContext null
+        } finally {
+            IoHelpers.closeQuietly(out)
+        }
+
+        targetFile
     }
 
 
@@ -173,9 +211,18 @@ class NodeService(
         }
 
         fun getMimeType(url: String, fallback: String = "*/*"): String {
-            return MimeTypeMap.getFileExtensionFromUrl(url)
-                ?.run { MimeTypeMap.getSingleton().getMimeTypeFromExtension(url.lowercase()) }
-                ?: fallback
+            val ext = MimeTypeMap.getFileExtensionFromUrl(url)
+            if (ext != null) {
+                val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+                if (mime != null) return mime
+            }
+            return fallback
+
         }
     }
 }
+
+fun RTreeNode.getStateID(): StateID {
+    return StateID.fromId(encodedState)
+}
+

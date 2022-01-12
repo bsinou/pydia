@@ -48,8 +48,7 @@ class ThumbDownloader(
         node.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, state.workspace)
         node.setProperty(SdkNames.NODE_PROPERTY_PATH, state.file)
 
-        if (!client.isLegacy){
-            // node.setProperty(SdkNames.NODE_PROPERTY_ETAG, rNode.etag)
+        if (!client.isLegacy && rNode.meta.containsKey(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)){
             node.setProperty(
                 SdkNames.NODE_PROPERTY_REMOTE_THUMBS,
                 rNode.meta.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)

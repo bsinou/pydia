@@ -45,7 +45,6 @@ class TreeFolderViewModel(
                 "Watching ${stateID}, found ${children.value?.size} children"
             )
             nodeService.pull(stateID)
-            children.value?.size
             delay(TimeUnit.SECONDS.toMillis(10))
         }
     }

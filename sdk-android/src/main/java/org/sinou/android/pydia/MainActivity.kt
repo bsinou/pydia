@@ -19,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.databinding.ActivityMainBinding
-import org.sinou.android.pydia.room.account.RAccount
 
 /**
  * Manage default pages of the app.
@@ -59,24 +58,18 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.i(tag, "onResume")
-        // doInflate()
+
+        if (nextPage != null) {
+            startActivity(nextPage)
+        }
     }
 
-    //    suspend fun waitForIt() = lifecycleScope.launch {
-//        repeat (10){ // we wait at tlea ten seconds before crashing
-//            if (CellsApp.instance.ready){
-//                return@launch;
-//            }
-//            delay(tickDuration)
-//        }
-//    }
-
-    suspend fun waitForIt() {
-        repeat(10) { // we wait at tlea ten seconds before crashing
-            Log.i(tag, "tic")
+    private suspend fun waitForIt() {
+        repeat(10) { // we wait at most ten seconds before crashing
+            Log.i(tag, "Waiting for backend to be ready")
             if (CellsApp.instance.ready) {
-                Log.i(tag, "#### ready")
-                return;
+                Log.i(tag, "### Backend is now ready")
+                return
             }
             delay(tickDuration)
         }
@@ -84,13 +77,9 @@ class MainActivity : AppCompatActivity() {
 
     // Called when ready
     private fun doInflate() {
-        if (nextPage == null) {
-            binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-            buildNavigationLayout()
-            binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
-        } else {
-            startActivity(nextPage)
-        }
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        buildNavigationLayout()
+        binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
     }
 
     // Thanks to https://www.tiagoloureiro.tech/posts/definitive-guide-for-splash-screen-android/
@@ -127,42 +116,32 @@ class MainActivity : AppCompatActivity() {
         val act = this
         CoroutineScope(Dispatchers.Default).launch {
             waitForIt()
-            Log.i(tag, "###### toc")
+
+            Log.i(tag, "### Backend is ready, about to choose first page")
+
+            // Try to restart from where we left it
+            CellsApp.instance.lastState()?.let {
+                val tmp = Intent(act, BrowseActivity::class.java)
+                tmp.putExtra(AppNames.EXTRA_STATE, it.id)
+                nextPage = tmp
+                return@launch
+            }
+
+            // Choose between new account or account list when we have no state.
+            // We go to workspace list when we have only one account
             val accounts = CellsApp.instance.accountService.accountDB.accountDao().getAccounts()
-            //   lifecycleScope.launch {
-            val size = accounts?.size ?: -1
+            val size = accounts.size
             nextPage = when {
                 size == 0 -> Intent(act, AuthActivity::class.java)
                 size == 1 -> {
                     val tmp = Intent(act, BrowseActivity::class.java)
-                    tmp.putExtra(
-                        AppNames.EXTRA_STATE,
-                        (accounts as List<RAccount>)[0].accountID
-                    )
+                    tmp.putExtra(AppNames.EXTRA_STATE, accounts[0].accountID)
                     tmp
                 }
                 size > 1 -> Intent(act, AccountActivity::class.java)
                 else -> null
             }
-            // }
         }
-
-//        var accounts: List<RAccount>? = null
-//        val launch = CoroutineScope(Dispatchers.Default).launch {
-//            accounts = CellsApp.instance.accountService.accountDB.accountDao().getAccounts()
-//
-//            val size = accounts?.size ?: -1
-//            nextPage = when {
-//                size == 0 -> Intent(this, AuthActivity::class.java)
-//                size == 1 -> {
-//                    val tmp = Intent(this, BrowseActivity::class.java)
-//                    tmp.putExtra(AppNames.EXTRA_STATE, (accounts as List<RAccount>)[0].accountID)
-//                    tmp
-//                }
-//                size > 1 -> Intent(this, AccountActivity::class.java)
-//                else -> null
-//            }
-//        }
 
         // TODO also set-up worker tasks
         Log.i(tag, "Delayed init terminated")

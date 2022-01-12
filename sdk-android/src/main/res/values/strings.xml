@@ -79,5 +79,6 @@
     <string name="choose_workspace_title">Workspaces</string>
     <string name="browse_list_desc">Browse your remote servers</string>
     <string name="browse_list_none">Empty</string>
+    <string name="recycle_bin_label">Recycle Bin</string>
 
 </resources>

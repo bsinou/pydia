@@ -1,9 +1,15 @@
 package org.sinou.android.pydia;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface AppNames {
 
     // TODO  make this generic
     String KEY_PREFIX_ = "org.sinou.android.pydia.";
+
+    /* SHARED PREFERENCE KEYS */
+    String PREF_KEY_LAST_STATE = "last_state";
+
     String KEY_DESTINATION = KEY_PREFIX_ + "destination";
 
     String EXTRA_STATE = KEY_PREFIX_ + "state";
@@ -19,4 +25,5 @@ public interface AppNames {
     String AUTH_STATUS_EXPIRED = "expired";
     String AUTH_STATUS_REFRESHING = "refreshing";
     String AUTH_STATUS_CONNECTED = "connected";
+
 }

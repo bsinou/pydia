@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle"
+            android:height="@dimen/list_icon_size"
+            android:width="@dimen/list_icon_size">
+            <solid android:color="@color/iconBackground" />
+            <corners android:radius="@dimen/list_icon_corner_radius" />
+        </shape>
+    </item>
+    <item
+        android:drawable="@drawable/ic_baseline_folder_24"
+        android:gravity="center"
+        android:top="@dimen/margin_small"
+        android:bottom="@dimen/margin_small"
+        android:tint="@color/iconTint"
+        android:start="@dimen/margin_small"
+        android:end="@dimen/margin_small"/>
+</layer-list>

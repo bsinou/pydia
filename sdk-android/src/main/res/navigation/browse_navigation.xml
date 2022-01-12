@@ -12,7 +12,7 @@
         android:label="@string/choose_workspace_title"
         tools:layout="@layout/fragment_choose_workspace">
         <action
-            android:id="@+id/action_choose_workspace_destination_to_browse_list_destination"
+            android:id="@+id/action_choose_ws_to_browse_folder"
             app:destination="@id/browse_folder_destination" />
     </fragment>
 

@@ -1,12 +1,15 @@
 package org.sinou.android.pydia
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +31,7 @@ class CellsApp : Application() {
     // rather use an Application model that raises a flag when everything is setup.
     var ready = false
 
+    lateinit var sharedPreferences: SharedPreferences
     lateinit var accountService: AccountService
     lateinit var nodeService: NodeService
 
@@ -35,6 +39,8 @@ class CellsApp : Application() {
     companion object {
         lateinit var instance: CellsApp
             private set
+
+
     }
 
     override fun onCreate() {
@@ -45,7 +51,10 @@ class CellsApp : Application() {
 
     private fun delayedInit() {
         applicationScope.launch {
+
             updateClientData()
+            sharedPreferences = getSharedPreferences(ClientData.clientID, Context.MODE_PRIVATE)
+
             initServices()
             // TODO also set-up worker tasks
             Log.i(tag, "Delayed init terminated")
@@ -93,5 +102,31 @@ class CellsApp : Application() {
         val release = Build.VERSION.RELEASE
         val sdkVersion = Build.VERSION.SDK_INT
         return "AndroidSDK" + sdkVersion + "v" + release
+    }
+
+    fun getPreference(key: String): String? {
+        return sharedPreferences.getString(key, null)
+    }
+
+    fun setPreference(key: String, value: String) {
+        with(sharedPreferences.edit()) {
+            putString(key, value)
+            apply()
+        }
+    }
+
+    fun lastState(): StateID? {
+        return getPreference(AppNames.PREF_KEY_LAST_STATE)?.let { StateID.fromId(it) } ?: null
+    }
+
+    fun wasHere(state: StateID) {
+        setPreference(AppNames.PREF_KEY_LAST_STATE, state.id)
+    }
+
+    fun noState() {
+        with(sharedPreferences.edit()) {
+            remove(AppNames.PREF_KEY_LAST_STATE)
+            apply()
+        }
     }
 }

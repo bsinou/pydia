@@ -7,17 +7,19 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
+import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.databinding.ActivityBrowseBinding
 
 class BrowseActivity : AppCompatActivity() {
 
     companion object {
         private const val tag = "BrowseActivity"
-
         const val actionNavigate = "navigate"
     }
 
@@ -28,33 +30,26 @@ class BrowseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_browse)
-
-        var encodedState: String? = null
-        if (savedInstanceState != null) {
-            // TODO
-//            val encodedState: String = savedInstance.getString(GuiNames.EXTRA_STATE)
-//            state = State.fromEncodedState(encodedState)
-        } else {
-            encodedState = intent.getStringExtra(AppNames.EXTRA_STATE)
-        }
-
-//        val foregroundSessionVMF =
-//            ForegroundSessionViewModel.ForegroundSessionViewModelFactory(
-//                CellsApp.instance.accountService,
-//                CellsApp.instance.nodeService,
-//                encodedState!!,
-//                this.application,
-//            )
-
-//        val tmpVM: ForegroundSessionViewModel by viewModels { foregroundSessionVMF }
-//        sessionVM = tmpVM
-
         buildNavigationLayout()
-        binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
+
+        // Rather done in the workspace fragment that is the start point for the Browse activity.
+//        var encodedState: String? = if (savedInstanceState != null) {
+//            savedInstanceState.getString(AppNames.EXTRA_STATE)
+//        } else {
+//            intent.getStringExtra(AppNames.EXTRA_STATE)
+//        }
+//
+//        if (Str.notEmpty(encodedState)){
+//            val stateID = StateID.fromId(encodedState)
+//            if (stateID.file.length > 1){
+//
+//            }
+//        }
     }
 
     private fun buildNavigationLayout() {
         setSupportActionBar(binding.toolbar)
+
         val toggle = ActionBarDrawerToggle(
             this, binding.drawerLayout, binding.toolbar, R.string.nav_open,
             R.string.nav_close
@@ -62,13 +57,24 @@ class BrowseActivity : AppCompatActivity() {
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        navController = findNavController(R.id.browse_fragment_host)
-        NavigationUI.setupWithNavController(binding.navView, navController)
+        navController = this.findNavController(R.id.browse_fragment_host)
         NavigationUI.setupActionBarWithNavController(
             this,
             navController,
             binding.drawerLayout
         )
+
+        binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
+
+    }
+
+    override fun onBackPressed() {
+        val drawer: DrawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onResume() {
@@ -80,7 +86,7 @@ class BrowseActivity : AppCompatActivity() {
     override fun onPause() {
         Log.i(tag, "onPause, intent: $intent")
         super.onPause()
-   //      sessionVM.pause()
+        //      sessionVM.pause()
     }
 
     private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
@@ -103,8 +109,10 @@ class BrowseActivity : AppCompatActivity() {
     }
 
 
-//    override fun onSupportNavigateUp(): Boolean {
-//        val navController = this.findNavController(R.id.nav_host_fragment)
-//        return NavigationUI.navigateUp(navController, drawerLayout)
-//    }
+    override fun onSupportNavigateUp(): Boolean {
+        Log.i(tag, "############## Here")
+        return NavigationUI.navigateUp(navController, null)
+        // NavigationUI.navigateUp(navController, binding.drawerLayout)
+    }
+
 }

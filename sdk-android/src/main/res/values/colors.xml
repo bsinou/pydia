@@ -4,7 +4,9 @@
 
     <color name="colorMain">#607D8B</color>
     <color name="colorMainAccent">#34515E</color>
-    <color name="colorMainLight">#5c7784</color>
+    <color name="colorMainLight">#5C7784</color>
+    <color name="iconTint">@color/colorMainLight</color>
+    <color name="iconBackground">#EDF0F2</color>
 
     <color name="colorPrimary">@color/colorMain</color>
     <color name="colorPrimaryLight">@color/colorMainLight</color>

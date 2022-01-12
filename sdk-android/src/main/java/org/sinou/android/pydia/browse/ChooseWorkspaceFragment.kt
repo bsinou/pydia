@@ -18,20 +18,18 @@ import org.sinou.android.pydia.databinding.FragmentChooseWorkspaceBinding
 
 class ChooseWorkspaceFragment : Fragment() {
 
-    private val TAG = "ChooseWorkspaceFragment"
+    private val fTag = "ChooseWorkspaceFragment"
+
+    private lateinit var accountID: String
+
+    private var targetState: StateID? = null
 
     private lateinit var binding: FragmentChooseWorkspaceBinding
-    private lateinit var accountID: String
     private lateinit var sessionVM: ForegroundSessionViewModel
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
 
-        binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_choose_workspace, container, false
-        )
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         if (savedInstanceState != null && savedInstanceState.getString(AppNames.EXTRA_ACCOUNT_ID) != null) {
             accountID = savedInstanceState.getString(AppNames.EXTRA_ACCOUNT_ID)!!
@@ -39,7 +37,8 @@ class ChooseWorkspaceFragment : Fragment() {
             requireActivity().intent.extras?.let { extras ->
                 extras[AppNames.EXTRA_STATE]?.let {
                     if (it is String) {
-                        accountID = StateID.fromId(it).accountId
+                        targetState = StateID.fromId(it)
+                        accountID = targetState!!.accountId
                     }
                 } ?: {
                     extras[AppNames.EXTRA_ACCOUNT_ID]?.let {
@@ -50,6 +49,17 @@ class ChooseWorkspaceFragment : Fragment() {
                 }
             }
         }
+    }
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+
+        binding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_choose_workspace, container, false
+        )
 
         val application = requireActivity().application
         val viewModelFactory = ForegroundSessionViewModel.ForegroundSessionViewModelFactory(
@@ -77,30 +87,41 @@ class ChooseWorkspaceFragment : Fragment() {
     }
 
     private fun onWsClicked(slug: String, command: String) {
-        Log.i(TAG, "ID: $slug, do $command")
+        Log.i(fTag, "ID: $slug, do $command")
 
         when (command) {
             BrowseActivity.actionNavigate -> {
                 val state = StateID.fromId(accountID).withPath("/${slug}")
-                val action =
-                    ChooseWorkspaceFragmentDirections.actionChooseWorkspaceDestinationToBrowseListDestination(
-                        state.id
-                    )
+                val action = ChooseWorkspaceFragmentDirections
+                    .actionChooseWsToBrowseFolder(state.id)
                 binding.chooseWorkspaceFragment.findNavController().navigate(action)
             }
             else -> return // do nothing
         }
-        // Toast.makeText(requireActivity(), "pos: $accountID, action ID: $action", Toast.LENGTH_LONG).show()
     }
 
     override fun onResume() {
-        Log.i(TAG, "Resuming: $accountID")
+        Log.i(fTag, "Resuming: $accountID")
         super.onResume()
+
+        targetState?.let{
+            if (it.path != null && it.path.length > 1) {
+                // We have more than an account ID,
+                // directly try to navigate to the correct location
+                val action = ChooseWorkspaceFragmentDirections
+                    .actionChooseWsToBrowseFolder(it.id)
+                targetState = null
+                binding.chooseWorkspaceFragment.findNavController().navigate(action)
+                return@onResume
+            }
+        }
+
+        CellsApp.instance.wasHere(StateID.fromId(accountID))
         sessionVM.resume()
     }
 
     override fun onPause() {
-        Log.i(TAG, "Pausing: $accountID")
+        Log.i(fTag, "Pausing: $accountID")
         super.onPause()
         sessionVM.pause()
     }

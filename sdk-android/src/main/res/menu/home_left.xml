@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     
     <item
-        android:id="@+id/landing_destination"
+        android:id="@+id/home_destination"
         android:icon="@drawable/ic_baseline_home_24"
         android:title="@string/home" />
 
     <item
-        android:id="@+id/hello_destination"
+        android:id="@+id/settings_destination"
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="@string/settings" />
 
     <item
-        android:id="@+id/account_list_destination"
+        android:id="@+id/accounts_destination"
         android:icon="@drawable/ic_baseline_groups_24"
         android:title="@string/account_list_title" />
 

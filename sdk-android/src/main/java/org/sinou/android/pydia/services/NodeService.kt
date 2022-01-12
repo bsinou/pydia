@@ -84,9 +84,6 @@ class NodeService(
                                 downloader.orderThumbDL(childStateID.id)
                             }
                         }
-
-                        // Log.i(TAG, "About to update " + childStateID)
-                        dao.update(rNode)
                     }
                 }
             }

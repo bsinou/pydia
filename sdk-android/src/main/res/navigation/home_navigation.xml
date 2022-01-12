@@ -6,30 +6,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
-    app:startDestination="@id/landing_destination">
+    app:startDestination="@id/home_destination">
 
     <fragment
-        android:id="@+id/landing_destination"
+        android:id="@+id/home_destination"
         android:name="org.sinou.android.pydia.home.LandingFragment"
         android:label="@string/welcome_title"
-        tools:layout="@layout/fragment_landing">
-        <!--        <action-->
-        <!--            android:id="@+id/action_landing_destination_to_hello_destination"-->
-        <!--            app:destination="@id/hello_destination" />-->
-    </fragment>
+        tools:layout="@layout/fragment_landing" />
 
     <fragment
         android:id="@+id/about_destination"
         android:name="org.sinou.android.pydia.home.AboutFragment"
         android:label="@string/about_title"
-        tools:layout="@layout/fragment_about">
-    </fragment>
+        tools:layout="@layout/fragment_about" />
 
     <fragment
-        android:id="@+id/hello_destination"
+        android:id="@+id/settings_destination"
         android:name="org.sinou.android.pydia.home.HelloFragment"
-        android:label="@string/about"
-        tools:layout="@layout/fragment_hello">
-    </fragment>
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_hello" />
 
 </navigation>

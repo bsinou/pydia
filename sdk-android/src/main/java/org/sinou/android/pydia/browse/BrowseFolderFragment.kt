@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.ui.NavigationUI
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.AppNames
@@ -37,7 +38,7 @@ class BrowseFolderFragment : Fragment() {
             inflater, R.layout.fragment_browse_folder, container, false
         )
 
-        stateID =  if (savedInstanceState?.getString(AppNames.EXTRA_STATE) != null) {
+        stateID = if (savedInstanceState?.getString(AppNames.EXTRA_STATE) != null) {
             val encodedState = savedInstanceState.getString(AppNames.EXTRA_STATE)
             StateID.fromId(encodedState)
         } else {
@@ -77,9 +78,13 @@ class BrowseFolderFragment : Fragment() {
                 stateID.workspace
             } else if ("/recycle_bin" == stateID.file) {
                 resources.getString(R.string.recycle_bin_label)
-            } else treeFolderVM.stateID.fileName
-//            it.setDisplayHomeAsUpEnabled(true);
+            } else {
+                treeFolderVM.stateID.fileName
+            }
+
+            it.setDisplayHomeAsUpEnabled(true)
 //            it.setDisplayShowHomeEnabled(true)
+
 //            it.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24);
         }
 

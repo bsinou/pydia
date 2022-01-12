@@ -14,7 +14,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".LandActivity"
             android:exported="true"
             android:label="Start Pydia"
             android:theme="@style/AppTheme.AnimatedSplashScreen">
@@ -37,6 +37,10 @@
                     android:scheme="cellsauth" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false" />
 
         <activity
             android:name=".AccountActivity"

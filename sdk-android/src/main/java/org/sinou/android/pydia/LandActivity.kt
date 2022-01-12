@@ -4,31 +4,20 @@ import android.content.Intent
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.view.GravityCompat
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import androidx.navigation.ui.NavigationUI
-import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.databinding.ActivityMainBinding
 
 /**
  * Manage default pages of the app.
  */
-class MainActivity : AppCompatActivity() {
+class LandActivity : AppCompatActivity() {
 
     private val tag = "MainActivity"
-
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var navController: NavController
 
     private var nextPage: Intent? = null
 
@@ -42,27 +31,27 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Compute next destination
-        if (intent.categories.contains(Intent.CATEGORY_LAUNCHER)) {
+        if (intent?.categories?.contains(Intent.CATEGORY_LAUNCHER) ?: false) {
             chooseFirstPage()
             fadeOut(savedInstanceState)
-//        } else {
-//            doInflate()
+        } else {
+            startActivity(Intent(this, HomeActivity::class.java))
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.i(tag, "onPause")
     }
 
     override fun onResume() {
-        super.onResume()
-        Log.i(tag, "onResume")
+        Log.i(tag, "### onResume, next page: $nextPage")
 
-        if (nextPage != null) {
-            startActivity(nextPage)
+        super.onResume()
+
+        nextPage?.let {
+            startActivity(it)
+            nextPage = null
+        } ?: run {
+            startActivity(Intent(this, HomeActivity::class.java))
         }
     }
+
 
     private suspend fun waitForIt() {
         repeat(10) { // we wait at most ten seconds before crashing
@@ -73,13 +62,6 @@ class MainActivity : AppCompatActivity() {
             }
             delay(tickDuration)
         }
-    }
-
-    // Called when ready
-    private fun doInflate() {
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        buildNavigationLayout()
-        binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
     }
 
     // Thanks to https://www.tiagoloureiro.tech/posts/definitive-guide-for-splash-screen-android/
@@ -95,10 +77,10 @@ class MainActivity : AppCompatActivity() {
                 // Time between the cross fade and start screen animation
                 delay(logoCrossFadeDurationMillis.toLong() + spacingAfterFadeDurationMillis)
                 window.decorView.background = AppCompatResources.getDrawable(
-                    this@MainActivity, R.drawable.background
+                    this@LandActivity, R.drawable.background
                 )
-                doInflate()
-                //setContentView(R.layout.activity_main)
+                Log.i(tag, "### Animation terminated")
+                setContentView(R.layout.activity_land)
             }
         } else {
             // Splash was shown before, no need to animate the transition.
@@ -106,9 +88,7 @@ class MainActivity : AppCompatActivity() {
             window.decorView.background = AppCompatResources.getDrawable(
                 this, R.drawable.background
             )
-            // 2 - Sets the content view instantly
-            doInflate()
-            //  setContentView(R.layout.activity_main)
+            setContentView(R.layout.activity_land)
         }
     }
 
@@ -145,75 +125,5 @@ class MainActivity : AppCompatActivity() {
 
         // TODO also set-up worker tasks
         Log.i(tag, "Delayed init terminated")
-
-
-//        if (Intent.ACTION_VIEW == intent.action) {
-//            val uri = inIntent.data ?: return
-//            val code = uri.getQueryParameter(AppNames.KEY_CODE)
-//            val state  = uri.getQueryParameter(AppNames.KEY_STATE)
-//
-//            if (code != null && state != null){
-//                val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(null)
-//                findNavController(R.id.auth_fragment_host).navigate(action)
-//            }
-//
-//            launch {
-//                // CellsApp.instance.accountService.handleOAuthResponse(state, code)
-//            }
-//        }
     }
-
-
-    private fun buildNavigationLayout() {
-        setSupportActionBar(binding.toolbar)
-        val toggle = ActionBarDrawerToggle(
-            this, binding.drawerLayout, binding.toolbar, R.string.nav_open,
-            R.string.nav_close
-        )
-        binding.drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-
-        navController = findNavController(R.id.main_fragment_host)
-        NavigationUI.setupWithNavController(binding.navView, navController)
-        NavigationUI.setupActionBarWithNavController(
-            this,
-            navController,
-            binding.drawerLayout
-        )
-    }
-
-    private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
-        Log.i(tag, "... Item selected: #${it.itemId}")
-
-        var done = true
-        when (it.itemId) {
-            R.id.account_list_destination -> startActivity(
-                Intent(
-                    this,
-                    AccountActivity::class.java
-                )
-            )
-            else -> done = NavigationUI.onNavDestinationSelected(it, navController)
-        }
-        if (done) {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        }
-        done
-    }
-
-//    override fun onSupportNavigateUp(): Boolean {
-//        val navController = this.findNavController(R.id.nav_host_fragment)
-//        return NavigationUI.navigateUp(navController, drawerLayout)
-//    }
-
-/*
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.i(TAG,"###### Options Item selected: " + item.itemId)
-        return when (item.itemId) {
-            //  Otherwise, do nothing and use the core event handling
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-*/
-
 }

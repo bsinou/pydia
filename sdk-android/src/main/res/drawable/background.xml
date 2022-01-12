@@ -3,5 +3,5 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <!-- TODO define a common background for everybody -->
-    <solid android:color="@color/colorOnPrimary" />
+    <solid android:color="@color/background" />
 </shape>

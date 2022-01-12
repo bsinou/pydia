@@ -44,6 +44,7 @@ class ChooseWorkspaceFragment : Fragment() {
                     extras[AppNames.EXTRA_ACCOUNT_ID]?.let {
                         if (it is String) {
                             accountID = it
+                            targetState = null
                         }
                     }
                 }

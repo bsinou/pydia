@@ -4,8 +4,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
@@ -24,12 +22,12 @@
                 android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
             <fragment
-                android:id="@+id/main_fragment_host"
+                android:id="@+id/home_fragment_host"
                 android:name="androidx.navigation.fragment.NavHostFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:defaultNavHost="true"
-                app:navGraph="@navigation/main_navigation" />
+                app:navGraph="@navigation/home_navigation" />
 
         </LinearLayout>
 
@@ -39,7 +37,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             app:headerLayout="@layout/header_drawer"
-            app:menu="@menu/main_left" />
+            app:menu="@menu/home_left" />
 
     </androidx.drawerlayout.widget.DrawerLayout>
 

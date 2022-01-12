@@ -12,11 +12,6 @@
         android:title="@string/account_list_title" />
 
     <item
-        android:id="@+id/browse_folder_destination"
-        android:icon="@drawable/ic_baseline_star_border_24"
-        android:title="@string/browse_list_title" />
-
-    <item
         android:id="@+id/choose_workspace_destination"
         android:icon="@drawable/ic_baseline_home_24"
         android:title=  "@string/choose_workspace_title" />

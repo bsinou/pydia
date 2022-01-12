@@ -3,17 +3,13 @@ package org.sinou.android.pydia
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
-import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.databinding.ActivityBrowseBinding
 
 class BrowseActivity : AppCompatActivity() {
@@ -50,12 +46,15 @@ class BrowseActivity : AppCompatActivity() {
     private fun buildNavigationLayout() {
         setSupportActionBar(binding.toolbar)
 
-        val toggle = ActionBarDrawerToggle(
-            this, binding.drawerLayout, binding.toolbar, R.string.nav_open,
-            R.string.nav_close
-        )
-        binding.drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        // This can be used if we want to always trigger drawer opening
+        // while clicking on the top left icon. See also BrowseFolderFragment
+//        val toggle = ActionBarDrawerToggle(
+//            this, binding.drawerLayout, binding.toolbar, R.string.nav_open,
+//            R.string.nav_close
+//        )
+//        binding.drawerLayout.addDrawerListener(toggle)
+//        toggle.syncState()
+//        toggle.setToolbarNavigationClickListener { onBackPressed() }
 
         navController = this.findNavController(R.id.browse_fragment_host)
         NavigationUI.setupActionBarWithNavController(
@@ -65,11 +64,10 @@ class BrowseActivity : AppCompatActivity() {
         )
 
         binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
-
     }
 
     override fun onBackPressed() {
-        val drawer: DrawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        val drawer = binding.drawerLayout
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START)
         } else {
@@ -78,22 +76,20 @@ class BrowseActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        Log.i(tag, "onResume, intent: $intent")
+        Log.d(tag, "onResume, intent: $intent")
         super.onResume()
-//         sessionVM.resume()
     }
 
     override fun onPause() {
-        Log.i(tag, "onPause, intent: $intent")
+        Log.d(tag, "onPause, intent: $intent")
         super.onPause()
-        //      sessionVM.pause()
     }
 
     private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
         Log.i(tag, "... Item selected: #${it.itemId}")
         var done = true
         when (it.itemId) {
-            R.id.home_destination -> startActivity(Intent(this, MainActivity::class.java))
+            R.id.home_destination -> startActivity(Intent(this, HomeActivity::class.java))
             R.id.account_list_destination -> startActivity(
                 Intent(
                     this,
@@ -108,11 +104,8 @@ class BrowseActivity : AppCompatActivity() {
         done
     }
 
-
     override fun onSupportNavigateUp(): Boolean {
-        Log.i(tag, "############## Here")
-        return NavigationUI.navigateUp(navController, null)
-        // NavigationUI.navigateUp(navController, binding.drawerLayout)
+        return NavigationUI.navigateUp(navController, binding.drawerLayout)
     }
 
 }

@@ -11,17 +11,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import kotlinx.coroutines.*
-import org.sinou.android.pydia.AuthActivity
-import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.R
-import org.sinou.android.pydia.browse.ForegroundSessionViewModel
+import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentAccountListBinding
 import org.sinou.android.pydia.room.account.AccountDB
 
 class AccountListFragment : Fragment() {
-    private val TAG = "AccountListFragment"
+
+    private val fTag = "AccountListFragment"
 
 //    val job = Job()
 //    val uiScope = CoroutineScope(Dispatchers.Main + job)
@@ -58,8 +55,8 @@ class AccountListFragment : Fragment() {
 
         binding.fab.setOnClickListener {
             // it.findNavController().navigate(R.id.server_url_destination)
-            val toBrowseIntent = Intent(requireActivity(), AuthActivity::class.java)
-            startActivity(toBrowseIntent);
+            val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
+            startActivity(toAuthIntent)
         }
 
         setHasOptionsMenu(true)
@@ -67,11 +64,23 @@ class AccountListFragment : Fragment() {
     }
 
     private fun onAccountClicked(accountID: String, action: String) {
-        Log.i(TAG, "ID: $accountID, do $action")
+        Log.i(fTag, "ID: $accountID, do $action")
 
         when (action) {
-            "forget" -> lifecycleScope.launch {
+            AccountActivity.actionForget -> lifecycleScope.launch {
+                // TODO ask user confirmation
                 CellsApp.instance.accountService.forgetAccount(accountID)
+            }
+            AccountActivity.actionLogin -> {
+                val server = CellsApp.instance.accountService.sessionFactory.getServer(accountID)
+                val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
+                toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, server.serverURL.toJson())
+                toAuthIntent.putExtra(AppNames.EXTRA_SERVER_IS_LEGACY, server.isLegacy)
+
+                startActivity(toAuthIntent);
+            }
+            AccountActivity.actionLogout -> lifecycleScope.launch {
+                CellsApp.instance.accountService.logoutAccount(accountID)
             }
             else -> return;// do nothing
         }

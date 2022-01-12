@@ -7,6 +7,8 @@
     <color name="colorMainLight">#5C7784</color>
     <color name="iconTint">@color/colorMainLight</color>
     <color name="iconBackground">#EDF0F2</color>
+    <color name="decoratorBackground">#33EDF0F2</color>
+
 
     <color name="colorPrimary">@color/colorMain</color>
     <color name="colorPrimaryLight">@color/colorMainLight</color>
@@ -17,6 +19,10 @@
     <color name="colorTextPrimary">@color/colorMain</color>
     <color name="colorTextAccent">@color/colorMainAccent</color>
     <color name="colorAvatarDefault">@color/colorMain</color>
+
+    <color name="ok">#219600</color>
+    <color name="warning">#FFFF9800</color>
+    <color name="danger">@color/selected_red_color</color>
 
     <color name="colorSecondary">#219600</color>
     <color name="colorSecondaryLight">#64b500</color>

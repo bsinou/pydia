@@ -9,13 +9,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
+import org.sinou.android.pydia.AccountActivity
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemAccountBinding
 import org.sinou.android.pydia.room.account.RLiveSession
 
-class AccountListAdapter(private val onItemClicked: (accountID: String, action: String) -> Unit) :
-    ListAdapter<RLiveSession, AccountListAdapter.ViewHolder>(LiveSessionDiffCallback()) {
+class AccountListAdapter(
+    private val onItemClicked: (accountID: String, action: String) -> Unit,
+) : ListAdapter<RLiveSession, AccountListAdapter.ViewHolder>(LiveSessionDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -26,13 +28,12 @@ class AccountListAdapter(private val onItemClicked: (accountID: String, action: 
         return ViewHolder.from(parent, onItemClicked)
     }
 
-    // We pass a click listener to each view holder via the constructor...
     class ViewHolder(
         val binding: ListItemAccountBinding,
-        val onItemClicked: (accountID: String, action: String) -> Unit
-    ) :
-        RecyclerView.ViewHolder(binding.root) {
-        private val TAG = "ViewHolder<Account>"
+        val onItemClicked: (accountID: String, action: String) -> Unit,
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        private val tag = "ViewHolder<Account>"
 
         fun bind(item: RLiveSession) {
 
@@ -41,14 +42,22 @@ class AccountListAdapter(private val onItemClicked: (accountID: String, action: 
             val stateID = StateID.fromId(item.accountID)
             // TODO also retrieve user's avatar for configured account in the current remote
             binding.root.setOnClickListener {
-                Log.i(TAG, "... item clicked: ${stateID.username}@${stateID.serverUrl}")
+                Log.i(tag, "... item clicked: ${stateID.username}@${stateID.serverUrl}")
                 val toBrowseIntent = Intent(binding.root.context, BrowseActivity::class.java)
                 toBrowseIntent.putExtra(AppNames.EXTRA_STATE, stateID.id)
                 startActivity(binding.root.context, toBrowseIntent, null)
             }
 
             binding.accountDeleteButton.setOnClickListener {
-                onItemClicked(item.accountID, "forget")
+                onItemClicked(item.accountID, AccountActivity.actionForget)
+            }
+
+            binding.accountAuthButton.setOnClickListener {
+                if (item.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+                    onItemClicked(item.accountID, AccountActivity.actionLogout)
+                } else {
+                    onItemClicked(item.accountID, AccountActivity.actionLogin)
+                }
             }
 
             binding.executePendingBindings()

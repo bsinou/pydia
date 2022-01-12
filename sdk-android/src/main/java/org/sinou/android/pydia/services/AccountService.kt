@@ -90,6 +90,25 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         }
     }
 
+    suspend fun logoutAccount(accountID: String) = withContext(Dispatchers.IO) {
+        try {
+            // First retrieve the account to forget to know if it is legacy or not
+            accountDB.accountDao().getAccount(accountID)?.let {
+                if (it.isLegacy) {
+                    accountDB.legacyCredentialsDao().forgetPassword(accountID)
+                } else {
+                    accountDB.tokenDao().forgetToken(accountID)
+                }
+                it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                accountDB.accountDao().update(it)
+
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+
     /** Stores a new row in the Session DB */
     fun registerLocalSession(accountID: String) {
         var newSession = accountDB.sessionDao().getSession(accountID)

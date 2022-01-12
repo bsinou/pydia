@@ -2,8 +2,9 @@
 <resources>
 
     <!-- Application wide params -->
-    <dimen name="margin">16dp</dimen>
+    <dimen name="margin_xsmall">4dp</dimen>
     <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin">16dp</dimen>
     <dimen name="margin_large">32dp</dimen>
     <dimen name="icon_size">48dp</dimen>
     <dimen name="triple_margin">48dp</dimen>
@@ -27,6 +28,7 @@
 
     <!-- Decorators -->
     <dimen name="list_item_flag_decorator">12dp</dimen>
+    <dimen name="account_status_decorator">20dp</dimen>
 
     <!-- Main layout -->
     <dimen name="offline_status_bar_height">96dp</dimen>

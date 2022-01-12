@@ -22,12 +22,9 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private val tag = "AuthActivity"
 
-    private lateinit var binding: ActivityAuthBinding
-    private lateinit var navController: NavController
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_auth)
+        DataBindingUtil.setContentView<ActivityAuthBinding>(this, R.layout.activity_auth)
     }
 
     override fun onResume() {
@@ -41,7 +38,7 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         super.onPause()
     }
 
-    fun handleIntent(inIntent: Intent) {
+    private fun handleIntent(inIntent: Intent) {
         if (Intent.ACTION_VIEW == intent.action) {
             val uri = inIntent.data ?: return
             val code = uri.getQueryParameter(AppNames.KEY_CODE)
@@ -50,21 +47,19 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             if (code != null && state != null){
                 val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(null)
                 findNavController(R.id.auth_fragment_host).navigate(action)
-            }
-
-            launch {
-                // CellsApp.instance.accountService.handleOAuthResponse(state, code)
+                return
             }
         }
-    }
 
-    val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
-        Log.i(tag, "... Item selected: #${it.itemId}")
-        var done = true
-        when (it.itemId) {
-            R.id.home_destination -> startActivity(Intent(this, LandActivity::class.java))
-            else -> done = NavigationUI.onNavDestinationSelected(it, navController)
+        if (intent.hasExtra(AppNames.EXTRA_SERVER_URL)){
+            val urlStr: String = intent.getStringExtra(AppNames.EXTRA_SERVER_URL)!!
+            if (intent.getBooleanExtra(AppNames.EXTRA_SERVER_IS_LEGACY, false)) {
+                val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(urlStr)
+                findNavController(R.id.auth_fragment_host).navigate(action)
+            } else {
+                val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(urlStr)
+                findNavController(R.id.auth_fragment_host).navigate(action)
+            }
         }
-        done
     }
 }

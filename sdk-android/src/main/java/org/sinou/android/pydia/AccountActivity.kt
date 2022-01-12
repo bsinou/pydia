@@ -20,7 +20,15 @@ import org.sinou.android.pydia.databinding.ActivityAccountBinding
  */
 class AccountActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
-    private val tag = "AccountActivity"
+
+    companion object {
+        private const val tag = "AccountActivity"
+
+        const val actionForget = "forget"
+        const val actionLogin = "login"
+        const val actionLogout = "logout"
+    }
+
 
     private lateinit var binding: ActivityAccountBinding
     private lateinit var navController: NavController

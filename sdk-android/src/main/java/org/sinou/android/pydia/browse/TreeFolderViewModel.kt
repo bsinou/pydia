@@ -17,13 +17,13 @@ import java.util.concurrent.TimeUnit
  * This holds a folder and all its children
  */
 class TreeFolderViewModel(
-    val accountService: AccountService,
-    val nodeService: NodeService,
-    val stateID: StateID,
+    private val accountService: AccountService,
+    private val nodeService: NodeService,
+    private val stateID: StateID,
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val TAG = "TreeFolderViewModel"
+    private val tag = "TreeFolderViewModel"
 
     private var viewModelJob = Job()
 
@@ -41,7 +41,7 @@ class TreeFolderViewModel(
     private fun watchFolder() = vmScope.launch {
         while (_isActive) {
             Log.i(
-                TAG,
+                tag,
                 "Watching ${stateID}, found ${children.value?.size} children"
             )
             nodeService.pull(stateID)
@@ -67,8 +67,8 @@ class TreeFolderViewModel(
 
     class TreeFolderViewModelFactory(
         private val accountService: AccountService,
-        val nodeService: NodeService,
-        val stateID: StateID,
+        private val nodeService: NodeService,
+        private val stateID: StateID,
         private val application: Application
     ) : ViewModelProvider.Factory {
         @Suppress("unchecked_cast")

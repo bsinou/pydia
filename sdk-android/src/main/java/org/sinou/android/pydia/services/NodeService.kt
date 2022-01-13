@@ -1,7 +1,10 @@
 package org.sinou.android.pydia.services
 
+import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.CustomEncoder
@@ -12,16 +15,14 @@ import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import org.sinou.android.pydia.BuildConfig
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.room.browse.TreeNodeDB
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
+import java.lang.Exception
 import java.util.*
 
 class NodeService(
@@ -37,8 +38,16 @@ class NodeService(
     private val encoder: CustomEncoder = AndroidCustomEncoder()
     private val utf8Slash = encoder.utf8Encode("/")
 
+    private val nodeServiceJob = Job()
+    private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
+
+
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
         return nodeDB.treeNodeDao().ls(stateID.id, stateID.file)
+    }
+
+    fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
+        return nodeDB.treeNodeDao().lsWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
     }
 
 //    fun searchUnder(stateID: StateID): LiveData<List<RTreeNode>> {
@@ -119,7 +128,6 @@ class NodeService(
         }
     }
 
-
     suspend fun getGetOrDownloadFile(rTreeNode: RTreeNode): File? = withContext(Dispatchers.IO) {
 
         rTreeNode.localFilename?.let {
@@ -164,6 +172,17 @@ class NodeService(
         targetFile
     }
 
+    @Throws(SDKException::class)
+    suspend fun uploadAt(stateID: StateID, fileName: String, input: InputStream) = withContext(Dispatchers.IO) {
+        try {
+            val sf = accountService.sessionFactory
+            val client: Client = sf.getUnlockedClient(stateID.accountId)
+            client.upload(input, 0, stateID.workspace, stateID.file, fileName, true, null )
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+        null
+    }
 
     companion object {
         fun firstPage(): PageOptions {

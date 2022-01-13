@@ -48,8 +48,6 @@ class BrowseFolderFragment : Fragment() {
             StateID.fromId(args.state)
         }
 
-        Log.i(fTag, "in onCreateView for $stateID")
-
         val application = requireActivity().application
         val viewModelFactory = TreeFolderViewModel.TreeFolderViewModelFactory(
             CellsApp.instance.accountService,
@@ -76,21 +74,6 @@ class BrowseFolderFragment : Fragment() {
             },
         )
 
-        (requireActivity() as BrowseActivity).supportActionBar?.let {
-            it.title = if (Str.empty(stateID.fileName)) {
-                stateID.workspace
-            } else if ("/recycle_bin" == stateID.file) {
-                resources.getString(R.string.recycle_bin_label)
-            } else {
-                treeFolderVM.stateID.fileName
-            }
-
-            it.setDisplayHomeAsUpEnabled(true)
-//            it.setDisplayShowHomeEnabled(true)
-
-//            it.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24);
-        }
-
         return binding.root
     }
 
@@ -101,13 +84,25 @@ class BrowseFolderFragment : Fragment() {
             BrowseActivity.actionNavigate -> navigateTo(stateID)
             else -> return // do nothing
         }
-        // Toast.makeText(requireActivity(), "pos: $accountID, action ID: $action", Toast.LENGTH_LONG).show()
     }
 
     override fun onResume() {
         super.onResume()
         treeFolderVM.resume()
-        CellsApp.instance.wasHere(treeFolderVM.stateID)
+        CellsApp.instance.wasHere(stateID)
+
+        (requireActivity() as BrowseActivity).supportActionBar?.let {
+            it.title = if (Str.empty(stateID.fileName)) {
+                stateID.workspace
+            } else if ("/recycle_bin" == stateID.file) {
+                resources.getString(R.string.recycle_bin_label)
+            } else {
+                stateID.fileName
+            }
+
+            it.setDisplayHomeAsUpEnabled(true)
+        }
+
     }
 
     override fun onPause() {

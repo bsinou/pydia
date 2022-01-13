@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.browse
+package org.sinou.android.pydia.upload
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,9 +9,9 @@ import com.pydio.cells.api.ui.WorkspaceNode
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemWorkspaceBinding
 
-class WsListAdapter(
+class WorkspaceListAdapter(
     private val onItemClicked: (slug: String, action: String) -> Unit
-) : ListAdapter<WorkspaceNode, WsListAdapter.ViewHolder>(WorkspaceNodeDiffCallback()) {
+) : ListAdapter<WorkspaceNode, WorkspaceListAdapter.ViewHolder>(WorkspaceNodeDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -61,9 +61,6 @@ class WorkspaceNodeDiffCallback : DiffUtil.ItemCallback<WorkspaceNode>() {
     }
 
     override fun areContentsTheSame(oldItem: WorkspaceNode, newItem: WorkspaceNode): Boolean {
-        // TODO: WorkspaceNode are not data objects. Implement equality.
         return oldItem == newItem
     }
 }
-
-

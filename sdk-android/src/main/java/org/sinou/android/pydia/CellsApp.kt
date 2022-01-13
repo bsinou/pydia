@@ -129,4 +129,8 @@ class CellsApp : Application() {
             apply()
         }
     }
+
+    // TODO implement background cleaning, typically:
+    //  - states
+    //  - upload & downloads
 }

@@ -22,7 +22,7 @@ class OAuthViewModel(private val accountService: AccountService) : ViewModel() {
 
     private val tag = "OAuthViewModel"
 
-    private var viewModelJob = Job()
+    private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private val _launchOAuthIntent = MutableLiveData<Intent?>()

@@ -81,4 +81,9 @@
     <string name="browse_list_none">Empty</string>
     <string name="recycle_bin_label">Recycle Bin</string>
 
+    <!-- Upload Management -->
+    <string name="pick_up_session">Pick up an account</string>
+    <string name="pick_up_workspace">Choose a target workspace</string>
+    <string name="pick_up_folder">Choose a target folder</string>
+
 </resources>

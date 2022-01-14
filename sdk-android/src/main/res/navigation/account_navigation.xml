@@ -15,20 +15,26 @@
         android:label="@string/account_list_title"
         tools:layout="@layout/fragment_account_list">
         <action
-            android:id="@+id/action_account_list_fragment_to_server_url_fragment"
-            app:destination="@id/server_url_fragment" />
-        <action
             android:id="@+id/action_account_list_fragment_to_account_details_fragment"
             app:destination="@id/account_details_fragment" />
         <action
-            android:id="@+id/action_account_list_destination_to_server_url_destination"
-            app:destination="@id/server_url_destination" />
+            android:id="@+id/action_accounts_to_confirm_deletion"
+            app:destination="@id/confirmAccountDeletionDialog" />
     </fragment>
 
     <fragment
         android:id="@+id/account_details_fragment"
         android:name="org.sinou.android.pydia.account.AccountDetailsFragment"
         android:label="@string/account_details_desc"
-        tools:layout="@layout/fragment_account_details"></fragment>
+        tools:layout="@layout/fragment_account_details" />
+
+    <dialog
+        android:id="@+id/confirmAccountDeletionDialog"
+        android:name="org.sinou.android.pydia.ui.dialogs.ConfirmAccountDeletionDialog"
+        android:label="ConfirmAccountDeletionDialog" >
+        <argument
+            android:name="account_id"
+            app:argType="string" />
+    </dialog>
 
 </navigation>

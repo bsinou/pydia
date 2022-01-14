@@ -21,12 +21,25 @@
         android:name="org.sinou.android.pydia.browse.BrowseFolderFragment"
         android:label="@string/browse_list_title"
         tools:layout="@layout/fragment_browse_folder">
-        <action
-            android:id="@+id/action_browse_self"
-            app:destination="@id/browse_folder_destination" />
         <argument
             android:name="state"
             app:argType="string" />
+
+        <action
+            android:id="@+id/action_browse_self"
+            app:destination="@id/browse_folder_destination" />
+        <action
+            android:id="@+id/action_open_node_more_menu"
+            app:destination="@id/tree_node_more_menu" />
     </fragment>
+
+    <dialog
+        android:id="@+id/tree_node_more_menu"
+        android:name="org.sinou.android.pydia.browse.TreeNodeMoreMenu"
+        android:label="TreeNodeMoreMenu" >
+        <argument
+            android:name="state"
+            app:argType="string" />
+    </dialog>
 
 </navigation>

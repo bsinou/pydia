@@ -7,6 +7,7 @@
     <data></data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/account_list_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

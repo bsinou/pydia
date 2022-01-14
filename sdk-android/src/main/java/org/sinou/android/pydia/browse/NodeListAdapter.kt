@@ -40,13 +40,22 @@ class NodeListAdapter(
 
             binding.root.setOnClickListener {
                 binding.node?.let {
-                    // TODO only navigate with folders.
                     onItemClicked(
                         parentStateID.child(it.name),
                         BrowseActivity.actionNavigate
                     )
                 }
             }
+
+            binding.listItemMore.setOnClickListener {
+                binding.node?.let {
+                    onItemClicked(
+                        parentStateID.child(it.name),
+                        BrowseActivity.actionMore,
+                    )
+                }
+            }
+
             return this
         }
 

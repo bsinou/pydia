@@ -12,12 +12,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
+import org.sinou.android.pydia.account.AccountListFragmentDirections
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.isFolder
@@ -60,7 +62,7 @@ class BrowseFolderFragment : Fragment() {
         treeFolderVM = tmpVM
 
         val adapter = NodeListAdapter(parentStateID = stateID) { stateID, action ->
-            onNodeClicked(
+            onClicked(
                 stateID,
                 action
             )
@@ -77,11 +79,20 @@ class BrowseFolderFragment : Fragment() {
         return binding.root
     }
 
-    private fun onNodeClicked(stateID: StateID, command: String) {
+    private fun onClicked(stateID: StateID, command: String) {
         Log.i(fTag, "ID: $stateID, do $command")
 
         when (command) {
             BrowseActivity.actionNavigate -> navigateTo(stateID)
+            BrowseActivity.actionMore -> {
+                val action = BrowseFolderFragmentDirections
+                    .actionOpenNodeMoreMenu(stateID.id)
+                binding.browseFolderFragment.findNavController().navigate(action)
+
+/*                val modalBottomSheet = TreeNodeMoreMenu()
+                modalBottomSheet.show(findNavController(), ModalBottomSheet.TAG)*/
+            }
+
             else -> return // do nothing
         }
     }

@@ -11,7 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.*
+import androidx.navigation.findNavController
+import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentAccountListBinding
 import org.sinou.android.pydia.room.account.AccountDB
@@ -19,6 +20,9 @@ import org.sinou.android.pydia.room.account.AccountDB
 class AccountListFragment : Fragment() {
 
     private val fTag = "AccountListFragment"
+
+
+    private lateinit var binding: FragmentAccountListBinding
 
 //    val job = Job()
 //    val uiScope = CoroutineScope(Dispatchers.Main + job)
@@ -29,7 +33,7 @@ class AccountListFragment : Fragment() {
     ): View {
 
         // Get a reference to the binding object and inflate the fragment views.
-        val binding: FragmentAccountListBinding = DataBindingUtil.inflate(
+        binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_list, container, false
         )
 
@@ -67,10 +71,6 @@ class AccountListFragment : Fragment() {
         Log.i(fTag, "ID: $accountID, do $action")
 
         when (action) {
-            AccountActivity.actionForget -> lifecycleScope.launch {
-                // TODO ask user confirmation
-                CellsApp.instance.accountService.forgetAccount(accountID)
-            }
             AccountActivity.actionLogin -> {
                 val server = CellsApp.instance.accountService.sessionFactory.getServer(accountID)
                 val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
@@ -80,6 +80,11 @@ class AccountListFragment : Fragment() {
             }
             AccountActivity.actionLogout -> lifecycleScope.launch {
                 CellsApp.instance.accountService.logoutAccount(accountID)
+            }
+            AccountActivity.actionForget -> {
+                val action = AccountListFragmentDirections
+                    .actionAccountsToConfirmDeletion(accountID)
+                binding.accountListFragment.findNavController().navigate(action)
             }
             else -> return;// do nothing
         }

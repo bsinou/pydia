@@ -86,4 +86,8 @@
     <string name="pick_up_workspace">Choose a target workspace</string>
     <string name="pick_up_folder">Choose a target folder</string>
 
+    <!-- Dialogs -->
+    <string name="confirm_account_deletion_title">Delete account %s?</string>
+    <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
+
 </resources>

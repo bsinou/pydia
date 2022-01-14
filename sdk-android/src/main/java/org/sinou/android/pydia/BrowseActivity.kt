@@ -17,6 +17,7 @@ class BrowseActivity : AppCompatActivity() {
     companion object {
         private const val tag = "BrowseActivity"
         const val actionNavigate = "navigate"
+        const val actionMore = "more"
     }
 
     private lateinit var binding: ActivityBrowseBinding

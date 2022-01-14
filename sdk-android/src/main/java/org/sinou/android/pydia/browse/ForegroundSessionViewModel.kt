@@ -3,7 +3,6 @@ package org.sinou.android.pydia.browse
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.room.Query
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.room.account.RSession
@@ -22,7 +21,7 @@ class ForegroundSessionViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val TAG = "ForegroundSessionVM"
+    private val tag = "ForegroundSessionVM"
 
     private var viewModelJob = Job()
     private val viewModelScope = CoroutineScope(Dispatchers.Main + viewModelJob)
@@ -39,7 +38,7 @@ class ForegroundSessionViewModel(
     private fun watchSession() = viewModelScope.launch {
         while (isActiveSession) {
             Log.i(
-                TAG,
+                tag,
                 "Watching ${accountID} - already having a session ${liveSession?.value}"
             )
             accountService.refreshWorkspaceList(accountID)
@@ -74,7 +73,7 @@ class ForegroundSessionViewModel(
 
     private suspend fun getSessionFromDB(accountID: String): RSession? {
         return withContext(Dispatchers.IO) {
-            Log.i(TAG, "Account ID: "+ accountID + ", account DB: "+ accountService.accountDB.toString())
+            Log.i(tag, "Account ID: "+ accountID + ", account DB: "+ accountService.accountDB.toString())
             var session = accountService.accountDB.sessionDao().getSession(accountID)
             var liveSession = accountService.accountDB.liveSessionDao().getSession(accountID)
 //            if (session?.authStatus != "online") {

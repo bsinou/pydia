@@ -98,5 +98,19 @@
             app:nodeDesc="@{node}"
             tools:text="Your personal files" />
 
+        <ImageView
+            android:id="@+id/listItemMore"
+            android:layout_alignParentEnd="true"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            android:layout_margin="@dimen/list_icon_margin"
+            android:layout_width="@dimen/list_icon_size"
+            android:layout_height="@dimen/list_icon_size"
+            android:contentDescription="Display menu for this item"
+            android:src="@android:drawable/ic_menu_more" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

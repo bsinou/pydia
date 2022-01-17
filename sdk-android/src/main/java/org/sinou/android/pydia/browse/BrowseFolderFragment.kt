@@ -1,5 +1,6 @@
 package org.sinou.android.pydia.browse
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +23,7 @@ import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.isFolder
+import java.io.File
 
 class BrowseFolderFragment : Fragment() {
 
@@ -134,26 +136,34 @@ class BrowseFolderFragment : Fragment() {
                 val action = BrowseFolderFragmentDirections.actionBrowseSelf(node.encodedState)
                 binding.browseFolderFragment.findNavController().navigate(action)
             } else {
-
                 val file = CellsApp.instance.nodeService.getGetOrDownloadFile(node)
                 file?.let {
-                    // thx to https://stackoverflow.com/questions/56598480/couldnt-find-meta-data-for-provider-with-authority
-                    val uri = FileProvider.getUriForFile(
-                        requireContext(),
-                        BuildConfig.APPLICATION_ID + ".fileprovider", file
-                    );
-
-                    var mime = node.mime
-                    if (SdkNames.NODE_MIME_DEFAULT.equals(mime)) {
-                        mime = NodeService.getMimeType(node.name)
-                    }
-                    val intent = Intent()
-                    intent.setAction(Intent.ACTION_VIEW);
-                    intent.setDataAndType(uri, mime);
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(intent);
+                    val intent = externallyView(requireContext(), file, node)
+                    startActivity(intent)
                 }
             }
         }
     }
+}
+
+/**
+ * Open current file with the viewer provided by Android OS.
+ *
+ * Thanks to https://stackoverflow.com/questions/56598480/couldnt-find-meta-data-for-provider-with-authority
+ */
+fun externallyView(context: Context, file: File, node: RTreeNode) :Intent {
+
+    val uri = FileProvider.getUriForFile(
+        context,
+        BuildConfig.APPLICATION_ID + ".fileprovider", file
+    )
+
+    var mime = node.mime
+    if (SdkNames.NODE_MIME_DEFAULT.equals(mime)) {
+        mime = NodeService.getMimeType(node.name)
+    }
+
+    return Intent().setAction(Intent.ACTION_VIEW)
+        .setDataAndType(uri, mime)
+        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 }

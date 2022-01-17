@@ -182,6 +182,26 @@ class NodeService(
             null
         }
 
+    suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+        val stateID = rTreeNode.getStateID()
+        try {
+            val sf = accountService.sessionFactory
+            val client: Client = sf.getUnlockedClient(stateID.accountId)
+            client.bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked)
+            rTreeNode.isBookmarked = !rTreeNode.isBookmarked
+            rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
+            nodeDB.treeNodeDao().update(rTreeNode)
+        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
+            Log.e(tag, "could not perform DL for " + stateID.id)
+            se.printStackTrace()
+            return@withContext null
+        } catch (ioe: IOException) {
+            Log.e(tag, "cannot toogle bookmark for ${stateID}: ${ioe.message}")
+            ioe.printStackTrace()
+            return@withContext null
+        }
+    }
+
     companion object {
         fun firstPage(): PageOptions {
             val page = PageOptions()
@@ -202,8 +222,9 @@ class NodeService(
                 workspace = stateID.workspace,
                 parentPath = stateID.parentFile,
                 name = stateID.fileName,
-                mime = fileNode.mimeType,
+                UUID = fileNode.id,
                 etag = fileNode.eTag,
+                mime = fileNode.mimeType,
                 size = fileNode.size,
                 isBookmarked = fileNode.isBookmark,
                 isShared = fileNode.isShared,

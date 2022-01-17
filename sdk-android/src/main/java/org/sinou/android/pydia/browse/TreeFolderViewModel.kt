@@ -14,7 +14,7 @@ import org.sinou.android.pydia.services.NodeService
 import java.util.concurrent.TimeUnit
 
 /**
- * This holds a folder and all its children
+ * Holds a folder and all its children
  */
 class TreeFolderViewModel(
     private val accountService: AccountService,

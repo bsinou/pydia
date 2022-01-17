@@ -1,10 +1,7 @@
 package org.sinou.android.pydia.services
 
-import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
-import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.CustomEncoder
@@ -16,13 +13,11 @@ import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
 import kotlinx.coroutines.*
-import org.sinou.android.pydia.BuildConfig
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.room.browse.TreeNodeDB
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
 import java.io.*
-import java.lang.Exception
 import java.util.*
 
 class NodeService(
@@ -59,6 +54,8 @@ class NodeService(
 //        return nodeDB.treeNodeDao().ls(encodedId)
 //    }
 
+    fun getLiveNode(stateID: StateID): LiveData<RTreeNode> =
+        nodeDB.treeNodeDao().getLiveNode(stateID.id)
 
     suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
         nodeDB.treeNodeDao().getNode(stateID.id)
@@ -173,16 +170,17 @@ class NodeService(
     }
 
     @Throws(SDKException::class)
-    suspend fun uploadAt(stateID: StateID, fileName: String, input: InputStream) = withContext(Dispatchers.IO) {
-        try {
-            val sf = accountService.sessionFactory
-            val client: Client = sf.getUnlockedClient(stateID.accountId)
-            client.upload(input, 0, stateID.workspace, stateID.file, fileName, true, null )
-        } catch (e: Exception){
-            e.printStackTrace()
+    suspend fun uploadAt(stateID: StateID, fileName: String, input: InputStream) =
+        withContext(Dispatchers.IO) {
+            try {
+                val sf = accountService.sessionFactory
+                val client: Client = sf.getUnlockedClient(stateID.accountId)
+                client.upload(input, 0, stateID.workspace, stateID.file, fileName, true, null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            null
         }
-        null
-    }
 
     companion object {
         fun firstPage(): PageOptions {

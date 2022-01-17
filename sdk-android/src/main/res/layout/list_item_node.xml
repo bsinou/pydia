@@ -25,6 +25,7 @@
             android:layout_height="@dimen/icon_size"
             android:layout_margin="@dimen/margin_small"
 
+            android:contentDescription="@string/thumb_description"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -60,26 +61,29 @@
                 android:id="@+id/flag_offline"
                 android:layout_width="@dimen/list_item_flag_decorator"
                 android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/keep_offline"
                 android:src="@drawable/ic_baseline_offline_pin_24"
                 android:visibility="gone"
-                app:offline="@{node}"/>
+                app:offline="@{node}" />
 
             <ImageView
                 android:id="@+id/flag_bookmark"
                 android:layout_width="@dimen/list_item_flag_decorator"
                 android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/bookmark"
                 android:src="@drawable/ic_baseline_bookmark_24"
                 android:visibility="gone"
-                app:bookmark="@{node}"/>
+                app:bookmark="@{node}" />
 
 
             <ImageView
                 android:id="@+id/flag_shared"
                 android:layout_width="@dimen/list_item_flag_decorator"
                 android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/public_link"
                 android:src="@drawable/ic_baseline_link_24"
                 android:visibility="gone"
-                app:shared="@{node}"/>
+                app:shared="@{node}" />
 
         </LinearLayout>
 
@@ -100,17 +104,47 @@
 
         <ImageView
             android:id="@+id/listItemMore"
-            android:layout_alignParentEnd="true"
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-
-            android:layout_margin="@dimen/list_icon_margin"
             android:layout_width="@dimen/list_icon_size"
             android:layout_height="@dimen/list_icon_size"
-            android:contentDescription="Display menu for this item"
-            android:src="@android:drawable/ic_menu_more" />
+            android:layout_alignParentEnd="true"
+            android:layout_margin="@dimen/list_icon_margin"
 
+            android:contentDescription="@string/more_button_description"
+            android:src="@drawable/ic_baseline_more_vert_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!--
+
+        Very weird behaviour: We had to build at least once with this two dummy layouts
+        that call come specific binding adapters that are used only in the "more menu"
+        (not in a recycler view adapter) otherwise the more menu layout cannot see the additional
+        app:showForFileOnly method...
+        TODO understand this or it might come again when we go to production)
+
+<LinearLayout
+    android:id="@+id/dummy_desc"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:orientation="vertical"
+
+    app:layout_constraintBottom_toBottomOf="@id/node_thumb"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toEndOf="@+id/node_thumb"
+
+    app:showForFileOnly="@{node}" />
+
+<LinearLayout
+    android:id="@+id/dummy_desc2"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:orientation="vertical"
+    app:layout_constraintBottom_toBottomOf="@id/node_thumb"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toEndOf="@+id/node_thumb"
+
+    app:showForFolderOnly="@{node}" />
+-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

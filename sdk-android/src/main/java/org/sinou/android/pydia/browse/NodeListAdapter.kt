@@ -13,7 +13,7 @@ import org.sinou.android.pydia.room.browse.RTreeNode
 
 class NodeListAdapter(
     private val parentStateID: StateID,
-    private val onItemClicked: (stateID: StateID, command: String) -> Unit
+    private val onItemClicked: (node: RTreeNode, command: String) -> Unit
 ) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -35,13 +35,13 @@ class NodeListAdapter(
 
         fun with(
             parentStateID: StateID,
-            onItemClicked: (stateID: StateID, command: String) -> Unit
+            onItemClicked: (node: RTreeNode, command: String) -> Unit
         ): ViewHolder {
 
             binding.root.setOnClickListener {
                 binding.node?.let {
                     onItemClicked(
-                        parentStateID.child(it.name),
+                        it,
                         BrowseActivity.actionNavigate
                     )
                 }
@@ -50,7 +50,7 @@ class NodeListAdapter(
             binding.listItemMore.setOnClickListener {
                 binding.node?.let {
                     onItemClicked(
-                        parentStateID.child(it.name),
+                        it,
                         BrowseActivity.actionMore,
                     )
                 }
@@ -91,8 +91,8 @@ class TreeNodeDiffCallback : DiffUtil.ItemCallback<RTreeNode>() {
         }
 
         val flagChanged = newItem.isBookmarked == oldItem.isBookmarked
-                &&  newItem.isOfflineRoot == oldItem.isOfflineRoot
-                &&  newItem.isShared == oldItem.isShared
+                && newItem.isOfflineRoot == oldItem.isOfflineRoot
+                && newItem.isShared == oldItem.isShared
 
 
         // With Room: we should get  equality based on equality of each fields (column) for free

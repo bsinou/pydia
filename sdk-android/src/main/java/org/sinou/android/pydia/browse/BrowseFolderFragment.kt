@@ -12,15 +12,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
-import org.sinou.android.pydia.account.AccountListFragmentDirections
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
+import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.isFolder
 
@@ -61,9 +60,9 @@ class BrowseFolderFragment : Fragment() {
         val tmpVM: TreeFolderViewModel by viewModels { viewModelFactory }
         treeFolderVM = tmpVM
 
-        val adapter = NodeListAdapter(parentStateID = stateID) { stateID, action ->
+        val adapter = NodeListAdapter(parentStateID = stateID) { node, action ->
             onClicked(
-                stateID,
+                node,
                 action
             )
         }
@@ -79,18 +78,20 @@ class BrowseFolderFragment : Fragment() {
         return binding.root
     }
 
-    private fun onClicked(stateID: StateID, command: String) {
+    private fun onClicked(node: RTreeNode, command: String) {
         Log.i(fTag, "ID: $stateID, do $command")
 
         when (command) {
-            BrowseActivity.actionNavigate -> navigateTo(stateID)
+            BrowseActivity.actionNavigate -> navigateTo(node)
             BrowseActivity.actionMore -> {
                 val action = BrowseFolderFragmentDirections
-                    .actionOpenNodeMoreMenu(stateID.id)
+                    .actionOpenNodeMoreMenu(
+                        node.encodedState, when (node.mime) {
+                            SdkNames.NODE_MIME_RECYCLE -> TreeNodeActionsFragment.CONTEXT_RECYCLE
+                            else -> TreeNodeActionsFragment.CONTEXT_BROWSE
+                        }
+                    )
                 binding.browseFolderFragment.findNavController().navigate(action)
-
-/*                val modalBottomSheet = TreeNodeMoreMenu()
-                modalBottomSheet.show(findNavController(), ModalBottomSheet.TAG)*/
             }
 
             else -> return // do nothing
@@ -126,17 +127,15 @@ class BrowseFolderFragment : Fragment() {
         super.onSaveInstanceState(savedInstanceState)
     }
 
-    private fun navigateTo(stateID: StateID) {
+    private fun navigateTo(node: RTreeNode) {
         lifecycleScope.launch {
 
-            val rTreeNode = CellsApp.instance.nodeService.getNode(stateID) ?: return@launch
-
-            if (isFolder(rTreeNode)) {
-                val action = BrowseFolderFragmentDirections.actionBrowseSelf(stateID.id)
+            if (isFolder(node)) {
+                val action = BrowseFolderFragmentDirections.actionBrowseSelf(node.encodedState)
                 binding.browseFolderFragment.findNavController().navigate(action)
             } else {
 
-                val file = CellsApp.instance.nodeService.getGetOrDownloadFile(rTreeNode)
+                val file = CellsApp.instance.nodeService.getGetOrDownloadFile(node)
                 file?.let {
                     // thx to https://stackoverflow.com/questions/56598480/couldnt-find-meta-data-for-provider-with-authority
                     val uri = FileProvider.getUriForFile(
@@ -144,9 +143,9 @@ class BrowseFolderFragment : Fragment() {
                         BuildConfig.APPLICATION_ID + ".fileprovider", file
                     );
 
-                    var mime = rTreeNode.mime
+                    var mime = node.mime
                     if (SdkNames.NODE_MIME_DEFAULT.equals(mime)) {
-                        mime = NodeService.getMimeType(rTreeNode.name)
+                        mime = NodeService.getMimeType(node.name)
                     }
                     val intent = Intent()
                     intent.setAction(Intent.ACTION_VIEW);
@@ -155,10 +154,6 @@ class BrowseFolderFragment : Fragment() {
                     startActivity(intent);
                 }
             }
-
         }
-
-
     }
-
 }

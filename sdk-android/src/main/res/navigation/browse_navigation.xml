@@ -24,7 +24,6 @@
         <argument
             android:name="state"
             app:argType="string" />
-
         <action
             android:id="@+id/action_browse_self"
             app:destination="@id/browse_folder_destination" />
@@ -35,10 +34,13 @@
 
     <dialog
         android:id="@+id/tree_node_more_menu"
-        android:name="org.sinou.android.pydia.browse.TreeNodeMoreMenu"
+        android:name="org.sinou.android.pydia.browse.TreeNodeActionsFragment"
         android:label="TreeNodeMoreMenu" >
         <argument
             android:name="state"
+            app:argType="string" />
+        <argument
+            android:name="contextType"
             app:argType="string" />
     </dialog>
 

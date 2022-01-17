@@ -17,6 +17,7 @@
     <dimen name="text_padding_medium">16dp</dimen>
     <dimen name="text_padding_large">24dp</dimen>
 
+    <!-- Recycle lists -->
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="list_icon_inner_size">16dp</dimen>
     <dimen name="list_icon_corner_radius">6dp</dimen>
@@ -25,6 +26,14 @@
     <dimen name="list_button_size">24dp</dimen>
     <dimen name="list_button_padding">@dimen/text_padding_small</dimen>
     <dimen name="list_button_margin">@dimen/margin_small</dimen>
+
+    <!-- Menus -->
+    <dimen name="menu_header_icon">32dp</dimen>
+    <dimen name="menu_icon">24dp</dimen>
+    <dimen name="menu_margin">8dp</dimen>
+    <dimen name="menu_padding">4dp</dimen>
+    <dimen name="menu_row_padding">0dp</dimen>
+    <dimen name="menu_label_padding">4dp</dimen>
 
     <!-- Decorators -->
     <dimen name="list_item_flag_decorator">12dp</dimen>

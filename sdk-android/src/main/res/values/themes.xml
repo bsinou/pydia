@@ -24,4 +24,16 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
 
+    <style name="Divider">
+<!--        <item name="android:background">?android:attr/listDivider</item>-->
+        <item name="android:background">@color/colorPrimaryLight</item>
+    </style>
+
+    <style name="Divider.Horizontal" parent="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0.3dp</item>
+        <item name="android:layout_marginTop">@dimen/margin_xsmall</item>
+        <item name="android:layout_marginBottom">@dimen/margin</item>
+    </style>
+
 </resources>

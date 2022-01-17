@@ -18,6 +18,9 @@ interface TreeNodeDao {
     fun update(treeNode: RTreeNode)
 
     @Query("SELECT * FROM tree_node_table WHERE encoded_state = :encodedState LIMIT 1")
+    fun getLiveNode(encodedState: String): LiveData<RTreeNode>
+
+    @Query("SELECT * FROM tree_node_table WHERE encoded_state = :encodedState LIMIT 1")
     fun getNode(encodedState: String): RTreeNode?
 
     @Query("SELECT * FROM tree_node_table WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY sort_name")

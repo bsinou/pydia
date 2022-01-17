@@ -86,8 +86,26 @@
     <string name="pick_up_workspace">Choose a target workspace</string>
     <string name="pick_up_folder">Choose a target folder</string>
 
+    <!-- More menus -->
+    <string name="more_button_description">Show more actions for this element</string>
+    <string name="open_with">Open with...</string>
+    <string name="download_to_device">Download to device</string>
+    <string name="rename">Rename...</string>
+    <string name="copy_to">Copy to...</string>
+    <string name="move_to">Move to...</string>
+    <string name="public_link">Public link</string>
+    <string name="public_link_content_desc">Create or delete a public link for this element</string>
+    <string name="keep_offline">Keep offline</string>
+    <string name="keep_offline_content_desc">Keep this element offline</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="bookmark_element_content_desc">Bookmark this element</string>
+    <string name="delete">Delete</string>
+    <string name="thumb_description">Small content preview</string>
+    <string name="folder_icon_description">Folder icon</string>
+    
     <!-- Dialogs -->
     <string name="confirm_account_deletion_title">Delete account %s?</string>
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
+    
 
 </resources>

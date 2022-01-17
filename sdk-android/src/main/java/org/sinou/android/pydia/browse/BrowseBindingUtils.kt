@@ -6,27 +6,26 @@ import android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
 import android.text.format.Formatter.formatShortFileSize
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.room.browse.RTreeNode
 import java.io.File
 
-
 @BindingAdapter("nodeTitle")
 fun TextView.setNodeTitle(item: RTreeNode?) {
     item?.let {
-
-        text = if ( SdkNames.NODE_MIME_RECYCLE.equals(item.mime)){
+        text = if (SdkNames.NODE_MIME_RECYCLE == item.mime) {
             this.resources.getString(R.string.recycle_bin_label)
         } else {
             item.name
@@ -52,7 +51,12 @@ fun TextView.setNodeDesc(item: RTreeNode?) {
 }
 
 @BindingAdapter("nodeThumb")
-fun ImageView.setNodeThumb(item: RTreeNode) {
+fun ImageView.setNodeThumb(item: RTreeNode?) {
+
+    if (item == null) {
+        setImageResource(R.drawable.icon_file)
+        return
+    }
 
     if (Str.notEmpty(item.thumbFilename)) {
         val stat = StateID.fromId(item.encodedState)
@@ -114,3 +118,43 @@ fun ImageView.setWsThumb(item: WorkspaceNode) {
         }
     )
 }
+
+@BindingAdapter("hasPublicLink")
+fun SwitchMaterial.setHasPublicLink(item: RTreeNode?) {
+    item?.let {
+        isChecked = it.isShared
+    }
+}
+
+@BindingAdapter("isOfflineRoot")
+fun SwitchMaterial.setOfflineRoot(item: RTreeNode?) {
+    item?.let {
+        isChecked = it.isOfflineRoot
+    }
+}
+
+@BindingAdapter("isBookmarked")
+fun SwitchMaterial.setBookmarked(item: RTreeNode?) {
+    item?.let {
+        isChecked = it.isBookmarked
+    }
+}
+
+@BindingAdapter("showForFileOnly")
+fun View.setShowForFileOnly(item: RTreeNode?) {
+    item?.let {
+        visibility = if (it.isFolder()) View.GONE else View.VISIBLE
+    }
+}
+
+@BindingAdapter("showForFolderOnly")
+fun View.setShowForFolderOnly(item: RTreeNode?) {
+    item?.let {
+        visibility = if (it.isFolder()) View.VISIBLE else View.GONE
+    }
+}
+
+fun RTreeNode.isFolder(): Boolean {
+    return SdkNames.NODE_MIME_FOLDER == mime || SdkNames.NODE_MIME_RECYCLE == mime
+}
+

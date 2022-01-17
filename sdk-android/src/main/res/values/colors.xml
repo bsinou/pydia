@@ -9,7 +9,6 @@
     <color name="iconBackground">#EDF0F2</color>
     <color name="decoratorBackground">#33EDF0F2</color>
 
-
     <color name="colorPrimary">@color/colorMain</color>
     <color name="colorPrimaryLight">@color/colorMainLight</color>
     <color name="colorPrimaryDark">@color/colorMainAccent</color>

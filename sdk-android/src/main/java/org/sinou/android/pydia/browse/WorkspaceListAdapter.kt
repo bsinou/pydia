@@ -9,9 +9,9 @@ import com.pydio.cells.api.ui.WorkspaceNode
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemWorkspaceBinding
 
-class WsListAdapter(
+class WorkspaceListAdapter(
     private val onItemClicked: (slug: String, action: String) -> Unit
-) : ListAdapter<WorkspaceNode, WsListAdapter.ViewHolder>(WorkspaceNodeDiffCallback()) {
+) : ListAdapter<WorkspaceNode, WorkspaceListAdapter.ViewHolder>(WorkspaceNodeDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)

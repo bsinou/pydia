@@ -9,7 +9,7 @@
     <fragment
         android:id="@+id/choose_workspace_destination"
         android:name="org.sinou.android.pydia.browse.ChooseWorkspaceFragment"
-        android:label="@string/choose_workspace_title"
+        android:label="@string/action_open_workspaces"
         tools:layout="@layout/fragment_choose_workspace">
         <action
             android:id="@+id/action_choose_ws_to_browse_folder"
@@ -19,7 +19,7 @@
     <fragment
         android:id="@+id/browse_folder_destination"
         android:name="org.sinou.android.pydia.browse.BrowseFolderFragment"
-        android:label="@string/browse_list_title"
+        android:label="@string/action_browse"
         tools:layout="@layout/fragment_browse_folder">
         <argument
             android:name="state"
@@ -31,6 +31,20 @@
             android:id="@+id/action_open_node_more_menu"
             app:destination="@id/tree_node_more_menu" />
     </fragment>
+
+    <fragment
+        android:id="@+id/bookmark_list_destination"
+        android:name="org.sinou.android.pydia.browse.BookmarksFragment"
+        android:label="@string/action_open_bookmarks"
+        tools:layout="@layout/fragment_bookmark_list">
+        <action
+            android:id="@+id/action_bookmark_to_browse"
+            app:destination="@id/browse_folder_destination" />
+        <action
+            android:id="@+id/action_open_node_more_menu"
+            app:destination="@id/tree_node_more_menu" />
+    </fragment>
+
 
     <dialog
         android:id="@+id/tree_node_more_menu"

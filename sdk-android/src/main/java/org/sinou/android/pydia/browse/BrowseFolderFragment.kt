@@ -1,13 +1,10 @@
 package org.sinou.android.pydia.browse
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -21,9 +18,8 @@ import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
-import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.utils.externallyView
 import org.sinou.android.pydia.utils.isFolder
-import java.io.File
 
 class BrowseFolderFragment : Fragment() {
 
@@ -62,7 +58,7 @@ class BrowseFolderFragment : Fragment() {
         val tmpVM: TreeFolderViewModel by viewModels { viewModelFactory }
         treeFolderVM = tmpVM
 
-        val adapter = NodeListAdapter(parentStateID = stateID) { node, action ->
+        val adapter = NodeListAdapter { node, action ->
             onClicked(
                 node,
                 action
@@ -116,7 +112,6 @@ class BrowseFolderFragment : Fragment() {
 
             it.setDisplayHomeAsUpEnabled(true)
         }
-
     }
 
     override fun onPause() {
@@ -144,26 +139,4 @@ class BrowseFolderFragment : Fragment() {
             }
         }
     }
-}
-
-/**
- * Open current file with the viewer provided by Android OS.
- *
- * Thanks to https://stackoverflow.com/questions/56598480/couldnt-find-meta-data-for-provider-with-authority
- */
-fun externallyView(context: Context, file: File, node: RTreeNode) :Intent {
-
-    val uri = FileProvider.getUriForFile(
-        context,
-        BuildConfig.APPLICATION_ID + ".fileprovider", file
-    )
-
-    var mime = node.mime
-    if (SdkNames.NODE_MIME_DEFAULT.equals(mime)) {
-        mime = NodeService.getMimeType(node.name)
-    }
-
-    return Intent().setAction(Intent.ACTION_VIEW)
-        .setDataAndType(uri, mime)
-        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 }

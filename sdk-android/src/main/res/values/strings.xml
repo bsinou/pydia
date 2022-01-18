@@ -11,27 +11,11 @@
     <string name="button_ok">OK</string>
     <string name="button_confirm">OK!</string>
 
-    <!-- PAGE SPECIFIC MESSAGES -->
-
-    <!-- Welcome Page -->
-    <string name="welcome_title">Welcome in Pydio!</string>
-    <string name="welcome_subtitle">The Pydio Cells Client for Android</string>
-    <string name="welcome_text">All your data on your device, everywhere, at any time!</string>
-    <string name="welcome_no_account_instructions">First, configure your connection to your remote Pydio server:</string>
-    <string name="welcome_add_account_button">Configure a connection</string>
-
-    <string name="about_welcome_text">The Pydio Cells Client for Android.</string>
-
-    <!-- About Page -->
-    <string name="about_title">About</string>
-    <string name="about_page_version_title">Pydio</string>
-    <string name="about_page_troubleshooting_title">Troubleshooting</string>
-    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS. More info on:</string>
-    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you:</string>
-    <string name="version_name_display">Version name: %s</string>
-    <string name="version_code_display">Version code: %s</string>
-    <string name="version_date_display">Version date: %s</string>
-    <string name="help_button_support">Pydio Android Support</string>
+    <!-- Navigation labels -->
+    <string name="action_open_about">About</string>
+    <string name="action_browse">Browse</string>
+    <string name="action_open_workspaces">Workspaces</string>
+    <string name="action_open_bookmarks">Bookmarks</string>
 
     <!-- Main Menu (left drawer) -->
     <string name="nav_header_title">Navigation header title</string>
@@ -50,6 +34,27 @@
     <string name="clear_cache">Clear Cache</string>
     <string name="about">About</string>
     <string name="home">Home</string>
+
+
+    <!-- PAGE SPECIFIC MESSAGES -->
+
+    <!-- Welcome Page -->
+    <string name="welcome_title">Welcome in Pydio!</string>
+    <string name="welcome_subtitle">The Pydio Cells Client for Android</string>
+    <string name="welcome_text">All your data on your device, everywhere, at any time!</string>
+    <string name="welcome_no_account_instructions">First, configure your connection to your remote Pydio server:</string>
+    <string name="welcome_add_account_button">Configure a connection</string>
+
+    <!-- About Page -->
+    <string name="about_page_version_title">Pydio</string>
+    <string name="about_welcome_text">The Pydio Cells Client for Android.</string>
+    <string name="about_page_troubleshooting_title">Troubleshooting</string>
+    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS. More info on:</string>
+    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you:</string>
+    <string name="version_name_display">Version name: %s</string>
+    <string name="version_code_display">Version code: %s</string>
+    <string name="version_date_display">Version date: %s</string>
+    <string name="help_button_support">Pydio Android Support</string>
 
     <!-- Ask URL dialog -->
     <string name="ask_url_title">Add account</string>
@@ -75,8 +80,7 @@
     <string name="account_details_desc">Account details description</string>
 
     <!-- Browse management -->
-    <string name="browse_list_title">Browse</string>
-    <string name="choose_workspace_title">Workspaces</string>
+    <string name="ws_list_subtitle">Pickup a workspace to browse</string>
     <string name="browse_list_desc">Browse your remote servers</string>
     <string name="browse_list_none">Empty</string>
     <string name="recycle_bin_label">Recycle Bin</string>
@@ -106,6 +110,5 @@
     <!-- Dialogs -->
     <string name="confirm_account_deletion_title">Delete account %s?</string>
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
-    
 
 </resources>

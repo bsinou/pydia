@@ -13,8 +13,10 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
+import org.sinou.android.pydia.databinding.MoreMenuBookmarkBinding
 import org.sinou.android.pydia.databinding.MoreMenuBrowseBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
+import org.sinou.android.pydia.utils.externallyView
 
 /**
  * More menu fragment: it is used to present the end-user with various possible actions
@@ -41,6 +43,7 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
 
     // Only *one* of the below bindings is not null, depending on the context
     private var browseBinding: MoreMenuBrowseBinding? = null
+    private var bookmarkBinding: MoreMenuBookmarkBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,6 +67,7 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
 
         var view = when (contextType) {
             CONTEXT_BROWSE -> inflateBrowseLayout(inflater, container)
+            CONTEXT_BOOKMARKS -> inflateBookmarkLayout(inflater, container)
             else -> null
         }
         return view
@@ -94,6 +98,33 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
 
         binding.executePendingBindings()
     }
+
+
+    private fun inflateBookmarkLayout(
+        inflater: LayoutInflater,
+        container: ViewGroup?
+    ): View {
+        bookmarkBinding = DataBindingUtil.inflate(
+            inflater, R.layout.more_menu_bookmark, container, false
+        )
+        val binding = bookmarkBinding as MoreMenuBookmarkBinding
+        nodeMenuVM.node.observe(this, {
+            it?.let {
+                bind(binding, it)
+            }
+        })
+        binding.executePendingBindings()
+        return binding.root
+    }
+
+    private fun bind(binding: MoreMenuBookmarkBinding, node: RTreeNode) {
+        binding.node = node
+
+//        binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
+//        binding.bookmarkSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_BOOKMARK) }
+        binding.executePendingBindings()
+    }
+
 
     private fun onClicked(node: RTreeNode, actionOpenWith: String) {
         val moreMenu = this

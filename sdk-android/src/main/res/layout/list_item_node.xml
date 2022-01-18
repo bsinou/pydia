@@ -71,10 +71,9 @@
                 android:layout_width="@dimen/list_item_flag_decorator"
                 android:layout_height="@dimen/list_item_flag_decorator"
                 android:contentDescription="@string/bookmark"
-                android:src="@drawable/ic_baseline_bookmark_24"
+                android:src="@drawable/ic_baseline_star_24"
                 android:visibility="gone"
                 app:bookmark="@{node}" />
-
 
             <ImageView
                 android:id="@+id/flag_shared"

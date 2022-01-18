@@ -3,6 +3,7 @@ package org.sinou.android.pydia.browse
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.room.account.RSession
@@ -11,13 +12,13 @@ import org.sinou.android.pydia.services.NodeService
 import java.util.concurrent.TimeUnit
 
 /**
- * This holds the session that is currently used in foreground for browsing the cache
+ * Holds the session that is currently in foreground for browsing the cache
  * and the remote server.
  */
 class ForegroundSessionViewModel(
     val accountService: AccountService,
     val nodeService: NodeService,
-    val accountID: String,
+    val accountID: StateID,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -26,9 +27,9 @@ class ForegroundSessionViewModel(
     private var viewModelJob = Job()
     private val viewModelScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    private var _liveSession = accountService.accountDB.liveSessionDao().getLiveSession(accountID)
-    val liveSession: LiveData<RLiveSession?>
-        get() = _liveSession
+    // Exposed liveData
+    val liveSession = accountService.accountDB.liveSessionDao().getLiveSession(accountID.id)
+    val bookmarks = nodeService.listBookmarks(accountID)
 
     private var _isActive = false
     val isActiveSession: Boolean
@@ -41,7 +42,7 @@ class ForegroundSessionViewModel(
                 tag,
                 "Watching ${accountID} - already having a session ${liveSession?.value}"
             )
-            accountService.refreshWorkspaceList(accountID)
+            accountService.refreshWorkspaceList(accountID.id)
             delay(TimeUnit.SECONDS.toMillis(3))
         }
     }
@@ -49,10 +50,6 @@ class ForegroundSessionViewModel(
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
-    }
-
-    fun setForeground(accountID: String) {
-        _liveSession =  accountService.accountDB.liveSessionDao().getLiveSession(accountID)
     }
 
     fun resume() {
@@ -70,7 +67,6 @@ class ForegroundSessionViewModel(
             // watchSession()
         }
 
-
     private suspend fun getSessionFromDB(accountID: String): RSession? {
         return withContext(Dispatchers.IO) {
             Log.i(tag, "Account ID: "+ accountID + ", account DB: "+ accountService.accountDB.toString())
@@ -84,13 +80,13 @@ class ForegroundSessionViewModel(
     }
 
     init {
-        initializeSession(accountID)
+        initializeSession(accountID.id)
     }
 
     class ForegroundSessionViewModelFactory(
         private val accountService: AccountService,
         private val nodeService: NodeService,
-        private val accountID: String,
+        private val accountID: StateID,
         private val application: Application
     ) : ViewModelProvider.Factory {
         @Suppress("unchecked_cast")

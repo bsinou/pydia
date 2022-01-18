@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
@@ -25,8 +25,9 @@ class ChooseWorkspaceFragment : Fragment() {
     private var targetState: StateID? = null
 
     private lateinit var binding: FragmentChooseWorkspaceBinding
-    private lateinit var sessionVM: ForegroundSessionViewModel
 
+    // private lateinit var sessionVM: ForegroundSessionViewModel
+    private val sessionVM: ForegroundSessionViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +53,6 @@ class ChooseWorkspaceFragment : Fragment() {
         }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,18 +62,19 @@ class ChooseWorkspaceFragment : Fragment() {
             inflater, R.layout.fragment_choose_workspace, container, false
         )
 
-        val application = requireActivity().application
+/*
         val viewModelFactory = ForegroundSessionViewModel.ForegroundSessionViewModelFactory(
             CellsApp.instance.accountService,
             CellsApp.instance.nodeService,
             accountID,
-            application,
+            requireActivity().application,
         )
 
         val tmpVM: ForegroundSessionViewModel by viewModels { viewModelFactory }
         sessionVM = tmpVM
+*/
 
-        val adapter = WsListAdapter { slug, action -> onWsClicked(slug, action) }
+        val adapter = WorkspaceListAdapter { slug, action -> onWsClicked(slug, action) }
         binding.workspaces.adapter = adapter
         sessionVM.liveSession.observe(
             viewLifecycleOwner,
@@ -105,7 +106,7 @@ class ChooseWorkspaceFragment : Fragment() {
         Log.i(fTag, "Resuming: $accountID")
         super.onResume()
 
-        targetState?.let{
+        targetState?.let {
             if (it.path != null && it.path.length > 1) {
                 // We have more than an account ID,
                 // directly try to navigate to the correct location
@@ -117,7 +118,14 @@ class ChooseWorkspaceFragment : Fragment() {
             }
         }
 
-        CellsApp.instance.wasHere(StateID.fromId(accountID))
+        val currState = StateID.fromId(accountID)
+        CellsApp.instance.wasHere(currState)
+
+        (requireActivity() as BrowseActivity).supportActionBar?.let {
+            it.title = currState.toString()
+            // it.subtitle = resources.getString(R.string.ws_list_subtitle)
+        }
+
         sessionVM.resume()
     }
 

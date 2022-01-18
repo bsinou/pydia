@@ -17,7 +17,7 @@
     <fragment
         android:id="@+id/about_destination"
         android:name="org.sinou.android.pydia.home.AboutFragment"
-        android:label="@string/about_title"
+        android:label="@string/action_open_about"
         tools:layout="@layout/fragment_about" />
 
     <fragment

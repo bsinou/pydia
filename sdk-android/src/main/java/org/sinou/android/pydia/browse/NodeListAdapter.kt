@@ -6,13 +6,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
 
 class NodeListAdapter(
-    private val parentStateID: StateID,
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit
 ) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()) {
 
@@ -22,7 +20,7 @@ class NodeListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent).with(parentStateID, onItemClicked)
+        return ViewHolder.from(parent).with(onItemClicked)
     }
 
     class ViewHolder private constructor(val binding: ListItemNodeBinding) :
@@ -34,7 +32,6 @@ class NodeListAdapter(
         }
 
         fun with(
-            parentStateID: StateID,
             onItemClicked: (node: RTreeNode, command: String) -> Unit
         ): ViewHolder {
 

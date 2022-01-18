@@ -25,17 +25,14 @@ class NodeService(
     private val accountService: AccountService,
     private val filesDir: File
 ) {
-    private val tag = "NodeService"
-
-    private val THUMB_DIR = "thumbs"
-    private val FILES_DIR = "files"
 
     private val encoder: CustomEncoder = AndroidCustomEncoder()
-    private val utf8Slash = encoder.utf8Encode("/")
 
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
 
+
+    /* Expose DB content as LiveData for the view models */
 
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
         return nodeDB.treeNodeDao().ls(stateID.id, stateID.file)
@@ -45,14 +42,10 @@ class NodeService(
         return nodeDB.treeNodeDao().lsWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
     }
 
-//    fun searchUnder(stateID: StateID): LiveData<List<RTreeNode>> {
-//        var encodedId = stateID.id
-//        // quick and dirty workaround to avoid listing the parent folder
-//        stateID.fileName?.let{
-//            encodedId += utf8Slash
-//        }
-//        return nodeDB.treeNodeDao().ls(encodedId)
-//    }
+    fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
+        return nodeDB.treeNodeDao().getBookmarked(accountID.id)
+        // TODO also watch remote folder to get new bookmarks when online.
+    }
 
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> =
         nodeDB.treeNodeDao().getLiveNode(stateID.id)
@@ -60,6 +53,9 @@ class NodeService(
     suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
         nodeDB.treeNodeDao().getNode(stateID.id)
     }
+
+
+    /* Handle communication with the remote server to refresh locally stored data */
 
     suspend fun pull(stateID: StateID) = withContext(Dispatchers.IO) {
         try {
@@ -74,7 +70,7 @@ class NodeService(
             ) { node: Node? ->
 
                 if (node == null || node !is FileNode) {
-                    Log.w(tag, "could not store node: $node")
+                    Log.w(TAG, "could not store node: $node")
                 } else {
                     val childStateID = stateID.child(node.label)
                     val rNode = toRTreeNode(childStateID, node)
@@ -91,7 +87,7 @@ class NodeService(
                         var hasChanged = false
                         if (old.remoteModificationTS != node.lastModified()) {
                             Log.e(
-                                tag, "${old.name} has changed, \n" +
+                                TAG, "${old.name} has changed, \n" +
                                         "old TS: ${old.remoteModificationTS}, \n" +
                                         "new TS  ${node.lastModified()}"
                             )
@@ -120,7 +116,7 @@ class NodeService(
 */
 
         } catch (e: SDKException) {
-            Log.e(tag, "could not perform ls for " + stateID.id)
+            Log.e(TAG, "could not perform ls for " + stateID.id)
             e.printStackTrace()
         }
     }
@@ -154,12 +150,12 @@ class NodeService(
 
             nodeDB.treeNodeDao().update(rTreeNode)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-            Log.e(tag, "could not perform DL for " + stateID.id)
+            Log.e(TAG, "could not perform DL for " + stateID.id)
             se.printStackTrace()
             return@withContext null
         } catch (ioe: IOException) {
             // TODO handle this: what should we do ?
-            Log.e(tag, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
+            Log.e(TAG, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
             ioe.printStackTrace()
             return@withContext null
         } finally {
@@ -192,17 +188,23 @@ class NodeService(
             rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
             nodeDB.treeNodeDao().update(rTreeNode)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-            Log.e(tag, "could not perform DL for " + stateID.id)
+            Log.e(TAG, "could not perform DL for " + stateID.id)
             se.printStackTrace()
             return@withContext null
         } catch (ioe: IOException) {
-            Log.e(tag, "cannot toogle bookmark for ${stateID}: ${ioe.message}")
+            Log.e(TAG, "cannot toogle bookmark for ${stateID}: ${ioe.message}")
             ioe.printStackTrace()
             return@withContext null
         }
     }
 
+    /* Constants and static helpers */
+
     companion object {
+        private const val TAG = "NodeService"
+        private const val THUMB_DIR = "thumbs"
+        private const val FILES_DIR = "files"
+
         fun firstPage(): PageOptions {
             val page = PageOptions()
             page.limit = 1000

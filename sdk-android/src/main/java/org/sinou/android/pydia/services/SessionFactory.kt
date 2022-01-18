@@ -9,8 +9,9 @@ import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.MemoryStore
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.room.account.AccountDB
@@ -25,10 +26,15 @@ class SessionFactory(
     credentialService: CredentialService,
 ) : ClientFactory(credentialService, serverStore, transportStore) {
 
-    private val TAG = "SessionFactory"
+    private var sessionFactoryJob = Job()
+    private val sessionFactoryScope = CoroutineScope(Dispatchers.IO + sessionFactoryJob)
 
+    private var ready = false
+    fun isReady(): Boolean = ready
 
     companion object {
+
+        private const val TAG = "SessionFactory"
 
         @Volatile
         private var INSTANCE: SessionFactory? = null
@@ -91,7 +97,7 @@ class SessionFactory(
     }
 
     init {
-        GlobalScope.launch(Dispatchers.IO) {
+        sessionFactoryScope.launch(Dispatchers.IO) {
             val accounts = accountDB.accountDao().getAccounts()
             for (account in accounts) {
                 try {
@@ -101,6 +107,7 @@ class SessionFactory(
                 }
             }
             Log.i(TAG, "... Session factory initialised")
+            ready = true
         }
     }
 
@@ -113,7 +120,7 @@ class SessionFactory(
         }
 
         sessions.get(accountID).let {
-            if (it.authStatus.equals(AppNames.AUTH_STATUS_CONNECTED)) {
+            if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
                 return getClient(transports.get(accountID)!!)
             } else {
                 throw SDKException(
@@ -143,7 +150,7 @@ class SessionFactory(
             val skipVerify = account.tlsMode == 1
             val serverURL = ServerURLImpl.fromAddress(account.url, skipVerify)
             // TODO probably useless
-            servers.get(accountID) ?: registerServer(serverURL)
+            servers[accountID] ?: registerServer(serverURL)
             transports.get(accountID) ?: restoreAccount(serverURL, account.username)
 
             val session = accountDB.liveSessionDao().getSession(accountID) ?: throw SDKException(
@@ -169,7 +176,7 @@ class SessionFactory(
         }
     }
 
-    override fun getCellsClient(transport: CellsTransport?): CellsClient? {
+    override fun getCellsClient(transport: CellsTransport?): CellsClient {
         return CellsClient(transport, S3Client(transport))
     }
 

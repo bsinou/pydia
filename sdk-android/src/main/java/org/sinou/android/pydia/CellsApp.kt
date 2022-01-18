@@ -39,11 +39,11 @@ class CellsApp : Application() {
     companion object {
         lateinit var instance: CellsApp
             private set
-
-
     }
 
     override fun onCreate() {
+        Log.i(tag, "### onCreate")
+
         super.onCreate()
         instance = this
         delayedInit()

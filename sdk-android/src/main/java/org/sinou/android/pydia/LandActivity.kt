@@ -7,10 +7,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 /**
  * Manage default pages of the app.
@@ -27,38 +24,33 @@ class LandActivity : AppCompatActivity() {
         const val spacingAfterFadeDurationMillis = 150
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(tag, "### onCreate, bundle: $savedInstanceState")
         super.onCreate(savedInstanceState)
         // Compute next destination
-        if (intent?.categories?.contains(Intent.CATEGORY_LAUNCHER) ?: false) {
-            chooseFirstPage()
-            fadeOut(savedInstanceState)
-        } else {
-            startActivity(Intent(this, HomeActivity::class.java))
-        }
+        chooseFirstPage()
+
+//        if (intent?.categories?.contains(Intent.CATEGORY_LAUNCHER) ?: false) {
+//            chooseFirstPage()
+//            fadeOut(savedInstanceState)
+//        } else {
+//            startActivity(Intent(this, HomeActivity::class.java))
+//        }
     }
 
     override fun onResume() {
         Log.i(tag, "### onResume, next page: $nextPage")
-
         super.onResume()
-
-        nextPage?.let {
-            startActivity(it)
-            nextPage = null
-        } ?: run {
-            startActivity(Intent(this, HomeActivity::class.java))
-        }
     }
-
 
     private suspend fun waitForIt() {
         repeat(10) { // we wait at most ten seconds before crashing
             Log.i(tag, "Waiting for backend to be ready")
             if (CellsApp.instance.ready) {
-                Log.i(tag, "### Backend is now ready")
-                return
+                if (CellsApp.instance.accountService.sessionFactory.isReady()) {
+                    Log.i(tag, "### Backend is now ready")
+                    return
+                }
             }
             delay(tickDuration)
         }
@@ -67,7 +59,8 @@ class LandActivity : AppCompatActivity() {
     // Thanks to https://www.tiagoloureiro.tech/posts/definitive-guide-for-splash-screen-android/
     private fun fadeOut(savedInstanceState: Bundle?) {
         // Small trick: we check if we have a saved bundle to avoid showing the splash twice
-        val alreadyShown = savedInstanceState != null
+        // val alreadyShown = savedInstanceState != null
+        val alreadyShown = true
         if (!alreadyShown) {
             (window.decorView.background as TransitionDrawable).startTransition(
                 logoCrossFadeDurationMillis
@@ -88,28 +81,29 @@ class LandActivity : AppCompatActivity() {
             window.decorView.background = AppCompatResources.getDrawable(
                 this, R.drawable.background
             )
-            setContentView(R.layout.activity_land)
+            // setContentView(R.layout.activity_land)
         }
     }
 
     private fun chooseFirstPage() {
         val act = this
-        CoroutineScope(Dispatchers.Default).launch {
+        lifecycleScope.launch {
             waitForIt()
-
-            Log.i(tag, "### Backend is ready, about to choose first page")
 
             // Try to restart from where we left it
             CellsApp.instance.lastState()?.let {
                 val tmp = Intent(act, BrowseActivity::class.java)
                 tmp.putExtra(AppNames.EXTRA_STATE, it.id)
                 nextPage = tmp
+                navigate(act)
                 return@launch
             }
 
             // Choose between new account or account list when we have no state.
             // We go to workspace list when we have only one account
-            val accounts = CellsApp.instance.accountService.accountDB.accountDao().getAccounts()
+            val accounts = withContext(Dispatchers.IO) {
+                CellsApp.instance.accountService.accountDB.accountDao().getAccounts()
+            }
             val size = accounts.size
             nextPage = when {
                 size == 0 -> Intent(act, AuthActivity::class.java)
@@ -121,9 +115,18 @@ class LandActivity : AppCompatActivity() {
                 size > 1 -> Intent(act, AccountActivity::class.java)
                 else -> null
             }
-        }
 
-        // TODO also set-up worker tasks
-        Log.i(tag, "Delayed init terminated")
+            navigate(act)
+        }
+    }
+
+    private fun navigate(act: LandActivity) {
+        Log.i(tag, "### after init, next page: $nextPage")
+        nextPage?.let {
+            startActivity(it)
+            nextPage = null
+        } ?: run {
+            startActivity(Intent(act, HomeActivity::class.java))
+        }
     }
 }

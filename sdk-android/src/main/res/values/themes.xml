@@ -11,6 +11,9 @@
     </style>
 
     <style name="AppTheme.SplashScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimaryDark">@color/colorAccent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 

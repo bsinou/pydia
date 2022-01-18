@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.CellsApp
@@ -24,7 +25,7 @@ class BookmarksFragment : Fragment() {
     private val fTag = "BookmarksFragment"
 
     private lateinit var binding: FragmentBookmarkListBinding
-    private val sessionVM: ForegroundSessionViewModel by activityViewModels()
+    private val sessionVM: SessionViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,19 +52,38 @@ class BookmarksFragment : Fragment() {
             BrowseActivity.actionMore -> {
                 val action = BrowseFolderFragmentDirections
                     .actionOpenNodeMoreMenu( node.encodedState, TreeNodeActionsFragment.CONTEXT_BOOKMARKS)
-                binding.bookmarkListFragment.findNavController().navigate(action)
+                findNavController().navigate(action)
             }
             else -> return // do nothing
         }
+    }
+
+    override fun onResume() {
+        Log.i(fTag, "onResume: ${sessionVM.accountID}")
+
+        super.onResume()
+
+        (requireActivity() as BrowseActivity).supportActionBar?.let {
+            it.title = sessionVM.accountID.toString()
+        }
+
+        CellsApp.instance.wasHere(sessionVM.accountID)
+        sessionVM.resume()
+    }
+
+    override fun onPause() {
+        Log.i(fTag, "Pausing: ${sessionVM.accountID}")
+        super.onPause()
+        sessionVM.pause()
     }
 
     private fun navigateTo(node: RTreeNode) {
         lifecycleScope.launch {
             if (isFolder(node)) {
                 val action = BookmarksFragmentDirections.actionBookmarkToBrowse(node.encodedState)
-                binding.bookmarkListFragment.findNavController().navigate(action)
+                findNavController().navigate(action)
             } else {
-                val file = CellsApp.instance.nodeService.getGetOrDownloadFile(node)
+                val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
                 file?.let {
                     val intent = externallyView(requireContext(), file, node)
                     startActivity(intent)

@@ -1,18 +1,18 @@
 package org.sinou.android.pydia.services
 
+import android.os.Environment
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
-import com.pydio.cells.api.Client
-import com.pydio.cells.api.CustomEncoder
-import com.pydio.cells.api.SDKException
-import com.pydio.cells.api.SdkNames
+import com.pydio.cells.api.*
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.PageOptions
+import com.pydio.cells.api.ui.Stats
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
 import kotlinx.coroutines.*
+import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.room.browse.TreeNodeDB
 import org.sinou.android.pydia.transfer.ThumbDownloader
@@ -121,49 +121,110 @@ class NodeService(
         }
     }
 
-    suspend fun getGetOrDownloadFile(rTreeNode: RTreeNode): File? = withContext(Dispatchers.IO) {
+    fun stateRemoteNode(stateID: StateID): Stats {
+        try {
+            val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
+            return client.stats(stateID.workspace, stateID.file, true)
+        } catch (e: SDKException) {
+            throw SDKException(ErrorCodes.not_found, "could not stat at ${stateID.id}", e)
+        }
+    }
 
-        rTreeNode.localFilename?.let {
-            val file = File(it)
-            // TODO also insure we have the latest version when connected
-            if (file.exists()) {
-                return@withContext file
+    fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean {
+
+        val remoteStats = stateRemoteNode(StateID.fromId(rTreeNode.encodedState))
+        if (rTreeNode.localFilename != null && rTreeNode.localModificationTS >= remoteStats.getmTime())
+            rTreeNode.localFilename?.let {
+                val file = File(it)
+                // TODO at this point we are not 100% sure the local file
+                //  is in-line with remote, typically if update is in process
+                if (file.exists()) {
+                    return true
+                }
+            }
+        return false
+    }
+
+    suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
+        withContext(Dispatchers.IO) {
+
+            if (isCacheVersionUpToDate(rTreeNode)) {
+                return@withContext File(rTreeNode.localFilename!!)
+            }
+
+            val stateID = rTreeNode.getStateID()
+            val baseDir = dataDir(filesDir, stateID, FILES_DIR)
+            val targetFile = File(baseDir, stateID.path.substring(1))
+            targetFile.parentFile.mkdirs()
+            var out: FileOutputStream? = null
+            try {
+                val sf = accountService.sessionFactory
+                val client: Client = sf.getUnlockedClient(stateID.accountId)
+                out = FileOutputStream(targetFile)
+
+                // TODO handle progress
+                client.download(stateID.workspace, stateID.file, out, null)
+
+                // Success persist change
+                rTreeNode.localFilename = targetFile.absolutePath
+                rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
+
+                nodeDB.treeNodeDao().update(rTreeNode)
+            } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
+                Log.e(TAG, "could not perform DL for " + stateID.id)
+                se.printStackTrace()
+                return@withContext null
+            } catch (ioe: IOException) {
+                // TODO handle this: what should we do ?
+                Log.e(TAG, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
+                ioe.printStackTrace()
+                return@withContext null
+            } finally {
+                IoHelpers.closeQuietly(out)
+            }
+
+            targetFile
+        }
+
+    suspend fun saveToExternalStorage(rTreeNode: RTreeNode) =
+
+        withContext(Dispatchers.IO) {
+
+            val parent = CellsApp.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            if (parent == null) {
+                // TODO manage this better
+                Log.e(TAG, "no external storage found")
+                return@withContext
+            }
+            val to = File("${parent.absolutePath}/${rTreeNode.name}")
+
+            if (isCacheVersionUpToDate(rTreeNode)) {
+                File(rTreeNode.localFilename!!).copyTo(to, true)
+                Log.i(TAG, "... File has been copied to ${to.absolutePath}")
+            } else {
+                // Directly download to final destination
+                val stateID = rTreeNode.getStateID()
+                var out: FileOutputStream? = null
+                try {
+                    val sf = accountService.sessionFactory
+                    val client: Client = sf.getUnlockedClient(stateID.accountId)
+                    out = FileOutputStream(to)
+                    // TODO handle progress
+                    client.download(stateID.workspace, stateID.file, out, null)
+                    Log.i(TAG, "... File has been downloaded to ${to.absolutePath}")
+                } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
+                    Log.e(TAG, "could not perform DL for " + stateID.id)
+                    se.printStackTrace()
+                } catch (ioe: IOException) {
+                    // TODO handle this: what should we do ?
+                    Log.e(TAG, "cannot write at ${to.absolutePath}: ${ioe.message}")
+                    ioe.printStackTrace()
+                } finally {
+                    IoHelpers.closeQuietly(out)
+                }
             }
         }
 
-        val stateID = rTreeNode.getStateID()
-        val baseDir = dataDir(filesDir, stateID, FILES_DIR)
-        val targetFile = File(baseDir, stateID.path.substring(1))
-        targetFile.parentFile.mkdirs()
-        var out: FileOutputStream? = null
-        try {
-            val sf = accountService.sessionFactory
-            val client: Client = sf.getUnlockedClient(stateID.accountId)
-            out = FileOutputStream(targetFile)
-
-            // TODO handle progress
-            client.download(stateID.workspace, stateID.file, out, null)
-
-            // Success persist change
-            rTreeNode.localFilename = targetFile.absolutePath
-            rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
-
-            nodeDB.treeNodeDao().update(rTreeNode)
-        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-            Log.e(TAG, "could not perform DL for " + stateID.id)
-            se.printStackTrace()
-            return@withContext null
-        } catch (ioe: IOException) {
-            // TODO handle this: what should we do ?
-            Log.e(TAG, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
-            ioe.printStackTrace()
-            return@withContext null
-        } finally {
-            IoHelpers.closeQuietly(out)
-        }
-
-        targetFile
-    }
 
     @Throws(SDKException::class)
     suspend fun uploadAt(stateID: StateID, fileName: String, input: InputStream) =
@@ -193,6 +254,37 @@ class NodeService(
             return@withContext null
         } catch (ioe: IOException) {
             Log.e(TAG, "cannot toogle bookmark for ${stateID}: ${ioe.message}")
+            ioe.printStackTrace()
+            return@withContext null
+        }
+    }
+
+    suspend fun toggleShared(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+        val stateID = rTreeNode.getStateID()
+        try {
+            val sf = accountService.sessionFactory
+            val client: Client = sf.getUnlockedClient(stateID.accountId)
+
+            if (rTreeNode.isShared) {
+                client.unshare(stateID.workspace, stateID.file)
+            } else {
+                // TODO we put default values for the time being
+                //   But we must handle this better
+                client.share(
+                    stateID.workspace, stateID.file, stateID.fileName,
+                    "Created at ${Calendar.getInstance()}",
+                    null, true, true
+                )
+            }
+
+            rTreeNode.isShared = !rTreeNode.isShared
+            persistUpdated(rTreeNode)
+        } catch (se: SDKException) {
+            Log.e(TAG, "could update share link for " + stateID.id)
+            se.printStackTrace()
+            return@withContext null
+        } catch (ioe: IOException) {
+            Log.e(TAG, "could update share link for ${stateID}: ${ioe.message}")
             ioe.printStackTrace()
             return@withContext null
         }
@@ -259,6 +351,11 @@ class NodeService(
             return fallback
 
         }
+    }
+
+    private fun persistUpdated(rTreeNode: RTreeNode) {
+        rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
+        nodeDB.treeNodeDao().update(rTreeNode)
     }
 }
 

@@ -92,11 +92,12 @@
 
     <!-- More menus -->
     <string name="more_button_description">Show more actions for this element</string>
-    <string name="open_with">Open with...</string>
+    <string name="open_in_workspaces">Open location</string>
+    <string name="open_with">Open with…</string>
     <string name="download_to_device">Download to device</string>
-    <string name="rename">Rename...</string>
-    <string name="copy_to">Copy to...</string>
-    <string name="move_to">Move to...</string>
+    <string name="rename">Rename…</string>
+    <string name="copy_to">Copy to…</string>
+    <string name="move_to">Move to…</string>
     <string name="public_link">Public link</string>
     <string name="public_link_content_desc">Create or delete a public link for this element</string>
     <string name="keep_offline">Keep offline</string>

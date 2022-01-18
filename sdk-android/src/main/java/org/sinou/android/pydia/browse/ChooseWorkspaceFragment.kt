@@ -20,62 +20,58 @@ class ChooseWorkspaceFragment : Fragment() {
 
     private val fTag = "ChooseWorkspaceFragment"
 
-    private lateinit var accountID: String
+    private lateinit var sessionVM: SessionViewModel
+    private lateinit var binding: FragmentChooseWorkspaceBinding
+    private lateinit var accountID: StateID
 
     private var targetState: StateID? = null
-
-    private lateinit var binding: FragmentChooseWorkspaceBinding
-
-    // private lateinit var sessionVM: ForegroundSessionViewModel
-    private val sessionVM: ForegroundSessionViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState != null && savedInstanceState.getString(AppNames.EXTRA_ACCOUNT_ID) != null) {
-            accountID = savedInstanceState.getString(AppNames.EXTRA_ACCOUNT_ID)!!
+            accountID = StateID.fromId(savedInstanceState.getString(AppNames.EXTRA_ACCOUNT_ID))!!
         } else {
             requireActivity().intent.extras?.let { extras ->
                 extras[AppNames.EXTRA_STATE]?.let {
                     if (it is String) {
                         targetState = StateID.fromId(it)
-                        accountID = targetState!!.accountId
+                        accountID = StateID.fromId(targetState!!.accountId)
                     }
                 } ?: {
                     extras[AppNames.EXTRA_ACCOUNT_ID]?.let {
                         if (it is String) {
-                            accountID = it
+                            accountID = StateID.fromId(it)
                             targetState = null
                         }
                     }
                 }
             }
         }
+
+        val factory = SessionViewModel.SessionViewModelFactory(
+            accountID,
+            requireActivity().application,
+        )
+        val tmpVM: SessionViewModel by activityViewModels { factory }
+        sessionVM = tmpVM
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_choose_workspace, container, false
         )
+        return binding.root
+    }
 
-/*
-        val viewModelFactory = ForegroundSessionViewModel.ForegroundSessionViewModelFactory(
-            CellsApp.instance.accountService,
-            CellsApp.instance.nodeService,
-            accountID,
-            requireActivity().application,
-        )
-
-        val tmpVM: ForegroundSessionViewModel by viewModels { viewModelFactory }
-        sessionVM = tmpVM
-*/
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val adapter = WorkspaceListAdapter { slug, action -> onWsClicked(slug, action) }
         binding.workspaces.adapter = adapter
+
         sessionVM.liveSession.observe(
             viewLifecycleOwner,
             {
@@ -85,15 +81,12 @@ class ChooseWorkspaceFragment : Fragment() {
                 }
             },
         )
-        return binding.root
     }
 
     private fun onWsClicked(slug: String, command: String) {
-        Log.i(fTag, "ID: $slug, do $command")
-
         when (command) {
             BrowseActivity.actionNavigate -> {
-                val state = StateID.fromId(accountID).withPath("/${slug}")
+                val state = sessionVM.accountID.withPath("/${slug}")
                 val action = ChooseWorkspaceFragmentDirections
                     .actionChooseWsToBrowseFolder(state.id)
                 binding.chooseWorkspaceFragment.findNavController().navigate(action)
@@ -103,13 +96,13 @@ class ChooseWorkspaceFragment : Fragment() {
     }
 
     override fun onResume() {
-        Log.i(fTag, "Resuming: $accountID")
+        Log.i(fTag, "onResume: ${sessionVM.accountID}")
+
         super.onResume()
 
         targetState?.let {
             if (it.path != null && it.path.length > 1) {
-                // We have more than an account ID,
-                // directly try to navigate to the correct location
+                Log.i(fTag, "onResume, we have a path: ${it.path}. Navigating")
                 val action = ChooseWorkspaceFragmentDirections
                     .actionChooseWsToBrowseFolder(it.id)
                 targetState = null
@@ -118,25 +111,23 @@ class ChooseWorkspaceFragment : Fragment() {
             }
         }
 
-        val currState = StateID.fromId(accountID)
-        CellsApp.instance.wasHere(currState)
-
         (requireActivity() as BrowseActivity).supportActionBar?.let {
-            it.title = currState.toString()
+            it.title = sessionVM.accountID.toString()
             // it.subtitle = resources.getString(R.string.ws_list_subtitle)
         }
 
+        CellsApp.instance.wasHere(sessionVM.accountID)
         sessionVM.resume()
     }
 
     override fun onPause() {
-        Log.i(fTag, "Pausing: $accountID")
+        Log.i(fTag, "Pausing: ${sessionVM.accountID}")
         super.onPause()
         sessionVM.pause()
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        savedInstanceState.putSerializable(AppNames.EXTRA_ACCOUNT_ID, accountID)
+        savedInstanceState.putSerializable(AppNames.EXTRA_ACCOUNT_ID, accountID.id)
         super.onSaveInstanceState(savedInstanceState)
     }
 }

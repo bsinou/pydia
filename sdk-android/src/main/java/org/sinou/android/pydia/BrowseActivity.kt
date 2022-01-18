@@ -13,7 +13,7 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import org.sinou.android.pydia.browse.ForegroundSessionViewModel
+import org.sinou.android.pydia.browse.SessionViewModel
 import org.sinou.android.pydia.databinding.ActivityBrowseBinding
 
 
@@ -28,7 +28,7 @@ class BrowseActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBrowseBinding
     private lateinit var navController: NavController
 
-    private lateinit var sessionVM: ForegroundSessionViewModel
+    private lateinit var sessionVM: SessionViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,13 +51,11 @@ class BrowseActivity : AppCompatActivity() {
             return
         }
 
-        val viewModelFactory = ForegroundSessionViewModel.ForegroundSessionViewModelFactory(
-            CellsApp.instance.accountService,
-            CellsApp.instance.nodeService,
+        val viewModelFactory = SessionViewModel.SessionViewModelFactory(
             stateID,
             application,
         )
-        val tmpVM: ForegroundSessionViewModel by viewModels { viewModelFactory }
+        val tmpVM: SessionViewModel by viewModels { viewModelFactory }
         sessionVM = tmpVM
 
 

@@ -30,7 +30,9 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
 
     private val encoder: CustomEncoder = AndroidCustomEncoder()
 
-    private val TAG = "AccountService"
+    companion object {
+        private const val TAG = "AccountService"
+    }
 
     // Local stores to cache live objects
 //    private val servers = MemoryStore<Server>()

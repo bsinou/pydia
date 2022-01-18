@@ -45,7 +45,6 @@
             app:destination="@id/tree_node_more_menu" />
     </fragment>
 
-
     <dialog
         android:id="@+id/tree_node_more_menu"
         android:name="org.sinou.android.pydia.browse.TreeNodeActionsFragment"
@@ -56,6 +55,9 @@
         <argument
             android:name="contextType"
             app:argType="string" />
+        <action
+            android:id="@+id/action_more_to_browse"
+            app:destination="@id/browse_folder_destination" />
     </dialog>
 
 </navigation>

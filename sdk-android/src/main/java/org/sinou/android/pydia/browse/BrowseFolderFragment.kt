@@ -131,7 +131,7 @@ class BrowseFolderFragment : Fragment() {
                 val action = BrowseFolderFragmentDirections.actionBrowseSelf(node.encodedState)
                 binding.browseFolderFragment.findNavController().navigate(action)
             } else {
-                val file = CellsApp.instance.nodeService.getGetOrDownloadFile(node)
+                val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
                 file?.let {
                     val intent = externallyView(requireContext(), file, node)
                     startActivity(intent)

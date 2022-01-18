@@ -1,19 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/home_destination"
-        android:icon="@drawable/ic_baseline_home_24"
-        android:title="@string/home" />
-
-    <item
-        android:id="@+id/account_list_destination"
-        android:icon="@drawable/ic_baseline_groups_24"
-        android:title="@string/account_list_title" />
+    <!--
+    // TODO put that in the header
+        <item
+            android:id="@+id/account_list_destination"
+            android:icon="@drawable/ic_baseline_groups_24"
+            android:title="@string/account_list_title" />
+    -->
 
     <item
         android:id="@+id/bookmark_list_destination"
         android:icon="@drawable/ic_baseline_star_24"
         android:title="@string/action_open_bookmarks" />
+
+    <item
+        android:id="@+id/ws_section"
+        android:title="@string/my_workspaces"
+        android:visible="true">
+        <menu android:id="@+id/my_workspaces" />
+    </item>
+
+    <item
+        android:id="@+id/advanced"
+        android:title="@string/my_account"
+        android:visible="true">
+        <menu android:id="@+id/advanced_menu">
+            <item
+                android:id="@+id/home_destination"
+                android:icon="@drawable/ic_baseline_home_24"
+                android:title="@string/home" />
+            <item
+                android:id="@+id/settings_destination"
+                android:icon="@drawable/ic_baseline_settings_24"
+                android:title="@string/settings" />
+            <item
+                android:id="@+id/accounts_destination"
+                android:icon="@drawable/ic_baseline_groups_24"
+                android:title="@string/account_list_title" />
+            <item
+                android:id="@+id/about_destination"
+                android:icon="@drawable/ic_baseline_info_24"
+                android:title="@string/about" />
+        </menu>
+    </item>
 
 </menu>

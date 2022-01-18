@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.BrowseActivity
@@ -88,8 +89,8 @@ class ChooseWorkspaceFragment : Fragment() {
             BrowseActivity.actionNavigate -> {
                 val state = sessionVM.accountID.withPath("/${slug}")
                 val action = ChooseWorkspaceFragmentDirections
-                    .actionChooseWsToBrowseFolder(state.id)
-                binding.chooseWorkspaceFragment.findNavController().navigate(action)
+                    .actionOpenWorkspace(state.id)
+                findNavController().navigate(action)
             }
             else -> return // do nothing
         }
@@ -104,7 +105,7 @@ class ChooseWorkspaceFragment : Fragment() {
             if (it.path != null && it.path.length > 1) {
                 Log.i(fTag, "onResume, we have a path: ${it.path}. Navigating")
                 val action = ChooseWorkspaceFragmentDirections
-                    .actionChooseWsToBrowseFolder(it.id)
+                    .actionOpenWorkspace(it.id)
                 targetState = null
                 binding.chooseWorkspaceFragment.findNavController().navigate(action)
                 return@onResume

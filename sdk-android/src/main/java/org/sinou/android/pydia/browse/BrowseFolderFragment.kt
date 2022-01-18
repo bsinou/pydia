@@ -47,12 +47,11 @@ class BrowseFolderFragment : Fragment() {
             StateID.fromId(args.state)
         }
 
-        val application = requireActivity().application
         val viewModelFactory = TreeFolderViewModel.TreeFolderViewModelFactory(
             CellsApp.instance.accountService,
             CellsApp.instance.nodeService,
             stateID,
-            application,
+            requireActivity().application,
         )
 
         val tmpVM: TreeFolderViewModel by viewModels { viewModelFactory }

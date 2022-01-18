@@ -113,12 +113,14 @@ fun TextView.setWsDesc(item: WorkspaceNode?) {
 @BindingAdapter("wsThumb")
 fun ImageView.setWsThumb(item: WorkspaceNode) {
     setImageResource(
-        when (item.workspaceType) {
-            SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
-            SdkNames.WS_TYPE_CELL -> R.drawable.cells
-            else -> R.drawable.ic_baseline_folder_24
-        }
+        getIconForWorkspace(item)
     )
+}
+
+fun getIconForWorkspace(item: WorkspaceNode) = when (item.workspaceType) {
+    SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
+    SdkNames.WS_TYPE_CELL -> R.drawable.cells
+    else -> R.drawable.ic_baseline_folder_24
 }
 
 @BindingAdapter("hasPublicLink")

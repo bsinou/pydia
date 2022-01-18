@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
@@ -13,7 +14,9 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import org.sinou.android.pydia.browse.ChooseWorkspaceFragmentDirections
 import org.sinou.android.pydia.browse.SessionViewModel
+import org.sinou.android.pydia.browse.getIconForWorkspace
 import org.sinou.android.pydia.databinding.ActivityBrowseBinding
 
 
@@ -62,7 +65,7 @@ class BrowseActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_browse)
         buildNavigationLayout()
 
-        addWorkspacesToLeftMenu()
+        populateWorkspaceListInMenu()
     }
 
     private fun buildNavigationLayout() {
@@ -130,16 +133,29 @@ class BrowseActivity : AppCompatActivity() {
         return NavigationUI.navigateUp(navController, binding.drawerLayout)
     }
 
-    private fun addWorkspacesToLeftMenu() {
+    private fun populateWorkspaceListInMenu() {
 
-        val menu = binding.navView.menu
-        val submenu = menu.addSubMenu("New Super SubMenu")
-
-        submenu.add("Super Item1")
-        submenu.add("Super Item2")
-        submenu.add("Super Item3")
-
+        val item = binding.navView.menu.findItem(R.id.ws_section)
+        sessionVM.liveSession.observe(
+            this,
+            {
+                it?.let {
+                    item.subMenu.clear()
+                    for (ws in it.workspaces?.sorted() ?: listOf()) {
+                        var wsItem = item.subMenu.add(ws.label)
+                        wsItem.icon = ContextCompat.getDrawable(this, getIconForWorkspace(ws));
+                        wsItem.setOnMenuItemClickListener { view ->
+                            val state = sessionVM.accountID.withPath("/${ws.slug}")
+                            val action = ChooseWorkspaceFragmentDirections
+                                .actionOpenWorkspace(state.id)
+                            navController.navigate(action)
+                            binding.drawerLayout.closeDrawer(GravityCompat.START)
+                            true
+                        }
+                    }
+                }
+            },
+        )
         binding.navView.invalidate()
     }
-
 }

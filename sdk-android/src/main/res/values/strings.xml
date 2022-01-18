@@ -66,7 +66,7 @@
     <string name="title_activity_list_accounts">ListAccounts</string>
 
     <!-- Account management -->
-    <string name="account_list_title">Manage Accounts</string>
+    <string name="account_list_title">My Accounts</string>
     <string name="account_list_desc">Manage already registered remote servers</string>
     <string name="account_list_none">No account has been configured yet…</string>
 
@@ -111,5 +111,6 @@
     <!-- Dialogs -->
     <string name="confirm_account_deletion_title">Delete account %s?</string>
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
+    <string name="my_account">My Account</string>
 
 </resources>

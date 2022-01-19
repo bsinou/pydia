@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
-import org.sinou.android.pydia.BrowseActivity
+import org.sinou.android.pydia.browse.BrowseFolderFragment
 import org.sinou.android.pydia.databinding.ListItemAccountBinding
 import org.sinou.android.pydia.room.account.RLiveSession
 
@@ -37,11 +37,7 @@ class SessionListAdapter(
 
             binding.root.setOnClickListener {
                 binding.session?.let {
-                    // TODO only navigate with folders.
-                    onItemClicked(
-                        StateID.fromId(it.accountID),
-                        BrowseActivity.actionNavigate
-                    )
+                    onItemClicked(StateID.fromId(it.accountID), BrowseFolderFragment.ACTION_OPEN)
                 }
             }
             return this

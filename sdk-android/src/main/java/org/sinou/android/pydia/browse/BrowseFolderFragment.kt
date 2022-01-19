@@ -10,12 +10,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.*
+import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainActivity
+import org.sinou.android.pydia.MainNavDirections
+import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.utils.externallyView
@@ -23,10 +27,12 @@ import org.sinou.android.pydia.utils.isFolder
 
 class BrowseFolderFragment : Fragment() {
 
-    private val fTag = "BrowseFolderFragment"
+    companion object {
+        private const val fTag = "BrowseFolderFragment"
 
-    private val args: BrowseFolderFragmentArgs by navArgs()
-    private lateinit var stateID: StateID
+        const val ACTION_MORE = "more"
+        const val ACTION_OPEN = "open"
+    }
 
     private lateinit var binding: FragmentBrowseFolderBinding
     private lateinit var treeFolderVM: TreeFolderViewModel
@@ -40,17 +46,12 @@ class BrowseFolderFragment : Fragment() {
             inflater, R.layout.fragment_browse_folder, container, false
         )
 
-        stateID = if (savedInstanceState?.getString(AppNames.EXTRA_STATE) != null) {
-            val encodedState = savedInstanceState.getString(AppNames.EXTRA_STATE)
-            StateID.fromId(encodedState)
-        } else {
-            StateID.fromId(args.state)
-        }
+        val args: BrowseFolderFragmentArgs by navArgs()
 
         val viewModelFactory = TreeFolderViewModel.TreeFolderViewModelFactory(
             CellsApp.instance.accountService,
             CellsApp.instance.nodeService,
-            stateID,
+            StateID.fromId(args.state),
             requireActivity().application,
         )
 
@@ -76,13 +77,13 @@ class BrowseFolderFragment : Fragment() {
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
-        Log.i(fTag, "ID: $stateID, do $command")
+        Log.i(fTag, "ID: ${treeFolderVM.stateID}, do $command")
 
         when (command) {
-            BrowseActivity.actionNavigate -> navigateTo(node)
-            BrowseActivity.actionMore -> {
+            ACTION_OPEN -> navigateTo(node)
+            ACTION_MORE -> {
                 val action = BrowseFolderFragmentDirections
-                    .actionOpenNodeMoreMenu(
+                    .openMoreMenu(
                         node.encodedState, when (node.mime) {
                             SdkNames.NODE_MIME_RECYCLE -> TreeNodeActionsFragment.CONTEXT_RECYCLE
                             else -> TreeNodeActionsFragment.CONTEXT_BROWSE
@@ -98,17 +99,16 @@ class BrowseFolderFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         treeFolderVM.resume()
-        CellsApp.instance.wasHere(stateID)
+        CellsApp.instance.wasHere(treeFolderVM.stateID)
 
-        (requireActivity() as BrowseActivity).supportActionBar?.let {
-            it.title = if (Str.empty(stateID.fileName)) {
-                stateID.workspace
-            } else if ("/recycle_bin" == stateID.file) {
+        (requireActivity() as MainActivity).supportActionBar?.let {
+            it.title = if (Str.empty(treeFolderVM.stateID.fileName)) {
+                treeFolderVM.stateID.workspace
+            } else if ("/recycle_bin" == treeFolderVM.stateID.file) {
                 resources.getString(R.string.recycle_bin_label)
             } else {
-                stateID.fileName
+                treeFolderVM.stateID.fileName
             }
-
             it.setDisplayHomeAsUpEnabled(true)
         }
     }
@@ -118,17 +118,11 @@ class BrowseFolderFragment : Fragment() {
         treeFolderVM.pause()
     }
 
-    override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        savedInstanceState.putSerializable(AppNames.EXTRA_STATE, stateID.id)
-        super.onSaveInstanceState(savedInstanceState)
-    }
-
     private fun navigateTo(node: RTreeNode) {
         lifecycleScope.launch {
 
             if (isFolder(node)) {
-                val action = BrowseFolderFragmentDirections.actionBrowseSelf(node.encodedState)
-                binding.browseFolderFragment.findNavController().navigate(action)
+                findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             } else {
                 val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
                 file?.let {

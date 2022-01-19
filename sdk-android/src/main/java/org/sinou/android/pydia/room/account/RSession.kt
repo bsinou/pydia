@@ -13,7 +13,7 @@ data class RSession(
 
     @ColumnInfo(name = "base_dir") val baseDir: String,
 
-    @ColumnInfo(name = "lifecycle_state") var lifecycleState: String, // foreground, background or idle
+    @ColumnInfo(name = "lifecycle_state") var lifecycleState: String, // foreground, background or paused
 
     @ColumnInfo(name = "workspaces") var workspaces: List<WorkspaceNode>?,
 

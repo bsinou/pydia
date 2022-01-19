@@ -13,9 +13,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
+import org.sinou.android.pydia.browse.BrowseFolderFragment
 import org.sinou.android.pydia.databinding.FragmentPickWsBinding
 
 class PickWSFragment : Fragment() {
@@ -79,7 +79,7 @@ class PickWSFragment : Fragment() {
         Log.i(fTag, "ID: $stateID, do $command")
 
         when (command) {
-            BrowseActivity.actionNavigate -> navigateTo(stateID.withPath("/${slug}"))
+            BrowseFolderFragment.ACTION_OPEN -> navigateTo(stateID.withPath("/${slug}"))
             else -> return // do nothing
         }
     }

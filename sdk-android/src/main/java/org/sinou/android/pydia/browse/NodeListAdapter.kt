@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
 
@@ -36,21 +35,11 @@ class NodeListAdapter(
         ): ViewHolder {
 
             binding.root.setOnClickListener {
-                binding.node?.let {
-                    onItemClicked(
-                        it,
-                        BrowseActivity.actionNavigate
-                    )
-                }
+                binding.node?.let { onItemClicked(it, BrowseFolderFragment.ACTION_OPEN) }
             }
 
             binding.listItemMore.setOnClickListener {
-                binding.node?.let {
-                    onItemClicked(
-                        it,
-                        BrowseActivity.actionMore,
-                    )
-                }
+                binding.node?.let { onItemClicked(it, BrowseFolderFragment.ACTION_MORE) }
             }
 
             return this

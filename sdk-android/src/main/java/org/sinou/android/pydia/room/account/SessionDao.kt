@@ -31,7 +31,8 @@ interface SessionDao {
 
     /**
      * Convenience method to insure we reset all sessions to be in the background before
-     * putting one live
+     * putting one live.
+     * // TODO rather return not paused sessions
      */
     @Query("SELECT * FROM session_table WHERE lifecycle_state = 'foreground'")
     fun foregroundSessions(): List<RSession>

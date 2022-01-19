@@ -1,5 +1,7 @@
 package org.sinou.android.pydia.account
 
+import android.os.Build
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -7,6 +9,7 @@ import androidx.databinding.BindingAdapter
 import org.sinou.android.pydia.AppNames.*
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.room.account.RLiveSession
+import org.sinou.android.pydia.services.AccountService
 
 @BindingAdapter("accountStatus")
 fun ImageView.setAccountImage(item: RLiveSession?) {
@@ -53,7 +56,6 @@ fun ImageView.setAuthAction(item: RLiveSession?) {
     }
 }
 
-
 @BindingAdapter("account_primary_text")
 fun TextView.setAccountPrimaryText(item: RLiveSession?) {
     item?.let {
@@ -70,5 +72,19 @@ fun TextView.setAccountPrimaryText(item: RLiveSession?) {
 fun TextView.setAccountSecondaryText(item: RLiveSession?) {
     item?.let {
         text = "${item.username}@${item.url}"
+    }
+}
+
+@BindingAdapter("decorateWithStateColor")
+fun View.setStateColor(item: RLiveSession?) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+        // Do nothing for the time being
+        return
+    }
+    item?.let {
+        if (it.lifecycleState == AccountService.LIFECYCLE_STATE_FOREGROUND) {
+            setBackgroundColor(resources.getColor(R.color.selected_background, context.theme))
+
+        }
     }
 }

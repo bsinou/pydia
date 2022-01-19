@@ -8,15 +8,18 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainActivity
+import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBookmarkListBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.externallyView
 import org.sinou.android.pydia.utils.isFolder
 
@@ -25,33 +28,26 @@ class BookmarksFragment : Fragment() {
     private val fTag = "BookmarksFragment"
 
     private lateinit var binding: FragmentBookmarkListBinding
-    private val sessionVM: SessionViewModel by activityViewModels()
+    private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_bookmark_list, container, false
         )
-
-        Log.i(fTag, "onCreateView: ${sessionVM.accountID}")
-
-        val adapter = NodeListAdapter { node, action -> onClicked(node,action) }
-        binding.bookmarkList.adapter = adapter
-        sessionVM.bookmarks.observe(viewLifecycleOwner, { adapter.submitList(it)} )
-
         return binding.root
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
-
         when (command) {
-            BrowseActivity.actionNavigate -> navigateTo(node)
-            BrowseActivity.actionMore -> {
-                val action = BrowseFolderFragmentDirections
-                    .actionOpenNodeMoreMenu( node.encodedState, TreeNodeActionsFragment.CONTEXT_BOOKMARKS)
+            BrowseFolderFragment.ACTION_OPEN -> navigateTo(node)
+            BrowseFolderFragment.ACTION_MORE -> {
+                val action = BookmarksFragmentDirections.openMoreMenu(
+                    node.encodedState,
+                    TreeNodeActionsFragment.CONTEXT_BOOKMARKS
+                )
                 findNavController().navigate(action)
             }
             else -> return // do nothing
@@ -59,28 +55,33 @@ class BookmarksFragment : Fragment() {
     }
 
     override fun onResume() {
-        Log.i(fTag, "onResume: ${sessionVM.accountID}")
-
         super.onResume()
 
-        (requireActivity() as BrowseActivity).supportActionBar?.let {
-            it.title = sessionVM.accountID.toString()
+        val activeSession = activeSessionViewModel.activeSession.value
+        Log.i(fTag, "onResume: ${activeSession?.accountID}")
+        activeSession?.let { session ->
+            val accountID = StateID.fromId(session.accountID)
+            (requireActivity() as MainActivity).supportActionBar?.let {
+                it.title = "Bookmarks" // accountID.toString()
+            }
+            CellsApp.instance.wasHere(accountID)
+
+            val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+            binding.bookmarkList.adapter = adapter
+
+            val viewModelFactory = BookmarksViewModel.BookmarksViewModelFactory(
+                accountID, requireActivity().application,
+            )
+            val bookmarksViewModel: BookmarksViewModel by viewModels { viewModelFactory }
+
+            bookmarksViewModel.bookmarks.observe(viewLifecycleOwner, { adapter.submitList(it) })
         }
-
-        CellsApp.instance.wasHere(sessionVM.accountID)
-        sessionVM.resume()
-    }
-
-    override fun onPause() {
-        Log.i(fTag, "Pausing: ${sessionVM.accountID}")
-        super.onPause()
-        sessionVM.pause()
     }
 
     private fun navigateTo(node: RTreeNode) {
         lifecycleScope.launch {
             if (isFolder(node)) {
-                val action = BookmarksFragmentDirections.actionBookmarkToBrowse(node.encodedState)
+                val action = MainNavDirections.openFolder(node.encodedState)
                 findNavController().navigate(action)
             } else {
                 val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)

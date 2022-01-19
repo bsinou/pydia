@@ -2,23 +2,19 @@ package org.sinou.android.pydia.browse
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.room.account.RSession
+import org.sinou.android.pydia.room.account.RLiveSession
+import org.sinou.android.pydia.room.browse.RTreeNode
 import java.util.concurrent.TimeUnit
 
 /**
  * Holds the session that is currently in foreground for browsing the cache
  * and the remote server.
  */
-class SessionViewModel(
-    val accountID: StateID,
-    application: Application
-) : AndroidViewModel(application) {
+class SessionViewModel(application: Application) : AndroidViewModel(application) {
 
     private val tag = "SessionViewModel"
 
@@ -28,27 +24,24 @@ class SessionViewModel(
     val accountService = CellsApp.instance.accountService
     val nodeService = CellsApp.instance.nodeService
 
-    // Exposed liveData
-    val liveSession = accountService.accountDB.liveSessionDao().getLiveSession(accountID.id)
-    val bookmarks = nodeService.listBookmarks(accountID)
+    private var _accountID = MutableLiveData<StateID?>()
+    val activeAccountID: LiveData<StateID?>
+        get() = _accountID
 
-//    lateinit var accountService: AccountService
-//    lateinit var nodeService: NodeService
+/*
+    init {
+        _accountID.value = null
+    }
+*/
 
-    //    lateinit var liveSession : LiveData<RLiveSession?>
-//    lateinit var bookmarks: LiveData<List<RTreeNode>>
-//
-//    init {
-//        viewModelScope.launch {
-//            withContext(Dispatchers.IO) {
-//                accountService = CellsApp.instance.accountService
-//                nodeService = CellsApp.instance.nodeService
-//            }
-//            liveSession = accountService.accountDB.liveSessionDao().getLiveSession(accountID.id)
-//            nodeService.listBookmarks(accountID)
-//            Log.i(tag, "... Initialisation done ")
-//        }
-//    }
+    val bookmarks = nodeService.listBookmarks(StateID.fromId("http://example.com"))
+
+    private val accountsLiveData: Map<String, LiveData<RLiveSession?>> = lazyMap { accountID ->
+        val liveData = accountService.accountDB.liveSessionDao().getLiveSession(accountID)
+        return@lazyMap liveData
+    }
+
+    fun liveSession(accountIDStr: String): LiveData<RLiveSession?> = accountsLiveData.getValue(accountIDStr)
 
     private var _isActive = false
     val isActiveSession: Boolean
@@ -57,15 +50,46 @@ class SessionViewModel(
     // TODO handle network status
     private fun watchSession() = viewModelScope.launch {
         while (isActiveSession) {
-            Log.i(
-                tag,
-                "Watching ${accountID} - already having a session ${liveSession?.value}"
-            )
-            accountService.refreshWorkspaceList(accountID.id)
-            delay(TimeUnit.SECONDS.toMillis(3))
+            Log.i( tag,"Watching ${_accountID.value} ")
+//            accountID?.let {
+//                accountService.refreshWorkspaceList(it.id)
+//            }
+           delay(TimeUnit.SECONDS.toMillis(3))
         }
     }
 
+    fun setActiveAccount(accountID: StateID?) {
+        // TODO free old LiveData?
+        _accountID.value = accountID
+    }
+
+//    fun openSession(accountID: StateID) {
+//
+//        Log.e(tag, "before launch: ${accountID}")
+//        Thread.dumpStack()
+//
+//        viewModelScope.launch {
+//            pause()
+//            var tmp = withContext(Dispatchers.IO) {
+//                val session2 = accountService.accountDB.liveSessionDao().getSession(accountID.id)
+//                if (session2 != null){
+//                    Log.i(tag, "Found a session: $session2")
+//                }
+//                accountService.accountDB.liveSessionDao().getLiveSession(accountID.id)
+//            }
+//
+//
+//            _liveSession = tmp
+//            _bookmarks = withContext(Dispatchers.IO) {
+//                nodeService.listBookmarks(accountID)
+//            }
+//            _liveSession.value?.let {
+//                resume()
+//            }
+//        }
+//
+//        Log.e(tag, "here")
+//    }
 
     fun resume() {
         _isActive = true
@@ -81,41 +105,25 @@ class SessionViewModel(
         viewModelJob.cancel()
     }
 
-    init {
-        initializeSession(accountID.id)
-    }
-
-    private fun initializeSession(accountID: String) =
-        viewModelScope.launch {
-            //  _currentSession.value = getSessionFromDB(accountID)
-            // watchSession()
-        }
-
-    private suspend fun getSessionFromDB(accountID: String): RSession? {
-        return withContext(Dispatchers.IO) {
-            Log.i(
-                tag,
-                "Account ID: " + accountID + ", account DB: " + accountService.accountDB.toString()
-            )
-            var session = accountService.accountDB.sessionDao().getSession(accountID)
-            var liveSession = accountService.accountDB.liveSessionDao().getSession(accountID)
-//            if (session?.authStatus != "online") {
-//                session = null
-//            }
-            session
-        }
-    }
 
     class SessionViewModelFactory(
-        private val accountID: StateID,
         private val application: Application
     ) : ViewModelProvider.Factory {
         @Suppress("unchecked_cast")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(SessionViewModel::class.java)) {
-                return SessionViewModel(accountID, application) as T
+                return SessionViewModel(application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
+        }
+    }
+
+    fun <K, V> lazyMap(initializer: (K) -> V): Map<K, V> {
+        val map = mutableMapOf<K, V>()
+        return map.withDefault { key ->
+            val newValue = initializer(key)
+            map[key] = newValue
+            return@withDefault newValue
         }
     }
 }

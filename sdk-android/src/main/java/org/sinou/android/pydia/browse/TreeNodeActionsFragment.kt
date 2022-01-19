@@ -14,11 +14,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.MoreMenuBookmarksBinding
 import org.sinou.android.pydia.databinding.MoreMenuBrowseBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
-import org.sinou.android.pydia.utils.externallyView
 import org.sinou.android.pydia.utils.openWith
 
 /**
@@ -163,9 +163,7 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
                     moreMenu.dismiss()
                 }
                 ACTION_OPEN_IN_WORKSPACES -> {
-                    val action =
-                        TreeNodeActionsFragmentDirections.actionMoreToBrowse(node.encodedState)
-                    findNavController().navigate(action)
+                    findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
                 }
                 ACTION_RENAME -> {}
                 ACTION_COPY -> {}

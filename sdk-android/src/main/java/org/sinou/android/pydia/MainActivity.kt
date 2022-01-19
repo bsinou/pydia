@@ -1,9 +1,9 @@
 package org.sinou.android.pydia
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -14,59 +14,59 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
-import org.sinou.android.pydia.browse.ChooseWorkspaceFragmentDirections
-import org.sinou.android.pydia.browse.SessionViewModel
+import org.sinou.android.pydia.browse.ActiveSessionViewModel
 import org.sinou.android.pydia.browse.getIconForWorkspace
-import org.sinou.android.pydia.databinding.ActivityBrowseBinding
+import org.sinou.android.pydia.databinding.ActivityMainBinding
 import kotlin.system.exitProcess
-
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val tag = "MainActivity"
-        const val actionNavigate = "navigate"
-        const val actionMore = "more"
     }
 
-    private lateinit var sessionVM: SessionViewModel
-    private lateinit var binding: ActivityBrowseBinding
+    private val activeSessionVM: ActiveSessionViewModel by viewModels()
+    private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val encodedState: String? = if (savedInstanceState != null) {
-            savedInstanceState.getString(AppNames.EXTRA_STATE)
-        } else {
-            intent.getStringExtra(AppNames.EXTRA_STATE)
-        }
+//        val encodedState: String? = if (savedInstanceState != null) {
+//            savedInstanceState.getString(AppNames.EXTRA_STATE)
+//        } else {
+//            intent.getStringExtra(AppNames.EXTRA_STATE)
+//        }
 
-        if (Str.empty(encodedState)) {
-            finish()
-            return
-        }
+        // We initialise the nav controller early to enable navigation to the first page,
+        // even if no other binding is defined.
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        navController = findNavController(R.id.main_fragment_host)
 
-        // Retrieve the accountID State
-        val stateID = StateID.fromId(StateID.fromId(encodedState).accountId)
-        if (stateID == null) {
-            finish()
-            return
-        }
-
-        val viewModelFactory = SessionViewModel.SessionViewModelFactory(
-            stateID,
-            application,
-        )
-        val tmpVM: SessionViewModel by viewModels { viewModelFactory }
-        sessionVM = tmpVM
-
-
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_browse)
         buildNavigationLayout()
 
-        populateWorkspaceListInMenu()
+//        if (Str.notEmpty(encodedState)) {
+//            sessionVM.setActiveAccount(StateID.fromId(StateID.fromId(encodedState).accountId))
+//        } else {
+//            // If we arrive here, it means that we have no state recorded
+//            // but more than one account defined
+//            supportFragmentManager
+//                .beginTransaction()
+//                .replace(R.id.main_fragment_host, AccountListFragment())
+//                .commit()
+//        }
+//
+
+//        if (activeSessionVM.activeSession.value == null) {
+//            // If we arrive here, it means that we have no foreground session
+//            // and more than one account defined
+//            supportFragmentManager
+//                .beginTransaction()
+//                .replace(R.id.main_fragment_host, AccountListFragment())
+//                .commit()
+//
+//        }
+
     }
 
     private fun buildNavigationLayout() {
@@ -82,11 +82,10 @@ class MainActivity : AppCompatActivity() {
 //        toggle.syncState()
 //        toggle.setToolbarNavigationClickListener { onBackPressed() }
 
-        navController = this.findNavController(R.id.browse_fragment_host)
         NavigationUI.setupActionBarWithNavController(
             this,
             navController,
-            binding.drawerLayout
+            binding.mainDrawerLayout
         )
 
         binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
@@ -95,19 +94,72 @@ class MainActivity : AppCompatActivity() {
         val header = binding.navView.getHeaderView(0)
         val switchBtn = header.findViewById<ImageButton>(R.id.nav_header_switch_account)
         switchBtn?.setOnClickListener {
-            startActivity(Intent(this, AccountActivity::class.java))
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            navController.navigate(MainNavDirections.openAccountList())
+            closeDrawer()
         }
         val btn = header.findViewById<ImageButton>(R.id.nav_header_exit)
         btn?.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            closeDrawer()
             finish()
             exitProcess(0)
         }
+        wireNavViewObserver()
+    }
+
+    private fun closeDrawer() {
+        binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
+    }
+
+    private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
+        Log.i(tag, "... Item selected: #${it.itemId}")
+        var done = true
+        when (it.itemId) {
+            else -> done = NavigationUI.onNavDestinationSelected(it, navController)
+        }
+        if (done) {
+            binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
+        }
+        done
+    }
+
+    private fun wireNavViewObserver() {
+
+//        if (activeSessionVM.activeSession.value == null) {
+//            return
+//        }
+
+        val item = binding.navView.menu.findItem(R.id.ws_section)
+        activeSessionVM.activeSession.observe(
+            this,
+            {
+                it?.let { liveSession ->
+                    item.subMenu.clear()
+                    for (ws in liveSession.workspaces?.sorted() ?: listOf()) {
+                        val wsItem = item.subMenu.add(ws.label)
+                        wsItem.icon = ContextCompat.getDrawable(this, getIconForWorkspace(ws))
+                        wsItem.setOnMenuItemClickListener {
+                            val state = StateID.fromId(liveSession.accountID)
+                                .withPath("/${ws.slug}")
+                            navController.navigate(MainNavDirections.openFolder(state.id))
+                            closeDrawer()
+                            true
+                        }
+                    }
+
+                    // Also update meta info in the header
+                    val header = binding.navView.getHeaderView(0)
+                    val primaryText = header.findViewById<TextView>(R.id.nav_header_primary_text)
+                    primaryText.text = liveSession.username
+                    val secondaryText = header.findViewById<TextView>(R.id.nav_header_secondary_text)
+                    secondaryText.text = liveSession.url
+                }
+            },
+        )
+        binding.navView.invalidate()
     }
 
     override fun onBackPressed() {
-        val drawer = binding.drawerLayout
+        val drawer = binding.mainDrawerLayout
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START)
         } else {
@@ -125,52 +177,7 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
     }
 
-    private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
-        Log.i(tag, "... Item selected: #${it.itemId}")
-        var done = true
-        when (it.itemId) {
-            R.id.home_destination -> startActivity(Intent(this, HomeActivity::class.java))
-            R.id.account_list_destination -> startActivity(
-                Intent(
-                    this,
-                    AccountActivity::class.java
-                )
-            )
-            else -> done = NavigationUI.onNavDestinationSelected(it, navController)
-        }
-        if (done) {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        }
-        done
-    }
-
     override fun onSupportNavigateUp(): Boolean {
-        return NavigationUI.navigateUp(navController, binding.drawerLayout)
-    }
-
-    private fun populateWorkspaceListInMenu() {
-
-        val item = binding.navView.menu.findItem(R.id.ws_section)
-        sessionVM.liveSession.observe(
-            this,
-            {
-                it?.let {
-                    item.subMenu.clear()
-                    for (ws in it.workspaces?.sorted() ?: listOf()) {
-                        val wsItem = item.subMenu.add(ws.label)
-                        wsItem.icon = ContextCompat.getDrawable(this, getIconForWorkspace(ws))
-                        wsItem.setOnMenuItemClickListener {
-                            val state = sessionVM.accountID.withPath("/${ws.slug}")
-                            val action = ChooseWorkspaceFragmentDirections
-                                .actionOpenWorkspace(state.id)
-                            navController.navigate(action)
-                            binding.drawerLayout.closeDrawer(GravityCompat.START)
-                            true
-                        }
-                    }
-                }
-            },
-        )
-        binding.navView.invalidate()
+        return NavigationUI.navigateUp(navController, binding.mainDrawerLayout)
     }
 }

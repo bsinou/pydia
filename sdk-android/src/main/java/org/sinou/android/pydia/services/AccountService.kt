@@ -32,6 +32,10 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
 
     companion object {
         private const val TAG = "AccountService"
+
+        const val LIFECYCLE_STATE_FOREGROUND = "foreground"
+        const val LIFECYCLE_STATE_BACKGROUND = "background"
+        const val LIFECYCLE_STATE_PAUSED = "paused"
     }
 
     // Local stores to cache live objects
@@ -44,6 +48,9 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
     // Temporary keep track of all states that have been generated for OAuth processes
     val inProcessCallbacks = mutableMapOf<String, ServerURL>()
 
+
+    val activeSession: LiveData<RLiveSession?> = accountDB
+        .liveSessionDao().getLiveActiveSession(LIFECYCLE_STATE_FOREGROUND)
 
     val liveSessions: LiveData<List<RLiveSession>> = accountDB.liveSessionDao().getLiveSessions()
 
@@ -121,24 +128,27 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         }
     }
 
+    /**
+     * Sets the lifecycle_state of a given session to "foreground".
+     * WARNING: no check is done on the passed accountID.
+     */
     suspend fun openSession(accountID: String) {
         return withContext(Dispatchers.IO) {
 
             // First put other opened sessions in the background
             val tmpSessions = accountDB.sessionDao().foregroundSessions()
             for (currSession in tmpSessions) {
-                currSession.lifecycleState = "background"
+                currSession.lifecycleState = LIFECYCLE_STATE_BACKGROUND
                 accountDB.sessionDao().update(currSession)
             }
 
             var openSession = accountDB.sessionDao().getSession(accountID)
 
             if (openSession == null) {
-                // TODO handle base dir
                 openSession = fromAccountID(accountID)
                 accountDB.sessionDao().insert(openSession)
             } else {
-                openSession.lifecycleState = "foreground"
+                openSession.lifecycleState = LIFECYCLE_STATE_FOREGROUND
                 accountDB.sessionDao().update(openSession)
             }
         }
@@ -188,7 +198,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
             return@withContext accountID
         }
 
-    private fun manageRetrievedToken(transport: CellsTransport, token: Token) : String {
+    private fun manageRetrievedToken(transport: CellsTransport, token: Token): String {
         val idToken = IdToken.parse(encoder, token.idToken)
         val accountID = StateID(idToken.claims.name, transport.server.url())
         val jwtCredentials = JWTCredentials(accountID.username, token)

@@ -12,9 +12,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
+import org.sinou.android.pydia.browse.BrowseFolderFragment
 import org.sinou.android.pydia.databinding.FragmentPickFolderBinding
 
 class PickFolderFragment : Fragment() {
@@ -67,7 +67,7 @@ class PickFolderFragment : Fragment() {
 
     private fun onClicked(stateID: StateID, command: String) {
         when (command) {
-            BrowseActivity.actionNavigate -> navigateTo(stateID)
+            BrowseFolderFragment.ACTION_OPEN -> navigateTo(stateID)
             else -> return // do nothing
         }
     }

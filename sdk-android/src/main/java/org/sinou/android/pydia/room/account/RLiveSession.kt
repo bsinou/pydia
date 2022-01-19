@@ -9,6 +9,7 @@ import org.sinou.android.pydia.room.Converters
 @DatabaseView(
     "SELECT session_table.account_id, " +
             "session_table.workspaces, " +
+            "session_table.lifecycle_state, " +
             "session_table.offline_roots, " +
             "session_table.bookmark_cache, " +
             "session_table.share_cache, " +
@@ -25,6 +26,7 @@ import org.sinou.android.pydia.room.Converters
 @TypeConverters(Converters::class)
 data class RLiveSession(
     @ColumnInfo(name = "account_id") val accountID: String,
+    @ColumnInfo(name = "lifecycle_state") val lifecycleState: String,
     @ColumnInfo(name = "workspaces") var workspaces: List<WorkspaceNode>?,
     @ColumnInfo(name = "offline_roots") var offlineRoots: List<String>?,
     @ColumnInfo(name = "bookmark_cache") var bookmarkCache: List<String>?,

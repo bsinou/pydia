@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/main_nav"
+
+    app:startDestination="@id/workspace_list_destination">
+
+    <!-- GLOBAL ACTIONS -->
+    <action
+        android:id="@+id/open_account_list"
+        app:destination="@id/account_list_destination" />
+
+    <action
+        android:id="@+id/open_workspaces"
+        app:destination="@id/workspace_list_destination" />
+
+    <action
+        android:id="@+id/open_folder"
+        app:destination="@id/browse_folder_destination" />
+
+    <action
+        android:id="@+id/open_settings"
+        app:destination="@id/settings_destination" />
+
+    <action
+        android:id="@+id/open_about"
+        app:destination="@id/about_destination" />
+
+    <!-- BROWSE -->
+
+    <fragment
+        android:id="@+id/workspace_list_destination"
+        android:name="org.sinou.android.pydia.browse.ChooseWorkspaceFragment"
+        android:label="@string/action_open_workspaces"
+        tools:layout="@layout/fragment_choose_workspace">
+    </fragment>
+
+    <fragment
+        android:id="@+id/browse_folder_destination"
+        android:name="org.sinou.android.pydia.browse.BrowseFolderFragment"
+        android:label="@string/action_browse"
+        tools:layout="@layout/fragment_browse_folder">
+        <argument
+            android:name="state"
+            app:argType="string" />
+        <action
+            android:id="@+id/open_more_menu"
+            app:destination="@id/tree_node_more_menu" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookmark_list_destination"
+        android:name="org.sinou.android.pydia.browse.BookmarksFragment"
+        android:label="@string/action_open_bookmarks"
+        tools:layout="@layout/fragment_bookmark_list">
+        <action
+            android:id="@+id/open_more_menu"
+            app:destination="@id/tree_node_more_menu" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/tree_node_more_menu"
+        android:name="org.sinou.android.pydia.browse.TreeNodeActionsFragment"
+        android:label="TreeNodeMoreMenu">
+        <argument
+            android:name="state"
+            app:argType="string" />
+        <argument
+            android:name="contextType"
+            app:argType="string" />
+    </dialog>
+
+    <!-- ACCOUNT MANAGEMENT -->
+
+    <fragment
+        android:id="@+id/account_list_destination"
+        android:name="org.sinou.android.pydia.account.AccountListFragment"
+        android:label="@string/account_list_title"
+        tools:layout="@layout/fragment_account_list">
+        <!--        <action-->
+        <!--            android:id="@+id/action_account_list_fragment_to_account_details_fragment"-->
+        <!--            app:destination="@id/account_details_fragment" />-->
+        <action
+            android:id="@+id/action_accounts_to_confirm_deletion"
+            app:destination="@id/confirmAccountDeletionDialog" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/confirmAccountDeletionDialog"
+        android:name="org.sinou.android.pydia.ui.dialogs.ConfirmAccountDeletionDialog"
+        android:label="ConfirmAccountDeletionDialog">
+        <argument
+            android:name="account_id"
+            app:argType="string" />
+    </dialog>
+
+    <!-- VARIOUS -->
+
+    <fragment
+        android:id="@+id/home_destination"
+        android:name="org.sinou.android.pydia.home.LandingFragment"
+        android:label="@string/welcome_title"
+        tools:layout="@layout/fragment_landing" />
+
+    <fragment
+        android:id="@+id/about_destination"
+        android:name="org.sinou.android.pydia.home.AboutFragment"
+        android:label="@string/action_open_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/settings_destination"
+        android:name="org.sinou.android.pydia.home.SettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_hello" />
+
+</navigation>

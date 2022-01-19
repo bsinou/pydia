@@ -1,17 +1,11 @@
 package org.sinou.android.pydia.account
 
-import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pydio.cells.transport.StateID
-import org.sinou.android.pydia.AccountActivity
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.databinding.ListItemAccountBinding
 import org.sinou.android.pydia.room.account.RLiveSession
 
@@ -33,30 +27,24 @@ class AccountListAdapter(
         val onItemClicked: (accountID: String, action: String) -> Unit,
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        private val tag = "ViewHolder<Account>"
-
         fun bind(item: RLiveSession) {
 
             binding.session = item
 
-            val stateID = StateID.fromId(item.accountID)
             // TODO also retrieve user's avatar for configured account in the current remote
             binding.root.setOnClickListener {
-                Log.i(tag, "... item clicked: ${stateID.username}@${stateID.serverUrl}")
-                val toBrowseIntent = Intent(binding.root.context, BrowseActivity::class.java)
-                toBrowseIntent.putExtra(AppNames.EXTRA_STATE, stateID.id)
-                startActivity(binding.root.context, toBrowseIntent, null)
+                onItemClicked(item.accountID, AccountListFragment.ACTION_OPEN)
             }
 
             binding.accountDeleteButton.setOnClickListener {
-                onItemClicked(item.accountID, AccountActivity.actionForget)
+                onItemClicked(item.accountID, AccountListFragment.ACTION_FORGET)
             }
 
             binding.accountAuthButton.setOnClickListener {
                 if (item.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-                    onItemClicked(item.accountID, AccountActivity.actionLogout)
+                    onItemClicked(item.accountID, AccountListFragment.ACTION_LOGOUT)
                 } else {
-                    onItemClicked(item.accountID, AccountActivity.actionLogin)
+                    onItemClicked(item.accountID, AccountListFragment.ACTION_LOGIN)
                 }
             }
 

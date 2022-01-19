@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
 class TreeFolderViewModel(
     private val accountService: AccountService,
     private val nodeService: NodeService,
-    private val stateID: StateID,
+    val stateID: StateID,
     application: Application
 ) : AndroidViewModel(application) {
 

@@ -4,25 +4,30 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.sinou.android.pydia">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".CellsApp"
         android:allowBackup="true"
         android:icon="@android:drawable/star_on"
         android:label="@string/application_title"
         android:supportsRtl="true"
-
         android:theme="@style/AppTheme">
 
         <activity
             android:name=".LandActivity"
             android:exported="true"
-            android:label="Start Pydia"
             android:theme="@style/AppTheme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
 
         <activity
             android:name=".UploadActivity"
@@ -53,18 +58,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".HomeActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".AccountActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".BrowseActivity"
-            android:exported="false" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="org.sinou.android.pydia.fileprovider"
@@ -76,6 +69,4 @@
         </provider>
     </application>
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

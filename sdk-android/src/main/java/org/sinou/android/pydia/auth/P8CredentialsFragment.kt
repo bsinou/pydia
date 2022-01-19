@@ -12,15 +12,17 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.ServerURLImpl
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.BrowseActivity
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainActivity
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentP8CredentialsBinding
 
 /** Handle user filled credentials for P8 remote servers */
 class P8CredentialsFragment : Fragment() {
 
-    private val TAG = "P8CredentialsFragment"
+    companion object {
+        private const val TAG = "P8CredentialsFragment"
+    }
 
     private lateinit var viewModelFactory: P8CredViewModel.P8CredViewModelFactory
     private lateinit var viewModel: P8CredViewModel
@@ -53,9 +55,10 @@ class P8CredentialsFragment : Fragment() {
             accountId?.let {
                 Log.i(TAG, "Auth Successful, navigating to $accountId")
                 // TODO Rather navigate via the account list
-                val toBrowseIntent = Intent(requireActivity(), BrowseActivity::class.java)
+                val toBrowseIntent = Intent(requireActivity(), MainActivity::class.java)
                 toBrowseIntent.putExtra(AppNames.EXTRA_STATE, accountId)
                 startActivity(toBrowseIntent)
+                requireActivity().finish()
             }
         })
 

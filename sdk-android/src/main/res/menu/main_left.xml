@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!--
-    // TODO put that in the header
-        <item
-            android:id="@+id/account_list_destination"
-            android:icon="@drawable/ic_baseline_groups_24"
-            android:title="@string/account_list_title" />
-    -->
-
     <item
         android:id="@+id/bookmark_list_destination"
         android:icon="@drawable/ic_baseline_star_24"
@@ -27,17 +19,9 @@
         android:visible="true">
         <menu android:id="@+id/advanced_menu">
             <item
-                android:id="@+id/home_destination"
-                android:icon="@drawable/ic_baseline_home_24"
-                android:title="@string/home" />
-            <item
                 android:id="@+id/settings_destination"
                 android:icon="@drawable/ic_baseline_settings_24"
                 android:title="@string/settings" />
-            <item
-                android:id="@+id/accounts_destination"
-                android:icon="@drawable/ic_baseline_groups_24"
-                android:title="@string/account_list_title" />
             <item
                 android:id="@+id/about_destination"
                 android:icon="@drawable/ic_baseline_info_24"

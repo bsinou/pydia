@@ -2,10 +2,13 @@
 
 <resources>
 
-    <color name="colorMain">#607D8B</color>
-    <color name="colorMainAccent">#34515E</color>
-    <color name="colorMainLight">#5C7784</color>
-    <color name="iconTint">@color/colorMainLight</color>
+    <!-- Main Colors -->
+    <color name="colorMain">#134E6C</color>
+    <color name="colorMainAccent">#0B2E40</color>
+    <color name="colorMainLight">#598398</color>
+
+    <!-- Icons -->
+    <color name="iconTint">@color/colorMain</color>
     <color name="iconBackground">#EDF0F2</color>
     <color name="decoratorBackground">#33EDF0F2</color>
 
@@ -39,4 +42,7 @@
     <color name="grey_text_color">#99000000</color>
     <color name="grey_button_color">#606060</color>
     <color name="white_text_color">#ffffff</color>
+
+    <!-- TODO Rather handle this with a style...-->
+    <color name="selected_background">#CFDBE1</color>
 </resources>

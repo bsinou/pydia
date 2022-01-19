@@ -18,13 +18,11 @@
     <string name="action_open_bookmarks">Bookmarks</string>
 
     <!-- Main Menu (left drawer) -->
-    <string name="nav_header_title">Navigation header title</string>
-    <string name="nav_header_subtitle">Navigation header subtitle</string>
-    <string name="nav_header_desc">Navigation header description</string>
-
-    <string name="nav_open">Open</string>
-    <string name="nav_close">Close</string>
-
+    <!-- Header -->
+    <string name="exit_description">Exit the application</string>
+    <string name="switch_account_description">Choose another remote server</string>
+    <string name="logo_description">Pydio application logo</string>
+    <!-- Content --> 
     <string name="quick_access">Quick Access</string>
     <string name="offline_files">Offline Files</string>
     <string name="bookmarks">Bookmarks</string>
@@ -34,6 +32,8 @@
     <string name="clear_cache">Clear Cache</string>
     <string name="about">About</string>
     <string name="home">Home</string>
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
 
 
     <!-- PAGE SPECIFIC MESSAGES -->

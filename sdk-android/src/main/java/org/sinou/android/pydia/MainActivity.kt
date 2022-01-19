@@ -22,18 +22,17 @@ import org.sinou.android.pydia.databinding.ActivityBrowseBinding
 import kotlin.system.exitProcess
 
 
-class BrowseActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     companion object {
-        private const val tag = "BrowseActivity"
+        private const val tag = "MainActivity"
         const val actionNavigate = "navigate"
         const val actionMore = "more"
     }
 
+    private lateinit var sessionVM: SessionViewModel
     private lateinit var binding: ActivityBrowseBinding
     private lateinit var navController: NavController
-
-    private lateinit var sessionVM: SessionViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:id="@+id/nav_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorPrimaryDark"
+    android:padding="@dimen/margin_small"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <ImageView
+        android:id="@+id/nav_header_logo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/nav_horizontal_margin"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="@dimen/nav_horizontal_margin"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="@string/logo_description"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/pydio_logo" />
+
+    <TextView
+        android:id="@+id/nav_header_primary_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/margin_xsmall"
+        android:paddingTop="@dimen/margin_xsmall"
+        android:paddingEnd="@dimen/margin_xsmall"
+        android:paddingBottom="0dp"
+        android:text="John"
+        android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
+        app:layout_constraintEnd_toStartOf="@+id/nav_header_switch_account"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nav_header_logo" />
+
+    <TextView
+        android:id="@+id/nav_header_secondary_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/margin_xsmall"
+        android:paddingTop="0dp"
+        android:paddingEnd="@dimen/margin_xsmall"
+        android:paddingBottom="@dimen/margin_xsmall"
+        android:text="https://files.example.com"
+        android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/nav_header_primary_text"
+        app:layout_constraintTop_toBottomOf="@+id/nav_header_primary_text" />
+
+    <ImageButton
+        android:id="@+id/nav_header_switch_account"
+        android:layout_width="@dimen/menu_header_icon"
+        android:layout_height="@dimen/menu_header_icon"
+        android:backgroundTint="?attr/colorPrimaryDark"
+        android:clickable="true"
+        android:contentDescription="@string/switch_account_description"
+        android:focusable="true"
+        android:paddingStart="@dimen/margin_small"
+        android:paddingEnd="@dimen/margin_small"
+        android:src="@drawable/ic_baseline_switch_account_24"
+        app:layout_constraintBottom_toBottomOf="@+id/nav_header_secondary_text"
+        app:layout_constraintEnd_toStartOf="@+id/nav_header_exit"/>
+
+    <ImageButton
+        android:id="@+id/nav_header_exit"
+        android:layout_width="@dimen/menu_header_icon"
+        android:layout_height="@dimen/menu_header_icon"
+        android:backgroundTint="?attr/colorPrimaryDark"
+        android:clickable="true"
+        android:contentDescription="@string/exit_description"
+        android:focusable="true"
+        android:paddingStart="@dimen/margin_small"
+        android:paddingEnd="@dimen/margin_small"
+        android:src="@drawable/ic_baseline_power_settings_new_24"
+        app:layout_constraintBottom_toBottomOf="@+id/nav_header_secondary_text"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -126,7 +126,7 @@ class NodeService(
             val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
             return client.stats(stateID.workspace, stateID.file, true)
         } catch (e: SDKException) {
-            throw SDKException(ErrorCodes.not_found, "could not stat at ${stateID.id}", e)
+            throw SDKException(ErrorCodes.not_found, "could not stat at ${stateID}", e)
         }
     }
 

@@ -32,7 +32,7 @@ class LandActivity : AppCompatActivity() {
             waitForIt()
 
             // Try to restart from where we left it
-            var stateID = CellsApp.instance.lastState()
+            var stateID = CellsApp.instance.getCurrentState()
             if (stateID == null) {
                 // Choose between new account or account list when we have no state.
                 // We go to workspace list when we have only one account
@@ -48,6 +48,7 @@ class LandActivity : AppCompatActivity() {
                     }
                     1 -> {
                         stateID = StateID.fromId(accounts[0].accountID)
+                        CellsApp.instance.setCurrentState(stateID)
                     }
                     // else we navigate to the MainActivity with no state,
                     //  that should led us to the account list
@@ -55,8 +56,9 @@ class LandActivity : AppCompatActivity() {
                 }
             }
             val intent = Intent(landActivity, MainActivity::class.java)
-            if (stateID!=null){
-                intent.putExtra(AppNames.EXTRA_STATE, stateID.id)
+            if (stateID != null) {
+                CellsApp.instance.accountService.openSession(stateID.accountId)
+                // intent.putExtra(AppNames.EXTRA_STATE, stateID.id)
             }
             startActivity(intent)
             landActivity.finish()

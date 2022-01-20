@@ -30,7 +30,7 @@ class LandingFragment : Fragment(), AppNames {
         binding.addAccountButton.setOnClickListener {
             // Launch the account activity with a new intent
             val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
-            startActivity(toAuthIntent);
+            startActivity(toAuthIntent)
         }
 
         setHasOptionsMenu(true)

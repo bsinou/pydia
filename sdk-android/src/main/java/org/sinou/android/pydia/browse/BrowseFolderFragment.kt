@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,6 +23,8 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
+import org.sinou.android.pydia.utils.BackStackAdapter
+import org.sinou.android.pydia.utils.dumpBackStack
 import org.sinou.android.pydia.utils.externallyView
 import org.sinou.android.pydia.utils.isFolder
 
@@ -36,6 +39,13 @@ class BrowseFolderFragment : Fragment() {
 
     private lateinit var binding: FragmentBrowseFolderBinding
     private lateinit var treeFolderVM: TreeFolderViewModel
+
+    private val backPressedCallback = BackStackAdapter()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -72,7 +82,10 @@ class BrowseFolderFragment : Fragment() {
                 adapter.submitList(it)
             },
         )
-
+        backPressedCallback.initializeBackNavigation(
+            parentFragmentManager,
+            StateID.fromId(args.state)
+        )
         return binding.root
     }
 
@@ -98,8 +111,9 @@ class BrowseFolderFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        dumpBackStack(fTag, parentFragmentManager)
+
         treeFolderVM.resume()
-        CellsApp.instance.wasHere(treeFolderVM.stateID)
 
         (requireActivity() as MainActivity).supportActionBar?.let {
             it.title = if (Str.empty(treeFolderVM.stateID.fileName)) {
@@ -122,12 +136,21 @@ class BrowseFolderFragment : Fragment() {
         lifecycleScope.launch {
 
             if (isFolder(node)) {
+                CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
                 findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             } else {
                 val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
                 file?.let {
-                    val intent = externallyView(requireContext(), file, node)
-                    startActivity(intent)
+                    try {
+                        val intent = externallyView(requireContext(), file, node)
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            requireActivity().application,
+                            "Cannot open file with external viwer: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
         }

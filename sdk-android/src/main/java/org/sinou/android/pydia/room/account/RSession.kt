@@ -1,6 +1,9 @@
 package org.sinou.android.pydia.room.account
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.pydio.cells.api.ui.WorkspaceNode
 import org.sinou.android.pydia.room.Converters
 

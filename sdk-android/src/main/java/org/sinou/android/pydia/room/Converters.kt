@@ -3,19 +3,17 @@ package org.sinou.android.pydia.room
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
 import java.lang.reflect.Type
 import java.util.*
-import kotlin.collections.ArrayList
 
 class Converters {
 
     @TypeConverter
     fun fromString(value: String): List<String> {
         //val listType: Type = object : TypeToken<List<String>>() {}.getType()
-        val listType: Type = object : TypeToken<ArrayList<String>>() {}.getType()
+        val listType: Type = object : TypeToken<ArrayList<String>>() {}.type
         return Gson().fromJson(value, listType)
     }
 
@@ -28,7 +26,7 @@ class Converters {
     @TypeConverter
     fun fromJSON(value: String): List<WorkspaceNode> {
         //val listType: Type = object : TypeToken<List<String>>() {}.getType()
-        val listType: Type = object : TypeToken<ArrayList<WorkspaceNode>>() {}.getType()
+        val listType: Type = object : TypeToken<ArrayList<WorkspaceNode>>() {}.type
         return Gson().fromJson(value, listType)
     }
 
@@ -39,7 +37,7 @@ class Converters {
 
     @TypeConverter
     fun toProperties(value: String): Properties {
-        val propType: Type = object : TypeToken<Properties>() {}.getType()
+        val propType: Type = object : TypeToken<Properties>() {}.type
         return Gson().fromJson(value, propType)
     }
 
@@ -50,7 +48,7 @@ class Converters {
 
     @TypeConverter
     fun toStateID(value: String): StateID {
-        val propType: Type = object : TypeToken<StateID>() {}.getType()
+        val propType: Type = object : TypeToken<StateID>() {}.type
         return Gson().fromJson(value, propType)
     }
 

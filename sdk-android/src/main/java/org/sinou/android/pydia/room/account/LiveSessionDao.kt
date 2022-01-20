@@ -17,6 +17,6 @@ interface LiveSessionDao {
     fun getSession(accountID: String): RLiveSession?
 
     @Query("SELECT * FROM RLiveSession where lifecycle_state = :state LIMIT 1")
-   fun getLiveActiveSession(state: String): LiveData<RLiveSession?>
+    fun getLiveActiveSession(state: String): LiveData<RLiveSession?>
 
 }

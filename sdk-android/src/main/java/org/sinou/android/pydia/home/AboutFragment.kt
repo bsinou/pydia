@@ -29,13 +29,16 @@ class AboutFragment : Fragment() {
         )
 
         binding.aboutVersionName.text =
-            resources.getString(R.string.version_name_display, ClientData.version);
+            resources.getString(R.string.version_name_display, ClientData.version)
         binding.aboutVersionCode.text =
-            resources.getString(R.string.version_code_display, BuildConfig.VERSION_CODE.toString());
+            resources.getString(R.string.version_code_display, BuildConfig.VERSION_CODE.toString())
 
         var dateString = getTimestampAsString(ClientData.buildTimestamp)
         binding.aboutVersionDate.text =
-            resources.getString(R.string.version_date_display, dateString);
+            resources.getString(R.string.version_date_display, dateString)
+
+        // See https://developer.android.com/codelabs/basic-android-kotlin-training-navigation-backstack#4
+        // to have an example of a complete email sending action
 
         return binding.root
     }

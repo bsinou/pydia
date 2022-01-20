@@ -57,7 +57,7 @@ class NodeService(
 
     /* Handle communication with the remote server to refresh locally stored data */
 
-    suspend fun pull(stateID: StateID) = withContext(Dispatchers.IO) {
+    suspend fun pull(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
             val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
             val page = firstPage()
@@ -118,7 +118,9 @@ class NodeService(
         } catch (e: SDKException) {
             Log.e(TAG, "could not perform ls for " + stateID.id)
             e.printStackTrace()
+            return@withContext "Cannot connect to distant server"
         }
+        return@withContext null
     }
 
     fun stateRemoteNode(stateID: StateID): Stats {

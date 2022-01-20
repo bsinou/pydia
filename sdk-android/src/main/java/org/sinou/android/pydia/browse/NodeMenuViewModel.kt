@@ -2,11 +2,9 @@ package org.sinou.android.pydia.browse
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.pydio.cells.transport.StateID
-import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.services.NodeService
 
 /**

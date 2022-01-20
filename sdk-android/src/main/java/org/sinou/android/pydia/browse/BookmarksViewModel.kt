@@ -8,10 +8,10 @@ import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.CellsApp
 
 /**
- * Holds a live list of the cached bookmarks of the current session
+ * Holds a live list of the cached bookmarks for the current session
  */
 class BookmarksViewModel(
-    private val stateID: StateID,
+    stateID: StateID,
     application: Application
 ) : AndroidViewModel(application) {
 

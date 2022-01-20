@@ -46,17 +46,17 @@ class ChooseTargetViewModel(
                 val cr = currApp.contentResolver
                 val mimeMap = MimeTypeMap.getSingleton()
 
-                for (uri in uris){
+                for (uri in uris) {
                     var filename = uri.lastPathSegment!!
                     var inputStream: InputStream? = null
                     try {
                         inputStream = cr.openInputStream(uri)
                         val mime = cr.getType(uri)
-                        mimeMap.getExtensionFromMimeType(mime)?.let{
+                        mimeMap.getExtensionFromMimeType(mime)?.let {
                             // TODO make a better check
                             //   - retrieve file extension
                             //   - only append if the extension seems to be unvalid
-                            if (!filename.endsWith(it, true)){
+                            if (!filename.endsWith(it, true)) {
                                 filename += ".$it"
                             }
                         }

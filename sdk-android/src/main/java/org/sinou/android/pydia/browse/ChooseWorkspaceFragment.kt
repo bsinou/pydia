@@ -8,39 +8,25 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.pydio.cells.transport.StateID
-import org.sinou.android.pydia.*
+import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainNavDirections
+import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentChooseWorkspaceBinding
+import org.sinou.android.pydia.utils.dumpBackStack
 
 class ChooseWorkspaceFragment : Fragment() {
 
-    private val fTag = "ChooseWorkspaceFragment"
+    companion object {
+        private const val fTag = "ChooseWorkspaceFragment"
+    }
 
     private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
 
     private lateinit var binding: FragmentChooseWorkspaceBinding
-    private var accountID: StateID? = null
-
-//    private var targetState: StateID? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-//        when {
-//            savedInstanceState?.getString(AppNames.EXTRA_ACCOUNT_ID) != null -> {
-//                accountID =
-//                    StateID.fromId(savedInstanceState.getString(AppNames.EXTRA_ACCOUNT_ID))!!
-//            }
-//            requireActivity().intent != null -> {
-//                requireActivity().intent.getStringExtra(AppNames.EXTRA_STATE)?.let {
-//                    targetState = StateID.fromId(it)
-//                    accountID = StateID.fromId(targetState!!.accountId)
-//                }
-//            }
-//        }
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,20 +38,42 @@ class ChooseWorkspaceFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val adapter = WorkspaceListAdapter { slug, action -> onWsClicked(slug, action) }
-        binding.workspaces.adapter = adapter
+    override fun onResume() {
+        Log.i(
+            fTag, "onResume: ${
+                activeSessionViewModel.activeSession.value?.accountID
+                    ?: "No active session"
+            }"
+        )
+        dumpBackStack(fTag, parentFragmentManager)
+
+        super.onResume()
 
         activeSessionViewModel.activeSession.observe(
             viewLifecycleOwner,
-            { liveSession ->
-                liveSession?.let {
+            {
+                it?.let {
+                    val adapter = WorkspaceListAdapter { slug, action -> onWsClicked(slug, action) }
+                    binding.workspaces.adapter = adapter
                     val currWss = it.workspaces ?: listOf()
                     adapter.submitList(currWss.sorted())
                 }
             },
         )
+
+        CellsApp.instance.getCurrentState()?.let {
+            if (it.path != null && it.path.length > 1) {
+                Log.i(fTag, "onResume, we have a path: ${it.path}. Navigating")
+
+                val action: NavDirections = when {
+                    it.path.startsWith(AppNames.CUSTOM_PATH_BOOKMARKS) -> MainNavDirections.openBookmarks()
+                    it.path.startsWith(AppNames.CUSTOM_PATH_ACCOUNTS) -> MainNavDirections.openAccountList()
+                    else -> MainNavDirections.openFolder(it.id)
+                }
+                findNavController().navigate(action)
+            }
+        }
+        activeSessionViewModel.resume()
     }
 
     private fun onWsClicked(slug: String, command: String) {
@@ -74,30 +82,20 @@ class ChooseWorkspaceFragment : Fragment() {
         when (command) {
             BrowseFolderFragment.ACTION_OPEN -> {
                 val targetState = StateID.fromId(activeSession.accountID).withPath("/${slug}")
+                CellsApp.instance.setCurrentState(targetState)
                 findNavController().navigate(MainNavDirections.openFolder(targetState.id))
             }
             else -> return // do nothing
         }
     }
 
-    override fun onResume() {
-        Log.i(fTag, "onResume: $accountID")
-        super.onResume()
-
-
-        CellsApp.instance.lastState()?.let {
-            if (it.path != null && it.path.length > 1) {
-                Log.i(fTag, "onResume, we have a path: ${it.path}. Navigating")
-                val action = MainNavDirections.openFolder(it.id)
-                findNavController().navigate(action)
-            }
-        }
-
-        activeSessionViewModel.resume()
-    }
-
     override fun onPause() {
-        Log.i(fTag, "Pausing: $accountID")
+        Log.i(
+            fTag, "Pausing: ${
+                activeSessionViewModel.activeSession.value?.accountID
+                    ?: "No active session"
+            }"
+        )
         super.onPause()
         activeSessionViewModel.pause()
     }

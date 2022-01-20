@@ -23,7 +23,7 @@ class ThumbDownloader(
     private val nodeDB: TreeNodeDB,
     private val filesDir: File,
     private val thumbSize: Int = 100,
-    ) {
+) {
 
     private val tag = "ThumbDownloader"
 
@@ -48,7 +48,7 @@ class ThumbDownloader(
         node.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, state.workspace)
         node.setProperty(SdkNames.NODE_PROPERTY_PATH, state.file)
 
-        if (!client.isLegacy && rNode.meta.containsKey(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)){
+        if (!client.isLegacy && rNode.meta.containsKey(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)) {
             node.setProperty(
                 SdkNames.NODE_PROPERTY_REMOTE_THUMBS,
                 rNode.meta.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)
@@ -81,11 +81,11 @@ class ThumbDownloader(
     }
 
     private fun targetPath(targetName: String): String {
-        return  filesDir.absolutePath + File.separator + targetName
+        return filesDir.absolutePath + File.separator + targetName
     }
 
     private fun targetName(currNode: FileNode): String? {
-        if (client.isLegacy){
+        if (client.isLegacy) {
             return UUID.randomUUID().toString() + ".jpg"
         } else {
             // FIXME this code has been copied from the Cells Client for the MVP
@@ -94,13 +94,13 @@ class ThumbDownloader(
                 return null
             }
             val gson = Gson()
-            val thumbs = gson.fromJson(remoteThumbsJson,Map::class.java)
+            val thumbs = gson.fromJson(remoteThumbsJson, Map::class.java)
             var thumbPath: String? = null
             for ((key, value) in thumbs) {
                 if (thumbPath == null) {
                     thumbPath = value as String
                 }
-                val size = (key as String) .toInt()
+                val size = (key as String).toInt()
                 if (size > 0 && size >= thumbSize) {
                     return value as String
                 }

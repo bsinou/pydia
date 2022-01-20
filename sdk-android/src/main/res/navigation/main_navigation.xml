@@ -24,6 +24,10 @@
         app:destination="@id/browse_folder_destination" />
 
     <action
+        android:id="@+id/open_bookmarks"
+        app:destination="@id/bookmark_list_destination" />
+
+    <action
         android:id="@+id/open_settings"
         app:destination="@id/settings_destination" />
 

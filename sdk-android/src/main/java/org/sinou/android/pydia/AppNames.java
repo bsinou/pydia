@@ -7,7 +7,7 @@ public interface AppNames {
     String KEY_PREFIX_ = KEY_PREFIX + ".";
 
     /* SHARED PREFERENCE KEYS */
-    String PREF_KEY_LAST_STATE = "last_state";
+    String PREF_KEY_CURRENT_STATE = "current_state";
 
     String KEY_DESTINATION = KEY_PREFIX_ + "destination";
 
@@ -19,6 +19,12 @@ public interface AppNames {
 
     String KEY_CODE = "code";
     String KEY_STATE = "state";
+
+    // Workaround to store additional destinations as state
+    String CUSTOM_PATH_ACCOUNTS = "/__acounts__";
+    String CUSTOM_PATH_BOOKMARKS = "/__bookmarks__";
+    String CUSTOM_PATH_OFFLINE = "/__offline__";
+    String CUSTOM_PATH_SHARES = "/__shares__";
 
     // TODO finalize auth state management
     String AUTH_STATUS_NEW = "new";

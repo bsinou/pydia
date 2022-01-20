@@ -14,11 +14,13 @@ import com.pydio.cells.transport.auth.jwt.IdToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.room.account.RAccount
 import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.room.account.RSession
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
+import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
 import java.io.File
 
 /**
@@ -56,7 +58,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
 
     fun registerAccount(serverURL: ServerURL, credentials: Credentials): String? {
         try {
-            val state = StateID(credentials.username, serverURL.id);
+            val state = StateID(credentials.username, serverURL.id)
             val existingAccount = accountDB.accountDao().getAccount(state.accountId)
 
             sessionFactory.registerAccountCredentials(serverURL, credentials)
@@ -117,6 +119,14 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         }
     }
 
+    suspend fun isClientConnected(accountID: String): Boolean = withContext(Dispatchers.IO) {
+        var isConnected = hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)
+        accountDB.accountDao().getAccount(accountID)?.let {
+            return@withContext isConnected && it.authStatus == AppNames.AUTH_STATUS_CONNECTED
+        }
+        return@withContext false
+    }
+
 
     /** Stores a new row in the Session DB */
     fun registerLocalSession(accountID: String) {
@@ -154,7 +164,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         }
     }
 
-    suspend fun refreshWorkspaceList(accountID: String) = withContext(Dispatchers.IO) {
+    suspend fun refreshWorkspaceList(accountID: String): String? = withContext(Dispatchers.IO) {
         try {
             val workspaces = mutableListOf<WorkspaceNode>()
             val client: Client = sessionFactory.getUnlockedClient(accountID)
@@ -173,7 +183,9 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         } catch (e: SDKException) {
             Log.e(TAG, "could not perform ls for " + accountID)
             e.printStackTrace()
+            return@withContext "Cannot connect to distant server"
         }
+        return@withContext null
     }
 
     /** Cells' Credentials flow management */
@@ -188,7 +200,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
             }
             try {
                 val transport =
-                    sessionFactory.getAnonymousTransport(serverURL.getId()) as CellsTransport
+                    sessionFactory.getAnonymousTransport(serverURL.id) as CellsTransport
                 val token = transport.getTokenFromCode(code, encoder)
                 accountID = manageRetrievedToken(transport, token)
             } catch (e: Exception) {
@@ -239,7 +251,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
             serverLabel = server.label,
             tlsMode = if (server.serverURL.skipVerify()) 1 else 0,
             isLegacy = server.isLegacy,
-            welcomeMessage = server.getWelcomeMessage(),
+            welcomeMessage = server.welcomeMessage,
             authStatus = AppNames.AUTH_STATUS_NEW,
         )
     }

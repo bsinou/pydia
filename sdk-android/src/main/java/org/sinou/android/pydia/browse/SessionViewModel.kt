@@ -7,7 +7,6 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.room.account.RLiveSession
-import org.sinou.android.pydia.room.browse.RTreeNode
 import java.util.concurrent.TimeUnit
 
 /**
@@ -41,7 +40,8 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
         return@lazyMap liveData
     }
 
-    fun liveSession(accountIDStr: String): LiveData<RLiveSession?> = accountsLiveData.getValue(accountIDStr)
+    fun liveSession(accountIDStr: String): LiveData<RLiveSession?> =
+        accountsLiveData.getValue(accountIDStr)
 
     private var _isActive = false
     val isActiveSession: Boolean
@@ -50,11 +50,11 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     // TODO handle network status
     private fun watchSession() = viewModelScope.launch {
         while (isActiveSession) {
-            Log.i( tag,"Watching ${_accountID.value} ")
+            Log.i(tag, "Watching ${_accountID.value} ")
 //            accountID?.let {
 //                accountService.refreshWorkspaceList(it.id)
 //            }
-           delay(TimeUnit.SECONDS.toMillis(3))
+            delay(TimeUnit.SECONDS.toMillis(3))
         }
     }
 

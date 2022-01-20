@@ -11,7 +11,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.ServerURLImpl
-import org.sinou.android.pydia.*
+import com.pydio.cells.transport.StateID
+import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainActivity
+import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentOauthFlowBinding
 
 /** Manages the external OAuth process to get a JWT Token */
@@ -52,11 +56,14 @@ class OAuthFlowFragment : Fragment() {
 
         viewModel.accountID.observe(requireActivity(), { accountId ->
             accountId?.let {
-                Log.i(fTag, "Auth Successful, navigating to $accountId")
-                val toBrowseIntent = Intent(requireActivity(), MainActivity::class.java)
-                toBrowseIntent.putExtra(AppNames.EXTRA_STATE, accountId)
-                startActivity(toBrowseIntent)
+                var nextState = CellsApp.instance.getCurrentState()
+                if (AppNames.CUSTOM_PATH_ACCOUNTS != nextState?.path) {
+                    nextState = StateID.fromId(accountId)
+                    CellsApp.instance.setCurrentState(nextState)
+                }
+                Log.i(fTag, "Auth Successful, navigating to $nextState")
                 requireActivity().finish()
+                startActivity(Intent(requireActivity(), MainActivity::class.java))
             }
         })
 

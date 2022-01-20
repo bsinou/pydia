@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.ServerURLImpl
+import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainActivity
@@ -53,11 +54,13 @@ class P8CredentialsFragment : Fragment() {
 
         viewModel.accountID.observe(requireActivity(), { accountId ->
             accountId?.let {
-                Log.i(TAG, "Auth Successful, navigating to $accountId")
-                // TODO Rather navigate via the account list
-                val toBrowseIntent = Intent(requireActivity(), MainActivity::class.java)
-                toBrowseIntent.putExtra(AppNames.EXTRA_STATE, accountId)
-                startActivity(toBrowseIntent)
+                var nextState = CellsApp.instance.getCurrentState()
+                if (AppNames.CUSTOM_PATH_ACCOUNTS != nextState?.path) {
+                    nextState = StateID.fromId(accountId)
+                    CellsApp.instance.setCurrentState(nextState)
+                }
+                Log.i(TAG, "Auth Successful, navigating to $nextState")
+                startActivity(Intent(requireActivity(), MainActivity::class.java))
                 requireActivity().finish()
             }
         })

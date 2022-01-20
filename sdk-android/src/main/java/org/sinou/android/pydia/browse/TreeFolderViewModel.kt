@@ -29,7 +29,7 @@ class TreeFolderViewModel(
 
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    lateinit private var _currentFolder: LiveData<RTreeNode>
+    private lateinit var _currentFolder: LiveData<RTreeNode>
     val currentFolder: LiveData<RTreeNode>
         get() = _currentFolder
 
@@ -37,22 +37,28 @@ class TreeFolderViewModel(
 
     private var _isActive = false
 
-    // TODO handle network status
     private fun watchFolder() = vmScope.launch {
         while (_isActive) {
             Log.i(
                 tag,
                 "Watching ${stateID}, found ${children.value?.size} children"
             )
-            nodeService.pull(stateID)
+
+            nodeService.pull(stateID)?.let {
+                // Not-Null response is an error message, pause polling
+                Log.e(tag, "$it, pausing poll")
+                pause()
+            }
+
             delay(TimeUnit.SECONDS.toMillis(10))
         }
     }
 
-
-    fun resume() {
-        _isActive = true
-        watchFolder()
+    fun resume() = vmScope.launch {
+        if (accountService.isClientConnected(stateID.id)) {
+            _isActive = true
+            watchFolder()
+        }
     }
 
     fun pause() {

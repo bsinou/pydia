@@ -106,7 +106,7 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
                 newURL.ping()
             } catch (e: MalformedURLException) {
                 updateErrorMsg(e.message ?: "Invalid address, please update")
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 updateErrorMsg(e.message ?: "Invalid address, please update")
                 e.printStackTrace()
             }

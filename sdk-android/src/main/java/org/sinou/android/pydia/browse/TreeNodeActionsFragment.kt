@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -155,7 +156,16 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
                 ACTION_OPEN_WITH ->
                     CellsApp.instance.nodeService.getOrDownloadFileToCache(node)?.let {
                         val intent = openWith(requireContext(), it, node)
-                        startActivity(intent)
+
+                        // Insure we won't crash if there no activity to handle this kind of intent
+                        if (activity?.packageManager?.resolveActivity(intent, 0) != null) {
+                            startActivity(intent)
+                        } else {
+                            Toast.makeText(
+                                requireActivity(),
+                                "No app found to open this file", Toast.LENGTH_LONG
+                            ).show()
+                        }
                         moreMenu.dismiss()
                     }
                 ACTION_DOWNLOAD_TO_DEVICE -> {
@@ -163,6 +173,7 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
                     moreMenu.dismiss()
                 }
                 ACTION_OPEN_IN_WORKSPACES -> {
+                    CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
                     findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
                 }
                 ACTION_RENAME -> {}

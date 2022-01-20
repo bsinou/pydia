@@ -3,10 +3,6 @@ package org.sinou.android.pydia.room.runtime
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import org.sinou.android.pydia.room.Converters
-import java.sql.Timestamp
-import java.util.*
 
 @Entity(tableName = "upload_table")
 data class RUpload(
@@ -30,5 +26,5 @@ data class RUpload(
 
     @ColumnInfo(name = "progress") val progress: Int = 0,
 
-)
+    )
 

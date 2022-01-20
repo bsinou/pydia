@@ -13,13 +13,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.MainActivity
-import org.sinou.android.pydia.MainNavDirections
-import org.sinou.android.pydia.R
+import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentBookmarkListBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
-import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.utils.BackStackAdapter
 import org.sinou.android.pydia.utils.externallyView
 import org.sinou.android.pydia.utils.isFolder
 
@@ -29,6 +26,13 @@ class BookmarksFragment : Fragment() {
 
     private lateinit var binding: FragmentBookmarkListBinding
     private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
+
+    private val backPressedCallback = BackStackAdapter()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,7 +68,6 @@ class BookmarksFragment : Fragment() {
             (requireActivity() as MainActivity).supportActionBar?.let {
                 it.title = "Bookmarks" // accountID.toString()
             }
-            CellsApp.instance.wasHere(accountID)
 
             val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
             binding.bookmarkList.adapter = adapter
@@ -73,6 +76,11 @@ class BookmarksFragment : Fragment() {
                 accountID, requireActivity().application,
             )
             val bookmarksViewModel: BookmarksViewModel by viewModels { viewModelFactory }
+
+            val currentState = accountID.withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
+            CellsApp.instance.setCurrentState(currentState)
+
+            backPressedCallback.initializeBackNavigation(parentFragmentManager, currentState)
 
             bookmarksViewModel.bookmarks.observe(viewLifecycleOwner, { adapter.submitList(it) })
         }

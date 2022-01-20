@@ -75,6 +75,9 @@ class AccountListFragment : Fragment() {
 
         when (action) {
             ACTION_LOGIN -> {
+                CellsApp.instance.setCurrentState(
+                    StateID.fromId(accountID).withPath(AppNames.CUSTOM_PATH_ACCOUNTS)
+                )
                 val server = CellsApp.instance.accountService.sessionFactory.getServer(accountID)
                 val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
                 toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, server.serverURL.toJson())
@@ -92,7 +95,7 @@ class AccountListFragment : Fragment() {
             }
             ACTION_OPEN -> lifecycleScope.launch {
                 CellsApp.instance.accountService.openSession(accountID)
-                CellsApp.instance.wasHere(StateID.fromId(accountID))
+                CellsApp.instance.setCurrentState(StateID.fromId(accountID))
                 findNavController().navigate(MainNavDirections.openWorkspaces())
             }
 

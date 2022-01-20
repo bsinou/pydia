@@ -2,7 +2,9 @@ package org.sinou.android.pydia.utils
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentManager
 import com.pydio.cells.api.SdkNames
 import org.sinou.android.pydia.BuildConfig
 import org.sinou.android.pydia.room.browse.RTreeNode
@@ -92,4 +94,12 @@ fun getAppMime(context: Context, name: String): String {
     } else {
         "*/*"
     }
+}
+
+fun dumpBackStack(caller: String, manager: FragmentManager) {
+    val count = manager.backStackEntryCount
+    val entry = if (count > 0) manager.getBackStackEntryAt(count - 1) else null
+
+    Log.i(caller, "Back stack entry count: $count")
+    Log.i(caller, "Previous entry: $entry")
 }

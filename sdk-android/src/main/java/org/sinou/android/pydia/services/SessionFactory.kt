@@ -14,10 +14,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.room.account.AccountDB
 import org.sinou.android.pydia.room.account.RLegacyCredentials
 import org.sinou.android.pydia.room.account.RLiveSession
 import org.sinou.android.pydia.room.account.RToken
+import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
+import org.sinou.android.pydia.utils.hasUnMeteredNetwork
 
 class SessionFactory(
     private val accountDB: AccountDB,
@@ -113,10 +116,40 @@ class SessionFactory(
 
 
     @Throws(SDKException::class)
+    fun getUnlockedUnMeteredClient(accountID: String): Client {
+        if (!hasUnMeteredNetwork(CellsApp.instance.applicationContext)) {
+            throw SDKException(
+                ErrorCodes.no_un_metered_connection,
+                "No un-metered connection available"
+            )
+        }
+        return internalGetClient(accountID)
+    }
+
+    @Throws(SDKException::class)
     fun getUnlockedClient(accountID: String): Client {
+        if (!hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)) {
+            throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
+        }
+
+        return internalGetClient(accountID)
+    }
+
+    @Throws(SDKException::class)
+    private fun internalGetClient(accountID: String): Client {
+
+        // At this point we are sure we have a connection to the internet
+        // until it breaks :) ... code defensively afterwards and correctly handle errors
+        // First check if we are connected to the internet
 
         sessions.get(accountID) ?: run {
-            restoreSession(accountID)
+            try {
+                restoreSession(accountID)
+            } catch (e: SDKException) {
+
+
+                throw e
+            }
         }
 
         sessions.get(accountID).let {
@@ -129,12 +162,6 @@ class SessionFactory(
                 )
             }
         }
-
-//        // We should never reach this point
-//        throw SDKException(
-//            ErrorCodes.unknown_account,
-//            "No account for $accountID, cannot restore session"
-//        )
     }
 
     @Throws(SDKException::class)

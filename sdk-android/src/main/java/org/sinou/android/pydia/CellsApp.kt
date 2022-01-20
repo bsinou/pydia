@@ -115,19 +115,12 @@ class CellsApp : Application() {
         }
     }
 
-    fun lastState(): StateID? {
-        return getPreference(AppNames.PREF_KEY_LAST_STATE)?.let { StateID.fromId(it) }
+    fun getCurrentState(): StateID? {
+        return getPreference(AppNames.PREF_KEY_CURRENT_STATE)?.let { StateID.fromId(it) }
     }
 
-    fun wasHere(state: StateID) {
-        setPreference(AppNames.PREF_KEY_LAST_STATE, state.id)
-    }
-
-    fun noState() {
-        with(sharedPreferences.edit()) {
-            remove(AppNames.PREF_KEY_LAST_STATE)
-            apply()
-        }
+    fun setCurrentState(state: StateID) {
+        setPreference(AppNames.PREF_KEY_CURRENT_STATE, state.id)
     }
 
     // TODO implement background cleaning, typically:

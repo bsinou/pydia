@@ -1,11 +1,8 @@
 package org.sinou.android.pydia.room.browse
 
-import android.view.ViewParent
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.room.Converters
-import org.sinou.android.pydia.room.account.RSession
 
 @Dao
 @TypeConverters(Converters::class)
@@ -27,7 +24,11 @@ interface TreeNodeDao {
     fun ls(encodedParentStateID: String, parentPath: String): LiveData<List<RTreeNode>>
 
     @Query("SELECT * FROM tree_node_table WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath AND mime = :mime ORDER BY sort_name")
-    fun lsWithMime(encodedParentStateID: String, parentPath: String, mime: String): LiveData<List<RTreeNode>>
+    fun lsWithMime(
+        encodedParentStateID: String,
+        parentPath: String,
+        mime: String
+    ): LiveData<List<RTreeNode>>
 
     @Query("SELECT * FROM tree_node_table WHERE encoded_state like :accountID || '%' AND is_bookmarked = 1 ORDER BY name")
     fun getBookmarked(accountID: String): LiveData<List<RTreeNode>>

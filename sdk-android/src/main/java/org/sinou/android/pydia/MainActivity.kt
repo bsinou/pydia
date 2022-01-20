@@ -17,6 +17,7 @@ import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.browse.ActiveSessionViewModel
 import org.sinou.android.pydia.browse.getIconForWorkspace
 import org.sinou.android.pydia.databinding.ActivityMainBinding
+import org.sinou.android.pydia.utils.dumpBackStack
 import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
@@ -32,42 +33,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        val encodedState: String? = if (savedInstanceState != null) {
-//            savedInstanceState.getString(AppNames.EXTRA_STATE)
-//        } else {
-//            intent.getStringExtra(AppNames.EXTRA_STATE)
-//        }
-
-        // We initialise the nav controller early to enable navigation to the first page,
-        // even if no other binding is defined.
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         navController = findNavController(R.id.main_fragment_host)
 
         buildNavigationLayout()
-
-//        if (Str.notEmpty(encodedState)) {
-//            sessionVM.setActiveAccount(StateID.fromId(StateID.fromId(encodedState).accountId))
-//        } else {
-//            // If we arrive here, it means that we have no state recorded
-//            // but more than one account defined
-//            supportFragmentManager
-//                .beginTransaction()
-//                .replace(R.id.main_fragment_host, AccountListFragment())
-//                .commit()
-//        }
-//
-
-//        if (activeSessionVM.activeSession.value == null) {
-//            // If we arrive here, it means that we have no foreground session
-//            // and more than one account defined
-//            supportFragmentManager
-//                .beginTransaction()
-//                .replace(R.id.main_fragment_host, AccountListFragment())
-//                .commit()
-//
-//        }
-
     }
+
 
     private fun buildNavigationLayout() {
         setSupportActionBar(binding.toolbar)
@@ -80,13 +51,22 @@ class MainActivity : AppCompatActivity() {
 //        )
 //        binding.drawerLayout.addDrawerListener(toggle)
 //        toggle.syncState()
-//        toggle.setToolbarNavigationClickListener { onBackPressed() }
 
         NavigationUI.setupActionBarWithNavController(
             this,
             navController,
             binding.mainDrawerLayout
         )
+
+        // TODO back navigation is still clumsy, the "onBackPress() method from activity
+        //   and thus the custom adapters are not called when back is triggered by clicking
+        //   the app bar arrow...
+/*
+
+        binding.toolbar.setNavigationOnClickListener {
+            onBackPressed()
+        }
+*/
 
         binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
 
@@ -112,8 +92,17 @@ class MainActivity : AppCompatActivity() {
 
     private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
         Log.i(tag, "... Item selected: #${it.itemId}")
-        var done = true
+        var done = false
         when (it.itemId) {
+            R.id.open_bookmarks -> {
+                activeSessionVM.activeSession.value?.let { session ->
+                    val target = StateID.fromId(session.accountID)
+                        .child(AppNames.CUSTOM_PATH_BOOKMARKS)
+                    CellsApp.instance.setCurrentState(target)
+                    navController.navigate(MainNavDirections.openBookmarks())
+                    done = true
+                }
+            }
             else -> done = NavigationUI.onNavDestinationSelected(it, navController)
         }
         if (done) {
@@ -123,10 +112,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun wireNavViewObserver() {
-
-//        if (activeSessionVM.activeSession.value == null) {
-//            return
-//        }
 
         val item = binding.navView.menu.findItem(R.id.ws_section)
         activeSessionVM.activeSession.observe(
@@ -140,6 +125,7 @@ class MainActivity : AppCompatActivity() {
                         wsItem.setOnMenuItemClickListener {
                             val state = StateID.fromId(liveSession.accountID)
                                 .withPath("/${ws.slug}")
+                            CellsApp.instance.setCurrentState(state)
                             navController.navigate(MainNavDirections.openFolder(state.id))
                             closeDrawer()
                             true
@@ -150,7 +136,8 @@ class MainActivity : AppCompatActivity() {
                     val header = binding.navView.getHeaderView(0)
                     val primaryText = header.findViewById<TextView>(R.id.nav_header_primary_text)
                     primaryText.text = liveSession.username
-                    val secondaryText = header.findViewById<TextView>(R.id.nav_header_secondary_text)
+                    val secondaryText =
+                        header.findViewById<TextView>(R.id.nav_header_secondary_text)
                     secondaryText.text = liveSession.url
                 }
             },
@@ -170,6 +157,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         Log.d(tag, "onResume, intent: $intent")
         super.onResume()
+        dumpBackStack(tag, supportFragmentManager)
     }
 
     override fun onPause() {

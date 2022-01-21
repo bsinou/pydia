@@ -6,22 +6,24 @@ import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentManager
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BuildConfig
+import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.services.NodeService
 import java.io.File
 
-private const val FILE_PROVIDER_SUFFIX = ".fileprovider"
-private const val FILE_PROVIDER_ID = BuildConfig.APPLICATION_ID + FILE_PROVIDER_SUFFIX
-
+private const val DEFAULT_FILE_PROVIDER_SUFFIX = ".fileprovider"
+private const val DEFAULT_FILE_PROVIDER_ID =
+    BuildConfig.APPLICATION_ID + DEFAULT_FILE_PROVIDER_SUFFIX
 
 fun downloadToDevice(context: Context, file: File, node: RTreeNode): Intent {
 
-    val uri = FileProvider.getUriForFile(context, FILE_PROVIDER_ID, file)
+    val uri = FileProvider.getUriForFile(context, DEFAULT_FILE_PROVIDER_ID, file)
 
     var mime = node.mime
     if (SdkNames.NODE_MIME_DEFAULT.equals(mime)) {
-        mime = NodeService.getMimeType(node.name)
+        mime = getMimeType(node.name)
     }
 
     return Intent().setAction(Intent.ACTION_VIEW)
@@ -31,7 +33,7 @@ fun downloadToDevice(context: Context, file: File, node: RTreeNode): Intent {
 
 fun openWith(context: Context, file: File, node: RTreeNode): Intent {
 
-    val uri = FileProvider.getUriForFile(context, FILE_PROVIDER_ID, file)
+    val uri = FileProvider.getUriForFile(context, DEFAULT_FILE_PROVIDER_ID, file)
 
     return Intent().setAction(Intent.ACTION_VIEW)
         .setDataAndType(uri, "*/*")
@@ -40,66 +42,36 @@ fun openWith(context: Context, file: File, node: RTreeNode): Intent {
 
 }
 
-
 /**
  * Open current file with the viewer provided by Android OS.
- *
  * Thanks to https://stackoverflow.com/questions/56598480/couldnt-find-meta-data-for-provider-with-authority
  */
 fun externallyView(context: Context, file: File, node: RTreeNode): Intent {
-
-    val uri = FileProvider.getUriForFile(
-        context,
-        BuildConfig.APPLICATION_ID + ".fileprovider", file
-    )
-
+    val uri = FileProvider.getUriForFile(context,DEFAULT_FILE_PROVIDER_ID, file)
     var mime = node.mime
     if (SdkNames.NODE_MIME_DEFAULT.equals(mime)) {
-        mime = NodeService.getMimeType(node.name)
+        mime = getMimeType(node.name)
     }
-
     return Intent().setAction(Intent.ACTION_VIEW)
         .setDataAndType(uri, mime)
         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 }
 
-fun getAppMime(context: Context, name: String): String {
-    val filename = name.lowercase()
-
-    return if (filename.contains(".doc") || filename.contains(".docx")) {
-        "application/msword"
-    } else if (filename.contains(".pdf")) {
-        "application/pdf"
-    } else if (filename.contains(".ppt") || filename.contains(".pptx")) {
-        "application/vnd.ms-powerpoint"
-    } else if (filename.contains(".xls") || filename.contains(".xlsx")) {
-        "application/vnd.ms-excel"
-    } else if (filename.contains(".rtf")) {
-        "application/rtf"
-    } else if (filename.contains(".wav") || filename.contains(".mp3")) {
-        "audio/x-wav"
-    } else if (filename.contains(".ogg") || filename.contains(".flac")) {
-        "audio/*"
-    } else if (filename.contains(".gif")) {
-        "image/gif"
-    } else if (filename.contains(".jpg") || filename.contains(".jpeg") || filename.contains(".png")) {
-        "image/jpeg"
-    } else if (filename.contains(".txt")) {
-        "text/plain"
-    } else if (filename.contains(".3gp") || filename.contains(".mpg") || filename
-            .contains(".mpeg") || filename.contains(".mpe") || filename
-            .contains(".mp4") || filename.contains(".avi")
+fun resetToHomeStateIfNecessary(manager: FragmentManager, currentState: StateID) {
+    // We manually set the current to be at root of the workspace to handle certain corner cases,
+    // typically when app has been restored with an empty back stack deep in a workspace or
+    // when we are in a special page
+    val count = manager.backStackEntryCount
+    if (count == 0 && currentState.path?.length ?: 0 > 0
+        || currentState.path == "/${currentState.workspace}"
     ) {
-        "video/*"
-    } else {
-        "*/*"
+        CellsApp.instance.setCurrentState(StateID.fromId(currentState.accountId))
     }
 }
 
 fun dumpBackStack(caller: String, manager: FragmentManager) {
     val count = manager.backStackEntryCount
     val entry = if (count > 0) manager.getBackStackEntryAt(count - 1) else null
-
     Log.i(caller, "Back stack entry count: $count")
     Log.i(caller, "Previous entry: $entry")
 }

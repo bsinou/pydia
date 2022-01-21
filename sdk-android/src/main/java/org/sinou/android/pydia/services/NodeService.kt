@@ -2,7 +2,6 @@ package org.sinou.android.pydia.services
 
 import android.os.Environment
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.*
 import com.pydio.cells.api.ui.FileNode
@@ -17,6 +16,7 @@ import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.room.browse.TreeNodeDB
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
+import org.sinou.android.pydia.utils.getMimeType
 import java.io.*
 import java.util.*
 
@@ -132,8 +132,14 @@ class NodeService(
         }
     }
 
-    fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean {
+    suspend fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean {
 
+        if (!accountService.isClientConnected(rTreeNode.encodedState)) {
+            // we admit we are happy with any local version if present
+            return rTreeNode.localFilename != null
+        }
+
+        // Compare with remote if possible
         val remoteStats = stateRemoteNode(StateID.fromId(rTreeNode.encodedState))
         if (rTreeNode.localFilename != null && rTreeNode.localModificationTS >= remoteStats.getmTime())
             rTreeNode.localFilename?.let {
@@ -188,44 +194,42 @@ class NodeService(
             targetFile
         }
 
-    suspend fun saveToExternalStorage(rTreeNode: RTreeNode) =
+    suspend fun saveToExternalStorage(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
 
-        withContext(Dispatchers.IO) {
+        val parent = CellsApp.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+        if (parent == null) {
+            // TODO manage this better
+            Log.e(TAG, "no external storage found")
+            return@withContext
+        }
+        val to = File("${parent.absolutePath}/${rTreeNode.name}")
 
-            val parent = CellsApp.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-            if (parent == null) {
-                // TODO manage this better
-                Log.e(TAG, "no external storage found")
-                return@withContext
-            }
-            val to = File("${parent.absolutePath}/${rTreeNode.name}")
-
-            if (isCacheVersionUpToDate(rTreeNode)) {
-                File(rTreeNode.localFilename!!).copyTo(to, true)
-                Log.i(TAG, "... File has been copied to ${to.absolutePath}")
-            } else {
-                // Directly download to final destination
-                val stateID = rTreeNode.getStateID()
-                var out: FileOutputStream? = null
-                try {
-                    val sf = accountService.sessionFactory
-                    val client: Client = sf.getUnlockedClient(stateID.accountId)
-                    out = FileOutputStream(to)
-                    // TODO handle progress
-                    client.download(stateID.workspace, stateID.file, out, null)
-                    Log.i(TAG, "... File has been downloaded to ${to.absolutePath}")
-                } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-                    Log.e(TAG, "could not perform DL for " + stateID.id)
-                    se.printStackTrace()
-                } catch (ioe: IOException) {
-                    // TODO handle this: what should we do ?
-                    Log.e(TAG, "cannot write at ${to.absolutePath}: ${ioe.message}")
-                    ioe.printStackTrace()
-                } finally {
-                    IoHelpers.closeQuietly(out)
-                }
+        if (isCacheVersionUpToDate(rTreeNode)) {
+            File(rTreeNode.localFilename!!).copyTo(to, true)
+            Log.i(TAG, "... File has been copied to ${to.absolutePath}")
+        } else {
+            // Directly download to final destination
+            val stateID = rTreeNode.getStateID()
+            var out: FileOutputStream? = null
+            try {
+                val sf = accountService.sessionFactory
+                val client: Client = sf.getUnlockedClient(stateID.accountId)
+                out = FileOutputStream(to)
+                // TODO handle progress
+                client.download(stateID.workspace, stateID.file, out, null)
+                Log.i(TAG, "... File has been downloaded to ${to.absolutePath}")
+            } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
+                Log.e(TAG, "could not perform DL for " + stateID.id)
+                se.printStackTrace()
+            } catch (ioe: IOException) {
+                // TODO handle this: what should we do ?
+                Log.e(TAG, "cannot write at ${to.absolutePath}: ${ioe.message}")
+                ioe.printStackTrace()
+            } finally {
+                IoHelpers.closeQuietly(out)
             }
         }
+    }
 
 
     @Throws(SDKException::class)
@@ -340,18 +344,7 @@ class NodeService(
                 SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
                 else -> "5_${node.name}"
             }
-
             return node
-        }
-
-        fun getMimeType(url: String, fallback: String = "*/*"): String {
-            val ext = MimeTypeMap.getFileExtensionFromUrl(url)
-            if (ext != null) {
-                val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
-                if (mime != null) return mime
-            }
-            return fallback
-
         }
     }
 

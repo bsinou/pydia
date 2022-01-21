@@ -42,8 +42,8 @@ class CellsApp : Application() {
     }
 
     override fun onCreate() {
-        Log.i(tag, "### onCreate")
-
+        Log.i(tag, "###############################")
+        Log.i(tag, "### Launching Cells application")
         super.onCreate()
         instance = this
         delayedInit()
@@ -52,10 +52,12 @@ class CellsApp : Application() {
     private fun delayedInit() {
         applicationScope.launch {
 
-            updateClientData()
-            sharedPreferences = getSharedPreferences(ClientData.clientID, Context.MODE_PRIVATE)
+            val clientID = updateClientData()
+            sharedPreferences = getSharedPreferences(clientID, Context.MODE_PRIVATE)
 
+            // delay(1L)
             initServices()
+
             // TODO also set-up worker tasks
             Log.i(tag, "Delayed init terminated")
             ready = true
@@ -77,25 +79,36 @@ class CellsApp : Application() {
     }
 
     @Throws(SDKException::class)
-    private fun updateClientData() {
+    private fun updateClientData(): String {
 
-        val packageName: String = this.packageName
         val packageInfo: PackageInfo = try {
             applicationContext.packageManager.getPackageInfo(packageName, 0)
         } catch (e: PackageManager.NameNotFoundException) {
             throw SDKException("Could not retrieve PackageInfo for $packageName", e)
         }
 
+        val instance = ClientData.getInstance()
+        instance.packageID = packageName
+        instance.name = "AndroidClient"
         // TODO make this more dynamic
-        ClientData.clientID = "cells-mobile"
-        ClientData.clientSecret = ""
-        ClientData.packageID = packageName
-        ClientData.name = "AndroidClient"
+        instance.clientID = "cells-mobile"
 
-        ClientData.buildTimestamp = packageInfo.lastUpdateTime
-        ClientData.version = packageInfo.versionName
-        ClientData.versionCode = packageInfo.versionCode
-        ClientData.platform = getAndroidVersion()
+        instance.buildTimestamp = packageInfo.lastUpdateTime
+        instance.version = packageInfo.versionName
+        instance.versionCode = compatVersionCode(packageInfo)
+        instance.platform = getAndroidVersion()
+
+        ClientData.updateInstance(instance)
+        return instance.clientID
+    }
+
+    @Suppress("DEPRECATION")
+    private fun compatVersionCode(packageInfo: PackageInfo): Long {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo.longVersionCode
+        } else {
+            packageInfo.versionCode as Long
+        }
     }
 
     private fun getAndroidVersion(): String {

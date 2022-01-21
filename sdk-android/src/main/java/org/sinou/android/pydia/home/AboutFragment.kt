@@ -29,11 +29,11 @@ class AboutFragment : Fragment() {
         )
 
         binding.aboutVersionName.text =
-            resources.getString(R.string.version_name_display, ClientData.version)
+            resources.getString(R.string.version_name_display, ClientData.getInstance().version)
         binding.aboutVersionCode.text =
             resources.getString(R.string.version_code_display, BuildConfig.VERSION_CODE.toString())
 
-        var dateString = getTimestampAsString(ClientData.buildTimestamp)
+        var dateString = getTimestampAsString(ClientData.getInstance().buildTimestamp)
         binding.aboutVersionDate.text =
             resources.getString(R.string.version_date_display, dateString)
 

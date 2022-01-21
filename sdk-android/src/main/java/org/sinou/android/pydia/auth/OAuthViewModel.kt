@@ -39,7 +39,9 @@ class OAuthViewModel(private val accountService: AccountService) : ViewModel() {
         get() = _accountID
 
     // Manage UI
-    private val _isProcessing = MutableLiveData<Boolean>()
+    private val _isProcessing = MutableLiveData<Boolean>().apply {
+        this.value = false
+    }
     val isProcessing: LiveData<Boolean>
         get() = _isProcessing
 
@@ -54,7 +56,7 @@ class OAuthViewModel(private val accountService: AccountService) : ViewModel() {
     fun launchOAuthProcess(serverURL: ServerURL) {
         vmScope.launch {
             switchLoading(true)
-            _launchOAuthIntent.value = doLaunchOAuthProcess(serverURL)
+            _launchOAuthIntent.value = doLaunchOAuth(serverURL)
         }
     }
 
@@ -68,10 +70,7 @@ class OAuthViewModel(private val accountService: AccountService) : ViewModel() {
         }
     }
 
-    private suspend fun doLaunchOAuthProcess(url: ServerURL): Intent? {
-
-        return withContext(Dispatchers.IO) {
-
+    private suspend fun doLaunchOAuth(url: ServerURL): Intent? = withContext(Dispatchers.IO) {
             val serverID = StateID(url.id).id
             val server = accountService.sessionFactory.getServer(serverID)
                 ?: return@withContext null
@@ -84,13 +83,13 @@ class OAuthViewModel(private val accountService: AccountService) : ViewModel() {
             accountService.inProcessCallbacks[oAuthState] = url
             intent
         }
-    }
+
 
     private fun generateUriData(cfg: OAuthConfig, state: String): Uri {
         var uriBuilder = Uri.parse(cfg.authorizeEndpoint).buildUpon()
         uriBuilder = uriBuilder.appendQueryParameter("state", state)
             .appendQueryParameter("scope", cfg.scope)
-            .appendQueryParameter("client_id", ClientData.getClientId())
+            .appendQueryParameter("client_id", ClientData.getInstance().getClientId())
             .appendQueryParameter("response_type", "code")
             .appendQueryParameter("redirect_uri", cfg.redirectURI)
         if (cfg.audience != null && "" != cfg.audience) {

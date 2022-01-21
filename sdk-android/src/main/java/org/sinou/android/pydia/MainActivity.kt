@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         val header = binding.navView.getHeaderView(0)
         val switchBtn = header.findViewById<ImageButton>(R.id.nav_header_switch_account)
         switchBtn?.setOnClickListener {
+
             navController.navigate(MainNavDirections.openAccountList())
             closeDrawer()
         }

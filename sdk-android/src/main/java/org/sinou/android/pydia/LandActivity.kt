@@ -66,7 +66,7 @@ class LandActivity : AppCompatActivity() {
     }
 
     private suspend fun waitForIt() {
-        repeat(10) { // we wait at most ten seconds before crashing
+        repeat(30) { // we wait at most 30 seconds before crashing
             Log.i(TAG, "Waiting for backend to be ready")
             if (CellsApp.instance.ready) {
                 if (CellsApp.instance.accountService.sessionFactory.isReady()) {

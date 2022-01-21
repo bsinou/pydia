@@ -119,14 +119,14 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         }
     }
 
-    suspend fun isClientConnected(accountID: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
         var isConnected = hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)
+        val accountID = StateID.fromId(stateID).accountId
         accountDB.accountDao().getAccount(accountID)?.let {
             return@withContext isConnected && it.authStatus == AppNames.AUTH_STATUS_CONNECTED
         }
         return@withContext false
     }
-
 
     /** Stores a new row in the Session DB */
     fun registerLocalSession(accountID: String) {

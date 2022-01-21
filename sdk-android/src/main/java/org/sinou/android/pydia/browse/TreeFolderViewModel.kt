@@ -24,9 +24,7 @@ class TreeFolderViewModel(
 ) : AndroidViewModel(application) {
 
     private val tag = "TreeFolderViewModel"
-
     private var viewModelJob = Job()
-
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private lateinit var _currentFolder: LiveData<RTreeNode>
@@ -39,26 +37,21 @@ class TreeFolderViewModel(
 
     private fun watchFolder() = vmScope.launch {
         while (_isActive) {
-            Log.i(
-                tag,
-                "Watching ${stateID}, found ${children.value?.size} children"
-            )
-
-            nodeService.pull(stateID)?.let {
-                // Not-Null response is an error message, pause polling
-                Log.e(tag, "$it, pausing poll")
-                pause()
+            if (accountService.isClientConnected(stateID.accountId)) {
+                Log.i(tag, "Watching ${stateID}, found ${children.value?.size} children")
+                nodeService.pull(stateID)?.let {
+                    // Not-Null response is an error message, pause polling
+                    Log.e(tag, "$it, pausing poll")
+                    pause()
+                }
             }
-
             delay(TimeUnit.SECONDS.toMillis(10))
         }
     }
 
-    fun resume() = vmScope.launch {
-        if (accountService.isClientConnected(stateID.id)) {
-            _isActive = true
-            watchFolder()
-        }
+    fun resume() {
+        _isActive = true
+        watchFolder()
     }
 
     fun pause() {
@@ -69,7 +62,6 @@ class TreeFolderViewModel(
         super.onCleared()
         viewModelJob.cancel()
     }
-
 
     class TreeFolderViewModelFactory(
         private val accountService: AccountService,
@@ -85,5 +77,4 @@ class TreeFolderViewModel(
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
-
 }

@@ -5,6 +5,7 @@ import com.pydio.cells.api.*
 import com.pydio.cells.client.CellsClient
 import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
+import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
@@ -166,6 +167,8 @@ class SessionFactory(
 
     @Throws(SDKException::class)
     fun restoreSession(accountID: String) {
+
+        Log.i(TAG, "### Restoring session with client data ${ClientData.getInstance().name}")
 
         val account = accountDB.accountDao().getAccount(accountID)
             ?: throw SDKException(

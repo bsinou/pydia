@@ -42,9 +42,10 @@ class ActiveSessionViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun resume() {
-        if (activeSession.value == null) {
-            return
-        }
+        // active session is generally set after resume is called for the first time..
+//         if (activeSession.value == null) {
+//             return
+//         }
         _isRunning = true
         watchSession()
     }

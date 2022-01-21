@@ -11,7 +11,7 @@ import org.sinou.android.pydia.CellsApp
  * Holds a live list of the cached bookmarks for the current session
  */
 class BookmarksViewModel(
-    stateID: StateID,
+    val stateID: StateID,
     application: Application
 ) : AndroidViewModel(application) {
 

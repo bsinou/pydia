@@ -48,13 +48,13 @@ fun hasMeteredNetwork(context: Context): Boolean {
     }
 }
 
-@Suppress("DEPRECATION")
+
 fun hasAtLeastMeteredNetwork(context: Context): Boolean {
 
     val connMgr = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         connMgr.activeNetwork?.let {
-            Log.i("ConnectionCheck", "Active network: ${it.networkHandle}")
+            // Log.i("ConnectionCheck", "Active network: ${it.networkHandle}")
             return true
         }
         return false

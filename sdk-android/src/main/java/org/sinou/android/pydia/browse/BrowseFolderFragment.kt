@@ -23,10 +23,7 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.room.browse.RTreeNode
-import org.sinou.android.pydia.utils.BackStackAdapter
-import org.sinou.android.pydia.utils.dumpBackStack
-import org.sinou.android.pydia.utils.externallyView
-import org.sinou.android.pydia.utils.isFolder
+import org.sinou.android.pydia.utils.*
 
 class BrowseFolderFragment : Fragment() {
 
@@ -39,13 +36,6 @@ class BrowseFolderFragment : Fragment() {
 
     private lateinit var binding: FragmentBrowseFolderBinding
     private lateinit var treeFolderVM: TreeFolderViewModel
-
-    private val backPressedCallback = BackStackAdapter()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,12 +58,7 @@ class BrowseFolderFragment : Fragment() {
         val tmpVM: TreeFolderViewModel by viewModels { viewModelFactory }
         treeFolderVM = tmpVM
 
-        val adapter = NodeListAdapter { node, action ->
-            onClicked(
-                node,
-                action
-            )
-        }
+        val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
         binding.nodes.adapter = adapter
         treeFolderVM.children.observe(
             viewLifecycleOwner,
@@ -82,16 +67,18 @@ class BrowseFolderFragment : Fragment() {
                 adapter.submitList(it)
             },
         )
-        backPressedCallback.initializeBackNavigation(
+
+        val backPressedCallback = BackStackAdapter.initialised(
             parentFragmentManager,
+            findNavController(),
             StateID.fromId(args.state)
         )
+        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
         return binding.root
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
-        Log.i(fTag, "ID: ${treeFolderVM.stateID}, do $command")
-
+        Log.i(fTag, "Clicked on ${treeFolderVM.stateID} -> $command")
         when (command) {
             ACTION_OPEN -> navigateTo(node)
             ACTION_MORE -> {
@@ -105,7 +92,7 @@ class BrowseFolderFragment : Fragment() {
                 binding.browseFolderFragment.findNavController().navigate(action)
             }
 
-            else -> return // do nothing
+            else -> return // Unknown action, log warning and returns
         }
     }
 
@@ -132,26 +119,31 @@ class BrowseFolderFragment : Fragment() {
         treeFolderVM.pause()
     }
 
-    private fun navigateTo(node: RTreeNode) {
-        lifecycleScope.launch {
+    override fun onDetach() {
+        Log.i(fTag, "... About to detach:")
+        super.onDetach()
+        resetToHomeStateIfNecessary(parentFragmentManager, treeFolderVM.stateID)
+    }
 
-            if (isFolder(node)) {
-                CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
-                findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
-            } else {
-                val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
-                file?.let {
-                    try {
-                        val intent = externallyView(requireContext(), file, node)
-                        startActivity(intent)
-                    } catch (e: Exception) {
-                        Toast.makeText(
-                            requireActivity().application,
-                            "Cannot open file with external viwer: ${e.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
+    private fun navigateTo(node: RTreeNode) = lifecycleScope.launch {
+        if (isFolder(node)) {
+            CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
+            findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
+            return@launch
+        }
+        val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
+        file?.let {
+            val intent = externallyView(requireContext(), file, node)
+            try {
+                startActivity(intent)
+                // FIXME DEBUG only
+                val msg = "Opened ${it.name} (${intent.type}) with external viewer"
+                Log.e(tag, "Intent success: $msg")
+            } catch (e: Exception) {
+                val msg = "Cannot open ${it.name} (${intent.type}) with external viewer"
+                Toast.makeText(requireActivity().application, msg, Toast.LENGTH_LONG).show()
+                Log.e(tag, "Call to intent failed: $msg")
+                e.printStackTrace()
             }
         }
     }

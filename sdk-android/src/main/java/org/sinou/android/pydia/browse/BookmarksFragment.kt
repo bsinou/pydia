@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
@@ -19,6 +21,7 @@ import org.sinou.android.pydia.room.browse.RTreeNode
 import org.sinou.android.pydia.utils.BackStackAdapter
 import org.sinou.android.pydia.utils.externallyView
 import org.sinou.android.pydia.utils.isFolder
+import org.sinou.android.pydia.utils.resetToHomeStateIfNecessary
 
 class BookmarksFragment : Fragment() {
 
@@ -26,13 +29,7 @@ class BookmarksFragment : Fragment() {
 
     private lateinit var binding: FragmentBookmarkListBinding
     private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
-
-    private val backPressedCallback = BackStackAdapter()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
-    }
+    private var bookmarksVM: BookmarksViewModel? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,6 +38,7 @@ class BookmarksFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_bookmark_list, container, false
         )
+        findNavController().addOnDestinationChangedListener(ChangeListener())
         return binding.root
     }
 
@@ -60,6 +58,7 @@ class BookmarksFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+//        dumpBackStack(fTag, parentFragmentManager)
 
         val activeSession = activeSessionViewModel.activeSession.value
         Log.i(fTag, "onResume: ${activeSession?.accountID}")
@@ -69,21 +68,34 @@ class BookmarksFragment : Fragment() {
                 it.title = "Bookmarks" // accountID.toString()
             }
 
-            val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
-            binding.bookmarkList.adapter = adapter
-
             val viewModelFactory = BookmarksViewModel.BookmarksViewModelFactory(
                 accountID, requireActivity().application,
             )
-            val bookmarksViewModel: BookmarksViewModel by viewModels { viewModelFactory }
+            val tmp: BookmarksViewModel by viewModels { viewModelFactory }
+            val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+            binding.bookmarkList.adapter = adapter
+            tmp.bookmarks.observe(viewLifecycleOwner, { adapter.submitList(it) })
+            bookmarksVM = tmp
 
             val currentState = accountID.withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
             CellsApp.instance.setCurrentState(currentState)
-
-            backPressedCallback.initializeBackNavigation(parentFragmentManager, currentState)
-
-            bookmarksViewModel.bookmarks.observe(viewLifecycleOwner, { adapter.submitList(it) })
+            val backPressedCallback = BackStackAdapter.initialised(
+                parentFragmentManager,
+                findNavController(),
+                currentState
+            )
+            requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
         }
+    }
+
+    override fun onDetach() {
+        bookmarksVM?.let {
+            resetToHomeStateIfNecessary(
+                parentFragmentManager,
+                it.stateID.withPath("/${AppNames.CUSTOM_PATH_BOOKMARKS}")
+            )
+        }
+        super.onDetach()
     }
 
     private fun navigateTo(node: RTreeNode) {
@@ -99,5 +111,16 @@ class BookmarksFragment : Fragment() {
                 }
             }
         }
+    }
+}
+
+private class ChangeListener : NavController.OnDestinationChangedListener {
+
+    override fun onDestinationChanged(
+        controller: NavController,
+        destination: NavDestination,
+        arguments: Bundle?
+    ) {
+        Log.i("ChangeListener", "destination changed")
     }
 }

@@ -33,11 +33,18 @@ android {
 
     buildTypes {
         release {
+            resValue "string", "app_version",
+                    "${defaultConfig.versionName}"
+
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
         debug {
+            // versionName ownVersions['sdk-android.version.dev']
             versionNameSuffix = '-dev'
+            resValue "string", "app_version",
+                    "${defaultConfig.versionName}${versionNameSuffix}"
         }
     }
 

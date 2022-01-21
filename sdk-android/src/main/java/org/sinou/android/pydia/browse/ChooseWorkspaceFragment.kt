@@ -16,7 +16,7 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentChooseWorkspaceBinding
-import org.sinou.android.pydia.utils.dumpBackStack
+import org.sinou.android.pydia.utils.resetToHomeStateIfNecessary
 
 class ChooseWorkspaceFragment : Fragment() {
 
@@ -24,8 +24,7 @@ class ChooseWorkspaceFragment : Fragment() {
         private const val fTag = "ChooseWorkspaceFragment"
     }
 
-    private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
-
+    private val activeSessionVM: ActiveSessionViewModel by activityViewModels()
     private lateinit var binding: FragmentChooseWorkspaceBinding
 
     override fun onCreateView(
@@ -41,15 +40,13 @@ class ChooseWorkspaceFragment : Fragment() {
     override fun onResume() {
         Log.i(
             fTag, "onResume: ${
-                activeSessionViewModel.activeSession.value?.accountID
+                activeSessionVM.activeSession.value?.accountID
                     ?: "No active session"
             }"
         )
-        dumpBackStack(fTag, parentFragmentManager)
-
         super.onResume()
 
-        activeSessionViewModel.activeSession.observe(
+        activeSessionVM.activeSession.observe(
             viewLifecycleOwner,
             {
                 it?.let {
@@ -73,12 +70,11 @@ class ChooseWorkspaceFragment : Fragment() {
                 findNavController().navigate(action)
             }
         }
-        activeSessionViewModel.resume()
+        activeSessionVM.resume()
     }
 
     private fun onWsClicked(slug: String, command: String) {
-
-        val activeSession = activeSessionViewModel.activeSession.value ?: return
+        val activeSession = activeSessionVM.activeSession.value ?: return
         when (command) {
             BrowseFolderFragment.ACTION_OPEN -> {
                 val targetState = StateID.fromId(activeSession.accountID).withPath("/${slug}")
@@ -92,19 +88,13 @@ class ChooseWorkspaceFragment : Fragment() {
     override fun onPause() {
         Log.i(
             fTag, "Pausing: ${
-                activeSessionViewModel.activeSession.value?.accountID
+                activeSessionVM.activeSession.value?.accountID
                     ?: "No active session"
             }"
         )
         super.onPause()
-        activeSessionViewModel.pause()
+        activeSessionVM.pause()
     }
 
-//    override fun onSaveInstanceState(savedInstanceState: Bundle) {
-//        accountID?.let {
-//            savedInstanceState.putSerializable(AppNames.EXTRA_ACCOUNT_ID, it.id)
-//        }
-//        super.onSaveInstanceState(savedInstanceState)
-//    }
 }
 

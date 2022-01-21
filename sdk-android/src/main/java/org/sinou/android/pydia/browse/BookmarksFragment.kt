@@ -48,7 +48,7 @@ class BookmarksFragment : Fragment() {
             BrowseFolderFragment.ACTION_MORE -> {
                 val action = BookmarksFragmentDirections.openMoreMenu(
                     node.encodedState,
-                    TreeNodeActionsFragment.CONTEXT_BOOKMARKS
+                    TreeNodeMenuFragment.CONTEXT_BOOKMARKS
                 )
                 findNavController().navigate(action)
             }

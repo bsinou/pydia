@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Holds a folder and all its children
  */
-class TreeFolderViewModel(
+class BrowseFolderViewModel(
     private val accountService: AccountService,
     private val nodeService: NodeService,
     val stateID: StateID,
@@ -71,8 +71,8 @@ class TreeFolderViewModel(
     ) : ViewModelProvider.Factory {
         @Suppress("unchecked_cast")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(TreeFolderViewModel::class.java)) {
-                return TreeFolderViewModel(accountService, nodeService, stateID, application) as T
+            if (modelClass.isAssignableFrom(BrowseFolderViewModel::class.java)) {
+                return BrowseFolderViewModel(accountService, nodeService, stateID, application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

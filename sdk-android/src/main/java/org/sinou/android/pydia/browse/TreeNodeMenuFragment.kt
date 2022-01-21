@@ -26,7 +26,7 @@ import org.sinou.android.pydia.utils.openWith
  * More menu fragment: it is used to present the end-user with various possible actions
  * depending on the context.
  */
-class TreeNodeActionsFragment : BottomSheetDialogFragment() {
+class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     companion object {
         const val TAG = "TreeNodeActionsFragment"
@@ -49,7 +49,7 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
 
     private lateinit var stateID: StateID
     private lateinit var contextType: String
-    private lateinit var nodeMenuVM: NodeMenuViewModel
+    private lateinit var treeNodeMenuVM: TreeNodeMenuViewModel
 
     private lateinit var navController: NavController
 
@@ -63,26 +63,25 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        val args: TreeNodeActionsFragmentArgs by navArgs()
+        val args: TreeNodeMenuFragmentArgs by navArgs()
         stateID = StateID.fromId(args.state)
         contextType = args.contextType
 
         val application = requireActivity().application
-        val factory = NodeMenuViewModel.NodeMenuViewModelFactory(
+        val factory = TreeNodeMenuViewModel.NodeMenuViewModelFactory(
             stateID,
             contextType,
             CellsApp.instance.nodeService,
             application,
         )
-        val tmpVM: NodeMenuViewModel by viewModels { factory }
-        nodeMenuVM = tmpVM
+        val tmpVM: TreeNodeMenuViewModel by viewModels { factory }
+        treeNodeMenuVM = tmpVM
 
-        var view = when (contextType) {
+        return when (contextType) {
             CONTEXT_BROWSE -> inflateBrowseLayout(inflater, container)
             CONTEXT_BOOKMARKS -> inflateBookmarkLayout(inflater, container)
             else -> null
         }
-        return view
     }
 
     /* BROWSE CONTEXT */
@@ -91,11 +90,11 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?
     ): View {
-        browseBinding = DataBindingUtil.inflate<MoreMenuBrowseBinding>(
+        browseBinding = DataBindingUtil.inflate(
             inflater, R.layout.more_menu_browse, container, false
         )
         val binding = browseBinding as MoreMenuBrowseBinding
-        nodeMenuVM.node.observe(this, {
+        treeNodeMenuVM.node.observe(this, {
             it?.let {
                 bind(binding, it)
             }
@@ -129,7 +128,7 @@ class TreeNodeActionsFragment : BottomSheetDialogFragment() {
             inflater, R.layout.more_menu_bookmarks, container, false
         )
         val binding = bookmarkBinding as MoreMenuBookmarksBinding
-        nodeMenuVM.node.observe(this, {
+        treeNodeMenuVM.node.observe(this, {
             it?.let {
                 bind(binding, it)
             }

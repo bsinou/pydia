@@ -10,7 +10,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.api.SdkNames
@@ -35,7 +34,7 @@ class BrowseFolderFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentBrowseFolderBinding
-    private lateinit var treeFolderVM: TreeFolderViewModel
+    private lateinit var browseFolderVM: BrowseFolderViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,19 +47,19 @@ class BrowseFolderFragment : Fragment() {
 
         val args: BrowseFolderFragmentArgs by navArgs()
 
-        val viewModelFactory = TreeFolderViewModel.TreeFolderViewModelFactory(
+        val viewModelFactory = BrowseFolderViewModel.TreeFolderViewModelFactory(
             CellsApp.instance.accountService,
             CellsApp.instance.nodeService,
             StateID.fromId(args.state),
             requireActivity().application,
         )
 
-        val tmpVM: TreeFolderViewModel by viewModels { viewModelFactory }
-        treeFolderVM = tmpVM
+        val tmpVM: BrowseFolderViewModel by viewModels { viewModelFactory }
+        browseFolderVM = tmpVM
 
         val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
         binding.nodes.adapter = adapter
-        treeFolderVM.children.observe(
+        browseFolderVM.children.observe(
             viewLifecycleOwner,
             {
                 // When Adapter is a List adapter
@@ -78,15 +77,15 @@ class BrowseFolderFragment : Fragment() {
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
-        Log.i(fTag, "Clicked on ${treeFolderVM.stateID} -> $command")
+        Log.i(fTag, "Clicked on ${browseFolderVM.stateID} -> $command")
         when (command) {
             ACTION_OPEN -> navigateTo(node)
             ACTION_MORE -> {
                 val action = BrowseFolderFragmentDirections
                     .openMoreMenu(
                         node.encodedState, when (node.mime) {
-                            SdkNames.NODE_MIME_RECYCLE -> TreeNodeActionsFragment.CONTEXT_RECYCLE
-                            else -> TreeNodeActionsFragment.CONTEXT_BROWSE
+                            SdkNames.NODE_MIME_RECYCLE -> TreeNodeMenuFragment.CONTEXT_RECYCLE
+                            else -> TreeNodeMenuFragment.CONTEXT_BROWSE
                         }
                     )
                 binding.browseFolderFragment.findNavController().navigate(action)
@@ -100,15 +99,15 @@ class BrowseFolderFragment : Fragment() {
         super.onResume()
         dumpBackStack(fTag, parentFragmentManager)
 
-        treeFolderVM.resume()
+        browseFolderVM.resume()
 
         (requireActivity() as MainActivity).supportActionBar?.let {
-            it.title = if (Str.empty(treeFolderVM.stateID.fileName)) {
-                treeFolderVM.stateID.workspace
-            } else if ("/recycle_bin" == treeFolderVM.stateID.file) {
+            it.title = if (Str.empty(browseFolderVM.stateID.fileName)) {
+                browseFolderVM.stateID.workspace
+            } else if ("/recycle_bin" == browseFolderVM.stateID.file) {
                 resources.getString(R.string.recycle_bin_label)
             } else {
-                treeFolderVM.stateID.fileName
+                browseFolderVM.stateID.fileName
             }
             it.setDisplayHomeAsUpEnabled(true)
         }
@@ -116,13 +115,13 @@ class BrowseFolderFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        treeFolderVM.pause()
+        browseFolderVM.pause()
     }
 
     override fun onDetach() {
         Log.i(fTag, "... About to detach:")
         super.onDetach()
-        resetToHomeStateIfNecessary(parentFragmentManager, treeFolderVM.stateID)
+        resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateID)
     }
 
     private fun navigateTo(node: RTreeNode) = lifecycleScope.launch {

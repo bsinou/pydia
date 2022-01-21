@@ -10,7 +10,7 @@ import org.sinou.android.pydia.services.NodeService
 /**
  * Holds a FileNode for the various context menus.
  */
-class NodeMenuViewModel(
+class TreeNodeMenuViewModel(
     private val stateID: StateID,
     private val contextType: String,
     private val nodeService: NodeService,
@@ -29,8 +29,8 @@ class NodeMenuViewModel(
     ) : ViewModelProvider.Factory {
         @Suppress("unchecked_cast")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(NodeMenuViewModel::class.java)) {
-                return NodeMenuViewModel(stateID, contextType, nodeService, application) as T
+            if (modelClass.isAssignableFrom(TreeNodeMenuViewModel::class.java)) {
+                return TreeNodeMenuViewModel(stateID, contextType, nodeService, application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

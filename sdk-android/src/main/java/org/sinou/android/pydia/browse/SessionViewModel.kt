@@ -1,5 +1,10 @@
 package org.sinou.android.pydia.browse
 
+class SessionViewModel
+
+/*
+package org.sinou.android.pydia.browse
+
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
@@ -9,10 +14,12 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.room.account.RLiveSession
 import java.util.concurrent.TimeUnit
 
+*/
 /**
  * Holds the session that is currently in foreground for browsing the cache
  * and the remote server.
- */
+ *//*
+
 class SessionViewModel(application: Application) : AndroidViewModel(application) {
 
     private val tag = "SessionViewModel"
@@ -27,11 +34,6 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     val activeAccountID: LiveData<StateID?>
         get() = _accountID
 
-/*
-    init {
-        _accountID.value = null
-    }
-*/
 
     val bookmarks = nodeService.listBookmarks(StateID.fromId("http://example.com"))
 
@@ -127,3 +129,4 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 }
+*/

@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -106,8 +107,19 @@ class BookmarksFragment : Fragment() {
             } else {
                 val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
                 file?.let {
+
                     val intent = externallyView(requireContext(), file, node)
-                    startActivity(intent)
+                    try {
+                        startActivity(intent)
+                        // FIXME DEBUG only
+                        val msg = "Opened ${it.name} (${intent.type}) with external viewer"
+                        Log.e(tag, "Intent success: $msg")
+                    } catch (e: Exception) {
+                        val msg = "Cannot open ${it.name} (${intent.type}) with external viewer"
+                        Toast.makeText(requireActivity().application, msg, Toast.LENGTH_LONG).show()
+                        Log.e(tag, "Call to intent failed: $msg")
+                        e.printStackTrace()
+                    }
                 }
             }
         }

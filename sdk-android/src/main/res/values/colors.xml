@@ -43,6 +43,12 @@
     <color name="grey_button_color">#606060</color>
     <color name="white_text_color">#ffffff</color>
 
+    <!-- Some default colors from Android -->
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
     <!-- TODO Rather handle this with a style...-->
     <color name="selected_background">#CFDBE1</color>
 

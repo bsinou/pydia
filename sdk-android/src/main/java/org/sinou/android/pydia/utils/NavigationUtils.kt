@@ -9,8 +9,7 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BuildConfig
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.room.browse.RTreeNode
-import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.db.browse.RTreeNode
 import java.io.File
 
 private const val DEFAULT_FILE_PROVIDER_SUFFIX = ".fileprovider"

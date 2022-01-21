@@ -14,8 +14,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
-import org.sinou.android.pydia.browse.ActiveSessionViewModel
-import org.sinou.android.pydia.browse.getIconForWorkspace
+import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
+import org.sinou.android.pydia.ui.browse.getIconForWorkspace
 import org.sinou.android.pydia.databinding.ActivityMainBinding
 import org.sinou.android.pydia.utils.dumpBackStack
 import kotlin.system.exitProcess

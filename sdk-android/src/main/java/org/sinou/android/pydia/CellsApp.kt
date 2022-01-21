@@ -13,8 +13,8 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.room.account.AccountDB
-import org.sinou.android.pydia.room.browse.TreeNodeDB
+import org.sinou.android.pydia.db.account.AccountDB
+import org.sinou.android.pydia.db.browse.TreeNodeDB
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
 

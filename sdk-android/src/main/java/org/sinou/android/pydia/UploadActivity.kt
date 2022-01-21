@@ -3,14 +3,12 @@ package org.sinou.android.pydia
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -21,9 +19,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.auth.ServerUrlFragmentDirections
 import org.sinou.android.pydia.databinding.ActivityUploadBinding
-import org.sinou.android.pydia.upload.ChooseTargetViewModel
+import org.sinou.android.pydia.ui.upload.ChooseTargetViewModel
 
 /**
  * Receives files from other apps.

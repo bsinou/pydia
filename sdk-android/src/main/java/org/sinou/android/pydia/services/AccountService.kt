@@ -15,10 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.room.account.AccountDB
-import org.sinou.android.pydia.room.account.RAccount
-import org.sinou.android.pydia.room.account.RLiveSession
-import org.sinou.android.pydia.room.account.RSession
+import org.sinou.android.pydia.db.account.AccountDB
+import org.sinou.android.pydia.db.account.RAccount
+import org.sinou.android.pydia.db.account.RLiveSession
+import org.sinou.android.pydia.db.account.RSession
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
 import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
 import java.io.File

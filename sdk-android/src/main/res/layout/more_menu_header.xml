@@ -8,7 +8,7 @@
 
         <variable
             name="node"
-            type="org.sinou.android.pydia.room.browse.RTreeNode" />
+            type="org.sinou.android.pydia.db.browse.RTreeNode" />
     </data>
 
     <merge>

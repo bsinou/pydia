@@ -12,8 +12,8 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.room.browse.RTreeNode
-import org.sinou.android.pydia.room.browse.TreeNodeDB
+import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.browse.TreeNodeDB
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
 import org.sinou.android.pydia.utils.getMimeType

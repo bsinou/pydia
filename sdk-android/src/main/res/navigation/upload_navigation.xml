@@ -11,7 +11,7 @@
 
     <fragment
         android:id="@+id/choose_session_destination"
-        android:name="org.sinou.android.pydia.upload.PickSessionFragment"
+        android:name="org.sinou.android.pydia.ui.upload.PickSessionFragment"
         android:label="@string/pick_up_session"
         tools:layout="@layout/fragment_pick_session">
         <action
@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/choose_ws_destination"
-        android:name="org.sinou.android.pydia.upload.PickWSFragment"
+        android:name="org.sinou.android.pydia.ui.upload.PickWSFragment"
         android:label="@string/pick_up_workspace"
         tools:layout="@layout/fragment_pick_ws">
         <action
@@ -34,7 +34,7 @@
 
     <fragment
         android:id="@+id/choose_folder_destination"
-        android:name="org.sinou.android.pydia.upload.PickFolderFragment"
+        android:name="org.sinou.android.pydia.ui.upload.PickFolderFragment"
         android:label="@string/pick_up_folder"
         tools:layout="@layout/fragment_pick_folder">
         <action

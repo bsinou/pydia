@@ -39,14 +39,14 @@
 
     <fragment
         android:id="@+id/workspace_list_destination"
-        android:name="org.sinou.android.pydia.browse.ChooseWorkspaceFragment"
+        android:name="org.sinou.android.pydia.ui.browse.ChooseWorkspaceFragment"
         android:label="@string/action_open_workspaces"
         tools:layout="@layout/fragment_choose_workspace">
     </fragment>
 
     <fragment
         android:id="@+id/browse_folder_destination"
-        android:name="org.sinou.android.pydia.browse.BrowseFolderFragment"
+        android:name="org.sinou.android.pydia.ui.browse.BrowseFolderFragment"
         android:label="@string/action_browse"
         tools:layout="@layout/fragment_browse_folder">
         <argument
@@ -59,7 +59,7 @@
 
     <fragment
         android:id="@+id/bookmark_list_destination"
-        android:name="org.sinou.android.pydia.browse.BookmarksFragment"
+        android:name="org.sinou.android.pydia.ui.browse.BookmarksFragment"
         android:label="@string/action_open_bookmarks"
         tools:layout="@layout/fragment_bookmark_list">
         <action
@@ -69,7 +69,7 @@
 
     <dialog
         android:id="@+id/tree_node_more_menu"
-        android:name="org.sinou.android.pydia.browse.TreeNodeMenuFragment"
+        android:name="org.sinou.android.pydia.ui.browse.TreeNodeMenuFragment"
         android:label="TreeNodeMoreMenu">
         <argument
             android:name="state"
@@ -83,7 +83,7 @@
 
     <fragment
         android:id="@+id/account_list_destination"
-        android:name="org.sinou.android.pydia.account.AccountListFragment"
+        android:name="org.sinou.android.pydia.ui.account.AccountListFragment"
         android:label="@string/account_list_title"
         tools:layout="@layout/fragment_account_list">
         <!--        <action-->
@@ -96,7 +96,7 @@
 
     <dialog
         android:id="@+id/confirmAccountDeletionDialog"
-        android:name="org.sinou.android.pydia.ui.dialogs.ConfirmAccountDeletionDialog"
+        android:name="org.sinou.android.pydia.ui.dialogs.ConfirmAccountDeletion"
         android:label="ConfirmAccountDeletionDialog">
         <argument
             android:name="account_id"
@@ -107,19 +107,19 @@
 
     <fragment
         android:id="@+id/home_destination"
-        android:name="org.sinou.android.pydia.home.LandingFragment"
+        android:name="org.sinou.android.pydia.ui.home.LandingFragment"
         android:label="@string/welcome_title"
         tools:layout="@layout/fragment_landing" />
 
     <fragment
         android:id="@+id/about_destination"
-        android:name="org.sinou.android.pydia.home.AboutFragment"
+        android:name="org.sinou.android.pydia.ui.home.AboutFragment"
         android:label="@string/action_open_about"
         tools:layout="@layout/fragment_about" />
 
     <fragment
         android:id="@+id/settings_destination"
-        android:name="org.sinou.android.pydia.home.SettingsFragment"
+        android:name="org.sinou.android.pydia.ui.home.SettingsFragment"
         android:label="@string/settings"
         tools:layout="@layout/fragment_hello" />
 

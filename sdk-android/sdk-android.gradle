@@ -42,6 +42,7 @@ android {
 
         debug {
             // versionName ownVersions['sdk-android.version.dev']
+            // versionName = ownVersions['sdk-android.future.name']
             versionNameSuffix = '-dev'
             resValue "string", "app_version",
                     "${defaultConfig.versionName}${versionNameSuffix}"

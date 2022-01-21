@@ -88,7 +88,7 @@ class BrowseFolderFragment : Fragment() {
                             else -> TreeNodeMenuFragment.CONTEXT_BROWSE
                         }
                     )
-                binding.browseFolderFragment.findNavController().navigate(action)
+                findNavController().navigate(action)
             }
 
             else -> return // Unknown action, log warning and returns

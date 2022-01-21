@@ -4,6 +4,7 @@
 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
 
     android:id="@+id/nav_header"
     android:layout_width="match_parent"
@@ -35,11 +36,11 @@
         android:paddingTop="@dimen/margin_xsmall"
         android:paddingEnd="@dimen/margin_xsmall"
         android:paddingBottom="0dp"
-        android:text="John"
         android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
         app:layout_constraintEnd_toStartOf="@+id/nav_header_switch_account"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nav_header_logo" />
+        app:layout_constraintTop_toBottomOf="@+id/nav_header_logo"
+        tools:text="John" />
 
     <TextView
         android:id="@+id/nav_header_secondary_text"
@@ -49,11 +50,11 @@
         android:paddingTop="0dp"
         android:paddingEnd="@dimen/margin_xsmall"
         android:paddingBottom="@dimen/margin_xsmall"
-        android:text="https://files.example.com"
         android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/nav_header_primary_text"
-        app:layout_constraintTop_toBottomOf="@+id/nav_header_primary_text" />
+        app:layout_constraintTop_toBottomOf="@+id/nav_header_primary_text"
+        tools:text="https://files.example.com" />
 
     <ImageButton
         android:id="@+id/nav_header_switch_account"
@@ -67,7 +68,7 @@
         android:paddingEnd="@dimen/margin_small"
         android:src="@drawable/ic_baseline_switch_account_24"
         app:layout_constraintBottom_toBottomOf="@+id/nav_header_secondary_text"
-        app:layout_constraintEnd_toStartOf="@+id/nav_header_exit"/>
+        app:layout_constraintEnd_toStartOf="@+id/nav_header_exit" />
 
     <ImageButton
         android:id="@+id/nav_header_exit"

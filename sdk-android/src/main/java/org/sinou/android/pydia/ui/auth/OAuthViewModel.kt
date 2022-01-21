@@ -89,7 +89,7 @@ class OAuthViewModel(private val accountService: AccountService) : ViewModel() {
         var uriBuilder = Uri.parse(cfg.authorizeEndpoint).buildUpon()
         uriBuilder = uriBuilder.appendQueryParameter("state", state)
             .appendQueryParameter("scope", cfg.scope)
-            .appendQueryParameter("client_id", ClientData.getInstance().getClientId())
+            .appendQueryParameter("client_id", ClientData.getInstance().clientId)
             .appendQueryParameter("response_type", "code")
             .appendQueryParameter("redirect_uri", cfg.redirectURI)
         if (cfg.audience != null && "" != cfg.audience) {

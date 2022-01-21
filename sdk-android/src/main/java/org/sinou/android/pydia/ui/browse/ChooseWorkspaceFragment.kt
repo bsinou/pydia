@@ -15,7 +15,7 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.databinding.FragmentChooseWorkspaceBinding
+import org.sinou.android.pydia.databinding.FragmentWorkspaceListBinding
 
 class ChooseWorkspaceFragment : Fragment() {
 
@@ -24,14 +24,14 @@ class ChooseWorkspaceFragment : Fragment() {
     }
 
     private val activeSessionVM: ActiveSessionViewModel by activityViewModels()
-    private lateinit var binding: FragmentChooseWorkspaceBinding
+    private lateinit var binding: FragmentWorkspaceListBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_choose_workspace, container, false
+            inflater, R.layout.fragment_workspace_list, container, false
         )
         return binding.root
     }

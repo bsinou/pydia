@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
@@ -96,6 +97,6 @@ class PickWSFragment : Fragment() {
 
     private fun navigateTo(stateID: StateID) {
         val action = PickWSFragmentDirections.actionPickFolder(stateID.id)
-        binding.chooseWorkspaceFragment.findNavController().navigate(action)
+        findNavController().navigate(action)
     }
 }

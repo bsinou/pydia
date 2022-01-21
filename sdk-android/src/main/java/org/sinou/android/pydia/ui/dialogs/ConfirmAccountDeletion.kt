@@ -13,7 +13,7 @@ import org.sinou.android.pydia.R
 
 class ConfirmAccountDeletion : DialogFragment() {
 
-    private val args: ConfirmAccountDeletionDialogArgs by navArgs()
+    private val args: ConfirmAccountDeletionArgs by navArgs()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {

@@ -6,7 +6,7 @@
 
         <variable
             name="oAuthViewModel"
-            type="org.sinou.android.pydia.auth.OAuthViewModel" />
+            type="org.sinou.android.pydia.ui.auth.OAuthViewModel" />
     </data>
 
     <LinearLayout

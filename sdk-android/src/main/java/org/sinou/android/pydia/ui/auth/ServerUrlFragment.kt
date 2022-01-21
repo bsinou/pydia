@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentServerUrlBinding
@@ -47,11 +48,11 @@ class ServerUrlFragment : Fragment() {
                 if (it.isLegacy) { // Navigate to in app auth
                     Log.i(fTag, "... Legacy server => display p8cred fragment")
                     val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(urlStr)
-                    binding.serverUrlFragment.findNavController().navigate(action)
+                    findNavController().navigate(action)
                 } else { // Launch OAuth Process
                     Log.i(fTag, "... Cells server => launch OAuth flow")
                     val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(urlStr)
-                    binding.serverUrlFragment.findNavController().navigate(action)
+                    findNavController().navigate(action)
                     // viewModel.launchOAuthProcess(server)
                 }
                 viewModel.authLaunched()

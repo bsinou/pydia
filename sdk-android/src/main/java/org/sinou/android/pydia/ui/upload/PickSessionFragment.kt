@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
@@ -62,7 +63,7 @@ class PickSessionFragment : Fragment() {
         when (command) {
             BrowseFolderFragment.ACTION_OPEN -> {
                 val action = PickSessionFragmentDirections.actionPickWs(stateID.id)
-                binding.pickSessionFragment.findNavController().navigate(action)
+                findNavController().navigate(action)
             }
             else -> return // do nothing
         }

@@ -45,4 +45,5 @@
 
     <!-- TODO Rather handle this with a style...-->
     <color name="selected_background">#CFDBE1</color>
+
 </resources>

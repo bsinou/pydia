@@ -14,21 +14,43 @@
         android:icon="@android:drawable/star_on"
         android:label="@string/application_title"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Theme.CellsApp.NoActionBar">
 
         <activity
             android:name=".LandActivity"
             android:exported="true"
-            android:theme="@style/AppTheme.SplashScreen">
+            android:theme="@style/Theme.CellsApp.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+
         <activity
             android:name=".MainActivity"
             android:exported="false" />
+        <!--
+                <activity
+                    android:name=".MainActivity"
+                    android:exported="false">
+                    <meta-data
+                        android:name="android.app.default_searchable"
+                        android:value=".SearchActivity"
+                        android:theme="@style/AppTheme.AppBarOverlay"/>
+                </activity>
+
+                <activity
+                    android:name=".SearchActivity"
+                    android:exported="false">
+                    <intent-filter>
+                        <action android:name="android.intent.action.SEARCH" />
+                    </intent-filter>
+                    <meta-data
+                        android:name="android.app.searchable"
+                        android:resource="@xml/searchable" />
+                </activity>
+        -->
 
         <activity
             android:name=".UploadActivity"

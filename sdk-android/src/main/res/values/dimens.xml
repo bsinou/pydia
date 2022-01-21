@@ -17,7 +17,11 @@
     <dimen name="text_padding_medium">16dp</dimen>
     <dimen name="text_padding_large">24dp</dimen>
 
-    <!-- Recycle lists -->
+    <!-- Recycler View -->
+    <!-- Small hack so that the last element of the list "more" button is not under
+         the FAB when we reach the end of the list that is more than one screen high -->
+    <!-- TODO does not work...    <dimen name="recycler_bottom_margin">64dp</dimen>-->
+    <!-- List Items -->
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="list_icon_inner_size">16dp</dimen>
     <dimen name="list_icon_corner_radius">6dp</dimen>
@@ -52,6 +56,8 @@
     <dimen name="nav_horizontal_margin">8dp</dimen>
 
     <!-- FAB -->
+    <dimen name="fab_inner_image_size">32dp</dimen>
+    <dimen name="fab_padding">2dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
     <!-- Browser -->

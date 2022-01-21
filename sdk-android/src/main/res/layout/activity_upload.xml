@@ -11,15 +11,14 @@
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay">
+            android:theme="@style/Theme.Upload.AppBarOverlay">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/colorSecondary"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:menu="@menu/upload_options_menu" />
+                app:menu="@menu/upload_option_menu"
+                app:popupTheme="@style/Theme.Upload.PopupOverlay" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

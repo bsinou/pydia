@@ -1,7 +1,6 @@
 <?xml version= "1.0" encoding= "utf-8" ?>
 
-<menu
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
@@ -9,18 +8,16 @@
 
     <item
         android:id="@+id/launch_upload"
+        android:icon="@drawable/ic_outline_upload_24"
         android:title="@string/button_ok"
         android:visible="false"
-        android:icon="@drawable/ic_outline_upload_24"
-        app:showAsAction="always">
-    </item>
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/cancel_upload"
+        android:icon="@drawable/ic_outline_cancel_24"
         android:title="@string/button_cancel"
         android:visible="true"
-        android:icon="@drawable/ic_outline_cancel_24"
-        app:showAsAction="always">
-    </item>
+        app:showAsAction="ifRoom" />
 
 </menu>

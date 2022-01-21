@@ -73,6 +73,7 @@ class BrowseFolderFragment : Fragment() {
             StateID.fromId(args.state)
         )
         requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+        setHasOptionsMenu(true)
         return binding.root
     }
 

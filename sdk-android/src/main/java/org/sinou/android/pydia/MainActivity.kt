@@ -2,6 +2,7 @@ package org.sinou.android.pydia
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -11,15 +12,19 @@ import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.*
 import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
+import org.sinou.android.pydia.databinding.ActivityMainBinding
 import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.browse.getIconForWorkspace
-import org.sinou.android.pydia.databinding.ActivityMainBinding
 import org.sinou.android.pydia.utils.dumpBackStack
 import kotlin.system.exitProcess
 
+/**
+ * Central activity for browsing, managing accounts and settings. Various
+ * screens are implemented via fragments that are gathered in the ui package.
+ * */
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -28,63 +33,34 @@ class MainActivity : AppCompatActivity() {
 
     private val activeSessionVM: ActiveSessionViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        setSupportActionBar(binding.mainToolbar)
+
+        val navView: NavigationView = binding.navView
         navController = findNavController(R.id.main_fragment_host)
+        appBarConfiguration = AppBarConfiguration(navController.graph, binding.mainDrawerLayout)
 
-        buildNavigationLayout()
-    }
-
-
-    private fun buildNavigationLayout() {
-        setSupportActionBar(binding.toolbar)
-
-        // This can be used if we want to always trigger drawer opening
-        // while clicking on the top left icon. See also BrowseFolderFragment
-//        val toggle = ActionBarDrawerToggle(
-//            this, binding.drawerLayout, binding.toolbar, R.string.nav_open,
-//            R.string.nav_close
-//        )
-//        binding.drawerLayout.addDrawerListener(toggle)
-//        toggle.syncState()
-
-        NavigationUI.setupActionBarWithNavController(
-            this,
-            navController,
-            binding.mainDrawerLayout
-        )
-
-        // TODO back navigation is still clumsy, the "onBackPress() method from activity
-        //   and thus the custom adapters are not called when back is triggered by clicking
-        //   the app bar arrow...
-/*
-
-        binding.toolbar.setNavigationOnClickListener {
-            onBackPressed()
-        }
-*/
-
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.setupWithNavController(navController)
+        // Add custom listeners
         binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
 
-        // Configure listeners for Navigation header... Might be improved.
-        val header = binding.navView.getHeaderView(0)
-        val switchBtn = header.findViewById<ImageButton>(R.id.nav_header_switch_account)
-        switchBtn?.setOnClickListener {
-
-            navController.navigate(MainNavDirections.openAccountList())
-            closeDrawer()
-        }
-        val btn = header.findViewById<ImageButton>(R.id.nav_header_exit)
-        btn?.setOnClickListener {
-            closeDrawer()
-            finish()
-            exitProcess(0)
-        }
         wireNavViewObserver()
+
+// TODO back navigation is still clumsy, the "onBackPress() method from activity
+        //   and thus the custom adapters are not called when back is triggered by clicking
+        //   the app bar arrow...
+//        binding.toolbar.setNavigationOnClickListener {
+//            onBackPressed()
+//        }
+
     }
 
     private fun closeDrawer() {
@@ -114,6 +90,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun wireNavViewObserver() {
 
+        // Top header button to switch account and logout
+        val header = binding.navView.getHeaderView(0)
+        val switchBtn = header.findViewById<ImageButton>(R.id.nav_header_switch_account)
+        switchBtn?.setOnClickListener {
+            navController.navigate(MainNavDirections.openAccountList())
+            closeDrawer()
+        }
+        val btn = header.findViewById<ImageButton>(R.id.nav_header_exit)
+        btn?.setOnClickListener {
+            closeDrawer()
+            finish()
+            exitProcess(0)
+        }
+
+        // Workspaces
         val item = binding.navView.menu.findItem(R.id.ws_section)
         activeSessionVM.activeSession.observe(
             this,
@@ -134,11 +125,12 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     // Also update meta info in the header
-                    val header = binding.navView.getHeaderView(0)
-                    val primaryText = header.findViewById<TextView>(R.id.nav_header_primary_text)
+                    val headerView = binding.navView.getHeaderView(0)
+                    val primaryText =
+                        headerView.findViewById<TextView>(R.id.nav_header_primary_text)
                     primaryText.text = liveSession.username
                     val secondaryText =
-                        header.findViewById<TextView>(R.id.nav_header_secondary_text)
+                        headerView.findViewById<TextView>(R.id.nav_header_secondary_text)
                     secondaryText.text = liveSession.url
                 }
             },
@@ -166,7 +158,14 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.main_option_menu, menu)
+        return true
+    }
+
     override fun onSupportNavigateUp(): Boolean {
-        return NavigationUI.navigateUp(navController, binding.mainDrawerLayout)
+        val navController = findNavController(R.id.main_fragment_host)
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }

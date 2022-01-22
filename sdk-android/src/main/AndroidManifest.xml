@@ -27,30 +27,28 @@
         </activity>
 
 
+<!--        <activity-->
+<!--            android:name=".MainActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
-        <!--
-                <activity
-                    android:name=".MainActivity"
-                    android:exported="false">
-                    <meta-data
-                        android:name="android.app.default_searchable"
-                        android:value=".SearchActivity"
-                        android:theme="@style/AppTheme.AppBarOverlay"/>
-                </activity>
+            android:exported="false">
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:theme="@style/Theme.CellsApp.AppBarOverlay"
+                android:value=".SearchActivity" />
+        </activity>
 
-                <activity
-                    android:name=".SearchActivity"
-                    android:exported="false">
-                    <intent-filter>
-                        <action android:name="android.intent.action.SEARCH" />
-                    </intent-filter>
-                    <meta-data
-                        android:name="android.app.searchable"
-                        android:resource="@xml/searchable" />
-                </activity>
-        -->
+        <activity
+            android:name=".SearchActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
 
         <activity
             android:name=".UploadActivity"
@@ -74,7 +72,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data
                     android:host="callback"
                     android:scheme="cellsauth" />

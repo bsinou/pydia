@@ -3,9 +3,11 @@ package org.sinou.android.pydia.utils
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentManager
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.openapi.model.JobsActionMessage
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BuildConfig
 import org.sinou.android.pydia.CellsApp
@@ -15,6 +17,15 @@ import java.io.File
 private const val DEFAULT_FILE_PROVIDER_SUFFIX = ".fileprovider"
 private const val DEFAULT_FILE_PROVIDER_ID =
     BuildConfig.APPLICATION_ID + DEFAULT_FILE_PROVIDER_SUFFIX
+
+
+fun showMessage(context: Context, message: String){
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+}
+
+fun showLongMessage(context: Context, message: String){
+    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+}
 
 fun downloadToDevice(context: Context, file: File, node: RTreeNode): Intent {
 

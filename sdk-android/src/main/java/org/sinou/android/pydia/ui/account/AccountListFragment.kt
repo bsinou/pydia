@@ -60,7 +60,7 @@ class AccountListFragment : Fragment() {
         // TODO implement color change on session switch
         // foregroundSessionViewModel.activeSession.observe()
 
-        binding.fab.setOnClickListener {
+        binding.newAccountFab.setOnClickListener {
             // it.findNavController().navigate(R.id.server_url_destination)
             val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
             startActivity(toAuthIntent)

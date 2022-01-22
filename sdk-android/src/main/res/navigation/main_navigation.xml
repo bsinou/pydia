@@ -28,6 +28,10 @@
         app:destination="@id/bookmark_list_destination" />
 
     <action
+        android:id="@+id/search"
+        app:destination="@id/search_destination" />
+
+    <action
         android:id="@+id/open_settings"
         app:destination="@id/settings_destination" />
 
@@ -38,11 +42,26 @@
     <!-- BROWSE -->
 
     <fragment
+        android:id="@+id/search_destination"
+        android:name="org.sinou.android.pydia.ui.search.SearchFragment"
+        android:label="@string/action_search"
+        tools:layout="@layout/fragment_search">
+        <argument
+            android:name="state"
+            app:argType="string" />
+        <argument
+            android:name="context"
+            app:argType="string" />
+        <argument
+            android:name="query"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
         android:id="@+id/workspace_list_destination"
         android:name="org.sinou.android.pydia.ui.browse.ChooseWorkspaceFragment"
         android:label="@string/action_open_workspaces"
-        tools:layout="@layout/fragment_workspace_list">
-    </fragment>
+        tools:layout="@layout/fragment_workspace_list" />
 
     <fragment
         android:id="@+id/browse_folder_destination"

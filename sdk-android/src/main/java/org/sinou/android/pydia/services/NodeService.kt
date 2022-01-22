@@ -38,6 +38,21 @@ class NodeService(
         return nodeDB.treeNodeDao().ls(stateID.id, stateID.file)
     }
 
+    suspend fun query(query: String?, stateID: StateID): List<RTreeNode> =
+        withContext(Dispatchers.IO) {
+
+            return@withContext if (query == null) {
+//            val emptyResult = LiveData<List<RTreeNode>>().apply {
+//                it.value = listOf<RTreeNode>()
+//            }
+//            return emptyResult
+                // TODO should rather returns an empty list
+                nodeDB.treeNodeDao().query("")
+            } else {
+                nodeDB.treeNodeDao().query(query)
+            }
+        }
+
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
         return nodeDB.treeNodeDao().lsWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
     }

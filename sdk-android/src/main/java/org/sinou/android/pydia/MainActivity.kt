@@ -7,6 +7,8 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
@@ -20,6 +22,7 @@ import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.browse.getIconForWorkspace
 import org.sinou.android.pydia.utils.dumpBackStack
 import kotlin.system.exitProcess
+
 
 /**
  * Central activity for browsing, managing accounts and settings. Various
@@ -135,6 +138,11 @@ class MainActivity : AppCompatActivity() {
                 }
             },
         )
+
+        // search
+//         val item = binding.navView.menu.findItem(R.id.ws_section)
+
+
         binding.navView.invalidate()
     }
 
@@ -158,9 +166,59 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
     }
 
+    // TODO this is not good-enough:
+    // We do not want to explicitely cast the activity in the fragment...
+    private var searchView: SearchView? = null
+    private var queryTextListener: OnQueryTextListener? = null
+
+    private var currFragmentStateID: StateID? = null
+    private var currFragmentContext: String? = null
+
+    fun registerForSearch(stateId: StateID?, uiContext: String?){
+        currFragmentStateID = stateId
+        currFragmentContext = uiContext
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main_options, menu)
+
+        Log.i("### option menu", "$currFragmentStateID")
+
+        val searchItem = menu.findItem(R.id.search)
+
+        if (searchItem != null) {
+            searchView = searchItem.getActionView() as SearchView
+        }
+//        if (searchView != null) {
+//            searchView.setSearchableInfo(
+//                this.getSystemService(Context.SEARCH_SERVICE)
+//                    .getSearchableInfo(this.getComponentName())
+//            )
+//        }
+
+        val queryTextListener: OnQueryTextListener = object : OnQueryTextListener {
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                Log.i("onQueryTextChange", newText)
+                val currentFragment = findNavController(R.id.main_fragment_host)?.currentDestination
+                currentFragment?.let{
+                    Log.i("onQueryTextSubmit", "Retrieving query from ${it.arguments["state"].toString()}")
+                }
+                return true
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                currFragmentStateID?.let{
+                    val action = MainNavDirections.search(it.id, currFragmentContext!!, query)
+                    navController.navigate(action)
+                }
+                Log.i("onQueryTextSubmit", query)
+                return true
+            }
+        }
+        searchView?.setOnQueryTextListener(queryTextListener)
+
         return true
     }
 

@@ -23,6 +23,9 @@ interface TreeNodeDao {
     @Query("SELECT * FROM tree_node_table WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY sort_name")
     fun ls(encodedParentStateID: String, parentPath: String): LiveData<List<RTreeNode>>
 
+    @Query("SELECT * FROM tree_node_table WHERE name like '%' ||  :name || '%' LIMIT 100")
+    fun query(name: String): List<RTreeNode>
+
     @Query("SELECT * FROM tree_node_table WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath AND mime = :mime ORDER BY sort_name")
     fun lsWithMime(
         encodedParentStateID: String,

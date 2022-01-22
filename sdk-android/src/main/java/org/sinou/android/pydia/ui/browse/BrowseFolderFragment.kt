@@ -16,10 +16,7 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.MainActivity
-import org.sinou.android.pydia.MainNavDirections
-import org.sinou.android.pydia.R
+import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.utils.*
@@ -74,6 +71,11 @@ class BrowseFolderFragment : Fragment() {
         )
         requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
         setHasOptionsMenu(true)
+
+        binding.addNodeFab.setOnClickListener {
+            showMessage(requireContext(), "Implement me...")
+        }
+
         return binding.root
     }
 
@@ -112,6 +114,8 @@ class BrowseFolderFragment : Fragment() {
             }
             it.setDisplayHomeAsUpEnabled(true)
         }
+
+        (requireActivity() as MainActivity).registerForSearch(browseFolderVM.stateID, TreeNodeMenuFragment.CONTEXT_BROWSE)
     }
 
     override fun onPause() {

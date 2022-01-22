@@ -22,16 +22,18 @@
     <string name="exit_description">Exit the application</string>
     <string name="switch_account_description">Choose another remote server</string>
     <string name="logo_description">Pydio application logo</string>
-    <!-- Content --> 
+    <!-- Content -->
+
+    <string name="home">Home</string>
+    <string name="my_workspaces">My Workspaces</string>
+    <string name="action_search">Search</string>
     <string name="quick_access">Quick Access</string>
     <string name="offline_files">Offline Files</string>
     <string name="bookmarks">Bookmarks</string>
-    <string name="my_workspaces">My Workspaces</string>
     <string name="settings">Settings</string>
-    <string name="parameter">Parameters</string>
-    <string name="clear_cache">Clear Cache</string>
     <string name="about">About</string>
-    <string name="home">Home</string>
+<!--    <string name="parameter">Parameters</string>-->
+    <string name="clear_cache">Clear Cache</string>
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
 
@@ -116,6 +118,8 @@
     <string name="confirm_account_deletion_title">Delete account %s?</string>
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
     <string name="my_account">My Account</string>
+    <string name="node_add_button">Create or import</string>
+    <string name="create_account">Create an account</string>
 
 
 </resources>

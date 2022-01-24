@@ -172,20 +172,70 @@ class MainActivity : AppCompatActivity() {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main_options, menu)
 
-        val searchItem = menu.findItem(R.id.search)
-
+        val searchItem = menu.findItem(R.id.search_edit_view)
         if (searchItem != null) {
             var searchView = searchItem.getActionView() as SearchView
             searchView?.setOnQueryTextListener(SearchListener())
         }
+
+        configureLayoutSwitcher(menu)
+
         return true
+    }
+
+    private fun configureLayoutSwitcher(menu: Menu) {
+        val layoutSwitcher = menu.findItem(R.id.switch_recycler_layout)
+
+
+        val showSwitch = navController.currentDestination?.let {
+            when (it.id) {
+                R.id.search_destination -> true
+                R.id.bookmark_list_destination -> true
+                R.id.browse_folder_destination -> true
+                else -> false
+            }
+        } ?: false
+
+        layoutSwitcher.setVisible(showSwitch)
+        if (!showSwitch) {
+            return
+        }
+
+        val value = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+        val storedLayout = value?.let { value } ?: AppNames.RECYCLER_LAYOUT_LIST
+        layoutSwitcher.icon = when (storedLayout) {
+            AppNames.RECYCLER_LAYOUT_GRID ->
+                // TODO how do we correctly manage theme here to use the commented up-to-date call
+                resources.getDrawable(R.drawable.ic_baseline_view_list_24)
+            // ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_view_list_24, theme)
+            else ->
+                resources.getDrawable(R.drawable.ic_sharp_grid_view_24)
+            // ResourcesCompat.getDrawable(resources, R.drawable.ic_sharp_grid_view_24, theme)
+        }
+
+        layoutSwitcher.setOnMenuItemClickListener {
+            val value = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+            val newValue = if (value != null && AppNames.RECYCLER_LAYOUT_GRID == value) {
+                AppNames.RECYCLER_LAYOUT_LIST
+            } else {
+                AppNames.RECYCLER_LAYOUT_GRID
+            }
+            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
+
+            finish()
+            overridePendingTransition(0, 0)
+            startActivity(intent)
+            overridePendingTransition(0, 0)
+
+            return@setOnMenuItemClickListener true
+        }
     }
 
     private inner class SearchListener : OnQueryTextListener {
 
         private var searchFragment: SearchFragment? = null
-        private var stateId : StateID? = null
-        private var uiContext : String? = null
+        private var stateId: StateID? = null
+        private var uiContext: String? = null
 
         override fun onQueryTextChange(newText: String): Boolean {
             if (Str.empty(newText)) return true
@@ -204,7 +254,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     retrieveCurrentContext()
                     stateId?.let {
-                        val action = MainNavDirections.search(it.id, uiContext!!, query)
+                        val action = MainNavDirections.searchEditView(it.id, uiContext!!, query)
                         navController.navigate(action)
                     }
                 }
@@ -213,14 +263,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun retrieveCurrentContext() {
-            if (activeSessionVM.activeSession.value == null){
-                showMessage(baseContext, "Cannot search with no active session" )
+            if (activeSessionVM.activeSession.value == null) {
+                showMessage(baseContext, "Cannot search with no active session")
                 return
             }
-            showMessage(baseContext, "About to navigate" )
+            showMessage(baseContext, "About to navigate")
 
             stateId = StateID.fromId(activeSessionVM.activeSession.value!!.accountID)
-            uiContext =  when (navController.currentDestination!!.id){
+            uiContext = when (navController.currentDestination!!.id) {
                 R.id.bookmark_list_destination -> AppNames.CUSTOM_PATH_BOOKMARKS
                 else -> ""
             }

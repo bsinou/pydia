@@ -1,6 +1,7 @@
 package org.sinou.android.pydia.ui.browse
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.text.format.DateUtils
 import android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
 import android.text.format.Formatter.formatShortFileSize
@@ -58,24 +59,44 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
     }
 
     if (Str.notEmpty(item.thumbFilename)) {
-        val stat = StateID.fromId(item.encodedState)
-        val path = "${this.context.filesDir.absolutePath}/" +
-                "${stat.accountId}/thumbs/${item.thumbFilename}"
-
-        Glide.with(this.context).load(File(path))
-            // .transform(MultiTransformation(CenterCrop(), RoundedCorners(R.dimen.list_icon_corner_radius)))
-            // TODO pass a radius in from resource in dp
-            .transform(MultiTransformation(CenterCrop(), RoundedCorners(16)))
+        Glide.with(context).load(File(getPathForGlide(context, item)))
+            .transform(MultiTransformation(CenterCrop(), RoundedCorners(R.dimen.glide_thumb_radius)))
             .into(this)
     } else {
+        setImageResource( getDrawableFromMime(item.mime)
+        )
+    }
+}
 
-        // TODO enrich with more specific icons for files depending on the mime
-        setImageResource(
-            when (item.mime) {
-                SdkNames.NODE_MIME_FOLDER -> R.drawable.icon_folder
-                SdkNames.NODE_MIME_RECYCLE -> R.drawable.icon_recycle
-                else -> R.drawable.icon_file
-            }
+fun getPathForGlide(context: Context, item: RTreeNode): String {
+    val stat = StateID.fromId(item.encodedState)
+    return "${context.filesDir.absolutePath}/" +
+            "${stat.accountId}/thumbs/${item.thumbFilename}"
+}
+
+
+fun getDrawableFromMime(mime: String): Int {
+    // TODO enrich with more specific icons for files depending on the mime
+    return when (mime) {
+        SdkNames.NODE_MIME_FOLDER -> R.drawable.icon_folder
+        SdkNames.NODE_MIME_RECYCLE -> R.drawable.icon_recycle
+        else -> R.drawable.icon_file
+    }
+}
+
+@BindingAdapter("cardThumb")
+fun ImageView.setCardThumb(item: RTreeNode?) {
+
+    if (item == null) {
+        setImageResource(R.drawable.icon_file)
+        return
+    }
+
+    if (Str.notEmpty(item.thumbFilename)) {
+        Glide.with(context).load(File(getPathForGlide(context, item)))
+            .transform(CenterCrop()).into(this)
+    } else {
+        setImageResource( getDrawableFromMime(item.mime)
         )
     }
 }
@@ -161,3 +182,34 @@ fun RTreeNode.isFolder(): Boolean {
     return SdkNames.NODE_MIME_FOLDER == mime || SdkNames.NODE_MIME_RECYCLE == mime
 }
 
+fun areContentsEquals(
+    oldItem: RTreeNode,
+    newItem: RTreeNode
+): Boolean {
+    var same = oldItem.remoteModificationTS == newItem.remoteModificationTS
+
+    if (same && newItem.thumbFilename != null) {
+        same = newItem.thumbFilename.equals(oldItem.thumbFilename)
+    }
+
+    val flagChanged = newItem.isBookmarked == oldItem.isBookmarked
+            && newItem.isOfflineRoot == oldItem.isOfflineRoot
+            && newItem.isShared == oldItem.isShared
+
+
+    // With Room: we should get  equality based on equality of each fields (column) for free
+    // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
+    // remote modif timestamp and thumb filename.
+
+    // More logs to investigate
+    //        if (!same){
+    //            Log.d(tag, "Found new content for ${oldItem.encodedState}")
+    //            Log.d(tag, "Old TS: ${oldItem.remoteModificationTS}, " +
+    //                    "new TS: ${newItem.remoteModificationTS}")
+    //            Log.d(tag, "Old thumb: ${oldItem.thumbFilename}, " +
+    //                    "new thumb: ${newItem.thumbFilename}")
+    ////            Log.d(tag, "old item: \n${Gson().toJson(oldItem)}")
+    ////            Log.d(tag, "new item: \n${Gson().toJson(newItem)}")
+    //        }
+    return same && flagChanged
+}

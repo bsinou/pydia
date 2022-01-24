@@ -120,6 +120,8 @@
     <string name="my_account">My Account</string>
     <string name="node_add_button">Create or import</string>
     <string name="create_account">Create an account</string>
+    <string name="content_description_media">Preview of the content</string>
+    <string name="button_switch_list_layout">Show as grid</string>
 
 
 </resources>

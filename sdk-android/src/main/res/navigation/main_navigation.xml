@@ -28,7 +28,7 @@
         app:destination="@id/bookmark_list_destination" />
 
     <action
-        android:id="@+id/search"
+        android:id="@+id/search_edit_view"
         app:destination="@id/search_destination" />
 
     <action

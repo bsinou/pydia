@@ -12,6 +12,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -54,15 +56,19 @@ class BrowseFolderFragment : Fragment() {
         val tmpVM: BrowseFolderViewModel by viewModels { viewModelFactory }
         browseFolderVM = tmpVM
 
-        val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
-        binding.nodes.adapter = adapter
-        browseFolderVM.children.observe(
-            viewLifecycleOwner,
-            {
-                // When Adapter is a List adapter
-                adapter.submitList(it)
-            },
-        )
+        val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+        val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
+        if (asGrid) {
+            binding.nodes.layoutManager = GridLayoutManager(activity, 3)
+            val adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
+            binding.nodes.adapter = adapter
+            browseFolderVM.children.observe(viewLifecycleOwner, { adapter.submitList(it) })
+        } else {
+            binding.nodes.layoutManager = LinearLayoutManager(activity)
+            val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+            binding.nodes.adapter = adapter
+            browseFolderVM.children.observe(viewLifecycleOwner, { adapter.submitList(it) })
+        }
 
         val backPressedCallback = BackStackAdapter.initialised(
             parentFragmentManager,

@@ -14,12 +14,12 @@
         android:icon="@android:drawable/star_on"
         android:label="@string/application_title"
         android:supportsRtl="true"
-        android:theme="@style/Theme.CellsApp.NoActionBar">
+        android:theme="@style/Theme.Cells.NoActionBar">
 
         <activity
             android:name=".LandActivity"
             android:exported="true"
-            android:theme="@style/Theme.CellsApp.SplashScreen">
+            android:theme="@style/Theme.Cells.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

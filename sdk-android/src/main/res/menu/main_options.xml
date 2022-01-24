@@ -4,16 +4,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/search"
+        android:id="@+id/search_edit_view"
         android:icon="@android:drawable/ic_search_category_default"
         android:title="@string/search_hint"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="collapseActionView|ifRoom" />
 
     <item
-        android:id="@+id/launch_upload"
-        android:icon="@drawable/ic_outline_upload_24"
-        android:title="@string/button_ok"
+        android:id="@+id/switch_recycler_layout"
+        android:icon="@drawable/ic_sharp_grid_view_24"
+        android:title="@string/button_switch_list_layout"
         app:showAsAction="ifRoom" />
+<!--    android:iconTint="@color/colorOnPrimary"-->
+<!--    android:iconTintMode="src_atop"-->
 
 </menu>

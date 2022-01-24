@@ -25,11 +25,22 @@
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="list_icon_inner_size">16dp</dimen>
     <dimen name="list_icon_corner_radius">6dp</dimen>
-
     <dimen name="list_icon_margin">8dp</dimen>
     <dimen name="list_button_size">24dp</dimen>
     <dimen name="list_button_padding">@dimen/text_padding_small</dimen>
     <dimen name="list_button_margin">@dimen/margin_small</dimen>
+    <dimen name="glide_thumb_radius">16</dimen>
+    <!-- Grid Layout with card view-->
+    <dimen name="grid_layout_card_margin">4dp</dimen>
+    <dimen name="card_padding">4dp</dimen>
+    <dimen name="card_corner_radius">6dp</dimen>
+    <dimen name="card_elevation">10dp</dimen>
+    <dimen name="card_max_elevation">12dp</dimen>
+    <dimen name="grid_layout_card_icon_size">96dp</dimen>
+
+    <!-- Decorators -->
+    <dimen name="list_item_flag_decorator">12dp</dimen>
+    <dimen name="account_status_decorator">20dp</dimen>
 
     <!-- Menus -->
     <dimen name="menu_header_icon">32dp</dimen>
@@ -38,15 +49,6 @@
     <dimen name="menu_padding">4dp</dimen>
     <dimen name="menu_row_padding">0dp</dimen>
     <dimen name="menu_label_padding">4dp</dimen>
-
-    <!-- Decorators -->
-    <dimen name="list_item_flag_decorator">12dp</dimen>
-    <dimen name="account_status_decorator">20dp</dimen>
-
-    <!-- Main layout -->
-    <dimen name="offline_status_bar_height">96dp</dimen>
-    <dimen name="action_bar_height">72dp</dimen>
-    <dimen name="action_bar_button_dim">35dp</dimen>
 
     <!-- Navigation drawer -->
     <dimen name="drawer_header_height">100dp</dimen>
@@ -59,6 +61,11 @@
     <dimen name="fab_inner_image_size">32dp</dimen>
     <dimen name="fab_padding">2dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Main layout -->
+    <dimen name="offline_status_bar_height">96dp</dimen>
+    <dimen name="action_bar_height">72dp</dimen>
+    <dimen name="action_bar_button_dim">35dp</dimen>
 
     <!-- Browser -->
     <dimen name="listNodeRowHeight">64dp</dimen>

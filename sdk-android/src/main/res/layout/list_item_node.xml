@@ -35,13 +35,12 @@
         <TextView
             android:id="@+id/node_label"
             style="@style/text_list_primary"
-
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-
+            android:ellipsize="end"
+            android:singleLine="true"
             app:layout_constraintBottom_toTopOf="@+id/node_desc"
             app:layout_constraintStart_toStartOf="@+id/node_desc"
-
             app:nodeTitle="@{node}"
             tools:text="Folder 1" />
 
@@ -55,7 +54,6 @@
             android:gravity="center_horizontal"
             app:layout_constraintStart_toEndOf="@+id/node_label"
             app:layout_constraintTop_toTopOf="@+id/node_label">
-
 
             <ImageView
                 android:id="@+id/flag_offline"

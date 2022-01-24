@@ -8,9 +8,15 @@ public interface AppNames {
 
     /* SHARED PREFERENCE KEYS */
     String PREF_KEY_CURRENT_STATE = "current_state";
-
+    String PREF_KEY_CURR_RECYCLER_LAYOUT = "current_recycler_layout";
     String KEY_DESTINATION = KEY_PREFIX_ + "destination";
 
+
+    /* SHARED PREFERENCE WELL KNOWN VALUES */
+    String RECYCLER_LAYOUT_LIST = "list";
+    String RECYCLER_LAYOUT_GRID = "grid";
+
+    /* INTENTS */
     String EXTRA_STATE = KEY_PREFIX_ + "state";
     String EXTRA_ACCOUNT_ID = KEY_PREFIX_ + "account.id";
     String EXTRA_SERVER_URL = KEY_PREFIX_ + "server.url";

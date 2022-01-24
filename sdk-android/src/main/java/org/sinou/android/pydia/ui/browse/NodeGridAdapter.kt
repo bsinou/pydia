@@ -2,15 +2,14 @@ package org.sinou.android.pydia.ui.browse
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.sinou.android.pydia.databinding.ListItemNodeBinding
+import org.sinou.android.pydia.databinding.GridItemNodeBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
 
-class NodeListAdapter(
+class NodeGridAdapter(
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit
-) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()) {
+) : ListAdapter<RTreeNode, NodeGridAdapter.ViewHolder>(TreeNodeDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -21,7 +20,7 @@ class NodeListAdapter(
         return ViewHolder.from(parent).with(onItemClicked)
     }
 
-    class ViewHolder private constructor(val binding: ListItemNodeBinding) :
+    class ViewHolder private constructor(val binding: GridItemNodeBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: RTreeNode) {
@@ -37,32 +36,16 @@ class NodeListAdapter(
                 binding.node?.let { onItemClicked(it, BrowseFolderFragment.ACTION_OPEN) }
             }
 
-            binding.listItemMore.setOnClickListener {
-                binding.node?.let { onItemClicked(it, BrowseFolderFragment.ACTION_MORE) }
-            }
-
             return this
         }
 
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = ListItemNodeBinding.inflate(layoutInflater, parent, false)
+                val binding = GridItemNodeBinding.inflate(layoutInflater, parent, false)
                 return ViewHolder(binding)
             }
         }
-    }
-}
-
-class TreeNodeDiffCallback : DiffUtil.ItemCallback<RTreeNode>() {
-
-    override fun areItemsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
-        val same = oldItem.encodedState == newItem.encodedState
-        return same
-    }
-
-    override fun areContentsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
-        return areContentsEquals(oldItem, newItem)
     }
 }
 

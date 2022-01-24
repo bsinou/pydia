@@ -9,10 +9,11 @@
     android:id="@+id/nav_header"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorPrimaryDark"
     android:padding="@dimen/margin_small"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:theme="@style/ThemeOverlay.Cells.Dark">
 
+<!--    android:background="?attr/colorPrimaryDark"-->
+<!--    android:theme="@style/ThemeOverlay.AppCompat.Dark"-->
     <ImageView
         android:id="@+id/nav_header_logo"
         android:layout_width="match_parent"
@@ -60,7 +61,8 @@
         android:id="@+id/nav_header_switch_account"
         android:layout_width="@dimen/menu_header_icon"
         android:layout_height="@dimen/menu_header_icon"
-        android:backgroundTint="?attr/colorPrimaryDark"
+        android:backgroundTint="?attr/colorPrimary"
+        android:foregroundTint="?attr/colorOnPrimary"
         android:clickable="true"
         android:contentDescription="@string/switch_account_description"
         android:focusable="true"
@@ -74,7 +76,7 @@
         android:id="@+id/nav_header_exit"
         android:layout_width="@dimen/menu_header_icon"
         android:layout_height="@dimen/menu_header_icon"
-        android:backgroundTint="?attr/colorPrimaryDark"
+        android:backgroundTint="?attr/colorPrimary"
         android:clickable="true"
         android:contentDescription="@string/exit_description"
         android:focusable="true"

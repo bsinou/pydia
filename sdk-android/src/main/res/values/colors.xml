@@ -4,7 +4,7 @@
 
     <!-- Main Colors -->
     <color name="colorMain">#134E6C</color>
-    <color name="colorMainAccent">#0B2E40</color>
+    <color name="colorMainAccent">#0F3E56</color>
     <color name="colorMainLight">#598398</color>
 
     <!-- Icons -->
@@ -18,6 +18,11 @@
     <color name="colorOnPrimary">@android:color/white</color>
     <color name="colorAccent">#FFFF9800</color>
 
+    <color name="colorSecondary">#FB725C</color>
+    <color name="colorSecondaryLight">#FDB8AD</color>
+    <color name="colorSecondaryDark">#E16652</color>
+    <color name="colorOnSecondary">@android:color/white</color>
+
     <color name="colorTextPrimary">@color/colorMain</color>
     <color name="colorTextAccent">@color/colorMainAccent</color>
     <color name="colorAvatarDefault">@color/colorMain</color>
@@ -26,9 +31,6 @@
     <color name="warning">#FFFF9800</color>
     <color name="danger">@color/selected_red_color</color>
 
-    <color name="colorSecondary">#219600</color>
-    <color name="colorSecondaryLight">#64b500</color>
-    <color name="colorSecondaryDark">#197600</color>
 
     <color name="colorScreenBackground">#fff3e0</color>
     <color name="colorTextHint">#E0E0E0</color>

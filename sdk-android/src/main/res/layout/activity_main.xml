@@ -21,8 +21,8 @@
                     android:id="@+id/main_toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                    app:popupTheme="@style/Theme.Cells.PopupOverlay" />
+                    app:popupTheme="@style/Theme.Cells.PopupOverlay"
+                    app:theme="@style/Theme.Cells.AppBarOverlay" />
 
             </com.google.android.material.appbar.AppBarLayout>
 
@@ -35,20 +35,6 @@
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:navGraph="@navigation/main_navigation" />
 
-                <!-- android:clipToPadding="true"
-                android:fitsSystemWindows="true" -->
-
-<!--
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_marginEnd="@dimen/fab_margin"
-                android:layout_marginBottom="16dp"
-                app:srcCompat="@drawable/ic_baseline_add_24" />
--->
-
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
@@ -57,6 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="start"
+            android:theme="@style/ThemeOverlay.Cells"
             app:headerLayout="@layout/drawer_header"
             app:menu="@menu/main_left" />
 

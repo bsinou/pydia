@@ -7,11 +7,6 @@
         android:title="@string/action_open_bookmarks" />
 
     <item
-        android:id="@+id/search_destination"
-        android:icon="@android:drawable/ic_menu_search"
-        android:title="@string/action_search" />
-
-    <item
         android:id="@+id/ws_section"
         android:title="@string/my_workspaces"
         android:visible="true">

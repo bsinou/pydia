@@ -60,44 +60,31 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
 
     if (Str.notEmpty(item.thumbFilename)) {
         Glide.with(context).load(File(getPathForGlide(context, item)))
-            .transform(MultiTransformation(CenterCrop(), RoundedCorners(R.dimen.glide_thumb_radius)))
+            .transform(
+                MultiTransformation(
+                    CenterCrop(),
+                    // TODO Directly getting  the radius with R fails => image is a circle
+                    // RoundedCorners(R.dimen.glide_thumb_radius)
+                    RoundedCorners(16)
+                )
+            )
             .into(this)
     } else {
-        setImageResource( getDrawableFromMime(item.mime)
-        )
-    }
-}
-
-fun getPathForGlide(context: Context, item: RTreeNode): String {
-    val stat = StateID.fromId(item.encodedState)
-    return "${context.filesDir.absolutePath}/" +
-            "${stat.accountId}/thumbs/${item.thumbFilename}"
-}
-
-
-fun getDrawableFromMime(mime: String): Int {
-    // TODO enrich with more specific icons for files depending on the mime
-    return when (mime) {
-        SdkNames.NODE_MIME_FOLDER -> R.drawable.icon_folder
-        SdkNames.NODE_MIME_RECYCLE -> R.drawable.icon_recycle
-        else -> R.drawable.icon_file
+        setImageResource(getDrawableFromMime(item.mime))
     }
 }
 
 @BindingAdapter("cardThumb")
 fun ImageView.setCardThumb(item: RTreeNode?) {
-
     if (item == null) {
         setImageResource(R.drawable.icon_file)
         return
     }
-
     if (Str.notEmpty(item.thumbFilename)) {
         Glide.with(context).load(File(getPathForGlide(context, item)))
             .transform(CenterCrop()).into(this)
     } else {
-        setImageResource( getDrawableFromMime(item.mime)
-        )
+        setImageResource(getDrawableFromMime(item.mime))
     }
 }
 
@@ -118,23 +105,42 @@ fun ImageView.isShared(item: RTreeNode) {
 
 @BindingAdapter("wsTitle")
 fun TextView.setWsTitle(item: WorkspaceNode?) {
-    item?.let {
-        text = item.label
-    }
+    item?.let { text = item.label }
 }
 
 @BindingAdapter("wsDesc")
 fun TextView.setWsDesc(item: WorkspaceNode?) {
-    item?.let {
-        text = item.description
-    }
+    item?.let { text = item.description }
 }
 
 @BindingAdapter("wsThumb")
 fun ImageView.setWsThumb(item: WorkspaceNode) {
-    setImageResource(
-        getIconForWorkspace(item)
-    )
+    setImageResource(getIconForWorkspace(item))
+}
+
+@BindingAdapter("hasPublicLink")
+fun SwitchMaterial.setHasPublicLink(item: RTreeNode?) {
+    item?.let { isChecked = it.isShared }
+}
+
+@BindingAdapter("isOfflineRoot")
+fun SwitchMaterial.setOfflineRoot(item: RTreeNode?) {
+    item?.let { isChecked = it.isOfflineRoot }
+}
+
+@BindingAdapter("isBookmarked")
+fun SwitchMaterial.setBookmarked(item: RTreeNode?) {
+    item?.let { isChecked = it.isBookmarked }
+}
+
+@BindingAdapter("showForFileOnly")
+fun View.setShowForFileOnly(item: RTreeNode?) {
+    item?.let { visibility = if (it.isFolder()) View.GONE else View.VISIBLE }
+}
+
+@BindingAdapter("showForFolderOnly")
+fun View.setShowForFolderOnly(item: RTreeNode?) {
+    item?.let { visibility = if (it.isFolder()) View.VISIBLE else View.GONE }
 }
 
 fun getIconForWorkspace(item: WorkspaceNode) = when (item.workspaceType) {
@@ -143,38 +149,18 @@ fun getIconForWorkspace(item: WorkspaceNode) = when (item.workspaceType) {
     else -> R.drawable.ic_baseline_folder_24
 }
 
-@BindingAdapter("hasPublicLink")
-fun SwitchMaterial.setHasPublicLink(item: RTreeNode?) {
-    item?.let {
-        isChecked = it.isShared
-    }
+fun getPathForGlide(context: Context, item: RTreeNode): String {
+    val stat = StateID.fromId(item.encodedState)
+    return "${context.filesDir.absolutePath}/" +
+            "${stat.accountId}/thumbs/${item.thumbFilename}"
 }
 
-@BindingAdapter("isOfflineRoot")
-fun SwitchMaterial.setOfflineRoot(item: RTreeNode?) {
-    item?.let {
-        isChecked = it.isOfflineRoot
-    }
-}
-
-@BindingAdapter("isBookmarked")
-fun SwitchMaterial.setBookmarked(item: RTreeNode?) {
-    item?.let {
-        isChecked = it.isBookmarked
-    }
-}
-
-@BindingAdapter("showForFileOnly")
-fun View.setShowForFileOnly(item: RTreeNode?) {
-    item?.let {
-        visibility = if (it.isFolder()) View.GONE else View.VISIBLE
-    }
-}
-
-@BindingAdapter("showForFolderOnly")
-fun View.setShowForFolderOnly(item: RTreeNode?) {
-    item?.let {
-        visibility = if (it.isFolder()) View.VISIBLE else View.GONE
+fun getDrawableFromMime(mime: String): Int {
+    // TODO enrich with more specific icons for files depending on the mime
+    return when (mime) {
+        SdkNames.NODE_MIME_FOLDER -> R.drawable.icon_folder
+        SdkNames.NODE_MIME_RECYCLE -> R.drawable.icon_recycle
+        else -> R.drawable.icon_file
     }
 }
 

@@ -17,12 +17,14 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.*
 import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.databinding.ActivityMainBinding
 import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.browse.getIconForWorkspace
+import org.sinou.android.pydia.ui.search.SearchFragment
 import org.sinou.android.pydia.utils.dumpBackStack
+import org.sinou.android.pydia.utils.showMessage
 import kotlin.system.exitProcess
-
 
 /**
  * Central activity for browsing, managing accounts and settings. Various
@@ -92,7 +94,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun wireNavViewObserver() {
-
         // Top header button to switch account and logout
         val header = binding.navView.getHeaderView(0)
         val switchBtn = header.findViewById<ImageButton>(R.id.nav_header_switch_account)
@@ -139,20 +140,7 @@ class MainActivity : AppCompatActivity() {
             },
         )
 
-        // search
-//         val item = binding.navView.menu.findItem(R.id.ws_section)
-
-
         binding.navView.invalidate()
-    }
-
-    override fun onBackPressed() {
-        val drawer = binding.mainDrawerLayout
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
     }
 
     override fun onResume() {
@@ -166,64 +154,85 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
     }
 
-    // TODO this is not good-enough:
-    // We do not want to explicitely cast the activity in the fragment...
-    private var searchView: SearchView? = null
-    private var queryTextListener: OnQueryTextListener? = null
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.main_fragment_host)
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
 
-    private var currFragmentStateID: StateID? = null
-    private var currFragmentContext: String? = null
-
-    fun registerForSearch(stateId: StateID?, uiContext: String?){
-        currFragmentStateID = stateId
-        currFragmentContext = uiContext
+    override fun onBackPressed() {
+        val drawer = binding.mainDrawerLayout
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main_options, menu)
 
-        Log.i("### option menu", "$currFragmentStateID")
-
         val searchItem = menu.findItem(R.id.search)
 
         if (searchItem != null) {
-            searchView = searchItem.getActionView() as SearchView
+            var searchView = searchItem.getActionView() as SearchView
+            searchView?.setOnQueryTextListener(SearchListener())
         }
-//        if (searchView != null) {
-//            searchView.setSearchableInfo(
-//                this.getSystemService(Context.SEARCH_SERVICE)
-//                    .getSearchableInfo(this.getComponentName())
-//            )
-//        }
-
-        val queryTextListener: OnQueryTextListener = object : OnQueryTextListener {
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                Log.i("onQueryTextChange", newText)
-                val currentFragment = findNavController(R.id.main_fragment_host)?.currentDestination
-                currentFragment?.let{
-                    Log.i("onQueryTextSubmit", "Retrieving query from ${it.arguments["state"].toString()}")
-                }
-                return true
-            }
-
-            override fun onQueryTextSubmit(query: String): Boolean {
-                currFragmentStateID?.let{
-                    val action = MainNavDirections.search(it.id, currFragmentContext!!, query)
-                    navController.navigate(action)
-                }
-                Log.i("onQueryTextSubmit", query)
-                return true
-            }
-        }
-        searchView?.setOnQueryTextListener(queryTextListener)
-
         return true
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.main_fragment_host)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    private inner class SearchListener : OnQueryTextListener {
+
+        private var searchFragment: SearchFragment? = null
+        private var stateId : StateID? = null
+        private var uiContext : String? = null
+
+        override fun onQueryTextChange(newText: String): Boolean {
+            if (Str.empty(newText)) return true
+            navController.currentDestination?.let {
+                if (it.id == R.id.search_destination) {
+                    getSearchFragment()?.updateQuery(newText)
+                }
+            }
+            return true
+        }
+
+        override fun onQueryTextSubmit(query: String): Boolean {
+            navController.currentDestination?.let {
+                if (it.id == R.id.search_destination) {
+                    getSearchFragment()?.updateQuery(query)
+                } else {
+                    retrieveCurrentContext()
+                    stateId?.let {
+                        val action = MainNavDirections.search(it.id, uiContext!!, query)
+                        navController.navigate(action)
+                    }
+                }
+            }
+            return true
+        }
+
+        private fun retrieveCurrentContext() {
+            if (activeSessionVM.activeSession.value == null){
+                showMessage(baseContext, "Cannot search with no active session" )
+                return
+            }
+            showMessage(baseContext, "About to navigate" )
+
+            stateId = StateID.fromId(activeSessionVM.activeSession.value!!.accountID)
+            uiContext =  when (navController.currentDestination!!.id){
+                R.id.bookmark_list_destination -> AppNames.CUSTOM_PATH_BOOKMARKS
+                else -> ""
+            }
+        }
+
+        private fun getSearchFragment(): SearchFragment? {
+            searchFragment?.let { return it }
+            supportFragmentManager.findFragmentById(R.id.main_fragment_host)
+                ?.childFragmentManager?.findFragmentById(R.id.main_fragment_host)?.let {
+                    searchFragment = it as SearchFragment
+                }
+            return searchFragment
+        }
     }
 }

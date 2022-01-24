@@ -115,7 +115,7 @@ class BrowseFolderFragment : Fragment() {
             it.setDisplayHomeAsUpEnabled(true)
         }
 
-        (requireActivity() as MainActivity).registerForSearch(browseFolderVM.stateID, TreeNodeMenuFragment.CONTEXT_BROWSE)
+        // (requireActivity() as MainActivity).registerForSearch(browseFolderVM.stateID, TreeNodeMenuFragment.CONTEXT_BROWSE)
     }
 
     override fun onPause() {

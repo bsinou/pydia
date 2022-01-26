@@ -101,7 +101,7 @@ class NodeService(
                     } else {
                         var hasChanged = false
                         if (old.remoteModificationTS != node.lastModified()) {
-                            Log.e(
+                            Log.i(
                                 TAG, "${old.name} has changed, \n" +
                                         "old TS: ${old.remoteModificationTS}, \n" +
                                         "new TS  ${node.lastModified()}"
@@ -131,31 +131,34 @@ class NodeService(
 */
 
         } catch (e: SDKException) {
-            Log.e(TAG, "could not perform ls for " + stateID.id)
-            e.printStackTrace()
+            handleSDKException("could not perform ls for " + stateID.id, e)
             return@withContext "Cannot connect to distant server"
         }
         return@withContext null
     }
 
-    fun stateRemoteNode(stateID: StateID): Stats {
+    suspend fun stateRemoteNode(stateID: StateID): Stats? {
         try {
             val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
             return client.stats(stateID.workspace, stateID.file, true)
         } catch (e: SDKException) {
-            throw SDKException(ErrorCodes.not_found, "could not stat at ${stateID}", e)
+            handleSDKException("could not stat at ${stateID}", e)
+            return null
+            // throw SDKException(ErrorCodes.not_found, "could not stat at ${stateID}", e)
         }
     }
 
-    suspend fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean {
+    suspend fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
 
         if (!accountService.isClientConnected(rTreeNode.encodedState)) {
-            // we admit we are happy with any local version if present
-            return rTreeNode.localFilename != null
+            // Cannot tell without connection
+            return null
+            // We admit we are happy with any local version if present
+            // return rTreeNode.localFilename != null
         }
 
         // Compare with remote if possible
-        val remoteStats = stateRemoteNode(StateID.fromId(rTreeNode.encodedState))
+        val remoteStats = stateRemoteNode(StateID.fromId(rTreeNode.encodedState)) ?: return null
         if (rTreeNode.localFilename != null && rTreeNode.localModificationTS >= remoteStats.getmTime())
             rTreeNode.localFilename?.let {
                 val file = File(it)
@@ -171,8 +174,11 @@ class NodeService(
     suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
         withContext(Dispatchers.IO) {
 
-            if (isCacheVersionUpToDate(rTreeNode)) {
-                return@withContext File(rTreeNode.localFilename!!)
+            val isOK = isCacheVersionUpToDate(rTreeNode)
+            when {
+                isOK == null && rTreeNode.localFilename != null -> File(rTreeNode.localFilename)
+                isOK == null && rTreeNode.localFilename == null -> null
+                isOK?:false -> File(rTreeNode.localFilename)
             }
 
             val stateID = rTreeNode.getStateID()
@@ -193,9 +199,10 @@ class NodeService(
                 rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
 
                 nodeDB.treeNodeDao().update(rTreeNode)
-            } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-                Log.e(TAG, "could not perform DL for " + stateID.id)
-                se.printStackTrace()
+            } catch (se: SDKException) {
+                // Could not retrieve thumb, failing silently for the end user
+                val msg = "could not perform DL for " + stateID.id
+                handleSDKException(msg, se)
                 return@withContext null
             } catch (ioe: IOException) {
                 // TODO handle this: what should we do ?
@@ -209,6 +216,13 @@ class NodeService(
             targetFile
         }
 
+    suspend fun handleSDKException(msg: String, se: SDKException): SDKException {
+        Log.e(TAG, msg)
+        Log.e(TAG, "Error code: ${se.code}")
+        se.printStackTrace()
+        return se
+    }
+
     suspend fun saveToExternalStorage(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
 
         val parent = CellsApp.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
@@ -219,7 +233,7 @@ class NodeService(
         }
         val to = File("${parent.absolutePath}/${rTreeNode.name}")
 
-        if (isCacheVersionUpToDate(rTreeNode)) {
+        if (isCacheVersionUpToDate(rTreeNode) ?: return@withContext) {
             File(rTreeNode.localFilename!!).copyTo(to, true)
             Log.i(TAG, "... File has been copied to ${to.absolutePath}")
         } else {

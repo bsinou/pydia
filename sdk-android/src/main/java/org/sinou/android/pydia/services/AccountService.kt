@@ -6,11 +6,7 @@ import androidx.lifecycle.LiveData
 import com.pydio.cells.api.*
 import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.WorkspaceNode
-import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.transport.auth.Token
-import com.pydio.cells.transport.auth.credentials.JWTCredentials
-import com.pydio.cells.transport.auth.jwt.IdToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
@@ -19,7 +15,6 @@ import org.sinou.android.pydia.db.account.AccountDB
 import org.sinou.android.pydia.db.account.RAccount
 import org.sinou.android.pydia.db.account.RLiveSession
 import org.sinou.android.pydia.db.account.RSession
-import org.sinou.android.pydia.utils.AndroidCustomEncoder
 import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
 import java.io.File
 
@@ -30,26 +25,17 @@ import java.io.File
  */
 class AccountService(val accountDB: AccountDB, private val baseDir: File) {
 
-    private val encoder: CustomEncoder = AndroidCustomEncoder()
+    private val tag = AccountService::class.java.simpleName
 
     companion object {
-        private const val TAG = "AccountService"
-
         const val LIFECYCLE_STATE_FOREGROUND = "foreground"
         const val LIFECYCLE_STATE_BACKGROUND = "background"
         const val LIFECYCLE_STATE_PAUSED = "paused"
     }
 
-    // Local stores to cache live objects
-//    private val servers = MemoryStore<Server>()
-//    private val transports = MemoryStore<Transport>()
-
     // Expose the session factory for clients to retrieve clients
-    val sessionFactory: SessionFactory = SessionFactory.getSessionFactory(accountDB)
-
-    // Temporary keep track of all states that have been generated for OAuth processes
-    val inProcessCallbacks = mutableMapOf<String, ServerURL>()
-
+    val authService = AuthService.getAuthService(this)
+    val sessionFactory: SessionFactory = SessionFactory.getSessionFactory(this, authService)
 
     val activeSession: LiveData<RLiveSession?> = accountDB
         .liveSessionDao().getLiveActiveSession(LIFECYCLE_STATE_FOREGROUND)
@@ -83,6 +69,24 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         }
     }
 
+    suspend fun logoutAccount(accountID: String) = withContext(Dispatchers.IO) {
+        try {
+            // First retrieve the account to be logged out to know if it is legacy or not
+            accountDB.accountDao().getAccount(accountID)?.let {
+                if (it.isLegacy) {
+                    accountDB.legacyCredentialsDao().forgetPassword(accountID)
+                } else {
+                    accountDB.tokenDao().forgetToken(accountID)
+                }
+                it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                accountDB.accountDao().update(it)
+
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     suspend fun forgetAccount(accountID: String) = withContext(Dispatchers.IO) {
         try {
             // First retrieve the account to forget to know if it is legacy or not
@@ -101,23 +105,6 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         }
     }
 
-    suspend fun logoutAccount(accountID: String) = withContext(Dispatchers.IO) {
-        try {
-            // First retrieve the account to forget to know if it is legacy or not
-            accountDB.accountDao().getAccount(accountID)?.let {
-                if (it.isLegacy) {
-                    accountDB.legacyCredentialsDao().forgetPassword(accountID)
-                } else {
-                    accountDB.tokenDao().forgetToken(accountID)
-                }
-                it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                accountDB.accountDao().update(it)
-
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
 
     suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
         var isConnected = hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)
@@ -181,66 +168,12 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
                 accountDB.sessionDao().update(session)
             }
         } catch (e: SDKException) {
-            Log.e(TAG, "could not perform ls for " + accountID)
+            Log.e(tag, "could not perform ls for " + accountID)
             e.printStackTrace()
             return@withContext "Cannot connect to distant server"
         }
         return@withContext null
     }
-
-    /** Cells' Credentials flow management */
-
-    suspend fun handleOAuthResponse(oauthState: String, code: String): String? =
-        withContext(Dispatchers.IO) {
-            var accountID: String? = null
-            val serverURL = inProcessCallbacks.get(oauthState)
-            if (serverURL == null) {
-                Log.i(TAG, "Ignored call back with unknown state: ${oauthState}")
-                return@withContext accountID
-            }
-            try {
-                val transport =
-                    sessionFactory.getAnonymousTransport(serverURL.id) as CellsTransport
-                val token = transport.getTokenFromCode(code, encoder)
-                accountID = manageRetrievedToken(transport, token)
-            } catch (e: Exception) {
-                Log.e(TAG, "Could not finalize credential auth flow")
-                e.printStackTrace()
-            }
-            return@withContext accountID
-        }
-
-    private fun manageRetrievedToken(transport: CellsTransport, token: Token): String {
-        val idToken = IdToken.parse(encoder, token.idToken)
-        val accountID = StateID(idToken.claims.name, transport.server.url())
-        val jwtCredentials = JWTCredentials(accountID.username, token)
-
-        registerAccount(transport.server.serverURL, jwtCredentials)
-
-        // TODO: also launch:
-        //   - workspace refresh
-        //   - offline check and update (in case of configuration change)
-
-        // This will directly try to use the newly registered session to get a Client
-//        val client: Client = sf.getUnlockedClient(accountID.id)
-//        val workspaces: MutableMap<String, WorkspaceNode> = HashMap()
-//        client.workspaceList { ws: Node ->
-//            workspaces[(ws as WorkspaceNode).slug] = ws
-//        }
-//        val account: AccountRecord = sf.getSession(accountID.id).getAccount()
-//        account.setWorkspaces(workspaces)
-//        App.getAccountService().updateAccount(account)
-//        App.getSessionFactory().loadKnownAccounts()
-
-
-        // TODO ?
-        // Set the session as current in the app
-        // Adapt poll and tasks
-        // check if it was a background thread
-        // redirectToCallerWithNewState(State.fromAccountId(accountID.id), oauthState)
-        return accountID.id
-    }
-
 
     // TODO there is more idiomatic way to do, see "behind the scene" codelab
     fun toAccount(username: String, server: Server): RAccount {

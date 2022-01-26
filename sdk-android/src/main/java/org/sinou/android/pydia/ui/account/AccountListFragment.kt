@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentAccountListBinding
 import org.sinou.android.pydia.db.account.AccountDB
+import org.sinou.android.pydia.services.AuthService
 
 class AccountListFragment : Fragment() {
 
@@ -79,10 +80,21 @@ class AccountListFragment : Fragment() {
                     StateID.fromId(accountID).withPath(AppNames.CUSTOM_PATH_ACCOUNTS)
                 )
                 val server = CellsApp.instance.accountService.sessionFactory.getServer(accountID)
-                val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
-                toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, server.serverURL.toJson())
-                toAuthIntent.putExtra(AppNames.EXTRA_SERVER_IS_LEGACY, server.isLegacy)
-                startActivity(toAuthIntent)
+                if (server.isLegacy) {
+                    val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
+                    toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, server.serverURL.toJson())
+                    toAuthIntent.putExtra(AppNames.EXTRA_SERVER_IS_LEGACY, server.isLegacy)
+                    startActivity(toAuthIntent)
+                } else {
+                    lifecycleScope.launch {
+                        val toAuthIntent =
+                            CellsApp.instance.accountService.authService.createOAuthIntent(
+                                server.serverURL,
+                                AuthService.NEXT_ACTION_ACCOUNTS
+                            )
+                        startActivity(toAuthIntent)
+                    }
+                }
             }
             ACTION_LOGOUT -> lifecycleScope.launch {
                 CellsApp.instance.accountService.logoutAccount(accountID)

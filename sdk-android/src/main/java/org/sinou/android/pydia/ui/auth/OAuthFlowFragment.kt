@@ -46,19 +46,13 @@ class OAuthFlowFragment : Fragment() {
         binding.oAuthViewModel = viewModel
         binding.lifecycleOwner = this
 
-        viewModel.launchOAuthIntent.observe(requireActivity(), { intent ->
-            Log.i(fTag, "... ReadyToAuth")
-            intent?.let {
-                startActivity(intent)
-                viewModel.authLaunched()
-            }
-        })
-
-        viewModel.accountID.observe(requireActivity(), { accountId ->
-            accountId?.let {
+        viewModel.accountID.observe(requireActivity(), { pair ->
+            pair?.let {
+                val (accountID, next) = pair
+                // TODO handle passed next state
                 var nextState = CellsApp.instance.getCurrentState()
                 if (AppNames.CUSTOM_PATH_ACCOUNTS != nextState?.path) {
-                    nextState = StateID.fromId(accountId)
+                    nextState = StateID.fromId(accountID)
                     CellsApp.instance.setCurrentState(nextState)
                 }
                 Log.i(fTag, "Auth Successful, navigating to $nextState")
@@ -76,18 +70,18 @@ class OAuthFlowFragment : Fragment() {
         Log.i(fTag, "onResume")
         super.onResume()
 
-        if (flowArgs.serverUrlString != null && !(viewModel.isProcessing.value!!)) {
-            viewModel.launchOAuthProcess(
-                ServerURLImpl.fromJson(flowArgs.serverUrlString)
-            )
-        } else {
+//        if (flowArgs.serverUrlString != null && !(viewModel.isProcessing.value!!)) {
+//            viewModel.launchOAuthProcess(
+//                ServerURLImpl.fromJson(flowArgs.serverUrlString)
+//            )
+//        } else {
             val uri = requireActivity().intent.data ?: return
             val state = uri.getQueryParameter(AppNames.KEY_STATE)
             val code = uri.getQueryParameter(AppNames.KEY_CODE)
             if (code != null && state != null) {
                 viewModel.handleResponse(state, code)
             }
-        }
+//        }
     }
 
     override fun onPause() {

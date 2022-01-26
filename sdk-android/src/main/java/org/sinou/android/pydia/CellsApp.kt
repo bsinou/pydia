@@ -55,12 +55,14 @@ class CellsApp : Application() {
             val clientID = updateClientData()
             sharedPreferences = getSharedPreferences(clientID, Context.MODE_PRIVATE)
 
+            Log.i(tag, "... Pre-init done")
+
             // delay(1L)
             initServices()
 
             // TODO also set-up worker tasks
-            Log.i(tag, "Delayed init terminated")
             ready = true
+            Log.i(tag, "Delayed init terminated")
         }
     }
 
@@ -71,11 +73,16 @@ class CellsApp : Application() {
             filesDir
         )
 
+        Log.i(tag, "... Account service ready")
+
         nodeService = NodeService(
             TreeNodeDB.getDatabase(applicationContext),
             accountService,
             filesDir,
         )
+
+        Log.i(tag, "... Node service ready")
+
     }
 
     @Throws(SDKException::class)

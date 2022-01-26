@@ -9,7 +9,7 @@
 
     <style name="text_title" parent="text_body">
         <item name="android:textColor">@color/colorTextAccent</item>
-<!--        <item name="android:textFontWeight">600</item>-->
+        <!--        <item name="android:textFontWeight">600</item>-->
         <item name="android:textSize">@dimen/text_title_size</item>
     </style>
 
@@ -17,11 +17,10 @@
         <item name="android:textSize">@dimen/text_accent_size</item>
     </style>
 
-    <style name="text_list_secondary" parent="text_body">
-    </style>
+    <style name="text_list_secondary" parent="text_body"></style>
 
-    <style name="avatar_icon" >
-<!--        <item name="android:iconTint">@color/colorAvatarDefault</item>-->
+    <style name="avatar_icon">
+        <!--        <item name="android:iconTint">@color/colorAvatarDefault</item>-->
         <item name="android:layout_marginStart">@dimen/text_padding_medium</item>
         <item name="android:layout_marginEnd">@dimen/text_padding_medium</item>
         <item name="android:layout_marginTop">@dimen/text_padding_x_small</item>

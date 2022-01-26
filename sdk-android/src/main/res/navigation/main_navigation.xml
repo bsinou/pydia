@@ -39,6 +39,10 @@
         android:id="@+id/open_about"
         app:destination="@id/about_destination" />
 
+    <action
+        android:id="@+id/open_sample"
+        app:destination="@id/sample_destination" />
+
     <!-- BROWSE -->
 
     <fragment
@@ -137,9 +141,15 @@
         tools:layout="@layout/fragment_about" />
 
     <fragment
+        android:id="@+id/sample_destination"
+        android:name="org.sinou.android.pydia.ui.home.SampleFragment"
+        android:label="@string/action_open_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
         android:id="@+id/settings_destination"
         android:name="org.sinou.android.pydia.ui.home.SettingsFragment"
-        android:label="@string/settings"
+        android:label="@string/action_settings"
         tools:layout="@layout/fragment_settings" />
 
 </navigation>

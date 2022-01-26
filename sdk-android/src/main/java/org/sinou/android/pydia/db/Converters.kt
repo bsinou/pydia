@@ -3,7 +3,9 @@ package org.sinou.android.pydia.db
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.pydio.cells.api.ServerURL
 import com.pydio.cells.api.ui.WorkspaceNode
+import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import java.lang.reflect.Type
 import java.util.*
@@ -57,6 +59,15 @@ class Converters {
         return Gson().toJson(stateID)
     }
 
+    @TypeConverter
+    fun fromServerURL(url: ServerURL): String {
+        return url.toJson()
+    }
+
+    @TypeConverter
+    fun toServerURL(value: String): ServerURL {
+        return ServerURLImpl.fromJson(value)
+    }
 
 //    @TypeConverter
 //    fun fromTimestamp(value: Long?): Date? {

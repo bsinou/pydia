@@ -6,7 +6,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = arrayOf(RAccount::class, RToken::class, RLegacyCredentials::class, RSession::class),
+    entities = arrayOf(
+        RAccount::class,
+        RSession::class,
+        ROAuthState::class,
+        RToken::class,
+        RLegacyCredentials::class
+    ),
     views = arrayOf(RLiveSession::class),
     version = 1,
     exportSchema = false,
@@ -14,6 +20,8 @@ import androidx.room.RoomDatabase
 abstract class AccountDB : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
+
+    abstract fun authStateDao(): OAuthStateDao
 
     abstract fun tokenDao(): TokenDao
 

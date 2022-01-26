@@ -21,12 +21,20 @@
         - go to p8 cred fragment
         -->
         <action
+            android:id="@+id/action_confirm_skip_verify"
+            app:destination="@id/confirm_skip_tls_verify" />
+        <action
             android:id="@+id/action_server_url_to_p8_creds"
             app:destination="@id/p8_credentials_destination" />
         <action
             android:id="@+id/action_server_url_to_oauth_flow"
             app:destination="@id/oauth_flow_destination" />
     </fragment>
+
+    <dialog
+        android:id="@+id/confirm_skip_tls_verify"
+        android:name="org.sinou.android.pydia.ui.auth.ConfirmSkipTlsVerificationDialog"
+        android:label="@string/invalid_tls_certificate"/>
 
     <fragment
         android:id="@+id/p8_credentials_destination"

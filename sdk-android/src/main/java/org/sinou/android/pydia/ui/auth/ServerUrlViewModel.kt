@@ -1,5 +1,6 @@
 package org.sinou.android.pydia.ui.auth
 
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,7 +12,10 @@ import com.pydio.cells.api.ServerURL
 import com.pydio.cells.transport.ServerURLImpl
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.services.AccountService
+import org.sinou.android.pydia.services.AuthService
+import java.io.IOException
 import java.net.MalformedURLException
+import javax.net.ssl.SSLException
 
 /**
  * Manages the declaration of a new server, by:
@@ -24,7 +28,6 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
     private val tag = "ServerUrlViewModel"
 
     private var viewModelJob = Job()
-
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     // First step, we have nothing then an address
@@ -34,8 +37,9 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
 
     // Handle TLS if necessary
     private val _skipVerify = MutableLiveData<Boolean>()
-    val skipVerify: LiveData<Boolean>
-        get() = _skipVerify
+    private val _unvalidTLS = MutableLiveData<Boolean>()
+    val unvalidTLS: LiveData<Boolean>
+        get() = _unvalidTLS
 
     // A valid server URL with TLS managed
     private val _serverUrl = MutableLiveData<ServerURL>()
@@ -46,6 +50,11 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
     private val _server = MutableLiveData<Server?>()
     val server: LiveData<Server?>
         get() = _server
+
+    // Temporary intent to launch external OAuth Process
+    private val _nextIntent = MutableLiveData<Intent?>()
+    val nextIntent: LiveData<Intent?>
+        get() = _nextIntent
 
     // Manage UI
     private val _isLoading = MutableLiveData<Boolean>()
@@ -74,27 +83,17 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
                     _server.value = it
                 }
             }
-            switchLoading(false)
-        }
-    }
-
-    fun registerServer(serverURL: ServerURL) {
-        vmScope.launch {
-            switchLoading(true)
-            val server = doRegister(serverURL)
-            server?.let {
-                _server.value = it
-            }
-            switchLoading(false)
         }
     }
 
     fun authLaunched() {
-        _server.value = null
+        // rather reset this when the launch has been canceled and the user modifies the URL
+        // _server.value = null
+        switchLoading(false)
     }
 
-    private fun switchLoading(newState: Boolean) {
-        _isLoading.value = newState
+    fun intentStarted() {
+        _nextIntent.value = null
     }
 
     private suspend fun doPing(serverAddress: String): ServerURL? {
@@ -102,10 +101,21 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
             Log.i(tag, "Perform real ping to $serverAddress")
             var newURL: ServerURL? = null
             try {
-                newURL = ServerURLImpl.fromAddress(serverAddress)
+                val tmp = _skipVerify.value?.let { it } ?: false
+                newURL = ServerURLImpl.fromAddress(serverAddress, tmp)
                 newURL.ping()
             } catch (e: MalformedURLException) {
                 updateErrorMsg(e.message ?: "Invalid address, please update")
+            } catch (e: SSLException) {
+                updateErrorMsg("Invalid certificate for $serverAddress")
+                withContext(Dispatchers.Main) {
+                    _skipVerify.value = false
+                    _unvalidTLS.value = true
+                }
+                return@withContext null
+            } catch (e: IOException) {
+                updateErrorMsg(e.message ?: "IOException:")
+                e.printStackTrace()
             } catch (e: Exception) {
                 updateErrorMsg(e.message ?: "Invalid address, please update")
                 e.printStackTrace()
@@ -114,22 +124,42 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
         }
     }
 
-    private suspend fun doRegister(su: ServerURL): Server? {
-
-        return withContext(Dispatchers.IO) {
-            Log.i(tag, "About to register the server ${su.id}")
-            var newServer: Server? = null
-            try {
-                newServer = accountService.sessionFactory.registerServer(su)
-
-            } catch (e: SDKException) {
-                updateErrorMsg(
-                    e.message
-                        ?: "This does not seem to be a Pydio server address, please double check"
-                )
-            }
-            newServer
+    fun confirmTlsValidationSkip(doSkip: Boolean) {
+        if (doSkip) {
+            _skipVerify.value = true
+            serverAddress.value?.let { pingAddress(it) }
+        } else {
+            // cancel server and give the user the possibility to enter another address
         }
+    }
+
+
+    private suspend fun doRegister(su: ServerURL): Server? = withContext(Dispatchers.IO) {
+        Log.i(tag, "About to register the server ${su.id}")
+        var newServer: Server? = null
+        try {
+            newServer = accountService.sessionFactory.registerServer(su)
+        } catch (e: SDKException) {
+            updateErrorMsg(
+                e.message
+                    ?: "This does not seem to be a Pydio server address, please double check"
+            )
+        }
+        newServer
+    }
+
+    fun launchOAuthProcess(serverURL: ServerURL) {
+        vmScope.launch {
+            _nextIntent.value = accountService.authService.createOAuthIntent(
+                serverURL,
+                AuthService.NEXT_ACTION_BROWSE
+            )
+            switchLoading(false)
+        }
+    }
+
+    private fun switchLoading(newState: Boolean) {
+        _isLoading.value = newState
     }
 
     private suspend fun updateErrorMsg(msg: String) {
@@ -159,5 +189,4 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
-
 }

@@ -10,10 +10,11 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="collapseActionView|ifRoom" />
 
+<!-- TODO make title dynamic -->
     <item
         android:id="@+id/switch_recycler_layout"
         android:icon="@drawable/ic_sharp_grid_view_24"
-        android:title="@string/button_switch_list_layout"
+        android:title="@string/button_switch_to_grid_layout"
         app:showAsAction="ifRoom" />
 <!--    android:iconTint="@color/colorOnPrimary"-->
 <!--    android:iconTintMode="src_atop"-->

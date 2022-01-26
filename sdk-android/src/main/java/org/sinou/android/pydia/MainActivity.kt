@@ -22,6 +22,8 @@ import org.sinou.android.pydia.databinding.ActivityMainBinding
 import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.browse.getIconForWorkspace
 import org.sinou.android.pydia.ui.search.SearchFragment
+import org.sinou.android.pydia.utils.NetworkStatus
+import org.sinou.android.pydia.utils.NetworkStatusHelper
 import org.sinou.android.pydia.utils.dumpBackStack
 import org.sinou.android.pydia.utils.showMessage
 import kotlin.system.exitProcess
@@ -65,6 +67,16 @@ class MainActivity : AppCompatActivity() {
 //        binding.toolbar.setNavigationOnClickListener {
 //            onBackPressed()
 //        }
+
+        NetworkStatusHelper(this@MainActivity).observe(this, {
+            showMessage(
+                this@MainActivity,
+                when (it) {
+                    NetworkStatus.Available -> "Network Connection Established"
+                    NetworkStatus.Unavailable -> "No Internet"
+                }
+            )
+        })
 
     }
 

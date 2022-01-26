@@ -69,10 +69,14 @@ class LandActivity : AppCompatActivity() {
         repeat(30) { // we wait at most 30 seconds before crashing
             Log.i(TAG, "Waiting for backend to be ready")
             if (CellsApp.instance.ready) {
-                if (CellsApp.instance.accountService.sessionFactory.isReady()) {
-                    Log.i(TAG, "### Backend is now ready")
-                    return
-                }
+                Log.i(TAG, "### Backend is now ready")
+                return
+                // TODO session factory might not be ready at this point
+//
+                //                if (CellsApp.instance.accountService.sessionFactory.isReady()) {
+//                    Log.i(TAG, "### Backend is now ready")
+//                    return
+//                }
             }
             delay(tickDuration)
         }

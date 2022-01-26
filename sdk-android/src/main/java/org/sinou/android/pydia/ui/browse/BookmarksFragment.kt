@@ -45,8 +45,8 @@ class BookmarksFragment : Fragment() {
 
     private fun onClicked(node: RTreeNode, command: String) {
         when (command) {
-            BrowseFolderFragment.ACTION_OPEN -> navigateTo(node)
-            BrowseFolderFragment.ACTION_MORE -> {
+            AppNames.ACTION_OPEN -> navigateTo(node)
+            AppNames.ACTION_MORE -> {
                 val action = BookmarksFragmentDirections.openMoreMenu(
                     node.encodedState,
                     TreeNodeMenuFragment.CONTEXT_BOOKMARKS

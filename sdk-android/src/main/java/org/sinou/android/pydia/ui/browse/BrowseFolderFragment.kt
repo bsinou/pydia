@@ -27,9 +27,6 @@ class BrowseFolderFragment : Fragment() {
 
     companion object {
         private const val fTag = "BrowseFolderFragment"
-
-        const val ACTION_MORE = "more"
-        const val ACTION_OPEN = "open"
     }
 
     private lateinit var binding: FragmentBrowseFolderBinding
@@ -88,8 +85,8 @@ class BrowseFolderFragment : Fragment() {
     private fun onClicked(node: RTreeNode, command: String) {
         Log.i(fTag, "Clicked on ${browseFolderVM.stateID} -> $command")
         when (command) {
-            ACTION_OPEN -> navigateTo(node)
-            ACTION_MORE -> {
+            AppNames.ACTION_OPEN -> navigateTo(node)
+            AppNames.ACTION_MORE -> {
                 val action = BrowseFolderFragmentDirections
                     .openMoreMenu(
                         node.encodedState, when (node.mime) {
@@ -110,6 +107,7 @@ class BrowseFolderFragment : Fragment() {
 
         browseFolderVM.resume()
 
+        // FIXME we should not statically link MainActivity here.
         (requireActivity() as MainActivity).supportActionBar?.let {
             it.title = if (Str.empty(browseFolderVM.stateID.fileName)) {
                 browseFolderVM.stateID.workspace
@@ -120,6 +118,8 @@ class BrowseFolderFragment : Fragment() {
             }
             it.setDisplayHomeAsUpEnabled(true)
         }
+
+
 
         // (requireActivity() as MainActivity).registerForSearch(browseFolderVM.stateID, TreeNodeMenuFragment.CONTEXT_BROWSE)
     }

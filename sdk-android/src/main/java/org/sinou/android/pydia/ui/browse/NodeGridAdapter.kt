@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.GridItemNodeBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
 
@@ -33,7 +34,7 @@ class NodeGridAdapter(
         ): ViewHolder {
 
             binding.root.setOnClickListener {
-                binding.node?.let { onItemClicked(it, BrowseFolderFragment.ACTION_OPEN) }
+                binding.node?.let { onItemClicked(it, AppNames.ACTION_OPEN) }
             }
 
             return this

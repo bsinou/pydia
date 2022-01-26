@@ -55,7 +55,7 @@ class ChooseTargetViewModel(
                         mimeMap.getExtensionFromMimeType(mime)?.let {
                             // TODO make a better check
                             //   - retrieve file extension
-                            //   - only append if the extension seems to be unvalid
+                            //   - only append if the extension seems to be invalid
                             if (!filename.endsWith(it, true)) {
                                 filename += ".$it"
                             }

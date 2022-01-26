@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.api.ui.WorkspaceNode
-import org.sinou.android.pydia.ui.browse.BrowseFolderFragment
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemWorkspaceBinding
 
 class WorkspaceListAdapter(
@@ -34,7 +34,7 @@ class WorkspaceListAdapter(
                 : ViewHolder {
 
             binding.root.setOnClickListener {
-                binding.workspace?.let { onItemClicked(it.slug, BrowseFolderFragment.ACTION_OPEN) }
+                binding.workspace?.let { onItemClicked(it.slug, AppNames.ACTION_OPEN) }
             }
             return this
         }

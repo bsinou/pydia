@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
-import org.sinou.android.pydia.ui.browse.BrowseFolderFragment
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
 
@@ -40,7 +40,7 @@ class FolderListAdapter(
 
             binding.root.setOnClickListener {
                 binding.node?.let {
-                    onItemClicked(parentStateID.child(it.name), BrowseFolderFragment.ACTION_OPEN)
+                    onItemClicked(parentStateID.child(it.name), AppNames.ACTION_OPEN)
                 }
             }
             return this

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
-import org.sinou.android.pydia.ui.browse.BrowseFolderFragment
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemAccountBinding
 import org.sinou.android.pydia.db.account.RLiveSession
 
@@ -37,7 +37,7 @@ class SessionListAdapter(
 
             binding.root.setOnClickListener {
                 binding.session?.let {
-                    onItemClicked(StateID.fromId(it.accountID), BrowseFolderFragment.ACTION_OPEN)
+                    onItemClicked(StateID.fromId(it.accountID), AppNames.ACTION_OPEN)
                 }
             }
             return this
@@ -55,14 +55,11 @@ class SessionListAdapter(
 
 class SessionsDiffCallback : DiffUtil.ItemCallback<RLiveSession>() {
 
-    private val tag = "TreeFolderDiffCallback"
-
     override fun areItemsTheSame(oldItem: RLiveSession, newItem: RLiveSession): Boolean {
         return oldItem.accountID == newItem.accountID
     }
 
     override fun areContentsTheSame(oldItem: RLiveSession, newItem: RLiveSession): Boolean {
-        var same = oldItem.authStatus == newItem.authStatus
-        return same
+        return oldItem.authStatus == newItem.authStatus
     }
 }

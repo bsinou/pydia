@@ -11,9 +11,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.pydio.cells.transport.StateID
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.ui.browse.BrowseFolderFragment
 import org.sinou.android.pydia.databinding.FragmentPickSessionBinding
 
 class PickSessionFragment : Fragment() {
@@ -61,7 +61,7 @@ class PickSessionFragment : Fragment() {
         Log.i(fTag, "ID: $stateID, do $command")
 
         when (command) {
-            BrowseFolderFragment.ACTION_OPEN -> {
+            AppNames.ACTION_OPEN -> {
                 val action = PickSessionFragmentDirections.actionPickWs(stateID.id)
                 findNavController().navigate(action)
             }

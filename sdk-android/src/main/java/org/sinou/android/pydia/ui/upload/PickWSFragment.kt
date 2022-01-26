@@ -15,7 +15,6 @@ import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.ui.browse.BrowseFolderFragment
 import org.sinou.android.pydia.databinding.FragmentPickWsBinding
 
 class PickWSFragment : Fragment() {
@@ -26,7 +25,6 @@ class PickWSFragment : Fragment() {
     private lateinit var binding: FragmentPickWsBinding
     private lateinit var targetWsVM: PickWSViewModel
     private lateinit var chooseTargetVM: ChooseTargetViewModel
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,7 +77,7 @@ class PickWSFragment : Fragment() {
         Log.i(fTag, "ID: $stateID, do $command")
 
         when (command) {
-            BrowseFolderFragment.ACTION_OPEN -> navigateTo(stateID.withPath("/${slug}"))
+            AppNames.ACTION_OPEN -> navigateTo(stateID.withPath("/${slug}"))
             else -> return // do nothing
         }
     }
@@ -88,7 +86,6 @@ class PickWSFragment : Fragment() {
         super.onResume()
         chooseTargetVM.setCurrentState(stateID)
     }
-
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         savedInstanceState.putSerializable(AppNames.EXTRA_STATE, stateID.id)

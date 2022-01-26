@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
@@ -75,7 +76,7 @@ class SearchFragment : Fragment() {
     private fun onClicked(node: RTreeNode, command: String) {
         Log.i(fTag, "Clicked on ${node.name} -> $command")
         when (command) {
-            BrowseFolderFragment.ACTION_OPEN -> navigateTo(node)
+            AppNames.ACTION_OPEN -> navigateTo(node)
             /* BrowseFolderFragment.ACTION_MORE -> {
                  val action = BrowseFolderFragmentDirections
                      .openMoreMenu(

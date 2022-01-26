@@ -16,6 +16,10 @@ public interface AppNames {
     String RECYCLER_LAYOUT_LIST = "list";
     String RECYCLER_LAYOUT_GRID = "grid";
 
+    /* GENERIC ACTIONS */
+    String ACTION_MORE = "more";
+    String ACTION_OPEN = "open";
+
     /* INTENTS */
     String EXTRA_STATE = KEY_PREFIX_ + "state";
     String EXTRA_ACCOUNT_ID = KEY_PREFIX_ + "account.id";

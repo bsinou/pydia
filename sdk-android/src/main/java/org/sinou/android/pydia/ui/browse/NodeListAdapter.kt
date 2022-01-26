@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
 
@@ -34,11 +35,11 @@ class NodeListAdapter(
         ): ViewHolder {
 
             binding.root.setOnClickListener {
-                binding.node?.let { onItemClicked(it, BrowseFolderFragment.ACTION_OPEN) }
+                binding.node?.let { onItemClicked(it, AppNames.ACTION_OPEN) }
             }
 
             binding.listItemMore.setOnClickListener {
-                binding.node?.let { onItemClicked(it, BrowseFolderFragment.ACTION_MORE) }
+                binding.node?.let { onItemClicked(it, AppNames.ACTION_MORE) }
             }
 
             return this

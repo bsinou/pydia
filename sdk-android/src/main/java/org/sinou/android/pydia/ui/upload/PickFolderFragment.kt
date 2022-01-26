@@ -14,7 +14,6 @@ import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.ui.browse.BrowseFolderFragment
 import org.sinou.android.pydia.databinding.FragmentPickFolderBinding
 
 class PickFolderFragment : Fragment() {
@@ -67,7 +66,7 @@ class PickFolderFragment : Fragment() {
 
     private fun onClicked(stateID: StateID, command: String) {
         when (command) {
-            BrowseFolderFragment.ACTION_OPEN -> navigateTo(stateID)
+            AppNames.ACTION_OPEN -> navigateTo(stateID)
             else -> return // do nothing
         }
     }

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
@@ -75,7 +76,7 @@ class ChooseWorkspaceFragment : Fragment() {
     private fun onWsClicked(slug: String, command: String) {
         val activeSession = activeSessionVM.activeSession.value ?: return
         when (command) {
-            BrowseFolderFragment.ACTION_OPEN -> {
+            AppNames.ACTION_OPEN -> {
                 val targetState = StateID.fromId(activeSession.accountID).withPath("/${slug}")
                 CellsApp.instance.setCurrentState(targetState)
                 findNavController().navigate(MainNavDirections.openFolder(targetState.id))

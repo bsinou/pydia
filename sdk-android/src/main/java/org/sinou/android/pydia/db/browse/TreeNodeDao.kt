@@ -14,6 +14,12 @@ interface TreeNodeDao {
     @Update
     fun update(treeNode: RTreeNode)
 
+    @Query("DELETE FROM tree_node_table WHERE encoded_state = :stateId")
+    fun delete(stateId: String)
+
+    @Query("DELETE FROM tree_node_table WHERE encoded_state like :stateId || '%'")
+    fun deleteUnder(stateId: String)
+
     @Query("SELECT * FROM tree_node_table WHERE encoded_state = :encodedState LIMIT 1")
     fun getLiveNode(encodedState: String): LiveData<RTreeNode>
 
@@ -22,6 +28,9 @@ interface TreeNodeDao {
 
     @Query("SELECT * FROM tree_node_table WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY sort_name")
     fun ls(encodedParentStateID: String, parentPath: String): LiveData<List<RTreeNode>>
+
+    @Query("SELECT * FROM tree_node_table WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY name")
+    fun getNodesForDiff(encodedParentStateID: String, parentPath: String): List<RTreeNode>
 
     @Query("SELECT * FROM tree_node_table WHERE name like '%' ||  :name || '%' LIMIT 100")
     fun query(name: String): List<RTreeNode>

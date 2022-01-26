@@ -116,5 +116,3 @@ class ConfirmSkipTlsVerificationDialog : DialogFragment() {
         return builder.create()
     }
 }
-
-

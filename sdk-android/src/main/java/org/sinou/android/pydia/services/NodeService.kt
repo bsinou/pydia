@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.*
 import com.pydio.cells.api.ui.FileNode
-import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.api.ui.Stats
 import com.pydio.cells.transport.StateID
@@ -15,7 +14,6 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDB
 import org.sinou.android.pydia.transfer.ThumbDownloader
-import org.sinou.android.pydia.utils.AndroidCustomEncoder
 import org.sinou.android.pydia.utils.getMimeType
 import java.io.*
 import java.util.*
@@ -26,11 +24,8 @@ class NodeService(
     private val filesDir: File
 ) {
 
-    private val encoder: CustomEncoder = AndroidCustomEncoder()
-
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
-
 
     /* Expose DB content as LiveData for the view models */
 
@@ -69,54 +64,17 @@ class NodeService(
         nodeDB.treeNodeDao().getNode(stateID.id)
     }
 
-
     /* Handle communication with the remote server to refresh locally stored data */
 
+    /** Retrieve the meta of all readable nodes that are at the passed stateID */
     suspend fun pull(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
             val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
-            val page = firstPage()
             val dao = nodeDB.treeNodeDao()
+            val thumbDL = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, THUMB_DIR))
 
-            val downloader = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, THUMB_DIR))
-
-            val nextPage = client.ls(
-                stateID.workspace, stateID.file, page
-            ) { node: Node? ->
-
-                if (node == null || node !is FileNode) {
-                    Log.w(TAG, "could not store node: $node")
-                } else {
-                    val childStateID = stateID.child(node.label)
-                    val rNode = toRTreeNode(childStateID, node)
-                    val old = dao.getNode(childStateID.id)
-                    if (old == null) {
-                        dao.insert(rNode)
-                        // TODO also check if image has changed
-                        if (node.isImage) {
-                            launch {
-                                downloader.orderThumbDL(childStateID.id)
-                            }
-                        }
-                    } else {
-                        var hasChanged = false
-                        if (old.remoteModificationTS != node.lastModified()) {
-                            Log.i(
-                                TAG, "${old.name} has changed, \n" +
-                                        "old TS: ${old.remoteModificationTS}, \n" +
-                                        "new TS  ${node.lastModified()}"
-                            )
-                            dao.update(rNode)
-                            hasChanged = true
-                        }
-                        if (node.isImage && (hasChanged || old.thumbFilename == null)) {
-                            launch {
-                                downloader.orderThumbDL(childStateID.id)
-                            }
-                        }
-                    }
-                }
-            }
+            val folderDiff = FolderDiff(client, dao, thumbDL,  stateID)
+            folderDiff.compareWithRemote()
 
             // TODO Also update parent?
 /*
@@ -129,7 +87,6 @@ class NodeService(
                 dao.update(rNode)
             }
 */
-
         } catch (e: SDKException) {
             handleSDKException("could not perform ls for " + stateID.id, e)
             return@withContext "Cannot connect to distant server"
@@ -178,7 +135,7 @@ class NodeService(
             when {
                 isOK == null && rTreeNode.localFilename != null -> File(rTreeNode.localFilename)
                 isOK == null && rTreeNode.localFilename == null -> null
-                isOK?:false -> File(rTreeNode.localFilename)
+                isOK ?: false -> File(rTreeNode.localFilename)
             }
 
             val stateID = rTreeNode.getStateID()
@@ -331,14 +288,6 @@ class NodeService(
         private const val TAG = "NodeService"
         private const val THUMB_DIR = "thumbs"
         private const val FILES_DIR = "files"
-
-        fun firstPage(): PageOptions {
-            val page = PageOptions()
-            page.limit = 1000
-            page.offset = 0
-            page.currentPage = 1
-            return page
-        }
 
         fun dataDir(filesDir: File, stateID: StateID, type: String): File {
             val ps = File.separator

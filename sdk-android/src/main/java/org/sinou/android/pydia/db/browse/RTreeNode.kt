@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.pydio.cells.api.SdkNames
 import org.sinou.android.pydia.db.Converters
 import java.util.*
 
@@ -47,5 +48,9 @@ data class RTreeNode(
     @ColumnInfo(name = "thumb") var thumbFilename: String? = null,
 
     @ColumnInfo(name = "local") var localFilename: String? = null,
-)
+) {
+    fun isFolder(): Boolean {
+        return mime == SdkNames.NODE_MIME_FOLDER || mime == SdkNames.NODE_MIME_RECYCLE
+    }
+}
 

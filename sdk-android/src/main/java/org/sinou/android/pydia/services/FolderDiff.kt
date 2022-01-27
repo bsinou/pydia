@@ -38,7 +38,6 @@ class FolderDiff(
     private val folderDiffJob = Job()
     private val diffScope = CoroutineScope(Dispatchers.IO + folderDiffJob)
 
-
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     suspend fun compareWithRemote(): String? = withContext(Dispatchers.IO) {
         try {

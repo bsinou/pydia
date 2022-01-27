@@ -29,6 +29,8 @@ class BrowseFolderFragment : Fragment() {
         private const val fTag = "BrowseFolderFragment"
     }
 
+    private val args: BrowseFolderFragmentArgs by navArgs()
+
     private lateinit var binding: FragmentBrowseFolderBinding
     private lateinit var browseFolderVM: BrowseFolderViewModel
 
@@ -41,18 +43,49 @@ class BrowseFolderFragment : Fragment() {
             inflater, R.layout.fragment_browse_folder, container, false
         )
 
-        val args: BrowseFolderFragmentArgs by navArgs()
-
-        val viewModelFactory = BrowseFolderViewModel.TreeFolderViewModelFactory(
+        val viewModelFactory = BrowseFolderViewModel.BrowseFolderViewModelFactory(
             CellsApp.instance.accountService,
             CellsApp.instance.nodeService,
             StateID.fromId(args.state),
             requireActivity().application,
         )
-
         val tmpVM: BrowseFolderViewModel by viewModels { viewModelFactory }
         browseFolderVM = tmpVM
 
+        configureRecyclerAdapter()
+
+        val backPressedCallback = BackStackAdapter.initialised(
+            parentFragmentManager,
+            findNavController(),
+            StateID.fromId(args.state)
+        )
+        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+
+        setHasOptionsMenu(true)
+        browseFolderVM.currentFolder.observe(this, {
+            it?.let {
+                if (it.isRecycle() || it.isInRecycle()) {
+                    binding.addNodeFab.visibility = View.GONE
+                } else {
+                    binding.addNodeFab.visibility = View.VISIBLE
+                    binding.addNodeFab.setOnClickListener { onFabClicked() }
+                }
+            }
+        })
+
+        // TODO workspace root is not a RTreeNode => we must handle it explicitly.
+        if (browseFolderVM.stateID.isWorkspaceRoot) {
+            binding.addNodeFab.visibility = View.VISIBLE
+        }
+        // Put this also in observer when the above has been fixed
+        binding.addNodeFab.setOnClickListener {
+            showMessage(requireContext(), "Implement me...")
+        }
+
+        return binding.root
+    }
+
+    private fun configureRecyclerAdapter() {
         val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
         if (asGrid) {
@@ -66,20 +99,6 @@ class BrowseFolderFragment : Fragment() {
             binding.nodes.adapter = adapter
             browseFolderVM.children.observe(viewLifecycleOwner, { adapter.submitList(it) })
         }
-
-        val backPressedCallback = BackStackAdapter.initialised(
-            parentFragmentManager,
-            findNavController(),
-            StateID.fromId(args.state)
-        )
-        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
-        setHasOptionsMenu(true)
-
-        binding.addNodeFab.setOnClickListener {
-            showMessage(requireContext(), "Implement me...")
-        }
-
-        return binding.root
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
@@ -101,6 +120,14 @@ class BrowseFolderFragment : Fragment() {
         }
     }
 
+    private fun onFabClicked() {
+        val action = BrowseFolderFragmentDirections.openMoreMenu(
+            browseFolderVM.stateID.id,
+            TreeNodeMenuFragment.CONTEXT_ADD
+        )
+        findNavController().navigate(action)
+    }
+
     override fun onResume() {
         super.onResume()
         dumpBackStack(fTag, parentFragmentManager)
@@ -118,10 +145,6 @@ class BrowseFolderFragment : Fragment() {
             }
             it.setDisplayHomeAsUpEnabled(true)
         }
-
-
-
-        // (requireActivity() as MainActivity).registerForSearch(browseFolderVM.stateID, TreeNodeMenuFragment.CONTEXT_BROWSE)
     }
 
     override fun onPause() {

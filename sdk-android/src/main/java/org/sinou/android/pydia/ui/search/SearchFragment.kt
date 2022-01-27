@@ -18,8 +18,8 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentSearchBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
-import org.sinou.android.pydia.ui.browse.BrowseFolderFragment
 import org.sinou.android.pydia.ui.browse.NodeListAdapter
+import org.sinou.android.pydia.ui.browse.TreeNodeMenuFragment
 import org.sinou.android.pydia.utils.externallyView
 import org.sinou.android.pydia.utils.isFolder
 
@@ -77,18 +77,13 @@ class SearchFragment : Fragment() {
         Log.i(fTag, "Clicked on ${node.name} -> $command")
         when (command) {
             AppNames.ACTION_OPEN -> navigateTo(node)
-            /* BrowseFolderFragment.ACTION_MORE -> {
-                 val action = BrowseFolderFragmentDirections
-                     .openMoreMenu(
-                         node.encodedState, when (node.mime) {
-                             SdkNames.NODE_MIME_RECYCLE -> TreeNodeMenuFragment.CONTEXT_RECYCLE
-                             else -> TreeNodeMenuFragment.CONTEXT_BROWSE
-                         }
-                     )
-                 findNavController().navigate(action)
-             }*/
-
-            else -> return // Unknown action, log warning and returns
+            AppNames.ACTION_MORE -> {
+                val action = SearchFragmentDirections.openMoreMenu(
+                    node.encodedState, TreeNodeMenuFragment.CONTEXT_SEARCH
+                )
+                findNavController().navigate(action)
+            }
+            else -> return // Unknown action, returns
         }
     }
 

@@ -56,5 +56,10 @@ data class RTreeNode(
     fun isInRecycle(): Boolean {
         return parentPath.startsWith("/${SdkNames.RECYCLE_BIN_NAME}")
     }
+
+    fun isRecycle(): Boolean {
+        return name == SdkNames.RECYCLE_BIN_NAME
+    }
+
 }
 

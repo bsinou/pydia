@@ -143,6 +143,16 @@ fun View.setShowForFolderOnly(item: RTreeNode?) {
     item?.let { visibility = if (it.isFolder()) View.VISIBLE else View.GONE }
 }
 
+@BindingAdapter("showForRecycle")
+fun View.setShowForRecycle(item: RTreeNode?) {
+    item?.let { visibility = if (it.isRecycle()) View.VISIBLE else View.GONE }
+}
+
+@BindingAdapter("showForWithinRecycle")
+fun View.setShowForWithinRecycle(item: RTreeNode?) {
+    item?.let { visibility = if (it.isInRecycle()) View.VISIBLE else View.GONE }
+}
+
 fun getIconForWorkspace(item: WorkspaceNode) = when (item.workspaceType) {
     SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
     SdkNames.WS_TYPE_CELL -> R.drawable.cells
@@ -164,9 +174,9 @@ fun getDrawableFromMime(mime: String): Int {
     }
 }
 
-fun RTreeNode.isFolder(): Boolean {
-    return SdkNames.NODE_MIME_FOLDER == mime || SdkNames.NODE_MIME_RECYCLE == mime
-}
+//fun RTreeNode.isFolder(): Boolean {
+//    return SdkNames.NODE_MIME_FOLDER == mime || SdkNames.NODE_MIME_RECYCLE == mime
+//}
 
 fun areContentsEquals(
     oldItem: RTreeNode,

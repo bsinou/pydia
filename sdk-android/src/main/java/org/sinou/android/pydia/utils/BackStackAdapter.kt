@@ -26,7 +26,7 @@ class BackStackAdapter(enabled: Boolean = false) : OnBackPressedCallback(enabled
     ) {
         this.manager = manager
         this.navController = navController
-        if (stateID.path == "/${stateID.workspace}") {
+        if (stateID.isWorkspaceRoot) {
             isEnabled = true
             accountID = StateID.fromId(stateID.accountId)
         }

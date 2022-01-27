@@ -104,6 +104,7 @@
     <!-- More menus -->
     <string name="more_button_description">Show more actions for this element</string>
     <string name="open_in_workspaces">Open location</string>
+    <string name="open_parent_in_workspaces">Open corresponding folder</string>
     <string name="open_with">Open with…</string>
     <string name="download_to_device">Download to device</string>
     <string name="rename">Rename…</string>
@@ -116,9 +117,13 @@
     <string name="bookmark">Bookmark</string>
     <string name="bookmark_element_content_desc">Bookmark this element</string>
     <string name="delete">Delete</string>
-    <string name="thumb_description">Small content preview</string>
-    <string name="folder_icon_description">Folder icon</string>
-    
+    <string name="empty_recycle">Empty recycle</string>
+    <string name="restore_content">Restore</string>
+    <string name="permanently_remove">Permanently remove</string>
+    <string name="create_folder">Create folder here</string>
+    <string name="import_files">Import from device</string>
+    <string name="import_from_camera">Import from camera</string>
+
     <!-- Dialogs -->
     <string name="confirm_account_deletion_title">Delete account %s?</string>
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
@@ -126,4 +131,9 @@
     <string name="node_add_button">Create or import</string>
     <string name="create_account">Create an account</string>
     <string name="content_description_media">Preview of the content</string>
+
+    <!-- Accessibility various content -->
+    <string name="thumb_description">Small content preview</string>
+    <string name="folder_icon_description">Folder icon</string>
+
 </resources>

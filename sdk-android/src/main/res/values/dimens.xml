@@ -20,9 +20,9 @@
     <dimen name="text_padding_large">24dp</dimen>
 
     <!-- Recycler View -->
-    <!-- Small hack so that the last element of the list "more" button is not under
-         the FAB when we reach the end of the list that is more than one screen high -->
-    <!-- TODO does not work...    <dimen name="recycler_bottom_margin">64dp</dimen>-->
+    <!-- So that the last element of the list is not hidden by the fab
+        Goes with the clipToPadding=false prop in the recycler layout -->
+    <dimen name="recycler_bottom_fab_padding">64dp</dimen>
     <!-- List Items -->
     <dimen name="list_icon_size">24dp</dimen>
     <dimen name="list_icon_inner_size">16dp</dimen>
@@ -60,9 +60,9 @@
     <dimen name="nav_horizontal_margin">8dp</dimen>
 
     <!-- FAB -->
-    <dimen name="fab_inner_image_size">32dp</dimen>
     <dimen name="fab_padding">2dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fab_inner_image_size">32dp</dimen>
 
     <!-- Main layout -->
     <dimen name="offline_status_bar_height">96dp</dimen>

@@ -12,6 +12,8 @@
             android:id="@+id/nodes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/recycler_bottom_fab_padding"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <!-- android:paddingBottom="@dimen/recycler_bottom_margin"-->
@@ -22,10 +24,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
+            android:contentDescription="@string/node_add_button"
             android:padding="@dimen/fab_padding"
+            android:visibility="gone"
             app:maxImageSize="@dimen/fab_inner_image_size"
-            app:srcCompat="@drawable/ic_baseline_add_24"
-            android:contentDescription="@string/node_add_button" />
+            app:srcCompat="@drawable/ic_baseline_add_24" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

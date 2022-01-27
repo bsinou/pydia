@@ -13,12 +13,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.databinding.MoreMenuBookmarksBinding
-import org.sinou.android.pydia.databinding.MoreMenuBrowseBinding
+import org.sinou.android.pydia.databinding.*
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.utils.openWith
 
@@ -32,19 +32,28 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val TAG = "TreeNodeActionsFragment"
 
         const val CONTEXT_BROWSE = "browse"
+        const val CONTEXT_ADD = "add"
         const val CONTEXT_RECYCLE = "from_recycle"
         const val CONTEXT_BOOKMARKS = "from_bookmarks"
+        const val CONTEXT_SEARCH = "from_search"
         const val CONTEXT_OFFLINE = "from_offline"
 
         const val ACTION_OPEN_WITH = "open_with"
         const val ACTION_DOWNLOAD_TO_DEVICE = "download_to_device"
         const val ACTION_OPEN_IN_WORKSPACES = "open_in_workspaces"
+        const val ACTION_OPEN_PARENT_IN_WORKSPACES = "open_in_workspaces"
         const val ACTION_RENAME = "rename"
         const val ACTION_COPY = "copy"
         const val ACTION_MOVE = "move"
         const val ACTION_DELETE = "delete"
         const val ACTION_TOGGLE_BOOKMARK = "toggle_bookmark"
         const val ACTION_TOGGLE_SHARED = "toggle_shared"
+        const val ACTION_EMPTY_RECYCLE = "empty_recycle"
+        const val ACTION_RESTORE_FROM_RECYCLE = "restore_from_recycle"
+        const val ACTION_DELETE_PERMANENTLY = "delete_permanently"
+        const val ACTION_CREATE_FOLDER = "create_folder"
+        const val ACTION_IMPORT_FILES = "import_files"
+        const val ACTION_IMPORT_FROM_CAMERA = "import_from_camera"
     }
 
     private lateinit var stateID: StateID
@@ -55,7 +64,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     // Only *one* of the below bindings is not null, depending on the context
     private var browseBinding: MoreMenuBrowseBinding? = null
+    private var addBinding: MoreMenuAddBinding? = null
+    private var searchBinding: MoreMenuSearchBinding? = null
     private var bookmarkBinding: MoreMenuBookmarksBinding? = null
+    private var recycleBinding: MoreMenuRecycleBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,7 +91,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
         return when (contextType) {
             CONTEXT_BROWSE -> inflateBrowseLayout(inflater, container)
+            CONTEXT_ADD -> inflateAddLayout(inflater, container)
+            CONTEXT_RECYCLE -> inflateRecycleLayout(inflater, container)
             CONTEXT_BOOKMARKS -> inflateBookmarkLayout(inflater, container)
+            CONTEXT_SEARCH -> inflateSearchLayout(inflater, container)
             else -> null
         }
     }
@@ -118,6 +133,91 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         binding.executePendingBindings()
     }
 
+    /* ADD LIST CONTEXT (triggered from FAB while browsing) */
+
+    private fun inflateAddLayout(inflater: LayoutInflater, container: ViewGroup?): View? {
+        addBinding = DataBindingUtil.inflate(
+            inflater, R.layout.more_menu_add, container, false
+        )
+        val binding = addBinding as MoreMenuAddBinding
+        treeNodeMenuVM.node.observe(this, {
+            it?.let {
+                bind(binding, it)
+            }
+        })
+        binding.executePendingBindings()
+        return binding.root
+    }
+
+    private fun bind(binding: MoreMenuAddBinding, node: RTreeNode) {
+        binding.node = node
+
+        binding.createFolder.setOnClickListener { onClicked(node, ACTION_CREATE_FOLDER) }
+        binding.importFiles.setOnClickListener { onClicked(node, ACTION_IMPORT_FILES) }
+        binding.importFromCamera.setOnClickListener { onClicked(node, ACTION_IMPORT_FROM_CAMERA) }
+
+        binding.executePendingBindings()
+    }
+
+    /* SEARCH CONTEXT */
+
+    private fun inflateSearchLayout(inflater: LayoutInflater, container: ViewGroup?): View {
+        searchBinding = DataBindingUtil.inflate(
+            inflater, R.layout.more_menu_search, container, false
+        )
+        val binding = searchBinding as MoreMenuSearchBinding
+        treeNodeMenuVM.node.observe(this, {
+            it?.let {
+                bind(binding, it)
+            }
+        })
+        binding.executePendingBindings()
+        return binding.root
+    }
+
+    private fun bind(binding: MoreMenuSearchBinding, node: RTreeNode) {
+        binding.node = node
+
+        binding.openInWorkspace.setOnClickListener { onClicked(node, ACTION_OPEN_IN_WORKSPACES) }
+        binding.openParentInWorkspace.setOnClickListener {
+            onClicked(node, ACTION_OPEN_PARENT_IN_WORKSPACES)
+        }
+
+        binding.executePendingBindings()
+    }
+
+    /* RECYCLE and WITHIN CONTEXT */
+
+    private fun inflateRecycleLayout(inflater: LayoutInflater, container: ViewGroup?): View? {
+        recycleBinding = DataBindingUtil.inflate(
+            inflater, R.layout.more_menu_recycle, container, false
+        )
+        val binding = recycleBinding as MoreMenuRecycleBinding
+        treeNodeMenuVM.node.observe(this, {
+            it?.let {
+                bind(binding, it)
+            }
+        })
+        binding.executePendingBindings()
+        return binding.root
+    }
+
+    private fun bind(binding: MoreMenuRecycleBinding, node: RTreeNode) {
+        binding.node = node
+
+        binding.emptyRecycle.setOnClickListener { onClicked(node, ACTION_EMPTY_RECYCLE) }
+        binding.restoreFromRecycle.setOnClickListener {
+            onClicked(
+                node,
+                ACTION_RESTORE_FROM_RECYCLE
+            )
+        }
+        binding.deletePermanently.setOnClickListener { onClicked(node, ACTION_DELETE_PERMANENTLY) }
+        binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
+
+        binding.executePendingBindings()
+    }
+
     /* BOOKMARK LIST CONTEXT */
 
     private fun inflateBookmarkLayout(
@@ -149,6 +249,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     }
 
     private fun onClicked(node: RTreeNode, actionOpenWith: String) {
+        Log.i("MoreMenu", "${node.name} -> ${actionOpenWith}")
         val moreMenu = this
         lifecycleScope.launch {
             when (actionOpenWith) {
@@ -175,6 +276,11 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
                     findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
                 }
+                ACTION_OPEN_PARENT_IN_WORKSPACES -> {
+                    val parentState = StateID.fromId(node.encodedState).parentFolder()
+                    CellsApp.instance.setCurrentState(parentState)
+                    findNavController().navigate(MainNavDirections.openFolder(parentState.id))
+                }
                 ACTION_RENAME -> {}
                 ACTION_COPY -> {}
                 ACTION_MOVE -> {}
@@ -188,9 +294,13 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     CellsApp.instance.nodeService.toggleShared(node)
                     moreMenu.dismiss()
                 }
+                ACTION_EMPTY_RECYCLE -> {}
+                ACTION_DELETE_PERMANENTLY -> {}
+                ACTION_RESTORE_FROM_RECYCLE -> {}
+                ACTION_CREATE_FOLDER -> {}
+                ACTION_IMPORT_FILES -> {}
+                ACTION_IMPORT_FROM_CAMERA -> {}
             }
         }
     }
-
-
 }

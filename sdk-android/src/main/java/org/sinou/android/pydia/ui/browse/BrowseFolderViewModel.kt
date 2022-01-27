@@ -27,7 +27,7 @@ class BrowseFolderViewModel(
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    private lateinit var _currentFolder: LiveData<RTreeNode>
+    private var _currentFolder = nodeService.getLiveNode(stateID)
     val currentFolder: LiveData<RTreeNode>
         get() = _currentFolder
 
@@ -63,7 +63,7 @@ class BrowseFolderViewModel(
         viewModelJob.cancel()
     }
 
-    class TreeFolderViewModelFactory(
+    class BrowseFolderViewModelFactory(
         private val accountService: AccountService,
         private val nodeService: NodeService,
         private val stateID: StateID,

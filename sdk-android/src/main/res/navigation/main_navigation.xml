@@ -59,6 +59,9 @@
         <argument
             android:name="query"
             app:argType="string" />
+        <action
+            android:id="@+id/open_more_menu"
+            app:destination="@id/tree_node_more_menu" />
     </fragment>
 
     <fragment

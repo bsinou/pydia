@@ -1,6 +1,7 @@
 package org.sinou.android.pydia.ui.browse
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Log
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
@@ -41,7 +41,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val ACTION_OPEN_WITH = "open_with"
         const val ACTION_DOWNLOAD_TO_DEVICE = "download_to_device"
         const val ACTION_OPEN_IN_WORKSPACES = "open_in_workspaces"
-        const val ACTION_OPEN_PARENT_IN_WORKSPACES = "open_in_workspaces"
+        const val ACTION_OPEN_PARENT_IN_WORKSPACES = "open_parent_in_workspaces"
         const val ACTION_RENAME = "rename"
         const val ACTION_COPY = "copy"
         const val ACTION_MOVE = "move"

@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentServerUrlBinding
+import org.sinou.android.pydia.services.AuthService
 import org.sinou.android.pydia.utils.hideKeyboard
 import org.sinou.android.pydia.utils.showLongMessage
 
@@ -48,16 +49,15 @@ class ServerUrlFragment : Fragment() {
             Log.i(fTag, "... LaunchingAuth")
             server?.let {
                 val urlStr = server.serverURL.toJson()
-                if (it.isLegacy) { // Navigate to in app auth
-                    Log.i(fTag, "... Legacy server => display p8cred fragment")
-                    val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(urlStr)
+                if (it.isLegacy) { // Navigate to in app legacy auth
+                    val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(
+                        urlStr,
+                        AuthService.NEXT_ACTION_BROWSE
+                    )
                     findNavController().navigate(action)
                     viewModel.authLaunched()
                 } else { // Launch OAuth Process
-                    Log.i(fTag, "... Cells server => launch OAuth flow")
                     viewModel.launchOAuthProcess(it.serverURL)
-//                    val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(urlStr)
-//                    findNavController().navigate(action)
                 }
             }
         })

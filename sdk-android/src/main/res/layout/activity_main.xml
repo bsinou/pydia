@@ -14,15 +14,27 @@
 
             <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:theme="@style/Theme.Cells.AppBarOverlay">
+                android:layout_height="wrap_content">
+                <!--                android:theme="@style/Theme.Cells.AppBarOverlay"-->
 
-                <androidx.appcompat.widget.Toolbar
+                <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/main_toolbar"
+                    style="@style/Widget.Cells.Toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    app:popupTheme="@style/Theme.Cells.PopupOverlay"
-                    app:theme="@style/Theme.Cells.AppBarOverlay" />
+                    app:popupTheme="@style/Theme.Cells.PopupOverlay" />
+
+
+                <!--                    android:theme="@style/Widget.Cells.Toolbar"-->
+
+                <!--                <androidx.appcompat.widget.Toolbar-->
+                <!--                    android:id="@+id/main_toolbar"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    style="@style/ThemeOverlay.Cells.Toolbar"-->
+                <!--                    android:theme="@style/ThemeOverlay.Cells.Toolbar"-->
+                <!--                    android:layout_height="?attr/actionBarSize"-->
+                <!--                    app:popupTheme="@style/Theme.Cells.PopupOverlay" />-->
+                <!--                                android:theme="@style/Theme.Cells.AppBarOverlay"-->
 
             </com.google.android.material.appbar.AppBarLayout>
 
@@ -43,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:theme="@style/ThemeOverlay.Cells"
+            android:theme="@style/ThemeOverlay.Cells.NavigationView"
             app:headerLayout="@layout/drawer_header"
             app:menu="@menu/main_left" />
 

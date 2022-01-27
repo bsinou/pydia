@@ -10,7 +10,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/margin_small"
-    android:theme="@style/ThemeOverlay.Cells.Dark">
+    android:theme="@style/ThemeOverlay.Cells.NavHeader">
 
 <!--    android:background="?attr/colorPrimaryDark"-->
 <!--    android:theme="@style/ThemeOverlay.AppCompat.Dark"-->

@@ -18,10 +18,6 @@ class OAuthViewModel(private val accountService: AccountService) : ViewModel() {
     private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-//    private val _launchOAuthIntent = MutableLiveData<Intent?>()
-//    val launchOAuthIntent: LiveData<Intent?>
-//        get() = _launchOAuthIntent
-
     // Set upon successful authentication against the remote server
     private val _accountID = MutableLiveData<Pair<String, String?>?>()
     val accountID: LiveData<Pair<String, String?>?>

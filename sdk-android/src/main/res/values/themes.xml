@@ -17,23 +17,50 @@
         <item name="android:statusBarColor" tools:targetApi="l">@color/colorPrimaryDark</item>
 
         <!-- Type styles -->
-        <item name="textAppearanceHeadline1">@style/TextAppearance.MaterialComponents.Headline1</item>
-        <item name="textAppearanceHeadline2">@style/TextAppearance.MaterialComponents.Headline2</item>
-        <item name="textAppearanceHeadline3">@style/TextAppearance.MaterialComponents.Headline3</item>
-        <item name="textAppearanceHeadline4">@style/TextAppearance.MaterialComponents.Headline4</item>
-        <item name="textAppearanceHeadline5">@style/TextAppearance.MaterialComponents.Headline5.Cells</item>
-        <item name="textAppearanceHeadline6">@style/TextAppearance.MaterialComponents.Headline6</item>
-        <item name="textAppearanceSubtitle1">@style/TextAppearance.MaterialComponents.Subtitle1</item>
-        <item name="textAppearanceSubtitle2">@style/TextAppearance.MaterialComponents.Subtitle2</item>
-        <item name="textAppearanceBody1">@style/TextAppearance.MaterialComponents.Body1</item>
-        <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="textAppearanceCaption">@style/TextAppearance.MaterialComponents.Caption</item>
-        <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
-        <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
+        <item name="textAppearanceHeadline1">
+            @style/TextAppearance.MaterialComponents.Headline1
+        </item>
+        <item name="textAppearanceHeadline2">
+            @style/TextAppearance.MaterialComponents.Headline2
+        </item>
+        <item name="textAppearanceHeadline3">
+            @style/TextAppearance.MaterialComponents.Headline3
+        </item>
+        <item name="textAppearanceHeadline4">
+            @style/TextAppearance.MaterialComponents.Headline4
+        </item>
+        <item name="textAppearanceHeadline5">
+            @style/TextAppearance.Cells.H5
+        </item>
+        <item name="textAppearanceHeadline6">
+            @style/TextAppearance.MaterialComponents.Headline6
+        </item>
+        <item name="textAppearanceSubtitle1">
+            @style/TextAppearance.MaterialComponents.Subtitle1
+        </item>
+        <item name="textAppearanceSubtitle2">
+            @style/TextAppearance.MaterialComponents.Subtitle2
+        </item>
+        <item name="textAppearanceBody1">
+            @style/TextAppearance.MaterialComponents.Body1
+        </item>
+        <item name="textAppearanceBody2">
+            @style/TextAppearance.MaterialComponents.Body2
+        </item>
+        <item name="textAppearanceCaption">
+            @style/TextAppearance.MaterialComponents.Caption
+        </item>
+        <item name="textAppearanceButton">
+            @style/TextAppearance.MaterialComponents.Button
+        </item>
+        <item name="textAppearanceOverline">
+            @style/TextAppearance.MaterialComponents.Overline
+        </item>
 
         <!-- Further customisation to come... -->
-        <item name="navigationViewStyle">@style/Widget.App.NavigationView</item>
-
+<!--        <item name="navigationViewStyle">@style/Widget.App.NavigationView</item>-->
+<!--        <item name="toolbarStyle">@style/Widget.Cells.Toolbar</item>-->
+<!--        <item name="searchViewStyle">@style/Cells.SearchView</item>-->
     </style>
 
     <style name="Theme.Cells.NoActionBar">
@@ -41,48 +68,68 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="Widget.Cells.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Cells.Appbar</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Cells.H5
+        </item>
+    </style>
+
+    <style name="ThemeOverlay.Cells.Appbar" parent="ThemeOverlay.MaterialComponents.ActionBar.Primary">
+        <item name="searchViewStyle">@style/Cells.SearchView</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="iconTint">@color/white</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+    </style>
+
+<!--    <style name="Theme.Cells.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.ActionBar.Primary">-->
+<!--        <item name="android:textColor">@color/white</item>-->
+<!--        <item name="iconTint">@color/white</item>-->
+<!--        <item name="android:textColorPrimary">@color/white</item>-->
+<!--        <item name="android:textColorSecondary">@color/colorAccent</item>-->
+<!--    </style>-->
+
+    <style name="Theme.Cells.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" >
+        <item name="colorPrimary">@color/colorAccent</item>
+    </style>
+
+
     <style name="Theme.Cells.SplashScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 
-    <style name="Theme.Cells.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textColorSecondary">@color/colorAccent</item>
-    </style>
-
-    <style name="Theme.Cells.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="Widget.App.NavigationView" parent="Widget.MaterialComponents.NavigationView">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.NavigationView</item>
+    <style name="Widget.Cells.NavigationView" parent="Widget.MaterialComponents.NavigationView">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Cells.NavigationView</item>
         <item name="itemIconTint">@color/colorPrimary</item>
         <item name="itemTextColor">@color/colorPrimary</item>
         <item name="itemShapeFillColor">@color/transparent</item>
     </style>
 
-    <style name="ThemeOverlay.App.NavigationView" parent="">
+    <style name="ThemeOverlay.Cells.NavigationView" parent="">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorSurface">@color/colorPrimaryLight</item>
-        <item name="colorOnSurface">@color/black</item>
-<!--        <item name="textAppearanceHeadline6">@style/TextAppearance.App.Headline6</item>-->
-<!--        <item name="textAppearanceSubtitle2">@style/TextAppearance.App.Subtitle2</item>-->
-<!--        <item name="textAppearanceBody2">@style/TextAppearance.App.Body2</item>-->
-<!--        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>-->
+        <item name="colorSurface">@color/colorSurfaceXLight</item>
+        <item name="colorOnSurface">@color/colorPrimaryDark</item>
+        <!--        <item name="textAppearanceHeadline6">@style/TextAppearance.App.Headline6</item>-->
+        <!--        <item name="textAppearanceSubtitle2">@style/TextAppearance.App.Subtitle2</item>-->
+        <!--        <item name="textAppearanceBody2">@style/TextAppearance.App.Body2</item>-->
+        <!--        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>-->
     </style>
 
-    <style name="ThemeOverlay.Cells" parent="ThemeOverlay.MaterialComponents.Light">
-        <item name="android:textColor">@color/colorPrimary</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorOnPrimary">@color/colorSecondary</item>
-    </style>
-
-    <style name="ThemeOverlay.Cells.Dark" parent="ThemeOverlay.MaterialComponents.Dark">
+    <style name="ThemeOverlay.Cells.NavHeader" parent="ThemeOverlay.MaterialComponents.Dark">
         <item name="android:background">@color/colorPrimary</item>
         <item name="android:textColor">@color/colorOnPrimary</item>
         <item name="colorOnPrimary">@color/colorSecondary</item>
     </style>
+
+
+    <!--    <style name="ThemeOverlay.Cells" parent="ThemeOverlay.MaterialComponents.Light">-->
+<!--        <item name="android:textColor">@color/colorPrimary</item>-->
+<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
+<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+<!--        <item name="colorOnPrimary">@color/colorSecondary</item>-->
+<!--    </style>-->
+
 
     <style name="Theme.Upload" parent="Theme.Cells">
         <item name="colorPrimary">@color/colorSecondary</item>
@@ -100,16 +147,5 @@
     </style>
 
     <style name="Theme.Upload.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="Divider">
-        <item name="android:background">@color/colorPrimaryLight</item>
-    </style>
-
-    <style name="Divider.Horizontal" parent="Divider">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0.3dp</item>
-        <item name="android:layout_marginTop">@dimen/margin_xsmall</item>
-        <item name="android:layout_marginBottom">@dimen/margin</item>
-    </style>
 
 </resources>

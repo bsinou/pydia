@@ -42,31 +42,26 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
 
     val liveSessions: LiveData<List<RLiveSession>> = accountDB.liveSessionDao().getLiveSessions()
 
+    @Throws(SDKException::class)
     fun registerAccount(serverURL: ServerURL, credentials: Credentials): String? {
-        try {
-            val state = StateID(credentials.username, serverURL.id)
-            val existingAccount = accountDB.accountDao().getAccount(state.accountId)
+        val state = StateID(credentials.username, serverURL.id)
+        val existingAccount = accountDB.accountDao().getAccount(state.accountId)
 
-            sessionFactory.registerAccountCredentials(serverURL, credentials)
-            val server: Server = sessionFactory.getServer(serverURL.id)
-            val account = toAccount(credentials.username, server)
+        sessionFactory.registerAccountCredentials(serverURL, credentials)
+        val server: Server = sessionFactory.getServer(serverURL.id)
+        val account = toAccount(credentials.username, server)
 
-            // At this point we assume we have been connected or an error has already been thrown
-            account.authStatus = AppNames.AUTH_STATUS_CONNECTED
+        // At this point we assume we have been connected or an error has already been thrown
+        account.authStatus = AppNames.AUTH_STATUS_CONNECTED
 
-            if (existingAccount == null) { // creation
-                accountDB.accountDao().insert(account)
-            } else { // update
-                accountDB.accountDao().update(account)
-            }
-            registerLocalSession(StateID(account.username, account.url).id)
-
-            return state.id
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return null
+        if (existingAccount == null) { // creation
+            accountDB.accountDao().insert(account)
+        } else { // update
+            accountDB.accountDao().update(account)
         }
+        registerLocalSession(StateID(account.username, account.url).id)
+
+        return state.id
     }
 
     suspend fun logoutAccount(accountID: String) = withContext(Dispatchers.IO) {
@@ -193,7 +188,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         val newSession = RSession(
             accountID = accountID,
             baseDir = "/tmp",
-            lifecycleState = "foreground",
+            lifecycleState = "background",
             workspaces = listOf(),
             offlineRoots = listOf(),
             bookmarkCache = listOf(),

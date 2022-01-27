@@ -6,10 +6,12 @@
     <color name="colorMain">#134E6C</color>
     <color name="colorMainAccent">#0F3E56</color>
     <color name="colorMainLight">#598398</color>
+    <color name="colorSurfaceLight">#CFDBE1</color>
+    <color name="colorSurfaceXLight">#EDF0F2</color>
 
     <!-- Icons -->
     <color name="iconTint">@color/colorMain</color>
-    <color name="iconBackground">#EDF0F2</color>
+    <color name="iconBackground">@color/colorSurfaceXLight</color>
     <color name="decoratorBackground">#33EDF0F2</color>
 
     <color name="colorPrimary">@color/colorMain</color>
@@ -52,6 +54,6 @@
     <color name="white">#FFFFFFFF</color>
 
     <!-- TODO Rather handle this with a style...-->
-    <color name="selected_background">#CFDBE1</color>
+    <color name="selected_background">@color/colorSurfaceLight</color>
 
 </resources>

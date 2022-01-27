@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.pydio.cells.api.CustomEncoder
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ClientData
@@ -94,8 +95,14 @@ class AuthService(
                     .getAnonymousTransport(rState.serverURL.id) as CellsTransport
                 val token = transport.getTokenFromCode(code, encoder)
                 accountID = manageRetrievedToken(transport, token)
-                // Leave auth state cache clean
+
+                // Leave OAuth state cacheDB clean
                 accountService.accountDB.authStateDao().delete(oauthState)
+
+                // When creating a new account, we want to put its session on the foreground
+                if (rState.next == NEXT_ACTION_BROWSE) {
+                    accountService.openSession(accountID)
+                }
             } catch (e: Exception) {
                 Log.e(tag, "Could not finalize credential auth flow")
                 e.printStackTrace()
@@ -107,6 +114,7 @@ class AuthService(
             }
         }
 
+    @Throws(SDKException::class)
     private fun manageRetrievedToken(transport: CellsTransport, token: Token): String {
         val idToken = IdToken.parse(encoder, token.idToken)
         val accountID = StateID(idToken.claims.name, transport.server.url())

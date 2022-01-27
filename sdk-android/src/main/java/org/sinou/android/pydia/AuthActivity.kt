@@ -8,8 +8,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
-import org.sinou.android.pydia.ui.auth.ServerUrlFragmentDirections
 import org.sinou.android.pydia.databinding.ActivityAuthBinding
+import org.sinou.android.pydia.ui.auth.ServerUrlFragmentDirections
 
 /**
  * Centralizes authentication processes.
@@ -38,19 +38,22 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         if (Intent.ACTION_VIEW == intent.action) {
             val uri = inIntent.data ?: return
             val code = uri.getQueryParameter(AppNames.KEY_CODE)
-            val state  = uri.getQueryParameter(AppNames.KEY_STATE)
+            val state = uri.getQueryParameter(AppNames.KEY_STATE)
 
-            if (code != null && state != null){
+            if (code != null && state != null) {
                 val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(null)
                 findNavController(R.id.auth_fragment_host).navigate(action)
                 return
             }
         }
 
-        if (intent.hasExtra(AppNames.EXTRA_SERVER_URL)){
+        if (intent.hasExtra(AppNames.EXTRA_SERVER_URL)) {
             val urlStr: String = intent.getStringExtra(AppNames.EXTRA_SERVER_URL)!!
             if (intent.getBooleanExtra(AppNames.EXTRA_SERVER_IS_LEGACY, false)) {
-                val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(urlStr)
+                val action = ServerUrlFragmentDirections.actionServerUrlToP8Creds(
+                    urlStr,
+                    intent.getStringExtra(AppNames.EXTRA_AFTER_AUTH_ACTION)!!
+                )
                 findNavController(R.id.auth_fragment_host).navigate(action)
             } else {
                 val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(urlStr)

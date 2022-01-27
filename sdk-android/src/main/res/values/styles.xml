@@ -19,6 +19,12 @@
 
     <style name="text_list_secondary" parent="text_body"></style>
 
+    <style name="Cells.SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="searchIcon">@drawable/ic_sharp_search_24</item>
+        <item name="iconTint">@color/white</item>
+        <item name="colorButtonNormal">@color/colorAccent</item>
+    </style>
+
     <style name="avatar_icon">
         <!--        <item name="android:iconTint">@color/colorAvatarDefault</item>-->
         <item name="android:layout_marginStart">@dimen/text_padding_medium</item>
@@ -61,6 +67,17 @@
         <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
         <item name="android:textColor">@color/grey_button_color</item>
         <item name="colorControlHighlight">@color/skip_red_color</item>
+    </style>
+
+    <style name="Divider">
+        <item name="android:background">@color/colorPrimaryLight</item>
+    </style>
+
+    <style name="Divider.Horizontal" parent="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0.3dp</item>
+        <item name="android:layout_marginTop">@dimen/margin_xsmall</item>
+        <item name="android:layout_marginBottom">@dimen/margin</item>
     </style>
 
 </resources>

@@ -41,18 +41,18 @@
         android:name="org.sinou.android.pydia.ui.auth.P8CredentialsFragment"
         android:label="@string/p8_credentials_title"
         tools:layout="@layout/fragment_p8_credentials">
-        <action
-            android:id="@+id/action_p8_creds_to_accounts"
-            app:destination="@id/account_list_destination" />
         <argument
             android:name="serverUrlString"
+            app:argType="string" />
+        <argument
+            android:name="nextAction"
             app:argType="string" />
     </fragment>
 
     <fragment
         android:id="@+id/oauth_flow_destination"
         android:name="org.sinou.android.pydia.ui.auth.OAuthFlowFragment"
-        android:label="@string/p8_credentials_title"
+        android:label="@string/oauth_code_flow_title"
         tools:layout="@layout/fragment_p8_credentials">
         <argument
             android:name="serverUrlString"

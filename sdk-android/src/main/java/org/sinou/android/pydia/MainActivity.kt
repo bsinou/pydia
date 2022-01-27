@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
@@ -22,8 +23,6 @@ import org.sinou.android.pydia.databinding.ActivityMainBinding
 import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.browse.getIconForWorkspace
 import org.sinou.android.pydia.ui.search.SearchFragment
-import org.sinou.android.pydia.utils.NetworkStatus
-import org.sinou.android.pydia.utils.NetworkStatusHelper
 import org.sinou.android.pydia.utils.dumpBackStack
 import org.sinou.android.pydia.utils.showMessage
 import kotlin.system.exitProcess
@@ -68,15 +67,15 @@ class MainActivity : AppCompatActivity() {
 //            onBackPressed()
 //        }
 
-        NetworkStatusHelper(this@MainActivity).observe(this, {
-            showMessage(
-                this@MainActivity,
-                when (it) {
-                    NetworkStatus.Available -> "Network Connection Established"
-                    NetworkStatus.Unavailable -> "No Internet"
-                }
-            )
-        })
+//        NetworkStatusHelper(this@MainActivity).observe(this, {
+//            showMessage(
+//                this@MainActivity,
+//                when (it) {
+//                    NetworkStatus.Available -> "Network Connection Established"
+//                    NetworkStatus.Unavailable -> "No Internet"
+//                }
+//            )
+//        })
 
     }
 
@@ -215,14 +214,12 @@ class MainActivity : AppCompatActivity() {
 
         val value = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val storedLayout = value?.let { value } ?: AppNames.RECYCLER_LAYOUT_LIST
+
         layoutSwitcher.icon = when (storedLayout) {
             AppNames.RECYCLER_LAYOUT_GRID ->
-                // TODO how do we correctly manage theme here to use the commented up-to-date call
-                resources.getDrawable(R.drawable.ic_baseline_view_list_24)
-            // ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_view_list_24, theme)
+                ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_view_list_24, theme)
             else ->
-                resources.getDrawable(R.drawable.ic_sharp_grid_view_24)
-            // ResourcesCompat.getDrawable(resources, R.drawable.ic_sharp_grid_view_24, theme)
+                ResourcesCompat.getDrawable(resources, R.drawable.ic_sharp_grid_view_24, theme)
         }
 
         layoutSwitcher.setOnMenuItemClickListener {

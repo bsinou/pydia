@@ -60,6 +60,4 @@ data class RTreeNode(
     fun isRecycle(): Boolean {
         return name == SdkNames.RECYCLE_BIN_NAME
     }
-
 }
-

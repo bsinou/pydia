@@ -37,6 +37,9 @@ class NodeGridAdapter(
                 binding.node?.let { onItemClicked(it, AppNames.ACTION_OPEN) }
             }
 
+            binding.gridItemMoreButton.setOnClickListener {
+                binding.node?.let { onItemClicked(it, AppNames.ACTION_MORE) }
+            }
             return this
         }
 

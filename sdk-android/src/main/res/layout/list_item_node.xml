@@ -117,36 +117,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!--
-
-        Very weird behaviour: We had to build at least once with this two dummy layouts
-        that call come specific binding adapters that are used only in the "more menu"
-        (not in a recycler view adapter) otherwise the more menu layout cannot see the additional
-        app:showForFileOnly method...
-        TODO understand this or it might come again when we go to production)
-
-<LinearLayout
-    android:id="@+id/dummy_desc"
-    android:layout_width="0dp"
-    android:layout_height="0dp"
-    android:orientation="vertical"
-
-    app:layout_constraintBottom_toBottomOf="@id/node_thumb"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toEndOf="@+id/node_thumb"
-
-    app:showForFileOnly="@{node}" />
-
-<LinearLayout
-    android:id="@+id/dummy_desc2"
-    android:layout_width="0dp"
-    android:layout_height="0dp"
-    android:orientation="vertical"
-    app:layout_constraintBottom_toBottomOf="@id/node_thumb"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toEndOf="@+id/node_thumb"
-
-    app:showForFolderOnly="@{node}" />
--->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

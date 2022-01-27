@@ -52,9 +52,67 @@
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:textColor="?android:attr/textColorSecondary"
-                    app:nodeTitle="@{node}" />
-           </LinearLayout>
+                    app:nodeTitle="@{node}"
+                    tools:text="My Image.jpg" />
+            </LinearLayout>
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/flags_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:layout_marginStart="@dimen/margin_xsmall"
+            android:layout_marginTop="@dimen/margin_xsmall"
+            android:gravity="start|top">
+
+            <ImageView
+                android:id="@+id/flag_offline"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/keep_offline"
+                android:src="@drawable/ic_baseline_offline_pin_24"
+                android:visibility="gone"
+                app:offline="@{node}" />
+
+            <ImageView
+                android:id="@+id/flag_bookmark"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/bookmark"
+                android:src="@drawable/ic_baseline_star_24"
+                android:visibility="gone"
+                app:bookmark="@{node}" />
+
+            <ImageView
+                android:id="@+id/flag_shared"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/public_link"
+                android:src="@drawable/ic_baseline_link_24"
+                android:visibility="gone"
+                app:shared="@{node}" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/more_btn_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_xsmall"
+            android:layout_marginEnd="@dimen/margin_xsmall"
+            android:gravity="end|top">
+
+            <ImageView
+                android:id="@+id/grid_item_more_button"
+                android:layout_width="@dimen/list_icon_size"
+                android:layout_height="@dimen/list_icon_size"
+                android:contentDescription="@string/more_button_description"
+                android:gravity="end|top"
+                android:src="@drawable/ic_baseline_more_vert_24" />
+
+        </LinearLayout>
+
     </com.google.android.material.card.MaterialCardView>
 
 </layout>

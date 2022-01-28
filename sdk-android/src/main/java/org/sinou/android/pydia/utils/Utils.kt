@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.os.Build
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.utils.Log
 
 fun Fragment.hideKeyboard() {
@@ -68,4 +69,9 @@ fun hasAtLeastMeteredNetwork(context: Context): Boolean {
         }
         return false
     }
+}
+
+fun logException(caller: String, msg: String, e: Exception) {
+    Log.e(caller, "$msg ${if (e is SDKException) "(Code #${e.code} )" else ""}")
+    e.printStackTrace()
 }

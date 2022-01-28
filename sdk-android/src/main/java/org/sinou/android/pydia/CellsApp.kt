@@ -12,11 +12,14 @@ import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.db.account.AccountDB
 import org.sinou.android.pydia.db.browse.TreeNodeDB
+import org.sinou.android.pydia.db.runtime.RuntimeDB
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.services.TransferService
 
 /**
  * Main entry point of the Pydio client application.
@@ -26,15 +29,20 @@ class CellsApp : Application() {
 
     private val tag = "CellsApp"
 
-    private val applicationScope = CoroutineScope(Dispatchers.Default)
+    // Specific scope for the Delayed init. Cancels everything if one of its coroutine fails.
+    private val launchScope = CoroutineScope(Dispatchers.Default)
 
-    // rather use an Application model that raises a flag when everything is setup.
+    // Exposed to the whole app for tasks that must survive termination of the calling UI element
+    // Typically for actions launched from the "More" menu (copy, move...)
+    val appScope = CoroutineScope(SupervisorJob())
+
+    // TODO Rather use an Application model that raises a flag when everything is setup.
     var ready = false
 
     lateinit var sharedPreferences: SharedPreferences
     lateinit var accountService: AccountService
     lateinit var nodeService: NodeService
-
+    lateinit var transferService: TransferService
 
     companion object {
         lateinit var instance: CellsApp
@@ -50,7 +58,7 @@ class CellsApp : Application() {
     }
 
     private fun delayedInit() {
-        applicationScope.launch {
+        launchScope.launch {
 
             val clientID = updateClientData()
             sharedPreferences = getSharedPreferences(clientID, Context.MODE_PRIVATE)
@@ -68,6 +76,7 @@ class CellsApp : Application() {
 
     private fun initServices() {
 
+        // TODO this should be handled lazily
         accountService = AccountService(
             AccountDB.getDatabase(applicationContext),
             filesDir
@@ -82,6 +91,12 @@ class CellsApp : Application() {
         )
 
         Log.i(tag, "... Node service ready")
+
+        transferService = TransferService(
+            RuntimeDB.getDatabase(applicationContext),
+        )
+
+        Log.i(tag, "... Transfer service ready")
 
     }
 
@@ -114,7 +129,7 @@ class CellsApp : Application() {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             packageInfo.longVersionCode
         } else {
-            packageInfo.versionCode as Long
+            packageInfo.versionCode.toLong()
         }
     }
 

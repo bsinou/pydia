@@ -16,6 +16,7 @@ import org.sinou.android.pydia.db.account.RAccount
 import org.sinou.android.pydia.db.account.RLiveSession
 import org.sinou.android.pydia.db.account.RSession
 import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
+import org.sinou.android.pydia.utils.logException
 import java.io.File
 
 /**
@@ -82,7 +83,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         }
     }
 
-    suspend fun forgetAccount(accountID: String) = withContext(Dispatchers.IO) {
+    suspend fun forgetAccount(accountID: String): String? = withContext(Dispatchers.IO) {
         try {
             // First retrieve the account to forget to know if it is legacy or not
             accountDB.accountDao().getAccount(accountID)?.let {
@@ -94,9 +95,12 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
                 accountDB.sessionDao().forgetSession(accountID)
                 accountDB.accountDao().forgetAccount(accountID)
             }
+            return@withContext null
 
         } catch (e: Exception) {
-            e.printStackTrace()
+            val msg = "Could not delete account ${StateID.fromId(accountID)}"
+            logException(tag, msg, e)
+            return@withContext msg
         }
     }
 

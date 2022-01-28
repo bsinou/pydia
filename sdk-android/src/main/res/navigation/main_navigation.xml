@@ -25,6 +25,10 @@
         app:destination="@id/bookmark_list_destination" />
 
     <action
+        android:id="@+id/open_transfers"
+        app:destination="@id/transfer_list_destination" />
+
+    <action
         android:id="@+id/search_edit_view"
         app:destination="@id/search_destination" />
 
@@ -109,22 +113,7 @@
         android:name="org.sinou.android.pydia.ui.account.AccountListFragment"
         android:label="@string/account_list_title"
         tools:layout="@layout/fragment_account_list">
-        <!--        <action-->
-        <!--            android:id="@+id/action_account_list_fragment_to_account_details_fragment"-->
-        <!--            app:destination="@id/account_details_fragment" />-->
-        <action
-            android:id="@+id/action_accounts_to_confirm_deletion"
-            app:destination="@id/confirmAccountDeletionDialog" />
     </fragment>
-
-    <dialog
-        android:id="@+id/confirmAccountDeletionDialog"
-        android:name="org.sinou.android.pydia.ui.dialogs.ConfirmAccountDeletion"
-        android:label="ConfirmAccountDeletionDialog">
-        <argument
-            android:name="account_id"
-            app:argType="string" />
-    </dialog>
 
     <!-- VARIOUS -->
 
@@ -133,6 +122,12 @@
         android:name="org.sinou.android.pydia.ui.home.LandingFragment"
         android:label="@string/welcome_title"
         tools:layout="@layout/fragment_landing" />
+
+    <fragment
+        android:id="@+id/transfer_list_destination"
+        android:name="org.sinou.android.pydia.ui.upload.TransferFragment"
+        android:label="@string/transfer_list_title"
+        tools:layout="@layout/fragment_transfer_list" />
 
     <fragment
         android:id="@+id/about_destination"

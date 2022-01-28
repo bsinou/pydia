@@ -68,7 +68,7 @@ class BrowseFolderFragment : Fragment() {
                     binding.addNodeFab.visibility = View.GONE
                 } else {
                     binding.addNodeFab.visibility = View.VISIBLE
-                    binding.addNodeFab.setOnClickListener { onFabClicked() }
+//                    binding.addNodeFab.setOnClickListener { onFabClicked() }
                 }
             }
         })
@@ -78,9 +78,7 @@ class BrowseFolderFragment : Fragment() {
             binding.addNodeFab.visibility = View.VISIBLE
         }
         // Put this also in observer when the above has been fixed
-        binding.addNodeFab.setOnClickListener {
-            showMessage(requireContext(), "Implement me...")
-        }
+        binding.addNodeFab.setOnClickListener { onFabClicked() }
 
         return binding.root
     }

@@ -19,6 +19,8 @@ public interface AppNames {
     /* GENERIC ACTIONS */
     String ACTION_MORE = "more";
     String ACTION_OPEN = "open";
+    String ACTION_CANCEL = "cancel";
+    String ACTION_RESTART = "restart";
 
     /* INTENTS */
     String EXTRA_STATE = KEY_PREFIX_ + "state";

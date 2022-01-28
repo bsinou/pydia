@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +19,10 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.*
 import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.tasks.createFolder
+import org.sinou.android.pydia.transfer.FileImporter
 import org.sinou.android.pydia.utils.openWith
+import org.sinou.android.pydia.utils.showLongMessage
 
 /**
  * More menu fragment: it is used to present the end-user with various possible actions
@@ -68,6 +70,17 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private var searchBinding: MoreMenuSearchBinding? = null
     private var bookmarkBinding: MoreMenuBookmarksBinding? = null
     private var recycleBinding: MoreMenuRecycleBinding? = null
+
+    // Contracts for receiving files from device
+    lateinit var fileImporter: FileImporter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Retrieve results when importing files from device (or camera)
+        fileImporter = FileImporter(requireActivity().activityResultRegistry)
+        lifecycle.addObserver(fileImporter)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -256,15 +269,11 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 ACTION_OPEN_WITH ->
                     CellsApp.instance.nodeService.getOrDownloadFileToCache(node)?.let {
                         val intent = openWith(requireContext(), it, node)
-
                         // Insure we won't crash if there no activity to handle this kind of intent
                         if (activity?.packageManager?.resolveActivity(intent, 0) != null) {
                             startActivity(intent)
                         } else {
-                            Toast.makeText(
-                                requireActivity(),
-                                "No app found to open this file", Toast.LENGTH_LONG
-                            ).show()
+                            showLongMessage(requireContext(), "No app found to open this file")
                         }
                         moreMenu.dismiss()
                     }
@@ -297,10 +306,29 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 ACTION_EMPTY_RECYCLE -> {}
                 ACTION_DELETE_PERMANENTLY -> {}
                 ACTION_RESTORE_FROM_RECYCLE -> {}
-                ACTION_CREATE_FOLDER -> {}
-                ACTION_IMPORT_FILES -> {}
-                ACTION_IMPORT_FROM_CAMERA -> {}
+                ACTION_CREATE_FOLDER -> {
+                    createFolder(requireContext(), node)
+                    moreMenu.dismiss()
+                }
+                ACTION_IMPORT_FILES -> {
+                    fileImporter.selectFiles()
+                }
+                ACTION_IMPORT_FROM_CAMERA -> {
+                    fileImporter.getFromCamera()
+                }
             }
         }
     }
+
+//    val REQUEST_IMAGE_GET = 1
+//
+//    fun selectImage() {
+//        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+//            type = "*/*"
+//        }
+//        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+//            startActivityForResult(intent, REQUEST_IMAGE_GET)
+//        }
+//    }
+
 }

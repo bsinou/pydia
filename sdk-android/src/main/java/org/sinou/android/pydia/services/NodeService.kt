@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.*
 import com.pydio.cells.api.ui.FileNode
-import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.api.ui.Stats
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
@@ -13,6 +12,7 @@ import kotlinx.coroutines.*
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDB
+import org.sinou.android.pydia.transfer.FolderDiff
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.getMimeType
 import java.io.*
@@ -27,10 +27,28 @@ class NodeService(
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
 
-    /* Expose DB content as LiveData for the view models */
+    /* Expose DB content as LiveData for the ViewModels */
 
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
         return nodeDB.treeNodeDao().ls(stateID.id, stateID.file)
+    }
+
+    fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
+        return nodeDB.treeNodeDao().lsWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
+    }
+
+    fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
+        return nodeDB.treeNodeDao().getBookmarked(accountID.id)
+        // TODO also watch remote folder to get new bookmarks when online.
+    }
+
+    fun getLiveNode(stateID: StateID): LiveData<RTreeNode> =
+        nodeDB.treeNodeDao().getLiveNode(stateID.id)
+
+    /* Retrieve Objects directly with suspend functions */
+
+    suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
+        nodeDB.treeNodeDao().getNode(stateID.id)
     }
 
     suspend fun query(query: String?, stateID: StateID): List<RTreeNode> =
@@ -48,32 +66,80 @@ class NodeService(
             }
         }
 
-    fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB.treeNodeDao().lsWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
+
+    /* Calls to query both the cache and the remote server */
+
+    suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+        val stateID = rTreeNode.getStateID()
+        try {
+            val sf = accountService.sessionFactory
+            val client: Client = sf.getUnlockedClient(stateID.accountId)
+            client.bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked)
+            rTreeNode.isBookmarked = !rTreeNode.isBookmarked
+            rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
+            nodeDB.treeNodeDao().update(rTreeNode)
+        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
+            handleSdkException("could not perform DL for " + stateID.id, se)
+            return@withContext null
+        } catch (ioe: IOException) {
+            Log.e(TAG, "cannot toggle bookmark for ${stateID}: ${ioe.message}")
+            ioe.printStackTrace()
+            return@withContext null
+        }
     }
 
-    fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB.treeNodeDao().getBookmarked(accountID.id)
-        // TODO also watch remote folder to get new bookmarks when online.
+    suspend fun toggleShared(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+        val stateID = rTreeNode.getStateID()
+        try {
+            val sf = accountService.sessionFactory
+            val client: Client = sf.getUnlockedClient(stateID.accountId)
+
+            if (rTreeNode.isShared) {
+                client.unshare(stateID.workspace, stateID.file)
+            } else {
+                // TODO we put default values for the time being
+                //   But we must handle this better
+                client.share(
+                    stateID.workspace, stateID.file, stateID.fileName,
+                    "Created at ${Calendar.getInstance()}",
+                    null, true, true
+                )
+            }
+
+            rTreeNode.isShared = !rTreeNode.isShared
+            persistUpdated(rTreeNode)
+        } catch (se: SDKException) {
+            Log.e(TAG, "could update share link for " + stateID.id)
+            se.printStackTrace()
+            return@withContext null
+        } catch (ioe: IOException) {
+            Log.e(TAG, "could update share link for ${stateID}: ${ioe.message}")
+            ioe.printStackTrace()
+            return@withContext null
+        }
     }
 
-    fun getLiveNode(stateID: StateID): LiveData<RTreeNode> =
-        nodeDB.treeNodeDao().getLiveNode(stateID.id)
-
-    suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
-        nodeDB.treeNodeDao().getNode(stateID.id)
+    suspend fun createFolder(parentId: StateID, folderName: String) = withContext(Dispatchers.IO) {
+        try {
+            getClient(parentId).mkdir(parentId.workspace, parentId.file, folderName)
+        } catch (e: SDKException) {
+            val msg = "could not create folder at ${parentId.path}"
+            handleSdkException(msg, e)
+            return@withContext msg
+        }
+        return@withContext null
     }
+
 
     /* Handle communication with the remote server to refresh locally stored data */
 
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     suspend fun pull(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
-            val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
+            val client = getClient(stateID)
             val dao = nodeDB.treeNodeDao()
             val thumbDL = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, THUMB_DIR))
-
-            val folderDiff = FolderDiff(client, dao, thumbDL,  stateID)
+            val folderDiff = FolderDiff(client, dao, thumbDL, stateID)
             folderDiff.compareWithRemote()
 
             // TODO Also update parent?
@@ -88,24 +154,23 @@ class NodeService(
             }
 */
         } catch (e: SDKException) {
-            handleSDKException("could not perform ls for " + stateID.id, e)
+            handleSdkException("could not perform ls for " + stateID.id, e)
             return@withContext "Cannot connect to distant server"
         }
         return@withContext null
     }
 
-    suspend fun stateRemoteNode(stateID: StateID): Stats? {
+    private suspend fun statRemoteNode(stateID: StateID): Stats? {
         try {
             val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
             return client.stats(stateID.workspace, stateID.file, true)
         } catch (e: SDKException) {
-            handleSDKException("could not stat at ${stateID}", e)
-            return null
-            // throw SDKException(ErrorCodes.not_found, "could not stat at ${stateID}", e)
+            handleSdkException("could not stat at ${stateID}", e)
         }
+        return null
     }
 
-    suspend fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
+    private suspend fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
 
         if (!accountService.isClientConnected(rTreeNode.encodedState)) {
             // Cannot tell without connection
@@ -115,7 +180,7 @@ class NodeService(
         }
 
         // Compare with remote if possible
-        val remoteStats = stateRemoteNode(StateID.fromId(rTreeNode.encodedState)) ?: return null
+        val remoteStats = statRemoteNode(StateID.fromId(rTreeNode.encodedState)) ?: return null
         if (rTreeNode.localFilename != null && rTreeNode.localModificationTS >= remoteStats.getmTime())
             rTreeNode.localFilename?.let {
                 val file = File(it)
@@ -159,7 +224,7 @@ class NodeService(
             } catch (se: SDKException) {
                 // Could not retrieve thumb, failing silently for the end user
                 val msg = "could not perform DL for " + stateID.id
-                handleSDKException(msg, se)
+                handleSdkException(msg, se)
                 return@withContext null
             } catch (ioe: IOException) {
                 // TODO handle this: what should we do ?
@@ -172,13 +237,6 @@ class NodeService(
 
             targetFile
         }
-
-    suspend fun handleSDKException(msg: String, se: SDKException): SDKException {
-        Log.e(TAG, msg)
-        Log.e(TAG, "Error code: ${se.code}")
-        se.printStackTrace()
-        return se
-    }
 
     suspend fun saveToExternalStorage(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
 
@@ -217,7 +275,6 @@ class NodeService(
         }
     }
 
-
     @Throws(SDKException::class)
     suspend fun uploadAt(stateID: StateID, fileName: String, input: InputStream) =
         withContext(Dispatchers.IO) {
@@ -231,58 +288,23 @@ class NodeService(
             null
         }
 
-    suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
-        val stateID = rTreeNode.getStateID()
-        try {
-            val sf = accountService.sessionFactory
-            val client: Client = sf.getUnlockedClient(stateID.accountId)
-            client.bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked)
-            rTreeNode.isBookmarked = !rTreeNode.isBookmarked
-            rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
-            nodeDB.treeNodeDao().update(rTreeNode)
-        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-            Log.e(TAG, "could not perform DL for " + stateID.id)
-            se.printStackTrace()
-            return@withContext null
-        } catch (ioe: IOException) {
-            Log.e(TAG, "cannot toogle bookmark for ${stateID}: ${ioe.message}")
-            ioe.printStackTrace()
-            return@withContext null
-        }
+
+    /* Constants and helpers */
+    private fun getClient(stateId: StateID): Client {
+        return accountService.sessionFactory.getUnlockedClient(stateId.accountId)
     }
 
-    suspend fun toggleShared(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
-        val stateID = rTreeNode.getStateID()
-        try {
-            val sf = accountService.sessionFactory
-            val client: Client = sf.getUnlockedClient(stateID.accountId)
-
-            if (rTreeNode.isShared) {
-                client.unshare(stateID.workspace, stateID.file)
-            } else {
-                // TODO we put default values for the time being
-                //   But we must handle this better
-                client.share(
-                    stateID.workspace, stateID.file, stateID.fileName,
-                    "Created at ${Calendar.getInstance()}",
-                    null, true, true
-                )
-            }
-
-            rTreeNode.isShared = !rTreeNode.isShared
-            persistUpdated(rTreeNode)
-        } catch (se: SDKException) {
-            Log.e(TAG, "could update share link for " + stateID.id)
-            se.printStackTrace()
-            return@withContext null
-        } catch (ioe: IOException) {
-            Log.e(TAG, "could update share link for ${stateID}: ${ioe.message}")
-            ioe.printStackTrace()
-            return@withContext null
-        }
+    private fun persistUpdated(rTreeNode: RTreeNode) {
+        rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
+        nodeDB.treeNodeDao().update(rTreeNode)
     }
 
-    /* Constants and static helpers */
+    private fun handleSdkException(msg: String, se: SDKException): SDKException {
+        Log.e(TAG, msg)
+        Log.e(TAG, "Error code: ${se.code}")
+        se.printStackTrace()
+        return se
+    }
 
     companion object {
         private const val TAG = "NodeService"
@@ -325,14 +347,5 @@ class NodeService(
             return node
         }
     }
-
-    private fun persistUpdated(rTreeNode: RTreeNode) {
-        rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
-        nodeDB.treeNodeDao().update(rTreeNode)
-    }
-}
-
-fun RTreeNode.getStateID(): StateID {
-    return StateID.fromId(encodedState)
 }
 

@@ -1,5 +1,6 @@
 package org.sinou.android.pydia
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -239,6 +240,15 @@ class MainActivity : AppCompatActivity() {
             return@setOnMenuItemClickListener true
         }
     }
+
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if (requestCode == REQUEST_IMAGE_GET && resultCode == Activity.RESULT_OK) {
+//            val thumbnail: Bitmap = data.getParcelableExtra("data")
+//            val fullPhotoUri: Uri = data.data
+//        }
+//    }
+
 
     private inner class SearchListener : OnQueryTextListener {
 

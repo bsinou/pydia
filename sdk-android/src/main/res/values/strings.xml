@@ -17,6 +17,7 @@
     <string name="action_home">Home</string>
     <string name="action_open_workspaces">Workspaces</string>
     <string name="action_open_bookmarks">Bookmarks</string>
+    <string name="action_open_transfers">Transfers</string>
     <string name="action_open_about">About</string>
     <string name="action_search">Search</string>
     <string name="action_settings">Settings</string>
@@ -96,7 +97,9 @@
     <string name="search_label">Search Label</string>
     <string name="search_hint">Search Hint</string>
 
-    <!-- Upload Management -->
+    <!-- Transfer Management -->
+    <string name="transfer_list_title">Current transfers</string>
+    <!-- Upload -->
     <string name="pick_up_session">Pick up an account</string>
     <string name="pick_up_workspace">Choose a target workspace</string>
     <string name="pick_up_folder">Choose a target folder</string>
@@ -125,7 +128,7 @@
     <string name="import_from_camera">Import from camera</string>
 
     <!-- Dialogs -->
-    <string name="confirm_account_deletion_title">Delete account %s?</string>
+    <string name="confirm_account_deletion_title">Delete account\n%s ?</string>
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
     <string name="my_account">My Account</string>
     <string name="node_add_button">Create or import</string>
@@ -135,5 +138,7 @@
     <!-- Accessibility various content -->
     <string name="thumb_description">Small content preview</string>
     <string name="folder_icon_description">Folder icon</string>
+    <string name="dialog_create_folder_title">Create folder</string>
+    <string name="dialog_create_folder_positive_btn">Create</string>
 
 </resources>

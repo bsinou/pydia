@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.db.Converters
 import java.util.*
 
@@ -49,6 +50,11 @@ data class RTreeNode(
 
     @ColumnInfo(name = "local") var localFilename: String? = null,
 ) {
+
+    fun getStateID(): StateID {
+        return StateID.fromId(encodedState)
+    }
+
     fun isFolder(): Boolean {
         return mime == SdkNames.NODE_MIME_FOLDER || mime == SdkNames.NODE_MIME_RECYCLE
     }

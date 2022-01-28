@@ -19,6 +19,10 @@
 
     <style name="text_list_secondary" parent="text_body"></style>
 
+    <style name="text_list_error" parent="text_list_secondary">
+        <item name="android:textColor">@color/danger</item>
+    </style>
+
     <style name="Cells.SearchView" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@drawable/ic_sharp_search_24</item>
         <item name="iconTint">@color/white</item>

@@ -7,6 +7,11 @@
         android:title="@string/action_open_bookmarks" />
 
     <item
+        android:id="@+id/transfer_list_destination"
+        android:icon="@drawable/ic_baseline_import_export_24"
+        android:title="@string/action_open_transfers" />
+
+    <item
         android:id="@+id/ws_section"
         android:title="@string/my_workspaces"
         android:visible="true">

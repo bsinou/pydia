@@ -1,9 +1,7 @@
 package org.sinou.android.pydia.db.runtime
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.TypeConverters
-import androidx.room.Update
+import androidx.lifecycle.LiveData
+import androidx.room.*
 import org.sinou.android.pydia.db.Converters
 
 @Dao
@@ -15,5 +13,8 @@ interface UploadDao {
 
     @Update
     fun update(upload: RUpload)
+
+    @Query("SELECT * FROM upload_table ORDER BY start_ts DESC")
+    fun getActiveTransfers(): LiveData<List<RUpload>?>
 
 }

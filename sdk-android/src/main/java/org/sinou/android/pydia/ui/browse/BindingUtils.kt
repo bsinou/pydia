@@ -191,8 +191,7 @@ fun areContentsEquals(
             && newItem.isOfflineRoot == oldItem.isOfflineRoot
             && newItem.isShared == oldItem.isShared
 
-
-    // With Room: we should get  equality based on equality of each fields (column) for free
+    // With Room: we should get equality based on equality of each fields (column) for free
     // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
     // remote modif timestamp and thumb filename.
 

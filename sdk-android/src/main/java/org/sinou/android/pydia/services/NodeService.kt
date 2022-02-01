@@ -494,7 +494,6 @@ class NodeService(
             }
         }
 
-
         fun toRTreeNode(stateID: StateID, fileNode: FileNode): RTreeNode {
             val node = RTreeNode(
                 encodedState = stateID.id,
@@ -509,6 +508,7 @@ class NodeService(
                 isShared = fileNode.isShared,
                 remoteModificationTS = fileNode.lastModified(),
                 meta = fileNode.properties,
+                metaHash = fileNode.metaHashCode
             )
 
             // Use Android library to precise MimeType when possible

@@ -6,7 +6,6 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
-import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDao
 import org.sinou.android.pydia.services.NodeService
@@ -38,6 +37,8 @@ class FolderDiff(
     private val folderDiffJob = Job()
     private val diffScope = CoroutineScope(Dispatchers.IO + folderDiffJob)
 
+    private var changeNumber = 0
+
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     suspend fun compareWithRemote(): String? = withContext(Dispatchers.IO) {
         try {
@@ -45,6 +46,7 @@ class FolderDiff(
             val locals = dao.getNodesForDiff(parentId.id, parentId.file).iterator()
             // val locals = LocalNodeIterator(dao.getNodesForDiff(parentId.id, parentId.file).iterator())
             processChanges(remotes, locals)
+            Log.d(TAG, "Done with $changeNumber changes")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -95,8 +97,11 @@ class FolderDiff(
     }
 
     private fun contentAreEquals(remote: FileNode, local: RTreeNode): Boolean {
-        val isEqual = remote.eTag != null && remote.eTag == local.etag
-        return isEqual && local.remoteModificationTS == remote.lastModified()
+        return remote.eTag != null
+                && remote.eTag == local.etag
+                && local.remoteModificationTS == remote.lastModified()
+                // Also compare meta hash: timestamp is not updated when a meta changes
+                && remote.metaHashCode == local.metaHash
     }
 
     private fun alsoCheckThumb(remote: FileNode, local: RTreeNode) {
@@ -109,6 +114,7 @@ class FolderDiff(
     }
 
     private fun putAddChange(remote: FileNode) {
+        changeNumber++
         val childStateID = parentId.child(remote.label)
         val rNode = NodeService.toRTreeNode(childStateID, remote)
         dao.insert(rNode)
@@ -120,6 +126,8 @@ class FolderDiff(
     }
 
     private fun putUpdateChange(remote: FileNode, local: RTreeNode) {
+        changeNumber++
+
         // TODO: Insure corner cases are correctly handled, typically on type switch
         val childStateID = parentId.child(remote.label)
         val rNode = NodeService.toRTreeNode(childStateID, remote)
@@ -144,6 +152,7 @@ class FolderDiff(
     }
 
     private fun putDeleteChange(local: RTreeNode) {
+        changeNumber++
 
         // Also remove:
         // folder recursively
@@ -159,10 +168,11 @@ class FolderDiff(
 
     private fun deleteLocalFile(local: RTreeNode) {
         // Cache or Offline
-        val lpath = NodeService.getLocalPath(local, NodeService.TYPE_CACHED_FILE)
-        val file = File(lpath)
-        if (file.exists()) {
-            file.delete()
+        NodeService.getLocalPath(local, NodeService.TYPE_CACHED_FILE)?.let {
+            val file = File(it)
+            if (file.exists()) {
+                file.delete()
+            }
         }
         // thumbs
         NodeService.getLocalPath(local, NodeService.TYPE_THUMB)?.let {
@@ -171,35 +181,35 @@ class FolderDiff(
                 tf.delete()
             }
         }
-
         dao.delete(local.encodedState)
     }
 
-    fun deleteLocalFolder(local: RTreeNode) {
+    private fun deleteLocalFolder(local: RTreeNode) {
         // Cache or Offline
-        val lpath = NodeService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)
-        val file = File(lpath)
-        if (file.exists()) {
-            file.deleteRecursively()
+        NodeService.getLocalPath(local, NodeService.TYPE_CACHED_FILE)?.let {
+            val file = File(it)
+            if (file.exists()) {
+                file.deleteRecursively()
+            }
         }
-        // TODO look for all thumbs defined for previewable files that are in the child path
+        // TODO look for all thumbs defined for pre-viewable files that are in the child path
         //   and remove them.
         dao.delete(local.encodedState)
         dao.deleteUnder(local.encodedState)
     }
 
     // Temp wrapper to add more logs
-    inner class LocalNodeIterator(private val nodes: Iterator<RTreeNode>) : Iterator<RTreeNode> {
-        override fun hasNext(): Boolean {
-            return nodes.hasNext()
-        }
-
-        override fun next(): RTreeNode {
-            val next = nodes.next()
-            Log.i(TAG, "Local: ${next.name}")
-            return next
-        }
-    }
+//    inner class LocalNodeIterator(private val nodes: Iterator<RTreeNode>) : Iterator<RTreeNode> {
+//        override fun hasNext(): Boolean {
+//            return nodes.hasNext()
+//        }
+//
+//        override fun next(): RTreeNode {
+//            val next = nodes.next()
+//            Log.i(TAG, "Local: ${next.name}")
+//            return next
+//        }
+//    }
 
     inner class RemoteNodeIterator(private val parentId: StateID) : Iterator<FileNode> {
 

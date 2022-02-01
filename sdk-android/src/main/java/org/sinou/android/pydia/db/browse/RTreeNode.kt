@@ -45,6 +45,8 @@ data class RTreeNode(
 
     @ColumnInfo(name = "meta") val meta: Properties,
 
+    @ColumnInfo(name = "meta_hash") val metaHash: Int,
+
     @ColumnInfo(name = "sort_name") var sortName: String? = null,
 
     @ColumnInfo(name = "thumb") var thumbFilename: String? = null,

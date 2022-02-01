@@ -12,6 +12,7 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import org.sinou.android.pydia.db.browse.TreeNodeDB
+import org.sinou.android.pydia.services.SessionFactory
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -25,7 +26,7 @@ class ThumbDownloader(
     private val thumbSize: Int = 100,
 ) {
 
-    private val tag = "ThumbDownloader"
+    private val tag = ThumbDownloader::class.java.simpleName
 
     private val doneChannel = Channel<Boolean>()
     private val queue = Channel<String>()

@@ -1,10 +1,10 @@
 package org.sinou.android.pydia.ui.browse
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.text.format.DateUtils
 import android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
 import android.text.format.Formatter.formatShortFileSize
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,11 +16,9 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.WorkspaceNode
-import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.browse.RTreeNode
-import java.io.File
+import org.sinou.android.pydia.services.NodeService
 
 @BindingAdapter("nodeTitle")
 fun TextView.setNodeTitle(item: RTreeNode?) {
@@ -58,8 +56,10 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
         return
     }
 
-    if (Str.notEmpty(item.thumbFilename)) {
-        Glide.with(context).load(File(getPathForGlide(context, item)))
+    val lf = NodeService.getLocalFile(item, NodeService.TYPE_THUMB)
+    if (lf != null && lf.exists()) {
+        Glide.with(context)
+            .load(lf)
             .transform(
                 MultiTransformation(
                     CenterCrop(),
@@ -70,6 +70,7 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
             )
             .into(this)
     } else {
+        Log.w("SetNodeThumb", "no thumb found for ${item.name}")
         setImageResource(getDrawableFromMime(item.mime))
     }
 }
@@ -80,10 +81,14 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
         setImageResource(R.drawable.icon_file)
         return
     }
-    if (Str.notEmpty(item.thumbFilename)) {
-        Glide.with(context).load(File(getPathForGlide(context, item)))
-            .transform(CenterCrop()).into(this)
+    val lf = NodeService.getLocalFile(item, NodeService.TYPE_THUMB)
+    if (lf != null && lf.exists()) {
+        Glide.with(context)
+            .load(lf)
+            .transform(CenterCrop())
+            .into(this)
     } else {
+        Log.w("SetCardThumb", "no thumb found for ${item.name}")
         setImageResource(getDrawableFromMime(item.mime))
     }
 }
@@ -157,12 +162,6 @@ fun getIconForWorkspace(item: WorkspaceNode) = when (item.workspaceType) {
     SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
     SdkNames.WS_TYPE_CELL -> R.drawable.cells
     else -> R.drawable.ic_baseline_folder_24
-}
-
-fun getPathForGlide(context: Context, item: RTreeNode): String {
-    val stat = StateID.fromId(item.encodedState)
-    return "${context.filesDir.absolutePath}/" +
-            "${stat.accountId}/thumbs/${item.thumbFilename}"
 }
 
 fun getDrawableFromMime(mime: String): Int {

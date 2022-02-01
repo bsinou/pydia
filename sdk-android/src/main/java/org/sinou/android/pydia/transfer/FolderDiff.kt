@@ -6,6 +6,7 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDao
 import org.sinou.android.pydia.services.NodeService
@@ -147,13 +148,44 @@ class FolderDiff(
         // Also remove:
         // folder recursively
         // thumbs and thumb for children if we are in the case of a folder
-        local.localFilename?.let {
-            val file = File(it)
-            if (file.exists()) {
-                file.delete()
+        when {
+            local.isFolder() -> {
+                deleteLocalFolder(local)
+            }
+            else -> deleteLocalFile(local)
+        }
+
+    }
+
+    private fun deleteLocalFile(local: RTreeNode) {
+        // Cache or Offline
+        val lpath = NodeService.getLocalPath(local, NodeService.TYPE_CACHED_FILE)
+        val file = File(lpath)
+        if (file.exists()) {
+            file.delete()
+        }
+        // thumbs
+        NodeService.getLocalPath(local, NodeService.TYPE_THUMB)?.let {
+            val tf = File(it)
+            if (tf.exists()) {
+                tf.delete()
             }
         }
+
         dao.delete(local.encodedState)
+    }
+
+    fun deleteLocalFolder(local: RTreeNode) {
+        // Cache or Offline
+        val lpath = NodeService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)
+        val file = File(lpath)
+        if (file.exists()) {
+            file.deleteRecursively()
+        }
+        // TODO look for all thumbs defined for previewable files that are in the child path
+        //   and remove them.
+        dao.delete(local.encodedState)
+        dao.deleteUnder(local.encodedState)
     }
 
     // Temp wrapper to add more logs

@@ -11,7 +11,6 @@ public interface AppNames {
     String PREF_KEY_CURR_RECYCLER_LAYOUT = "current_recycler_layout";
     String KEY_DESTINATION = KEY_PREFIX_ + "destination";
 
-
     /* SHARED PREFERENCE WELL KNOWN VALUES */
     String RECYCLER_LAYOUT_LIST = "list";
     String RECYCLER_LAYOUT_GRID = "grid";
@@ -45,5 +44,11 @@ public interface AppNames {
     String AUTH_STATUS_EXPIRED = "expired";
     String AUTH_STATUS_REFRESHING = "refreshing";
     String AUTH_STATUS_CONNECTED = "connected";
+
+    // Local file types
+    String LOCAL_FILE_TYPE_NONE = "none";
+    String LOCAL_FILE_TYPE_CACHE = "cache";
+    String LOCAL_FILE_TYPE_OFFLINE = "offline";
+    String LOCAL_FILE_TYPE_EXTERNAL = "external";
 
 }

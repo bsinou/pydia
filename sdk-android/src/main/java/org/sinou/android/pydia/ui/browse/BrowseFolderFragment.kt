@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.transfer.FileImporter
 import org.sinou.android.pydia.utils.*
 
 class BrowseFolderFragment : Fragment() {
@@ -33,6 +34,25 @@ class BrowseFolderFragment : Fragment() {
 
     private lateinit var binding: FragmentBrowseFolderBinding
     private lateinit var browseFolderVM: BrowseFolderViewModel
+
+    // Contracts for file transfers to and from the device
+    // private lateinit var fileImporter: FileImporter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Communication with the device to import files / take pictures, video, ...
+    /*    fileImporter = FileImporter(
+            requireActivity().activityResultRegistry,
+            CellsApp.instance.nodeService,
+            null,
+            fTag,
+        )
+
+        // Hmmm it smells: we should rather attach this to the fragment,
+        // but when attached to the more menu, we skip the results.
+        // requireActivity().lifecycle.addObserver(fileImporter)
+        lifecycle.addObserver(fileImporter)*/
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,10 +79,12 @@ class BrowseFolderFragment : Fragment() {
             findNavController(),
             StateID.fromId(args.state)
         )
-        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            backPressedCallback
+        )
 
-        setHasOptionsMenu(true)
-        browseFolderVM.currentFolder.observe(this, {
+        browseFolderVM.currentFolder.observe(viewLifecycleOwner) {
             it?.let {
                 if (it.isRecycle() || it.isInRecycle()) {
                     binding.addNodeFab.visibility = View.GONE
@@ -71,7 +93,8 @@ class BrowseFolderFragment : Fragment() {
 //                    binding.addNodeFab.setOnClickListener { onFabClicked() }
                 }
             }
-        })
+        }
+        setHasOptionsMenu(true)
 
         // TODO workspace root is not a RTreeNode => we must handle it explicitly.
         if (browseFolderVM.stateID.isWorkspaceRoot) {
@@ -90,12 +113,12 @@ class BrowseFolderFragment : Fragment() {
             binding.nodes.layoutManager = GridLayoutManager(activity, 3)
             val adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
             binding.nodes.adapter = adapter
-            browseFolderVM.children.observe(viewLifecycleOwner, { adapter.submitList(it) })
+            browseFolderVM.children.observe(viewLifecycleOwner) { adapter.submitList(it) }
         } else {
             binding.nodes.layoutManager = LinearLayoutManager(activity)
             val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
             binding.nodes.adapter = adapter
-            browseFolderVM.children.observe(viewLifecycleOwner, { adapter.submitList(it) })
+            browseFolderVM.children.observe(viewLifecycleOwner) { adapter.submitList(it) }
         }
     }
 
@@ -134,12 +157,16 @@ class BrowseFolderFragment : Fragment() {
 
         // FIXME we should not statically link MainActivity here.
         (requireActivity() as MainActivity).supportActionBar?.let {
-            it.title = if (Str.empty(browseFolderVM.stateID.fileName)) {
-                browseFolderVM.stateID.workspace
-            } else if ("/recycle_bin" == browseFolderVM.stateID.file) {
-                resources.getString(R.string.recycle_bin_label)
-            } else {
-                browseFolderVM.stateID.fileName
+            it.title = when {
+                Str.empty(browseFolderVM.stateID.fileName) -> {
+                    browseFolderVM.stateID.workspace
+                }
+                "/recycle_bin" == browseFolderVM.stateID.file -> {
+                    resources.getString(R.string.recycle_bin_label)
+                }
+                else -> {
+                    browseFolderVM.stateID.fileName
+                }
             }
             it.setDisplayHomeAsUpEnabled(true)
         }

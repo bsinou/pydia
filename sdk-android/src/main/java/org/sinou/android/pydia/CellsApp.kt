@@ -87,7 +87,6 @@ class CellsApp : Application() {
         nodeService = NodeService(
             TreeNodeDB.getDatabase(applicationContext),
             accountService,
-            filesDir,
         )
 
         Log.i(tag, "... Node service ready")

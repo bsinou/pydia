@@ -1,14 +1,20 @@
 package org.sinou.android.pydia.services
 
-import android.os.Environment
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
-import com.pydio.cells.api.*
+import com.pydio.cells.api.Client
+import com.pydio.cells.api.SDKException
+import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.Stats
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDB
@@ -20,12 +26,12 @@ import java.util.*
 
 class NodeService(
     private val nodeDB: TreeNodeDB,
-    private val accountService: AccountService,
-    private val filesDir: File
+    private val accountService: AccountService
 ) {
 
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
+    private val mimeMap = MimeTypeMap.getSingleton()
 
     /* Expose DB content as LiveData for the ViewModels */
 
@@ -138,7 +144,7 @@ class NodeService(
         try {
             val client = getClient(stateID)
             val dao = nodeDB.treeNodeDao()
-            val thumbDL = ThumbDownloader(client, nodeDB, dataDir(filesDir, stateID, THUMB_DIR))
+            val thumbDL = ThumbDownloader(client, nodeDB, dataDir(stateID, TYPE_THUMB))
             val folderDiff = FolderDiff(client, dao, thumbDL, stateID)
             folderDiff.compareWithRemote()
 
@@ -160,7 +166,7 @@ class NodeService(
         return@withContext null
     }
 
-    private suspend fun statRemoteNode(stateID: StateID): Stats? {
+    private fun statRemoteNode(stateID: StateID): Stats? {
         try {
             val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
             return client.stats(stateID.workspace, stateID.file, true)
@@ -181,15 +187,17 @@ class NodeService(
 
         // Compare with remote if possible
         val remoteStats = statRemoteNode(StateID.fromId(rTreeNode.encodedState)) ?: return null
-        if (rTreeNode.localFilename != null && rTreeNode.localModificationTS >= remoteStats.getmTime())
-            rTreeNode.localFilename?.let {
-                val file = File(it)
-                // TODO at this point we are not 100% sure the local file
-                //  is in-line with remote, typically if update is in process
-                if (file.exists()) {
-                    return true
-                }
+        if (rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
+            && rTreeNode.localModificationTS >= remoteStats.getmTime()
+        ) {
+            val file = File(getLocalPath(rTreeNode, TYPE_CACHED_FILE))
+            // TODO at this point we are not 100% sure the local file
+            //  is in-line with remote, typically if update is in process
+            if (file.exists()) {
+                return true
             }
+        }
+
         return false
     }
 
@@ -198,13 +206,14 @@ class NodeService(
 
             val isOK = isCacheVersionUpToDate(rTreeNode)
             when {
-                isOK == null && rTreeNode.localFilename != null -> File(rTreeNode.localFilename)
-                isOK == null && rTreeNode.localFilename == null -> null
-                isOK ?: false -> File(rTreeNode.localFilename)
+                isOK == null && rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
+                -> getLocalPath(rTreeNode, TYPE_CACHED_FILE)?.let { File(it) }
+                isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE -> null
+                isOK ?: false -> File(getLocalPath(rTreeNode, TYPE_CACHED_FILE)!!)
             }
 
             val stateID = rTreeNode.getStateID()
-            val baseDir = dataDir(filesDir, stateID, FILES_DIR)
+            val baseDir = dataDir(stateID, TYPE_OFFLINE_FILE)
             val targetFile = File(baseDir, stateID.path.substring(1))
             targetFile.parentFile.mkdirs()
             var out: FileOutputStream? = null
@@ -217,7 +226,7 @@ class NodeService(
                 client.download(stateID.workspace, stateID.file, out, null)
 
                 // Success persist change
-                rTreeNode.localFilename = targetFile.absolutePath
+                rTreeNode.localFileType = AppNames.LOCAL_FILE_TYPE_CACHE
                 rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
 
                 nodeDB.treeNodeDao().update(rTreeNode)
@@ -238,42 +247,102 @@ class NodeService(
             targetFile
         }
 
-    suspend fun saveToExternalStorage(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
-
-        val parent = CellsApp.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-        if (parent == null) {
-            // TODO manage this better
-            Log.e(TAG, "no external storage found")
-            return@withContext
+    fun enqueueDownload(stateID: StateID, uri: Uri) {
+        serviceScope.launch {
+            saveToSharedStorage(stateID, uri)
         }
-        val to = File("${parent.absolutePath}/${rTreeNode.name}")
+    }
 
-        if (isCacheVersionUpToDate(rTreeNode) ?: return@withContext) {
-            File(rTreeNode.localFilename!!).copyTo(to, true)
-            Log.i(TAG, "... File has been copied to ${to.absolutePath}")
-        } else {
-            // Directly download to final destination
-            val stateID = rTreeNode.getStateID()
-            var out: FileOutputStream? = null
+    private suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
+        withContext(Dispatchers.IO) {
+
+            val rTreeNode = nodeDB.treeNodeDao().getNode(stateID.id) ?: return@withContext
+            val resolver = CellsApp.instance.contentResolver
+            var out: OutputStream? = null
             try {
-                val sf = accountService.sessionFactory
-                val client: Client = sf.getUnlockedClient(stateID.accountId)
-                out = FileOutputStream(to)
-                // TODO handle progress
-                client.download(stateID.workspace, stateID.file, out, null)
-                Log.i(TAG, "... File has been downloaded to ${to.absolutePath}")
+                out = resolver.openOutputStream(uri)
+                if (isCacheVersionUpToDate(rTreeNode) ?: return@withContext) {
+                    var input: InputStream? = null
+                    try {
+                        input = FileInputStream(getLocalFile(rTreeNode, TYPE_CACHED_FILE)!!)
+                        IoHelpers.pipeRead(input, out)
+                    } finally {
+                        IoHelpers.closeQuietly(input)
+                    }
+                    // File(getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)).copyTo(to, true)
+                } else {
+                    // Directly download to final destination
+                    val sf = accountService.sessionFactory
+                    val client: Client = sf.getUnlockedClient(stateID.accountId)
+                    // TODO handle progress
+                    client.download(stateID.workspace, stateID.file, out, null)
+                }
+                Log.i(TAG, "... File has been copied to ${uri.path}")
+
             } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
                 Log.e(TAG, "could not perform DL for " + stateID.id)
                 se.printStackTrace()
             } catch (ioe: IOException) {
                 // TODO handle this: what should we do ?
-                Log.e(TAG, "cannot write at ${to.absolutePath}: ${ioe.message}")
+                Log.e(TAG, "cannot write at ${uri.path}: ${ioe.message}")
                 ioe.printStackTrace()
             } finally {
                 IoHelpers.closeQuietly(out)
             }
         }
-    }
+
+
+//    suspend fun saveToExternalStorage(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+//
+//        val parent = CellsApp.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+//        if (parent == null) {
+//            // TODO manage this better
+//            Log.e(TAG, "no external storage found")
+//            return@withContext
+//        }
+//        val stateID = rTreeNode.getStateID()
+//        val resolver = CellsApp.instance.contentResolver
+//        val toUri = getSharedStorageTargetUri(resolver, rTreeNode)
+//        // File("${parent.absolutePath}/${rTreeNode.name}")
+//        var out: OutputStream? = null
+//        if (toUri == null) {
+//            // TODO manage this better
+//            Log.e(TAG, "could not generate shared storage Uri")
+//            return@withContext
+//        }
+//
+//        try {
+//            out = resolver.openOutputStream(toUri)
+//            if (isCacheVersionUpToDate(rTreeNode) ?: return@withContext) {
+//                var input: InputStream? = null
+//                try {
+//                    input = FileInputStream(getLocalFile(rTreeNode, TYPE_CACHED_FILE)!!)
+//                    IoHelpers.pipeRead(input, out)
+//                } finally {
+//                    IoHelpers.closeQuietly(input)
+//                }
+//                // File(getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)).copyTo(to, true)
+//            } else {
+//                // Directly download to final destination
+//                val sf = accountService.sessionFactory
+//                val client: Client = sf.getUnlockedClient(stateID.accountId)
+//                // TODO handle progress
+//                client.download(stateID.workspace, stateID.file, out, null)
+//            }
+//            Log.i(TAG, "... File has been copied to ${toUri.path}")
+//
+//        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
+//            Log.e(TAG, "could not perform DL for " + stateID.id)
+//            se.printStackTrace()
+//        } catch (ioe: IOException) {
+//            // TODO handle this: what should we do ?
+//            Log.e(TAG, "cannot write at ${toUri.path}: ${ioe.message}")
+//            ioe.printStackTrace()
+//        } finally {
+//            IoHelpers.closeQuietly(out)
+//        }
+//    }
+
 
     @Throws(SDKException::class)
     suspend fun uploadAt(stateID: StateID, fileName: String, input: InputStream) =
@@ -299,25 +368,135 @@ class NodeService(
         nodeDB.treeNodeDao().update(rTreeNode)
     }
 
-    private fun handleSdkException(msg: String, se: SDKException): SDKException {
+    //    private fun handleSdkException(msg: String, se: SDKException): SDKException {
+    private fun handleSdkException(msg: String, se: SDKException) {
         Log.e(TAG, msg)
         Log.e(TAG, "Error code: ${se.code}")
         se.printStackTrace()
-        return se
+//         return se
+    }
+
+    fun enqueueUpload(parentID: StateID, uri: Uri) {
+        serviceScope.launch {
+
+            var name: String? = null
+            var size: Long? = null
+
+
+            val cr = CellsApp.instance.contentResolver
+            cr.query(uri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                cursor.moveToFirst()
+                name = cursor.getString(nameIndex)
+                size = cursor.getLong(sizeIndex)
+            }
+
+            name = name ?: uri.lastPathSegment!!
+
+            Log.i(TAG, "Received enqueue call for $uri at $parentID")
+            Log.i(TAG, "Received file name: $name")
+            Log.i(TAG, "Received file size: $size")
+
+            if (Str.empty(name)) {
+                return@launch
+            }
+            val filename = name!!
+
+            // TODO improve
+            var inputStream: InputStream? = null
+            try {
+                inputStream = cr.openInputStream(uri)
+                val mime = cr.getType(uri)
+                mimeMap.getExtensionFromMimeType(mime)?.let {
+                    // TODO make a better check
+                    //   - retrieve file extension
+                    //   - only append if the extension seems to be invalid
+                    if (!filename.endsWith(it, true)) {
+                        name += ".$it"
+                    }
+                }
+                val error = uploadAt(parentID, name!!, inputStream!!)
+            } catch (ioe: IOException) {
+                ioe.printStackTrace()
+            }
+        }
     }
 
     companion object {
         private const val TAG = "NodeService"
-        private const val THUMB_DIR = "thumbs"
-        private const val FILES_DIR = "files"
+        const val TYPE_THUMB = "thumb"
+        const val TYPE_CACHED_FILE = "cached_file"
+        const val TYPE_OFFLINE_FILE = "offline_file"
 
-        fun dataDir(filesDir: File, stateID: StateID, type: String): File {
+        private const val THUMB_PARENT_DIR = "thumbs"
+        private const val CACHED_FILE_PARENT_DIR = "cached"
+        private const val OFFLINE_FILE_PARENT_DIR = "files"
+
+        fun dataDir(stateID: StateID, type: String): File {
             val ps = File.separator
-            return File(filesDir.absolutePath + ps + stateID.accountId + ps + type)
+
+            return when (type) {
+                TYPE_THUMB -> File(
+                    CellsApp.instance.cacheDir.absolutePath
+                            + ps + stateID.accountId + ps + THUMB_PARENT_DIR
+                )
+                TYPE_CACHED_FILE -> File(
+                    CellsApp.instance.cacheDir.absolutePath
+                            + ps + stateID.accountId + ps + CACHED_FILE_PARENT_DIR
+                )
+                TYPE_OFFLINE_FILE -> File(
+                    CellsApp.instance.filesDir.absolutePath
+                            + ps + stateID.accountId + ps + OFFLINE_FILE_PARENT_DIR
+                )
+                else -> throw IllegalStateException("Unknown file type: $type")
+            }
         }
 
+        @Throws(java.lang.IllegalStateException::class)
+        fun getLocalPath(item: RTreeNode, type: String): String? {
+            val stat = StateID.fromId(item.encodedState)
+            return when (type) {
+                TYPE_THUMB
+                -> if (Str.empty(item.thumbFilename)) {
+                    null
+                } else {
+                    "${dataDir(stat, type)}${File.separator}${item.thumbFilename}"
+                }
+                TYPE_CACHED_FILE
+                -> "${dataDir(stat, type)}${stat.file}"
+                // So that we do not store offline files also in the cache
+                TYPE_OFFLINE_FILE
+                -> "${dataDir(stat, TYPE_OFFLINE_FILE)}${stat.file}"
+                else -> throw IllegalStateException("Unable to generate local path for $type file: ${item.encodedState} ")
+            }
+        }
+
+        fun getLocalFile(item: RTreeNode, type: String): File? {
+
+            // Trick so that we do not store offline files also in the cache... double check
+            if (type == TYPE_CACHED_FILE && item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
+                || type == TYPE_OFFLINE_FILE
+            ) {
+                val p = getLocalPath(item, TYPE_OFFLINE_FILE)
+                return if (p != null) {
+                    File(p)
+                } else {
+                    null
+                }
+            }
+
+            val p = getLocalPath(item, type)
+            return if (p != null) {
+                File(p)
+            } else {
+                null
+            }
+        }
+
+
         fun toRTreeNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-            var node = RTreeNode(
+            val node = RTreeNode(
                 encodedState = stateID.id,
                 workspace = stateID.workspace,
                 parentPath = stateID.parentFile,

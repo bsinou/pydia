@@ -7,23 +7,22 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentManager
 import com.pydio.cells.api.SdkNames
-import com.pydio.cells.openapi.model.JobsActionMessage
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.BuildConfig
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.browse.RTreeNode
 import java.io.File
 
-private const val DEFAULT_FILE_PROVIDER_SUFFIX = ".fileprovider"
-private const val DEFAULT_FILE_PROVIDER_ID =
+const val DEFAULT_FILE_PROVIDER_SUFFIX = ".fileprovider"
+const val DEFAULT_FILE_PROVIDER_ID =
     BuildConfig.APPLICATION_ID + DEFAULT_FILE_PROVIDER_SUFFIX
 
 
-fun showMessage(context: Context, message: String){
+fun showMessage(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
-fun showLongMessage(context: Context, message: String){
+fun showLongMessage(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 }
 
@@ -57,7 +56,7 @@ fun openWith(context: Context, file: File, node: RTreeNode): Intent {
  * Thanks to https://stackoverflow.com/questions/56598480/couldnt-find-meta-data-for-provider-with-authority
  */
 fun externallyView(context: Context, file: File, node: RTreeNode): Intent {
-    val uri = FileProvider.getUriForFile(context,DEFAULT_FILE_PROVIDER_ID, file)
+    val uri = FileProvider.getUriForFile(context, DEFAULT_FILE_PROVIDER_ID, file)
     var mime = node.mime
     if (SdkNames.NODE_MIME_DEFAULT.equals(mime)) {
         mime = getMimeType(node.name)

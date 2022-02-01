@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.Converters
 import java.util.*
 
@@ -36,7 +37,7 @@ data class RTreeNode(
 
     @ColumnInfo(name = "last_check_ts") var lastCheckTS: Long = 0L,
 
-    @ColumnInfo(name = "is_offline") var isOfflineRoot: Boolean = false,
+    @ColumnInfo(name = "is_offline_root") var isOfflineRoot: Boolean = false,
 
     @ColumnInfo(name = "is_bookmarked") var isBookmarked: Boolean = false,
 
@@ -48,7 +49,12 @@ data class RTreeNode(
 
     @ColumnInfo(name = "thumb") var thumbFilename: String? = null,
 
-    @ColumnInfo(name = "local") var localFilename: String? = null,
+    // Can be: none, cache, offline, external
+    @ColumnInfo(name = "local_file_type") var localFileType: String = AppNames.LOCAL_FILE_TYPE_NONE,
+
+    // When necessary, we store the full path to the
+    // relevant local resource somewhere in the external storage.
+    @ColumnInfo(name = "localPath") var localFilePath: String? = null,
 ) {
 
     fun getStateID(): StateID {
@@ -58,6 +64,11 @@ data class RTreeNode(
     fun isFolder(): Boolean {
         return mime == SdkNames.NODE_MIME_FOLDER || mime == SdkNames.NODE_MIME_RECYCLE
     }
+
+    fun isFile(): Boolean {
+        return !isFolder()
+    }
+
 
     fun isInRecycle(): Boolean {
         return parentPath.startsWith("/${SdkNames.RECYCLE_BIN_NAME}")

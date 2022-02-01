@@ -45,7 +45,7 @@ class BrowseFolderViewModel(
                     pause()
                 }
             }
-            delay(TimeUnit.SECONDS.toMillis(10))
+            delay(TimeUnit.SECONDS.toMillis(4))
         }
     }
 

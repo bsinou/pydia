@@ -44,7 +44,6 @@ buildscript {
 
         /* DEFINE PACKAGES
         *  That are then picked by modules */
-
         libraries = [
                 // Kotlin standard library
                 "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
@@ -63,8 +62,10 @@ buildscript {
                 // Jetpack libraries
 
                 // Navigation UI
-                "androidx.navigation:navigation-ui-ktx:$navigation_version",
                 "androidx.navigation:navigation-fragment-ktx:$navigation_version",
+                "androidx.navigation:navigation-ui-ktx:$navigation_version",
+                // Feature module Support
+                "androidx.navigation:navigation-dynamic-features-fragment:$navigation_version",
                 // ViewModel and LiveData
                 "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version",
                 "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version",
@@ -84,6 +85,7 @@ buildscript {
                 //"com.squareup.retrofit2:retrofit:$retrofit_version",
                 "commons-codec:commons-codec:$commons_codec_version",
         ]
+
 
         librariesKapt = [
                 "androidx.room:room-compiler:$room_version",
@@ -107,7 +109,6 @@ buildscript {
                 //  Architecture Components testing libraries
                 "androidx.arch.core:core-testing:2.1.0",
                 "com.google.truth:truth:$truth_version",
-
         ]
 
         androidTestLibraries = [
@@ -134,8 +135,9 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:7.0.4"
+        classpath 'com.android.tools.build:gradle:7.0.4'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.4.0"
+        // classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigation_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }

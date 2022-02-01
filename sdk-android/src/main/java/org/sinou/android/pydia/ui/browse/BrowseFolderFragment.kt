@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -35,34 +36,13 @@ class BrowseFolderFragment : Fragment() {
     private lateinit var binding: FragmentBrowseFolderBinding
     private lateinit var browseFolderVM: BrowseFolderViewModel
 
-    // Contracts for file transfers to and from the device
-    // private lateinit var fileImporter: FileImporter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Communication with the device to import files / take pictures, video, ...
-    /*    fileImporter = FileImporter(
-            requireActivity().activityResultRegistry,
-            CellsApp.instance.nodeService,
-            null,
-            fTag,
-        )
-
-        // Hmmm it smells: we should rather attach this to the fragment,
-        // but when attached to the more menu, we skip the results.
-        // requireActivity().lifecycle.addObserver(fileImporter)
-        lifecycle.addObserver(fileImporter)*/
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_browse_folder, container, false
         )
-
         val viewModelFactory = BrowseFolderViewModel.BrowseFolderViewModelFactory(
             CellsApp.instance.accountService,
             CellsApp.instance.nodeService,
@@ -154,7 +134,6 @@ class BrowseFolderFragment : Fragment() {
         dumpBackStack(fTag, parentFragmentManager)
 
         browseFolderVM.resume()
-
         // FIXME we should not statically link MainActivity here.
         (requireActivity() as MainActivity).supportActionBar?.let {
             it.title = when {
@@ -189,14 +168,21 @@ class BrowseFolderFragment : Fragment() {
             findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             return@launch
         }
+
+        // TODO double check. It smells.
+        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+        browseFolderVM.setLoading(true)
         val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
         file?.let {
             val intent = externallyView(requireContext(), file, node)
             try {
                 startActivity(intent)
-                // FIXME DEBUG only
-                val msg = "Opened ${it.name} (${intent.type}) with external viewer"
-                Log.e(tag, "Intent success: $msg")
+                browseFolderVM.setLoading(false)
+                requireActivity().window.setFlags(0,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
             } catch (e: Exception) {
                 val msg = "Cannot open ${it.name} (${intent.type}) with external viewer"
                 Toast.makeText(requireActivity().application, msg, Toast.LENGTH_LONG).show()

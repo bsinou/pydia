@@ -86,7 +86,7 @@
                 android:layout_width="@dimen/menu_icon"
                 android:layout_height="@dimen/menu_icon"
                 android:layout_margin="@dimen/menu_margin"
-                android:contentDescription="@string/import_from_camera"
+                android:contentDescription="@string/take_picture"
                 android:src="@drawable/ic_baseline_photo_camera_24" />
 
             <TextView
@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="@dimen/menu_label_padding"
-                android:text="@string/import_from_camera" />
+                android:text="@string/take_picture" />
         </LinearLayout>
 
     </LinearLayout>

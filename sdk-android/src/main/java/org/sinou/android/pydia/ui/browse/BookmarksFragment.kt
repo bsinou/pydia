@@ -99,7 +99,7 @@ class BookmarksFragment : Fragment() {
         super.onDetach()
     }
 
-    private fun navigateTo(node: RTreeNode) {
+    private fun navigateTo(node: RTreeNode) =
         lifecycleScope.launch {
             if (isFolder(node)) {
                 val action = MainNavDirections.openFolder(node.encodedState)
@@ -107,7 +107,6 @@ class BookmarksFragment : Fragment() {
             } else {
                 val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
                 file?.let {
-
                     val intent = externallyView(requireContext(), file, node)
                     try {
                         startActivity(intent)
@@ -123,7 +122,6 @@ class BookmarksFragment : Fragment() {
                 }
             }
         }
-    }
 }
 
 private class ChangeListener : NavController.OnDestinationChangedListener {

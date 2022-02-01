@@ -70,7 +70,7 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
             )
             .into(this)
     } else {
-        Log.w("SetNodeThumb", "no thumb found for ${item.name}")
+        // Log.w("SetNodeThumb", "no thumb found for ${item.name}")
         setImageResource(getDrawableFromMime(item.mime))
     }
 }
@@ -195,15 +195,16 @@ fun areContentsEquals(
     // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
     // remote modif timestamp and thumb filename.
 
-    // More logs to investigate
-    //        if (!same){
-    //            Log.d(tag, "Found new content for ${oldItem.encodedState}")
-    //            Log.d(tag, "Old TS: ${oldItem.remoteModificationTS}, " +
-    //                    "new TS: ${newItem.remoteModificationTS}")
-    //            Log.d(tag, "Old thumb: ${oldItem.thumbFilename}, " +
-    //                    "new thumb: ${newItem.thumbFilename}")
-    ////            Log.d(tag, "old item: \n${Gson().toJson(oldItem)}")
-    ////            Log.d(tag, "new item: \n${Gson().toJson(newItem)}")
-    //        }
+     // More logs to investigate
+            if (!same){
+                val tag = "ListContentEquals"
+                Log.d(tag, "Found new content for ${oldItem.encodedState}")
+                Log.d(tag, "Old TS: ${oldItem.remoteModificationTS}, " +
+                        "new TS: ${newItem.remoteModificationTS}")
+                Log.d(tag, "Old thumb: ${oldItem.thumbFilename}, " +
+                        "new thumb: ${newItem.thumbFilename}")
+    //            Log.d(tag, "old item: \n${Gson().toJson(oldItem)}")
+    //            Log.d(tag, "new item: \n${Gson().toJson(newItem)}")
+            }
     return same && flagChanged
 }

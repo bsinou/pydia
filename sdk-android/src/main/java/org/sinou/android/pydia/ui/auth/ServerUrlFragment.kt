@@ -45,7 +45,7 @@ class ServerUrlFragment : Fragment() {
 
         binding.actionButton.setOnClickListener { goForPing() }
 
-        viewModel.server.observe(requireActivity(), { server ->
+        viewModel.server.observe(requireActivity()) { server ->
             Log.i(fTag, "... LaunchingAuth")
             server?.let {
                 val urlStr = server.serverURL.toJson()
@@ -60,28 +60,28 @@ class ServerUrlFragment : Fragment() {
                     viewModel.launchOAuthProcess(it.serverURL)
                 }
             }
-        })
+        }
 
-        viewModel.unvalidTLS.observe(requireActivity(), { invalidTLS ->
+        viewModel.unvalidTLS.observe(requireActivity()) { invalidTLS ->
             if (invalidTLS) {
                 findNavController().navigate(ServerUrlFragmentDirections.actionConfirmSkipVerify())
             }
-        })
+        }
 
-        viewModel.nextIntent.observe(requireActivity(), { intent ->
+        viewModel.nextIntent.observe(requireActivity()) { intent ->
             intent?.let {
                 startActivity(intent)
                 viewModel.intentStarted()
             }
-        })
+        }
 
-        viewModel.isLoading.observe(requireActivity(), {
+        viewModel.isLoading.observe(requireActivity()) {
             binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
-        })
+        }
 
-        viewModel.errorMessage.observe(requireActivity(), { msg ->
+        viewModel.errorMessage.observe(requireActivity()) { msg ->
             msg?.let { showLongMessage(this@ServerUrlFragment.requireContext(), msg) }
-        })
+        }
 
         return binding.root
     }

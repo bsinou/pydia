@@ -133,7 +133,6 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
         }
     }
 
-
     private suspend fun doRegister(su: ServerURL): Server? = withContext(Dispatchers.IO) {
         Log.i(tag, "About to register the server ${su.id}")
         var newServer: Server? = null

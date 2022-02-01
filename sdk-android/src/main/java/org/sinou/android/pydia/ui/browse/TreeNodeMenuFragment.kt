@@ -1,15 +1,13 @@
 package org.sinou.android.pydia.ui.browse
 
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -25,14 +23,7 @@ import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.tasks.createFolder
 import org.sinou.android.pydia.transfer.FileExporter
 import org.sinou.android.pydia.transfer.FileImporter
-import org.sinou.android.pydia.utils.DEFAULT_FILE_PROVIDER_ID
-import org.sinou.android.pydia.utils.openWith
-import org.sinou.android.pydia.utils.showLongMessage
-import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
-
+import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
 
 /**
  * More menu fragment: it is used to present the end-user with various possible actions
@@ -50,7 +41,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val CONTEXT_SEARCH = "from_search"
         const val CONTEXT_OFFLINE = "from_offline"
 
-        const val ACTION_OPEN_WITH = "open_with"
+        //         const val ACTION_OPEN_WITH = "open_with"
         const val ACTION_DOWNLOAD_TO_DEVICE = "download_to_device"
         const val ACTION_OPEN_IN_WORKSPACES = "open_in_workspaces"
         const val ACTION_OPEN_PARENT_IN_WORKSPACES = "open_parent_in_workspaces"
@@ -69,7 +60,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     }
 
-    val args: TreeNodeMenuFragmentArgs by navArgs()
+    private val args: TreeNodeMenuFragmentArgs by navArgs()
 
     private lateinit var stateID: StateID
     private lateinit var contextType: String
@@ -85,6 +76,9 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     // Contracts for file transfers to and from the device
     private lateinit var fileImporter: FileImporter
     private lateinit var fileExporter: FileExporter
+
+    // Temp solution to provide a scrim during long running operations
+    private var loadingDialog: LoadingDialogFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,7 +101,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         fileImporter = FileImporter(
             requireActivity().activityResultRegistry,
             CellsApp.instance.nodeService,
-            stateID,
+            treeNodeMenuVM,
             fTag,
             this,
         )
@@ -177,7 +171,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private fun bind(binding: MoreMenuBrowseBinding, node: RTreeNode) {
         binding.node = node
 
-        binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
+//         binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
         binding.download.setOnClickListener { onClicked(node, ACTION_DOWNLOAD_TO_DEVICE) }
         binding.rename.setOnClickListener { onClicked(node, ACTION_RENAME) }
         binding.copyTo.setOnClickListener { onClicked(node, ACTION_COPY) }
@@ -307,7 +301,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
             onClicked(node, ACTION_RESTORE_FROM_RECYCLE)
         }
         binding.deletePermanently.setOnClickListener { onClicked(node, ACTION_DELETE_PERMANENTLY) }
-        binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
+//         binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
         binding.executePendingBindings()
     }
 
@@ -325,7 +319,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     private fun bind(binding: MoreMenuBookmarksBinding, node: RTreeNode) {
         binding.node = node
-        binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
+        // binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
         binding.bookmarkSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_BOOKMARK) }
         binding.download.setOnClickListener { onClicked(node, ACTION_DOWNLOAD_TO_DEVICE) }
         binding.openInWorkspaces.setOnClickListener { onClicked(node, ACTION_OPEN_IN_WORKSPACES) }
@@ -370,24 +364,24 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     findNavController().navigate(MainNavDirections.openFolder(parentState.id))
                 }
                 // Transfer to and from device
-                ACTION_OPEN_WITH ->
-                    CellsApp.instance.nodeService.getOrDownloadFileToCache(node)?.let {
-                        val intent = openWith(requireContext(), it, node)
-                        // Insure we won't crash if there no activity to handle this kind of intent
-                        if (activity?.packageManager?.resolveActivity(intent, 0) != null) {
-                            startActivity(intent)
-                        } else {
-                            showLongMessage(requireContext(), "No app found to open this file")
-                        }
-                        moreMenu.dismiss()
-                    }
+//                ACTION_OPEN_WITH ->
+//                    CellsApp.instance.nodeService.getOrDownloadFileToCache(node)?.let {
+//                        val intent = openWith(requireContext(), it, node)
+//                        // Insure we won't crash if there no activity to handle this kind of intent
+//                        if (activity?.packageManager?.resolveActivity(intent, 0) != null) {
+//                            startActivity(intent)
+//                        } else {
+//                            showLongMessage(requireContext(), "No app found to open this file")
+//                        }
+//                        moreMenu.dismiss()
+//                    }
                 ACTION_IMPORT_FILES -> {
                     fileImporter.selectFiles()
                     // dismissal must be done in the ResultContract receiver or we miss the return.
                     // moreMenu.dismiss()
                 }
                 ACTION_IMPORT_FROM_CAMERA -> {
-                    doTakePicture()
+                    fileImporter.takePicture()
                 }
                 ACTION_DOWNLOAD_TO_DEVICE -> {
                     fileExporter.pickTargetLocation(node)
@@ -396,44 +390,9 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun doTakePicture() {
-        val photoFile: File? = try {
-            createImageFile()
-        } catch (ex: IOException) {
-            Log.e(fTag, "Cannot create photo file")
-            ex.printStackTrace()
-            // Error occurred while creating the File
-            null
-        }
-        // Continue only if the File was successfully created
-        photoFile?.also {
-            val uri: Uri = FileProvider.getUriForFile(
-                requireContext(),
-                DEFAULT_FILE_PROVIDER_ID,
-                it
-            )
-            fileImporter.getFromCamera(uri)
-        }
-    }
-
-    // lateinit var currentPhotoPath: String
-
-
-    @Throws(IOException::class)
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyMMdd_HHmmss").format(Date())
-        val storageDir =
-            File(CellsApp.instance.filesDir.absolutePath + "/" + (Environment.DIRECTORY_PICTURES)!!)
-        storageDir.mkdirs()
-        return File.createTempFile(
-            "IMG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        )
-//            .apply {
-//            // Save a file: path for use with ACTION_VIEW intents
-//            currentPhotoPath = absolutePath
-//        }
+    private fun showProgressDialog() {
+        val fm: FragmentManager = requireActivity().supportFragmentManager
+        loadingDialog = LoadingDialogFragment.newInstance()
+        loadingDialog?.show(fm, "fragment_edit_name")
     }
 }

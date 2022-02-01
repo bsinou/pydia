@@ -12,7 +12,6 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import org.sinou.android.pydia.db.browse.TreeNodeDB
-import org.sinou.android.pydia.services.SessionFactory
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -57,7 +56,14 @@ class ThumbDownloader(
         }
 
         val targetName = targetName(node)
-        if (Str.empty(targetName)) return
+        if (Str.empty(targetName)) {
+            Log.e(tag, "No target file found for $state, aborting...")
+//            Log.d(tag, ".... Listing meta to debug:")
+//            for (meta in rNode.meta) {
+//                Log.d(tag, "- ${meta.key} : ${meta.value}")
+//            }
+            return
+        }
 
         var out: FileOutputStream? = null
         try {
@@ -92,6 +98,7 @@ class ThumbDownloader(
             // FIXME this code has been copied from the Cells Client for the MVP
             val remoteThumbsJson = currNode.getProperty(SdkNames.NODE_PROPERTY_REMOTE_THUMBS)
             if (Str.empty(remoteThumbsJson)) {
+                Log.w(tag, "No JSON thumb metadata found, aborting...")
                 return null
             }
             val gson = Gson()

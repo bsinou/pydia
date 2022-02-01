@@ -7,6 +7,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.utils.Log
+import java.text.SimpleDateFormat
+import java.util.*
 
 fun Fragment.hideKeyboard() {
     val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -49,7 +51,6 @@ fun hasMeteredNetwork(context: Context): Boolean {
     }
 }
 
-
 fun hasAtLeastMeteredNetwork(context: Context): Boolean {
 
     val connMgr = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -74,4 +75,13 @@ fun hasAtLeastMeteredNetwork(context: Context): Boolean {
 fun logException(caller: String, msg: String, e: Exception) {
     Log.e(caller, "$msg ${if (e is SDKException) "(Code #${e.code} )" else ""}")
     e.printStackTrace()
+}
+
+fun Date.asFormattedString(format: String, locale: Locale = Locale.getDefault()): String {
+    val formatter = SimpleDateFormat(format, locale)
+    return formatter.format(this)
+}
+
+fun getCurrentDateTime(): Date {
+    return Calendar.getInstance().time
 }

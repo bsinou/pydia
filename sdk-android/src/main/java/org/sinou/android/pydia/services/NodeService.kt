@@ -139,6 +139,12 @@ class NodeService(
 
     /* Handle communication with the remote server to refresh locally stored data */
 
+    fun enqueueDownload(stateID: StateID, uri: Uri) {
+        serviceScope.launch {
+            saveToSharedStorage(stateID, uri)
+        }
+    }
+
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     suspend fun pull(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
@@ -204,6 +210,8 @@ class NodeService(
     suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
         withContext(Dispatchers.IO) {
 
+            Log.e(TAG, "in getOrDownloadFileToCache for ${rTreeNode.name}")
+
             val isOK = isCacheVersionUpToDate(rTreeNode)
             when {
                 isOK == null && rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
@@ -211,6 +219,7 @@ class NodeService(
                 isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE -> null
                 isOK ?: false -> File(getLocalPath(rTreeNode, TYPE_CACHED_FILE)!!)
             }
+            Log.e(TAG, "... launching download for ${rTreeNode.name}")
 
             val stateID = rTreeNode.getStateID()
             val baseDir = dataDir(stateID, TYPE_OFFLINE_FILE)
@@ -230,6 +239,7 @@ class NodeService(
                 rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
 
                 nodeDB.treeNodeDao().update(rTreeNode)
+                Log.e(TAG, "... download done for ${rTreeNode.name}")
             } catch (se: SDKException) {
                 // Could not retrieve thumb, failing silently for the end user
                 val msg = "could not perform DL for " + stateID.id
@@ -246,12 +256,6 @@ class NodeService(
 
             targetFile
         }
-
-    fun enqueueDownload(stateID: StateID, uri: Uri) {
-        serviceScope.launch {
-            saveToSharedStorage(stateID, uri)
-        }
-    }
 
     private suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
         withContext(Dispatchers.IO) {
@@ -291,66 +295,75 @@ class NodeService(
             }
         }
 
+    fun enqueueUpload(parentID: StateID, uri: Uri) {
+        serviceScope.launch {
 
-//    suspend fun saveToExternalStorage(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
-//
-//        val parent = CellsApp.instance.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-//        if (parent == null) {
-//            // TODO manage this better
-//            Log.e(TAG, "no external storage found")
-//            return@withContext
-//        }
-//        val stateID = rTreeNode.getStateID()
-//        val resolver = CellsApp.instance.contentResolver
-//        val toUri = getSharedStorageTargetUri(resolver, rTreeNode)
-//        // File("${parent.absolutePath}/${rTreeNode.name}")
-//        var out: OutputStream? = null
-//        if (toUri == null) {
-//            // TODO manage this better
-//            Log.e(TAG, "could not generate shared storage Uri")
-//            return@withContext
-//        }
-//
-//        try {
-//            out = resolver.openOutputStream(toUri)
-//            if (isCacheVersionUpToDate(rTreeNode) ?: return@withContext) {
-//                var input: InputStream? = null
-//                try {
-//                    input = FileInputStream(getLocalFile(rTreeNode, TYPE_CACHED_FILE)!!)
-//                    IoHelpers.pipeRead(input, out)
-//                } finally {
-//                    IoHelpers.closeQuietly(input)
-//                }
-//                // File(getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)).copyTo(to, true)
-//            } else {
-//                // Directly download to final destination
-//                val sf = accountService.sessionFactory
-//                val client: Client = sf.getUnlockedClient(stateID.accountId)
-//                // TODO handle progress
-//                client.download(stateID.workspace, stateID.file, out, null)
-//            }
-//            Log.i(TAG, "... File has been copied to ${toUri.path}")
-//
-//        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-//            Log.e(TAG, "could not perform DL for " + stateID.id)
-//            se.printStackTrace()
-//        } catch (ioe: IOException) {
-//            // TODO handle this: what should we do ?
-//            Log.e(TAG, "cannot write at ${toUri.path}: ${ioe.message}")
-//            ioe.printStackTrace()
-//        } finally {
-//            IoHelpers.closeQuietly(out)
-//        }
-//    }
+            val cr = CellsApp.instance.contentResolver
+
+            // Name and size
+            var name: String? = null
+            var size: Long = 0
+            cr.query(uri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                cursor.moveToFirst()
+                name = cursor.getString(nameIndex)
+                size = cursor.getLong(sizeIndex)
+            }
+            name = name ?: uri.lastPathSegment!!
+            if (Str.empty(name)) {
+                return@launch
+            }
+            val filename = name!!
+
+            // Mime Type
+            val mime = cr.getType(uri) ?: SdkNames.NODE_MIME_DEFAULT
+            Log.e(TAG, "Enqueuing upload for $filename, MIME: [$mime]")
+            mimeMap.getExtensionFromMimeType(mime)?.let {
+                // TODO make a better check
+                //   - retrieve file extension
+                //   - only append if the extension seems to be invalid
+                if (!filename.endsWith(it, true)) {
+                    name += ".$it"
+                }
+            }
+
+            // Real upload in single part
+            var inputStream: InputStream? = null
+            try {
+                inputStream = cr.openInputStream(uri)
+                val error = uploadAt(parentID, name!!, size, mime, inputStream!!)
+            } catch (ioe: IOException) {
+                ioe.printStackTrace()
+            } finally {
+                IoHelpers.closeQuietly(inputStream)
+            }
+        }
+    }
 
 
     @Throws(SDKException::class)
-    suspend fun uploadAt(stateID: StateID, fileName: String, input: InputStream) =
+    suspend fun uploadAt(
+        parentID: StateID,
+        fileName: String,
+        size: Long,
+        mime: String,
+        input: InputStream
+    ) =
         withContext(Dispatchers.IO) {
             try {
                 val sf = accountService.sessionFactory
-                val client: Client = sf.getUnlockedClient(stateID.accountId)
-                client.upload(input, 0, stateID.workspace, stateID.file, fileName, true, null)
+                val client: Client = sf.getUnlockedClient(parentID.accountId)
+                client.upload(
+                    input,
+                    size,
+                    mime,
+                    parentID.workspace,
+                    parentID.file,
+                    fileName,
+                    true,
+                    null
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -374,53 +387,6 @@ class NodeService(
         Log.e(TAG, "Error code: ${se.code}")
         se.printStackTrace()
 //         return se
-    }
-
-    fun enqueueUpload(parentID: StateID, uri: Uri) {
-        serviceScope.launch {
-
-            var name: String? = null
-            var size: Long? = null
-
-
-            val cr = CellsApp.instance.contentResolver
-            cr.query(uri, null, null, null, null)?.use { cursor ->
-                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-                cursor.moveToFirst()
-                name = cursor.getString(nameIndex)
-                size = cursor.getLong(sizeIndex)
-            }
-
-            name = name ?: uri.lastPathSegment!!
-
-            Log.i(TAG, "Received enqueue call for $uri at $parentID")
-            Log.i(TAG, "Received file name: $name")
-            Log.i(TAG, "Received file size: $size")
-
-            if (Str.empty(name)) {
-                return@launch
-            }
-            val filename = name!!
-
-            // TODO improve
-            var inputStream: InputStream? = null
-            try {
-                inputStream = cr.openInputStream(uri)
-                val mime = cr.getType(uri)
-                mimeMap.getExtensionFromMimeType(mime)?.let {
-                    // TODO make a better check
-                    //   - retrieve file extension
-                    //   - only append if the extension seems to be invalid
-                    if (!filename.endsWith(it, true)) {
-                        name += ".$it"
-                    }
-                }
-                val error = uploadAt(parentID, name!!, inputStream!!)
-            } catch (ioe: IOException) {
-                ioe.printStackTrace()
-            }
-        }
     }
 
     companion object {

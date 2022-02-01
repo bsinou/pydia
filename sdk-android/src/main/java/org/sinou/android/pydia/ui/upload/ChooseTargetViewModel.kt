@@ -10,8 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.services.NodeService
-import java.io.IOException
-import java.io.InputStream
 
 /**
  * Holds the current location while choosing a target for file uploads or moves.
@@ -47,23 +45,26 @@ class ChooseTargetViewModel(
                 val mimeMap = MimeTypeMap.getSingleton()
 
                 for (uri in uris) {
-                    var filename = uri.lastPathSegment!!
-                    var inputStream: InputStream? = null
-                    try {
-                        inputStream = cr.openInputStream(uri)
-                        val mime = cr.getType(uri)
-                        mimeMap.getExtensionFromMimeType(mime)?.let {
-                            // TODO make a better check
-                            //   - retrieve file extension
-                            //   - only append if the extension seems to be invalid
-                            if (!filename.endsWith(it, true)) {
-                                filename += ".$it"
-                            }
-                        }
-                        val error = nodeService.uploadAt(stateID, filename, inputStream!!)
-                    } catch (ioe: IOException) {
-                        ioe.printStackTrace()
-                    }
+
+                    val error = nodeService.enqueueUpload(stateID, uri)
+
+//                     var filename = uri.lastPathSegment!!
+//                    var inputStream: InputStream? = null
+//                    try {
+//                        inputStream = cr.openInputStream(uri)
+//                        val mime = cr.getType(uri)
+//                        mimeMap.getExtensionFromMimeType(mime)?.let {
+//                            // TODO make a better check
+//                            //   - retrieve file extension
+//                            //   - only append if the extension seems to be invalid
+//                            if (!filename.endsWith(it, true)) {
+//                                filename += ".$it"
+//                            }
+//                        }
+//                        val error = nodeService.uploadAt(stateID, filename, inputStream!!)
+//                    } catch (ioe: IOException) {
+//                        ioe.printStackTrace()
+//                    }
                 }
             }
         }

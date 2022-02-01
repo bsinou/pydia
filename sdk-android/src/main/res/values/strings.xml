@@ -125,7 +125,7 @@
     <string name="permanently_remove">Permanently remove</string>
     <string name="create_folder">Create folder here</string>
     <string name="import_files">Import from device</string>
-    <string name="import_from_camera">Import from camera</string>
+    <string name="take_picture">Take picture</string>
 
     <!-- Dialogs -->
     <string name="confirm_account_deletion_title">Delete account\n%s ?</string>

@@ -2,10 +2,7 @@ package org.sinou.android.pydia.ui.browse
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.db.browse.RTreeNode
@@ -32,6 +29,11 @@ class BrowseFolderViewModel(
         get() = _currentFolder
 
     val children = nodeService.ls(stateID)
+
+    // Manage UI
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
 
     private var _isActive = false
 
@@ -61,6 +63,10 @@ class BrowseFolderViewModel(
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
+    }
+
+    fun setLoading(loading: Boolean) {
+        _isLoading.value = loading
     }
 
     class BrowseFolderViewModelFactory(

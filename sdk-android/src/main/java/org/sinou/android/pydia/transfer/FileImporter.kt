@@ -3,21 +3,31 @@ package org.sinou.android.pydia.transfer
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.ui.browse.TreeNodeMenuViewModel
+import org.sinou.android.pydia.utils.DEFAULT_FILE_PROVIDER_ID
+import org.sinou.android.pydia.utils.asFormattedString
+import org.sinou.android.pydia.utils.getCurrentDateTime
+import java.io.File
+import java.io.IOException
 
 class FileImporter(
     private val registry: ActivityResultRegistry,
     private val nodeService: NodeService,
-    private val parentID: StateID?,
+    private val nodeMenuVM: TreeNodeMenuViewModel,
     private val caller: String,
     private val callingFragment: BottomSheetDialogFragment,
 ) : DefaultLifecycleObserver {
@@ -37,47 +47,85 @@ class FileImporter(
         )
         { uris ->
             for (uri in uris) {
-                parentID?.let {
-                    Log.i(caller, "Received file at $uri")
-                    nodeService.enqueueUpload(it, uri)
-                    callingFragment.dismiss()
-                } ?: run {
-                    Log.w(caller, "Received file at $uri with **no** parent stateID")
-                }
+                nodeService.enqueueUpload(nodeMenuVM.stateID, uri)
             }
+            callingFragment.dismiss()
         }
 
         takePicture = registry.register(
             takePictureKey,
             owner,
-            TakeMyPicture()
+            TakePictureToInternalStorage()
         ) { pictureTaken ->
-            Log.i(tag, "Received **Picture** file:  $pictureTaken")
+            if (!pictureTaken) {
+                // Does not work...
+                // Toast.makeText(callingFragment.requireContext(), "blah", Toast.LENGTH_LONG).show()
+                // showLongMessage(callingFragment.requireActivity().baseContext, "Operation aborted by user")
+                callingFragment.dismiss()
+            } else {
+                nodeMenuVM.targetUri?.let {
+                    nodeService.enqueueUpload(nodeMenuVM.stateID, it)
+                    callingFragment.dismiss()
+                }
 
-//            parentID?.let {
+                //            parentID?.let {
 //                Log.i(caller, "Received file at $uri")
-//                nodeService.enqueueUpload(it, uri!!)
-//                callingFragment.dismiss()
+//
 //            } ?: run {
 //                Log.w(caller, "Received file at $uri with **no** parent stateID")
 //            }
+            }
         }
-
     }
 
-    fun selectFiles() {
+    fun selectFiles() { // we do not assume any specific type
         getMultipleContents.launch("*/*")
     }
 
-    fun getFromCamera(uri: Uri) {
-        // Uri.fromFile(CellsApp.instance.externalMediaDirs[0])
-//        takePicture.launch(null)
-        takePicture.launch(uri)
+    suspend fun takePicture() = withContext(Dispatchers.IO) {
+        doTakePicture()
+    }
+
+    private fun doTakePicture() {
+        val photoFile: File? = try {
+            createImageFile()
+        } catch (ex: IOException) {
+            Log.e(tag, "Cannot create photo file")
+            ex.printStackTrace()
+            // Error occurred while creating the File
+            null
+        }
+        // Continue only if the File was successfully created
+        photoFile?.also {
+            val uri: Uri = FileProvider.getUriForFile(
+                callingFragment.requireContext(),
+                DEFAULT_FILE_PROVIDER_ID,
+                it
+            )
+            nodeMenuVM.prepareImport(uri)
+            takePicture.launch(uri)
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        // Create an image file name
+        val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")
+        val storageDir =
+            File(CellsApp.instance.filesDir.absolutePath + "/" + (Environment.DIRECTORY_PICTURES)!!)
+        storageDir.mkdirs()
+        return File(storageDir.absolutePath + File.pathSeparator + "IMG_${timestamp}_.jpg")
+
+        // Would be safer but with an ugly name :(
+        //        return File.createTempFile(
+//            "IMG_${timestamp}_", /* prefix */
+//            ".jpg", /* suffix */
+//            storageDir /* directory */
+//        )
     }
 }
 
-
-private class TakeMyPicture : ActivityResultContracts.TakePicture() {
+private class TakePictureToInternalStorage : ActivityResultContracts.TakePicture() {
     override fun createIntent(context: Context, input: Uri): Intent {
         return super.createIntent(context, input).addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
     }

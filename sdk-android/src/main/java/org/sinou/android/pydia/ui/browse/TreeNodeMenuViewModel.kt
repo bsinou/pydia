@@ -1,17 +1,22 @@
 package org.sinou.android.pydia.ui.browse
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.sinou.android.pydia.services.NodeService
 
 /**
  * Holds a FileNode for the various context menus.
  */
 class TreeNodeMenuViewModel(
-    private val stateID: StateID,
+    val stateID: StateID,
     private val contextType: String,
     private val nodeService: NodeService,
     application: Application
@@ -19,7 +24,20 @@ class TreeNodeMenuViewModel(
 
     private val tag = "NodeMenuViewModel"
 
+    private var viewModelJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+
     val node = nodeService.getLiveNode(stateID)
+
+    var _targetUri: Uri? = null
+    val targetUri: Uri?
+        get() = _targetUri
+
+    fun prepareImport(uri: Uri) {
+        vmScope.launch {
+            _targetUri = uri
+        }
+    }
 
     class NodeMenuViewModelFactory(
         private val stateID: StateID,

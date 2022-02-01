@@ -46,7 +46,7 @@ fun getAppMime(context: Context, name: String): String {
     }
 }
 
-fun getMimeType(url: String, fallback: String = "*/*"): String {
+fun getMimeType(url: String, fallback: String = SdkNames.NODE_MIME_DEFAULT): String {
     val ext = MimeTypeMap.getFileExtensionFromUrl(url)
     if (ext != null) {
         val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)

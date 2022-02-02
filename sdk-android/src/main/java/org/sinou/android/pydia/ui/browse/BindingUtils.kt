@@ -86,6 +86,12 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
         setImageResource(R.drawable.icon_file)
         return
     }
+
+    if (item.localModificationTS > item.remoteModificationTS){
+        setImageResource(R.drawable.loading_animation2)
+        return
+    }
+
     val lf = NodeService.getLocalFile(item, NodeService.TYPE_THUMB)
     if (lf != null && lf.exists()) {
         Glide.with(context)

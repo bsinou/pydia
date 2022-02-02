@@ -107,14 +107,18 @@ class FileImporter(
         }
     }
 
+    private val sep = File.separator
+
     @Throws(IOException::class)
     private fun createImageFile(): File {
         // Create an image file name
         val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")
-        val storageDir =
-            File(CellsApp.instance.filesDir.absolutePath + "/" + (Environment.DIRECTORY_PICTURES)!!)
+
+        val parDir = CellsApp.instance.filesDir.absolutePath
+        val picsDir = Environment.DIRECTORY_PICTURES ?: "Pictures"
+        val storageDir = File("$parDir$sep$picsDir")
         storageDir.mkdirs()
-        return File(storageDir.absolutePath + File.pathSeparator + "IMG_${timestamp}_.jpg")
+        return File("${storageDir.absolutePath}${sep}IMG_${timestamp}.jpg")
 
         // Would be safer but with an ugly name :(
         //        return File.createTempFile(

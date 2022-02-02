@@ -534,7 +534,7 @@ class NodeService(
                 size = fileNode.size,
                 isBookmarked = fileNode.isBookmark,
                 isShared = fileNode.isShared,
-                remoteModificationTS = fileNode.lastModified(),
+                remoteModificationTS = fileNode.getLastModified(),
                 meta = fileNode.properties,
                 metaHash = fileNode.metaHashCode
             )

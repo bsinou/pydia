@@ -52,11 +52,8 @@ class FileImporter(
             callingFragment.dismiss()
         }
 
-        takePicture = registry.register(
-            takePictureKey,
-            owner,
-            TakePictureToInternalStorage()
-        ) { pictureTaken ->
+        takePicture = registry.register(takePictureKey, owner, TakePictureToInternalStorage())
+        { pictureTaken ->
             if (!pictureTaken) {
                 // Does not work...
                 // Toast.makeText(callingFragment.requireContext(), "blah", Toast.LENGTH_LONG).show()
@@ -67,13 +64,6 @@ class FileImporter(
                     nodeService.enqueueUpload(nodeMenuVM.stateID, it)
                     callingFragment.dismiss()
                 }
-
-                //            parentID?.let {
-//                Log.i(caller, "Received file at $uri")
-//
-//            } ?: run {
-//                Log.w(caller, "Received file at $uri with **no** parent stateID")
-//            }
             }
         }
     }

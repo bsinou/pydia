@@ -115,7 +115,7 @@ class FolderDiff(
             return false
         }
 
-        isEqual = local.remoteModificationTS == remote.lastModified()
+        isEqual = local.remoteModificationTS == remote.getLastModified()
         if (!isEqual) {
             Log.d(TAG, "Differ: Modif time are not equals")
             return false

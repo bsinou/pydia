@@ -71,10 +71,13 @@
         android:label="@string/action_open_workspaces"
         tools:layout="@layout/fragment_workspace_list" />
 
+    <!-- We cannot also statically give a label or it overwrites any dynamic title
+     we set in the "onResume" callback typically when the more dialog opens and closes -->
+    <!--    android:label="@string/action_browse"-->
+
     <fragment
         android:id="@+id/browse_folder_destination"
         android:name="org.sinou.android.pydia.ui.browse.BrowseFolderFragment"
-        android:label="@string/action_browse"
         tools:layout="@layout/fragment_browse_folder">
         <argument
             android:name="state"
@@ -112,8 +115,7 @@
         android:id="@+id/account_list_destination"
         android:name="org.sinou.android.pydia.ui.account.AccountListFragment"
         android:label="@string/account_list_title"
-        tools:layout="@layout/fragment_account_list">
-    </fragment>
+        tools:layout="@layout/fragment_account_list"></fragment>
 
     <!-- VARIOUS -->
 

@@ -40,6 +40,17 @@ class AboutFragment : Fragment() {
         // See https://developer.android.com/codelabs/basic-android-kotlin-training-navigation-backstack#4
         // to have an example of a complete email sending action
 
+//        val networkStatsManager = getSystemService(Context.NETWORK_STATS_SERVICE) as NetworkStatsManager
+//        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+//        val manager = DataUsageManager(networkStatsManager, telephonyManager.subscriberId)
+//        // Monitor single interval
+//        manager.getUsage(Interval.today, NetworkType.METERED)
+//        // Monitor multiple interval
+//        manager.getMultiUsage(listOf(Interval.month, Interval.last30days), NetworkType.WIFI)
+//        // Observe realtime usage
+//        manager.getRealtimeUsage(NetworkType.UNMETERED).subscribe()
+
+
         return binding.root
     }
 

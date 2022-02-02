@@ -1,5 +1,6 @@
 package org.sinou.android.pydia.ui.browse
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,8 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -22,7 +25,7 @@ import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
-import org.sinou.android.pydia.transfer.FileImporter
+import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
 import org.sinou.android.pydia.utils.*
 
 class BrowseFolderFragment : Fragment() {
@@ -35,6 +38,9 @@ class BrowseFolderFragment : Fragment() {
 
     private lateinit var binding: FragmentBrowseFolderBinding
     private lateinit var browseFolderVM: BrowseFolderViewModel
+
+    // Temp solution to provide a scrim during long running operations
+    private var loadingDialog: LoadingDialogFragment? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -130,12 +136,13 @@ class BrowseFolderFragment : Fragment() {
     }
 
     override fun onResume() {
+        Log.i(fTag, "onResume")
         super.onResume()
         dumpBackStack(fTag, parentFragmentManager)
 
         browseFolderVM.resume()
-        // FIXME we should not statically link MainActivity here.
-        (requireActivity() as MainActivity).supportActionBar?.let {
+
+        (requireActivity() as AppCompatActivity).supportActionBar?.let {
             it.title = when {
                 Str.empty(browseFolderVM.stateID.fileName) -> {
                     browseFolderVM.stateID.workspace
@@ -151,15 +158,26 @@ class BrowseFolderFragment : Fragment() {
         }
     }
 
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        Log.i(fTag, "onViewStateRestored")
+        super.onViewStateRestored(savedInstanceState)
+    }
+
     override fun onPause() {
+        Log.i(fTag, "onPause")
         super.onPause()
         browseFolderVM.pause()
     }
 
     override fun onDetach() {
-        Log.i(fTag, "... About to detach:")
+        Log.i(fTag, "onDetach")
         super.onDetach()
         resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateID)
+    }
+
+    override fun onAttach(context: Context) {
+        Log.i(fTag, "onAttach")
+        super.onAttach(context)
     }
 
     private fun navigateTo(node: RTreeNode) = lifecycleScope.launch {
@@ -170,18 +188,24 @@ class BrowseFolderFragment : Fragment() {
         }
 
         // TODO double check. It smells.
-        requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        requireActivity().window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
 
         browseFolderVM.setLoading(true)
+        showProgressDialog()
         val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
         file?.let {
             val intent = externallyView(requireContext(), file, node)
             try {
                 startActivity(intent)
                 browseFolderVM.setLoading(false)
-                requireActivity().window.setFlags(0,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                requireActivity().window.setFlags(
+                    0,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                )
+                loadingDialog?.dismiss()
 
             } catch (e: Exception) {
                 val msg = "Cannot open ${it.name} (${intent.type}) with external viewer"
@@ -191,4 +215,11 @@ class BrowseFolderFragment : Fragment() {
             }
         }
     }
+
+    private fun showProgressDialog() {
+        val fm: FragmentManager = requireActivity().supportFragmentManager
+        loadingDialog = LoadingDialogFragment.newInstance()
+        loadingDialog?.show(fm, "fragment_edit_name")
+    }
+
 }

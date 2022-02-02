@@ -3,20 +3,22 @@
 <layout
 
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main_about_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/default_layout_margin">
 
         <TextView
             android:id="@+id/about_version_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/about_welcome_text"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_small"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -26,34 +28,37 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/version_name_display"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textAppearance="?attr/textAppearanceBody1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/about_version_title" />
+
         <TextView
             android:id="@+id/about_version_code"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/version_code_display"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textAppearance="?attr/textAppearanceBody1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/about_version_name" />
+
         <TextView
             android:id="@+id/about_version_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/version_date_display"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textAppearance="?attr/textAppearanceBody1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/about_version_code" />
+
         <TextView
             android:id="@+id/about_copyright_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/copyright_string"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/about_version_date" />
@@ -63,7 +68,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/about_page_copyright"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textAppearance="?attr/textAppearanceBody1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/about_copyright_date" />
@@ -72,8 +77,9 @@
             android:id="@+id/main_website_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/margin"
             android:text="@string/main_website"
-            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textAppearance="?attr/textAppearanceButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/about_trademark" />
@@ -82,8 +88,10 @@
             android:id="@+id/about_troubleshooting_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_large"
+            android:layout_marginBottom="@dimen/margin_small"
             android:text="@string/about_page_troubleshooting_title"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textAppearance="?attr/textAppearanceHeadline5"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/main_website_button" />
@@ -93,7 +101,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/about_page_get_help"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textAppearance="?attr/textAppearanceBody1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/about_troubleshooting_title" />
@@ -102,8 +110,9 @@
             android:id="@+id/send_support_mail_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/margin"
             android:text="@string/help_button_support"
-            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textAppearance="?attr/textAppearanceButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/get_support_text" />

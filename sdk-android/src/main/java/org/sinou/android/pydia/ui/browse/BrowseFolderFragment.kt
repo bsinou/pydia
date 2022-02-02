@@ -18,11 +18,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.*
+import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainNavDirections
+import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
@@ -115,9 +117,11 @@ class BrowseFolderFragment : Fragment() {
             AppNames.ACTION_MORE -> {
                 val action = BrowseFolderFragmentDirections
                     .openMoreMenu(
-                        node.encodedState, when (node.mime) {
-                            SdkNames.NODE_MIME_RECYCLE -> TreeNodeMenuFragment.CONTEXT_RECYCLE
-                            else -> TreeNodeMenuFragment.CONTEXT_BROWSE
+                        node.encodedState,
+                        if (node.isInRecycle() || node.isRecycle()) {
+                            TreeNodeMenuFragment.CONTEXT_RECYCLE
+                        } else {
+                            TreeNodeMenuFragment.CONTEXT_BROWSE
                         }
                     )
                 findNavController().navigate(action)

@@ -56,6 +56,11 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
         return
     }
 
+    if (item.localModificationTS > item.remoteModificationTS){
+        setImageResource(R.drawable.loading_animation)
+        return
+    }
+
     val lf = NodeService.getLocalFile(item, NodeService.TYPE_THUMB)
     if (lf != null && lf.exists()) {
         Glide.with(context)
@@ -182,6 +187,7 @@ fun areContentsEquals(
     newItem: RTreeNode
 ): Boolean {
     var same = oldItem.remoteModificationTS == newItem.remoteModificationTS
+            && oldItem.localModificationTS == newItem.localModificationTS
 
     if (same && newItem.thumbFilename != null) {
         same = newItem.thumbFilename.equals(oldItem.thumbFilename)

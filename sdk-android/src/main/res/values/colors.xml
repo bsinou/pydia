@@ -56,4 +56,9 @@
     <!-- TODO Rather handle this with a style...-->
     <color name="selected_background">@color/colorSurfaceLight</color>
 
+    <!-- Custom circular spinner -->
+    <color name="spinner_center_color">@color/colorPrimary</color>
+    <color name="spinner_start_color">@color/colorPrimaryDark</color>
+    <color name="spinner_end_color">@color/colorPrimaryLight</color>
+
 </resources>

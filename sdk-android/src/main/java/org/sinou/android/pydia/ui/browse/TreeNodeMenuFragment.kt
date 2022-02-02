@@ -20,8 +20,12 @@ import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.*
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.tasks.createFolder
+import org.sinou.android.pydia.tasks.deleteFromRecycle
+import org.sinou.android.pydia.tasks.emptyRecycle
+import org.sinou.android.pydia.tasks.moveToRecycle
 import org.sinou.android.pydia.transfer.FileExporter
 import org.sinou.android.pydia.transfer.FileImporter
+import org.sinou.android.pydia.utils.showLongMessage
 
 /**
  * More menu fragment: it is used to present the end-user with various possible actions
@@ -336,10 +340,24 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 ACTION_RENAME -> {}
                 ACTION_COPY -> {}
                 ACTION_MOVE -> {}
-                ACTION_DELETE -> {}
-                ACTION_EMPTY_RECYCLE -> {}
-                ACTION_DELETE_PERMANENTLY -> {}
-                ACTION_RESTORE_FROM_RECYCLE -> {}
+                ACTION_DELETE -> {
+                    moveToRecycle(requireContext(), node)
+                    moreMenu.dismiss()
+                }
+                ACTION_EMPTY_RECYCLE -> {
+                    emptyRecycle(requireContext(), node)
+                    moreMenu.dismiss()
+                }
+                ACTION_DELETE_PERMANENTLY -> {
+                    deleteFromRecycle(requireContext(), node)
+                    moreMenu.dismiss()
+                }
+                ACTION_RESTORE_FROM_RECYCLE -> {
+                    CellsApp.instance.nodeService.restoreNode(node.getStateID())?.let {
+                        showLongMessage(requireContext(), it)
+                    }
+                    moreMenu.dismiss()
+                }
                 ACTION_TOGGLE_BOOKMARK -> {
                     CellsApp.instance.nodeService.toggleBookmark(node)
                     moreMenu.dismiss()

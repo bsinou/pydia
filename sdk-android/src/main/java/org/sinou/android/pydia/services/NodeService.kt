@@ -72,6 +72,13 @@ class NodeService(
             }
         }
 
+    /* Update nodes in the local store */
+    suspend fun abortLocalChanges(stateID: StateID) = withContext(Dispatchers.IO) {
+        val node = nodeDB.treeNodeDao().getNode(stateID.id) ?: return@withContext
+        node.localModificationTS = node.remoteModificationTS
+        nodeDB.treeNodeDao().update(node)
+    }
+
 
     /* Calls to query both the cache and the remote server */
 
@@ -236,8 +243,8 @@ class NodeService(
 
                 // Success persist change
                 rTreeNode.localFileType = AppNames.LOCAL_FILE_TYPE_CACHE
-                rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
-
+                rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
+                // rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
                 nodeDB.treeNodeDao().update(rTreeNode)
                 Log.e(TAG, "... download done for ${rTreeNode.name}")
             } catch (se: SDKException) {
@@ -341,35 +348,84 @@ class NodeService(
         }
     }
 
-
     @Throws(SDKException::class)
     suspend fun uploadAt(
-        parentID: StateID,
-        fileName: String,
-        size: Long,
-        mime: String,
-        input: InputStream
-    ) =
-        withContext(Dispatchers.IO) {
-            try {
-                val sf = accountService.sessionFactory
-                val client: Client = sf.getUnlockedClient(parentID.accountId)
-                client.upload(
-                    input,
-                    size,
-                    mime,
-                    parentID.workspace,
-                    parentID.file,
-                    fileName,
-                    true,
-                    null
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            null
+        parentID: StateID, fileName: String, size: Long,
+        mime: String, input: InputStream
+    ) = withContext(Dispatchers.IO) {
+        try {
+            val sf = accountService.sessionFactory
+            val client: Client = sf.getUnlockedClient(parentID.accountId)
+            client.upload(
+                input, size, mime, parentID.workspace, parentID.file, fileName,
+                true, null
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+        null
+    }
 
+    suspend fun restoreNode(stateID: StateID): String? = withContext(Dispatchers.IO) {
+        try {
+            val node = nodeDB.treeNodeDao().getNode(stateID.id)
+                ?: return@withContext "No node found at $stateID, could not restore"
+            remoteRestore(stateID)
+            persistLocallyModified(node)
+        } catch (se: SDKException) {
+            se.printStackTrace()
+            return@withContext "Could not restore node: ${se.message}"
+        }
+        return@withContext null
+    }
+
+
+    suspend fun emptyRecycle(stateID: StateID): String? = withContext(Dispatchers.IO) {
+        try {
+            val node = nodeDB.treeNodeDao().getNode(stateID.id)
+                ?: return@withContext "No node found at $stateID, could not delete"
+            remoteEmptyRecycle(stateID)
+            persistLocallyModified(node)
+        } catch (se: SDKException) {
+            se.printStackTrace()
+            return@withContext "Could not empty recycle bin: ${se.message}"
+        }
+        return@withContext null
+    }
+
+    suspend fun delete(stateID: StateID): String? = withContext(Dispatchers.IO) {
+        try {
+            val node = nodeDB.treeNodeDao().getNode(stateID.id)
+                ?: return@withContext "No node found at $stateID, could not delete"
+            remoteDelete(stateID)
+            persistLocallyModified(node)
+        } catch (se: SDKException) {
+            se.printStackTrace()
+            return@withContext "Could not delete $stateID: ${se.message}"
+        }
+        return@withContext null
+    }
+
+    @Throws(SDKException::class)
+    fun remoteRestore(stateID: StateID) {
+        val sf = accountService.sessionFactory
+        val client: Client = sf.getUnlockedClient(stateID.accountId)
+        client.restore(stateID.workspace, arrayOf<String>(stateID.path))
+    }
+
+    @Throws(SDKException::class)
+    fun remoteEmptyRecycle(stateID: StateID) {
+        val sf = accountService.sessionFactory
+        val client: Client = sf.getUnlockedClient(stateID.accountId)
+        client.emptyRecycleBin(stateID.workspace)
+    }
+
+    @Throws(SDKException::class)
+    fun remoteDelete(stateID: StateID) {
+        val sf = accountService.sessionFactory
+        val client: Client = sf.getUnlockedClient(stateID.accountId)
+        client.delete(stateID.workspace, arrayOf<String>(stateID.file))
+    }
 
     /* Constants and helpers */
     private fun getClient(stateId: StateID): Client {
@@ -377,9 +433,15 @@ class NodeService(
     }
 
     private fun persistUpdated(rTreeNode: RTreeNode) {
+        rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
+        nodeDB.treeNodeDao().update(rTreeNode)
+    }
+
+    private fun persistLocallyModified(rTreeNode: RTreeNode) {
         rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
         nodeDB.treeNodeDao().update(rTreeNode)
     }
+
 
     //    private fun handleSdkException(msg: String, se: SDKException): SDKException {
     private fun handleSdkException(msg: String, se: SDKException) {

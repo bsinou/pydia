@@ -15,7 +15,6 @@ fun deleteAccount(
     accountId: String
 ): Boolean {
     val account = StateID.fromId(accountId)
-
     MaterialAlertDialogBuilder(context)
         .setTitle(context.resources.getString(R.string.confirm_account_deletion_title, account))
         .setMessage(R.string.confirm_account_deletion_desc)

@@ -8,7 +8,7 @@
 
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
-    <string name="button_confirm">OK!</string>
+    <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_switch_to_grid_layout">Show as grid</string>
     <string name="button_switch_to_list_layout">Show as list</string>
@@ -134,11 +134,16 @@
     <string name="node_add_button">Create or import</string>
     <string name="create_account">Create an account</string>
     <string name="content_description_media">Preview of the content</string>
+    <string name="dialog_create_folder_title">Create folder</string>
+    <string name="dialog_create_folder_positive_btn">Create</string>
+    <string name="confirm_move_to_recycle_title">Confirm deletion</string>
+    <string name="confirm_move_to_recycle_desc">%s will be moved to the recycle bin</string>
+    <string name="confirm_permanent_deletion_title">Confirm permanent deletion</string>
+    <string name="confirm_permanent_deletion_desc">%s will be definitively deleted</string>
+    <string name="confirm_empty_recycle_message">This will empty the recycle bin for %s, all trashed content will be definitively deleted</string>
 
     <!-- Accessibility various content -->
     <string name="thumb_description">Small content preview</string>
     <string name="folder_icon_description">Folder icon</string>
-    <string name="dialog_create_folder_title">Create folder</string>
-    <string name="dialog_create_folder_positive_btn">Create</string>
 
 </resources>

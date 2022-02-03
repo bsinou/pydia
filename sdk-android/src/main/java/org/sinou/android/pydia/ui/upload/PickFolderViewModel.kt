@@ -13,7 +13,7 @@ import org.sinou.android.pydia.services.NodeService
  */
 class PickFolderViewModel(
     nodeService: NodeService,
-    stateID: StateID,
+    val stateID: StateID,
     application: Application
 ) : AndroidViewModel(application) {
 

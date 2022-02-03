@@ -18,8 +18,6 @@ import org.sinou.android.pydia.databinding.FragmentPickFolderBinding
 
 class PickFolderFragment : Fragment() {
 
-    private lateinit var stateID: StateID
-
     private lateinit var binding: FragmentPickFolderBinding
     private lateinit var pickFolderVM: PickFolderViewModel
     private lateinit var chooseTargetVM: ChooseTargetViewModel
@@ -33,7 +31,7 @@ class PickFolderFragment : Fragment() {
             inflater, R.layout.fragment_pick_folder, container, false
         )
 
-        stateID = if (savedInstanceState?.getString(AppNames.EXTRA_STATE) != null) {
+        val stateID = if (savedInstanceState?.getString(AppNames.EXTRA_STATE) != null) {
             val encodedState = savedInstanceState.getString(AppNames.EXTRA_STATE)
             StateID.fromId(encodedState)
         } else {
@@ -56,33 +54,32 @@ class PickFolderFragment : Fragment() {
         val tmpAVM: ChooseTargetViewModel by activityViewModels { chooseTargetFactory }
         chooseTargetVM = tmpAVM
 
-        val adapter = FolderListAdapter(stateID) { stateID, action ->
-            onClicked(stateID, action)
+        val adapter = FolderListAdapter(stateID) { state, action ->
+            onClicked(state, action)
         }
         binding.folders.adapter = adapter
-        pickFolderVM.children.observe(viewLifecycleOwner, { adapter.submitList(it) })
+        pickFolderVM.children.observe(viewLifecycleOwner) { adapter.submitList(it) }
         return binding.root
     }
 
     private fun onClicked(stateID: StateID, command: String) {
         when (command) {
-            AppNames.ACTION_OPEN -> navigateTo(stateID)
+            AppNames.ACTION_OPEN -> {
+                val action = PickFolderFragmentDirections.actionPickChild(stateID.id)
+                findNavController().navigate(action)
+            }
             else -> return // do nothing
         }
     }
 
     override fun onResume() {
         super.onResume()
-        chooseTargetVM.setCurrentState(stateID)
+        chooseTargetVM.setCurrentState(pickFolderVM.stateID)
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        savedInstanceState.putSerializable(AppNames.EXTRA_STATE, stateID.id)
+        savedInstanceState.putSerializable(AppNames.EXTRA_STATE, pickFolderVM.stateID.id)
         super.onSaveInstanceState(savedInstanceState)
     }
 
-    private fun navigateTo(stateID: StateID) {
-        val action = PickFolderFragmentDirections.actionPickChild(stateID.id)
-        findNavController().navigate(action)
-    }
 }

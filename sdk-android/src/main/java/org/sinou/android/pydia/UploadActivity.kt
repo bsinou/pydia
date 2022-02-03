@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -21,6 +20,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.databinding.ActivityUploadBinding
 import org.sinou.android.pydia.ui.upload.ChooseTargetViewModel
+import org.sinou.android.pydia.utils.showMessage
 
 /**
  * Receives files from other apps.
@@ -50,9 +50,9 @@ class UploadActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         val tmpVM: ChooseTargetViewModel by viewModels { chooseTargetFactory }
         model = tmpVM
 
-        tmpVM.currentLocation.observe(this, {
+        tmpVM.currentLocation.observe(this) {
             binding.toolbar.menu.findItem(R.id.launch_upload)?.isVisible = model.validTarget()
-        })
+        }
     }
 
     override fun onResume() {
@@ -68,11 +68,11 @@ class UploadActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private fun handleIntent(inIntent: Intent) {
 
-        when (inIntent.action){
+        when (inIntent.action) {
             Intent.ACTION_SEND -> {
                 val clipData = intent.clipData
 
-                clipData?.let{
+                clipData?.let {
                     model.initTarget(listOf(clipData.getItemAt(0).uri))
 
                 }
@@ -80,9 +80,9 @@ class UploadActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             Intent.ACTION_SEND_MULTIPLE -> {
                 val clipData = intent.clipData
 
-                clipData?.let{
+                clipData?.let {
                     val uris = mutableListOf<Uri>()
-                    for (i in 0 until it.itemCount){
+                    for (i in 0 until it.itemCount) {
                         uris.add(clipData.getItemAt(i).uri)
                     }
                     model.initTarget(uris)
@@ -104,13 +104,13 @@ class UploadActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
             R.id.launch_upload -> {
                 model.launchUpload()
-                Toast.makeText(this, "Launching upload in background", Toast.LENGTH_SHORT).show()
+                showMessage(this, "Launching upload in background")
 
                 val act = this
                 lifecycleScope.launch {
                     // Time between the cross fade and start screen animation
                     delay(500L)
-                    Toast.makeText(act, "And returning", Toast.LENGTH_SHORT).show()
+                    showMessage(act, "And returning")
                     act.finishAndRemoveTask()
                 }
                 true

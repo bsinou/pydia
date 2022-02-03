@@ -63,19 +63,16 @@ class PickWSFragment : Fragment() {
 
         targetWsVM.liveSession.observe(
             viewLifecycleOwner,
-            {
-                it?.let {
-                    val currWss = it.workspaces ?: listOf()
-                    adapter.submitList(currWss.sorted())
-                }
-            },
-        )
+        ) {
+            it?.let {
+                val currWss = it.workspaces ?: listOf()
+                adapter.submitList(currWss.sorted())
+            }
+        }
         return binding.root
     }
 
     private fun onClicked(slug: String, command: String) {
-        Log.i(fTag, "ID: $stateID, do $command")
-
         when (command) {
             AppNames.ACTION_OPEN -> navigateTo(stateID.withPath("/${slug}"))
             else -> return // do nothing

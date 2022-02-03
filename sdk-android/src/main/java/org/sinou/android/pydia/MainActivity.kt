@@ -1,6 +1,5 @@
 package org.sinou.android.pydia
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -124,33 +123,32 @@ class MainActivity : AppCompatActivity() {
         val item = binding.navView.menu.findItem(R.id.ws_section)
         activeSessionVM.activeSession.observe(
             this,
-            {
-                it?.let { liveSession ->
-                    item.subMenu.clear()
-                    for (ws in liveSession.workspaces?.sorted() ?: listOf()) {
-                        val wsItem = item.subMenu.add(ws.label)
-                        wsItem.icon = ContextCompat.getDrawable(this, getIconForWorkspace(ws))
-                        wsItem.setOnMenuItemClickListener {
-                            val state = StateID.fromId(liveSession.accountID)
-                                .withPath("/${ws.slug}")
-                            CellsApp.instance.setCurrentState(state)
-                            navController.navigate(MainNavDirections.openFolder(state.id))
-                            closeDrawer()
-                            true
-                        }
+        ) {
+            it?.let { liveSession ->
+                item.subMenu.clear()
+                for (ws in liveSession.workspaces?.sorted() ?: listOf()) {
+                    val wsItem = item.subMenu.add(ws.label)
+                    wsItem.icon = ContextCompat.getDrawable(this, getIconForWorkspace(ws))
+                    wsItem.setOnMenuItemClickListener {
+                        val state = StateID.fromId(liveSession.accountID)
+                            .withPath("/${ws.slug}")
+                        CellsApp.instance.setCurrentState(state)
+                        navController.navigate(MainNavDirections.openFolder(state.id))
+                        closeDrawer()
+                        true
                     }
-
-                    // Also update meta info in the header
-                    val headerView = binding.navView.getHeaderView(0)
-                    val primaryText =
-                        headerView.findViewById<TextView>(R.id.nav_header_primary_text)
-                    primaryText.text = liveSession.username
-                    val secondaryText =
-                        headerView.findViewById<TextView>(R.id.nav_header_secondary_text)
-                    secondaryText.text = liveSession.url
                 }
-            },
-        )
+
+                // Also update meta info in the header
+                val headerView = binding.navView.getHeaderView(0)
+                val primaryText =
+                    headerView.findViewById<TextView>(R.id.nav_header_primary_text)
+                primaryText.text = liveSession.username
+                val secondaryText =
+                    headerView.findViewById<TextView>(R.id.nav_header_secondary_text)
+                secondaryText.text = liveSession.url
+            }
+        }
 
         binding.navView.invalidate()
     }
@@ -186,8 +184,8 @@ class MainActivity : AppCompatActivity() {
 
         val searchItem = menu.findItem(R.id.search_edit_view)
         if (searchItem != null) {
-            var searchView = searchItem.getActionView() as SearchView
-            searchView?.setOnQueryTextListener(SearchListener())
+            val searchView = searchItem.actionView as SearchView
+            searchView.setOnQueryTextListener(SearchListener())
         }
 
         configureLayoutSwitcher(menu)
@@ -208,13 +206,13 @@ class MainActivity : AppCompatActivity() {
             }
         } ?: false
 
-        layoutSwitcher.setVisible(showSwitch)
+        layoutSwitcher.isVisible = showSwitch
         if (!showSwitch) {
             return
         }
 
-        val value = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
-        val storedLayout = value?.let { value } ?: AppNames.RECYCLER_LAYOUT_LIST
+        val oldValue = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+        val storedLayout = oldValue ?: AppNames.RECYCLER_LAYOUT_LIST
 
         layoutSwitcher.icon = when (storedLayout) {
             AppNames.RECYCLER_LAYOUT_GRID ->
@@ -272,8 +270,8 @@ class MainActivity : AppCompatActivity() {
                     getSearchFragment()?.updateQuery(query)
                 } else {
                     retrieveCurrentContext()
-                    stateId?.let {
-                        val action = MainNavDirections.searchEditView(it.id, uiContext!!, query)
+                    stateId?.let { state ->
+                        val action = MainNavDirections.searchEditView(state.id, uiContext!!, query)
                         navController.navigate(action)
                     }
                 }

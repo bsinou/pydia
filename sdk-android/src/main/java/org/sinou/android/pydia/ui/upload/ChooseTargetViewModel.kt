@@ -2,7 +2,6 @@ package org.sinou.android.pydia.ui.upload
 
 import android.app.Application
 import android.net.Uri
-import android.webkit.MimeTypeMap
 import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +15,7 @@ import org.sinou.android.pydia.services.NodeService
  */
 class ChooseTargetViewModel(
     private val nodeService: NodeService,
-    private val currApp: Application,
+    currApp: Application,
 ) : AndroidViewModel(currApp) {
 
     private val viewModelJob = Job()
@@ -39,31 +38,8 @@ class ChooseTargetViewModel(
     fun launchUpload() {
         currentLocation.value?.let { stateID ->
             vmScope.launch {
-
-                val cr = currApp.contentResolver
-                val mimeMap = MimeTypeMap.getSingleton()
-
                 for (uri in uris) {
-
                     val error = nodeService.enqueueUpload(stateID, uri)
-
-//                     var filename = uri.lastPathSegment!!
-//                    var inputStream: InputStream? = null
-//                    try {
-//                        inputStream = cr.openInputStream(uri)
-//                        val mime = cr.getType(uri)
-//                        mimeMap.getExtensionFromMimeType(mime)?.let {
-//                            // TODO make a better check
-//                            //   - retrieve file extension
-//                            //   - only append if the extension seems to be invalid
-//                            if (!filename.endsWith(it, true)) {
-//                                filename += ".$it"
-//                            }
-//                        }
-//                        val error = nodeService.uploadAt(stateID, filename, inputStream!!)
-//                    } catch (ioe: IOException) {
-//                        ioe.printStackTrace()
-//                    }
                 }
             }
         }

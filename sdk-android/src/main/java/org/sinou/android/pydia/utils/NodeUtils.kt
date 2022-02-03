@@ -1,17 +1,58 @@
 package org.sinou.android.pydia.utils
 
 import android.content.Context
+import android.util.Log
 import android.webkit.MimeTypeMap
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.api.ui.FileNode
 import org.sinou.android.pydia.db.browse.RTreeNode
 
-fun isFolder(treeNode: RTreeNode): Boolean {
-    return SdkNames.NODE_MIME_FOLDER.equals(treeNode.mime) || isRecycle(treeNode)
+//fun isFolder(treeNode: RTreeNode): Boolean {
+//    return SdkNames.NODE_MIME_FOLDER.equals(treeNode.mime) || isRecycle(treeNode)
+//}
+//
+//fun isRecycle(treeNode: RTreeNode): Boolean {
+//    return SdkNames.NODE_MIME_RECYCLE.equals(treeNode.mime)
+//}
+
+private const val NODE_UTILS = "NodeUtils"
+
+fun areNodeContentEquals(remote: FileNode, local: RTreeNode): Boolean {
+    // TODO rather use this when debugging is over.
+//        return remote.eTag != null
+//                && remote.eTag == local.etag
+//                && local.remoteModificationTS == remote.lastModified()
+//                // Also compare meta hash: timestamp is not updated when a meta changes
+//                && remote.metaHashCode == local.metaHash
+
+    var isEqual = remote.eTag != null
+    if (!isEqual) {
+        Log.d(NODE_UTILS, "Differ: no remote eTag")
+        return false
+    }
+    isEqual = remote.eTag == local.etag
+    if (!isEqual) {
+        Log.d(NODE_UTILS, "Differ: eTag are different")
+        return false
+    }
+
+    isEqual = local.remoteModificationTS == remote.getLastModified()
+    if (!isEqual) {
+        Log.d(NODE_UTILS, "Differ: Modif time are not equals")
+        return false
+    }
+    // Also compare meta hash: timestamp is not updated when a meta changes
+    isEqual = remote.metaHashCode == local.metaHash
+    if (!isEqual) {
+        Log.d(NODE_UTILS, "Differ: meta hash are not equals")
+        Log.d(NODE_UTILS, "local meta: ${local.meta}")
+        Log.d(NODE_UTILS, "remote meta: ${remote.properties}")
+        return false
+    }
+
+    return true
 }
 
-fun isRecycle(treeNode: RTreeNode): Boolean {
-    return SdkNames.NODE_MIME_RECYCLE.equals(treeNode.mime)
-}
 
 fun getAppMime(context: Context, name: String): String {
     val filename = name.lowercase()

@@ -21,6 +21,10 @@ public interface AppNames {
     String ACTION_CANCEL = "cancel";
     String ACTION_RESTART = "restart";
 
+    String ACTION_LOGIN = "login";
+    String ACTION_LOGOUT = "logout";
+    String ACTION_FORGET = "forget";
+
     /* INTENTS */
     String EXTRA_STATE = KEY_PREFIX_ + "state";
     String EXTRA_ACCOUNT_ID = KEY_PREFIX_ + "account.id";

@@ -16,7 +16,14 @@
             android:paddingBottom="@dimen/recycler_bottom_fab_padding"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-        <!-- android:paddingBottom="@dimen/recycler_bottom_margin"-->
+        <include
+            android:id="@+id/empty_content"
+            layout="@layout/list_empty_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="@color/white"
+            android:visibility="gone" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_node_fab"

@@ -14,22 +14,29 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.*
+import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainNavDirections
+import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBookmarkListBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.utils.BackStackAdapter
 import org.sinou.android.pydia.utils.externallyView
-import org.sinou.android.pydia.utils.isFolder
 import org.sinou.android.pydia.utils.resetToHomeStateIfNecessary
 
 class BookmarksFragment : Fragment() {
 
-    private val fTag = "BookmarksFragment"
+    private val fTag = BookmarksFragment::class.java.simpleName
+
+    private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
 
     private lateinit var binding: FragmentBookmarkListBinding
-    private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
     private var bookmarksVM: BookmarksViewModel? = null
 
     override fun onCreateView(
@@ -40,6 +47,7 @@ class BookmarksFragment : Fragment() {
             inflater, R.layout.fragment_bookmark_list, container, false
         )
         findNavController().addOnDestinationChangedListener(ChangeListener())
+
         return binding.root
     }
 
@@ -61,22 +69,27 @@ class BookmarksFragment : Fragment() {
         super.onResume()
 //        dumpBackStack(fTag, parentFragmentManager)
 
+
+//        (requireActivity() as AppCompatActivity).supportActionBar?.let {
+//            it.title = "Bookmarks" // accountID.toString()
+//        }
+
+
         val activeSession = activeSessionViewModel.activeSession.value
         Log.i(fTag, "onResume: ${activeSession?.accountID}")
         activeSession?.let { session ->
             val accountID = StateID.fromId(session.accountID)
-            (requireActivity() as MainActivity).supportActionBar?.let {
-                it.title = "Bookmarks" // accountID.toString()
-            }
 
             val viewModelFactory = BookmarksViewModel.BookmarksViewModelFactory(
-                accountID, requireActivity().application,
+                CellsApp.instance.nodeService,
+                accountID,
+                requireActivity().application,
             )
             val tmp: BookmarksViewModel by viewModels { viewModelFactory }
-            val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
-            binding.bookmarkList.adapter = adapter
-            tmp.bookmarks.observe(viewLifecycleOwner, { adapter.submitList(it) })
             bookmarksVM = tmp
+            configureRecyclerAdapter(tmp)
+
+            tmp.triggerRefresh()
 
             val currentState = accountID.withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
             CellsApp.instance.setCurrentState(currentState)
@@ -86,6 +99,30 @@ class BookmarksFragment : Fragment() {
                 currentState
             )
             requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
+        }
+    }
+
+    private fun configureRecyclerAdapter(viewModel: BookmarksViewModel) {
+        val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
+        val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
+        val adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
+        if (asGrid) {
+            binding.bookmarkList.layoutManager = GridLayoutManager(activity, 3)
+            adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
+        } else {
+            binding.bookmarkList.layoutManager = LinearLayoutManager(requireActivity())
+            adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+        }
+        binding.bookmarkList.adapter = adapter
+        viewModel.bookmarks.observe(viewLifecycleOwner) {
+            if (it.isEmpty()) {
+                binding.emptyContent.visibility = View.VISIBLE
+                binding.bookmarkList.visibility = View.GONE
+            } else {
+                binding.bookmarkList.visibility = View.VISIBLE
+                binding.emptyContent.visibility = View.GONE
+                adapter.submitList(it)
+            }
         }
     }
 
@@ -101,7 +138,7 @@ class BookmarksFragment : Fragment() {
 
     private fun navigateTo(node: RTreeNode) =
         lifecycleScope.launch {
-            if (isFolder(node)) {
+            if (node.isFolder()) {
                 val action = MainNavDirections.openFolder(node.encodedState)
                 findNavController().navigate(action)
             } else {

@@ -9,6 +9,7 @@ import kotlinx.coroutines.*
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDao
 import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.utils.areNodeContentEquals
 import java.io.File
 
 class FolderDiff(
@@ -73,7 +74,7 @@ class FolderDiff(
                     // last local is smaller than next remote, no more matches for any next remote
                     local = null
                 } else if (order == 0) {
-                    if (contentAreEquals(remote, local!!)) { // Found a match, no change to report.
+                    if (areNodeContentEquals(remote, local!!)) { // Found a match, no change to report.
                         alsoCheckThumb(remote, local)
                     } else {
                         putUpdateChange(remote, local)
@@ -94,42 +95,6 @@ class FolderDiff(
             local = lit.next()
             putDeleteChange(local)
         }
-    }
-
-    private fun contentAreEquals(remote: FileNode, local: RTreeNode): Boolean {
-        // TODO rather use this when debugging is over.
-//        return remote.eTag != null
-//                && remote.eTag == local.etag
-//                && local.remoteModificationTS == remote.lastModified()
-//                // Also compare meta hash: timestamp is not updated when a meta changes
-//                && remote.metaHashCode == local.metaHash
-
-        var isEqual = remote.eTag != null
-        if (!isEqual) {
-            Log.d(TAG, "Differ: no remote eTag")
-            return false
-        }
-        isEqual = remote.eTag == local.etag
-        if (!isEqual) {
-            Log.d(TAG, "Differ: eTag are different")
-            return false
-        }
-
-        isEqual = local.remoteModificationTS == remote.getLastModified()
-        if (!isEqual) {
-            Log.d(TAG, "Differ: Modif time are not equals")
-            return false
-        }
-        // Also compare meta hash: timestamp is not updated when a meta changes
-        isEqual = remote.metaHashCode == local.metaHash
-        if (!isEqual) {
-            Log.d(TAG, "Differ: meta hash are not equals")
-            Log.d(TAG, "local meta: ${local.meta}")
-            Log.d(TAG, "remote meta: ${remote.properties}")
-            return false
-        }
-
-        return true
     }
 
     private fun alsoCheckThumb(remote: FileNode, local: RTreeNode) {

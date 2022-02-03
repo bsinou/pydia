@@ -64,13 +64,14 @@ data class RTreeNode(
     }
 
     fun isFolder(): Boolean {
-        return mime == SdkNames.NODE_MIME_FOLDER || mime == SdkNames.NODE_MIME_RECYCLE
+        return mime == SdkNames.NODE_MIME_FOLDER
+                || mime == SdkNames.NODE_MIME_WS_ROOT
+                || mime == SdkNames.NODE_MIME_RECYCLE
     }
 
     fun isFile(): Boolean {
         return !isFolder()
     }
-
 
     fun isInRecycle(): Boolean {
         return parentPath.startsWith("/${SdkNames.RECYCLE_BIN_NAME}")

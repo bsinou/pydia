@@ -18,6 +18,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
@@ -27,14 +29,13 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.services.SessionFactory
 import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
 import org.sinou.android.pydia.utils.*
 
 class BrowseFolderFragment : Fragment() {
 
-    companion object {
-        private const val fTag = "BrowseFolderFragment"
-    }
+    private val fTag = BrowseFolderFragment::class.java.simpleName
 
     private val args: BrowseFolderFragmentArgs by navArgs()
 
@@ -94,19 +95,28 @@ class BrowseFolderFragment : Fragment() {
         return binding.root
     }
 
+
     private fun configureRecyclerAdapter() {
         val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
+        var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
         if (asGrid) {
             binding.nodes.layoutManager = GridLayoutManager(activity, 3)
-            val adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
-            binding.nodes.adapter = adapter
-            browseFolderVM.children.observe(viewLifecycleOwner) { adapter.submitList(it) }
+            adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
         } else {
-            binding.nodes.layoutManager = LinearLayoutManager(activity)
-            val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
-            binding.nodes.adapter = adapter
-            browseFolderVM.children.observe(viewLifecycleOwner) { adapter.submitList(it) }
+            binding.nodes.layoutManager = LinearLayoutManager(requireActivity())
+            adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+        }
+        binding.nodes.adapter = adapter
+        browseFolderVM.children.observe(viewLifecycleOwner) {
+            if (it.isEmpty()) {
+                binding.emptyContent.visibility = View.VISIBLE
+                binding.nodes.visibility = View.GONE
+            } else {
+                binding.nodes.visibility = View.VISIBLE
+                binding.emptyContent.visibility = View.GONE
+                adapter.submitList(it)
+            }
         }
     }
 
@@ -126,7 +136,6 @@ class BrowseFolderFragment : Fragment() {
                     )
                 findNavController().navigate(action)
             }
-
             else -> return // Unknown action, log warning and returns
         }
     }
@@ -185,7 +194,7 @@ class BrowseFolderFragment : Fragment() {
     }
 
     private fun navigateTo(node: RTreeNode) = lifecycleScope.launch {
-        if (isFolder(node)) {
+        if (node.isFolder()) {
             CellsApp.instance.setCurrentState(StateID.fromId(node.encodedState))
             findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             return@launch

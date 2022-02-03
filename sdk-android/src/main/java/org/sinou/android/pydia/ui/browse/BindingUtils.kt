@@ -179,6 +179,7 @@ fun getDrawableFromMime(mime: String): Int {
     // TODO enrich with more specific icons for files depending on the mime
     return when (mime) {
         SdkNames.NODE_MIME_FOLDER -> R.drawable.icon_folder
+        SdkNames.NODE_MIME_WS_ROOT -> R.drawable.icon_folder
         SdkNames.NODE_MIME_RECYCLE -> R.drawable.icon_recycle
         else -> R.drawable.icon_file
     }

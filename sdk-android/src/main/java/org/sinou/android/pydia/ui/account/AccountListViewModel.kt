@@ -1,64 +1,30 @@
 package org.sinou.android.pydia.ui.account
 
 import android.app.Application
-import androidx.lifecycle.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import org.sinou.android.pydia.db.account.AccountDB
-import org.sinou.android.pydia.db.account.RAccount
-import org.sinou.android.pydia.db.account.RLiveSession
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import org.sinou.android.pydia.services.AccountService
 
 /**
  * Central ViewModel when dealing with a user's accounts.
  */
 class AccountListViewModel(
-    val database: AccountDB,
+    accountService: AccountService,
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val TAG = "AccountListViewModel"
-
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
-
-    private var activeAccount = MutableLiveData<RAccount?>()
-
-    private val _sessions = database.liveSessionDao().getLiveSessions()
-    val sessions: LiveData<List<RLiveSession>>
-        get() = _sessions
-
-
-//    init {
-//        initializeActiveAccount()
-//    }
-//
-//    private fun initializeActiveAccount() {
-//        uiScope.launch {
-//            val act = doGetActiveAccount()
-//            activeAccount.value = act
-//        }
-//    }
-//
-//    private suspend fun doGetActiveAccount(): Account? {
-//        return withContext(Dispatchers.IO) {
-//            database.accountDao().getActiveAccount()
-//        }
-//    }
+    // TODO rather implement a wrapping method in the account service
+    val sessions = accountService.accountDB.liveSessionDao().getLiveSessions()
 
     class AccountListViewModelFactory(
-        private val accountDB: AccountDB,
+        private val accountService: AccountService,
         private val application: Application
     ) : ViewModelProvider.Factory {
         @Suppress("unchecked_cast")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(AccountListViewModel::class.java)) {
-                return AccountListViewModel(accountDB, application) as T
+                return AccountListViewModel(accountService, application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

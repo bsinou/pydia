@@ -145,5 +145,7 @@
     <!-- Accessibility various content -->
     <string name="thumb_description">Small content preview</string>
     <string name="folder_icon_description">Folder icon</string>
+    <string name="empty_content_icon_desc">Empty list icon</string>
+    <string name="empty_content_message">No content here yet</string>
 
 </resources>

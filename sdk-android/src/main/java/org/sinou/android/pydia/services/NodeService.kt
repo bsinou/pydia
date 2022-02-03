@@ -9,6 +9,7 @@ import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
+import com.pydio.cells.api.ui.Node
 import com.pydio.cells.api.ui.Stats
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
@@ -79,7 +80,6 @@ class NodeService(
         nodeDB.treeNodeDao().update(node)
     }
 
-
     /* Calls to query both the cache and the remote server */
 
     suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
@@ -143,13 +143,46 @@ class NodeService(
         return@withContext null
     }
 
-
     /* Handle communication with the remote server to refresh locally stored data */
 
     fun enqueueDownload(stateID: StateID, uri: Uri) {
         serviceScope.launch {
             saveToSharedStorage(stateID, uri)
         }
+    }
+
+    suspend fun refreshBookmarks(stateID: StateID): String? = withContext(Dispatchers.IO) {
+        try {
+            val client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
+
+            // TODO rather use a cursor than loading everything in memory...
+            val nodes = mutableListOf<FileNode>()
+            client.getBookmarks { node: Node? ->
+                if (node !is FileNode) {
+                    Log.w(TAG, "could not store node: $node")
+                } else {
+                    nodes.add(node)
+                }
+            }
+            // Manage results
+            Log.w(TAG, "Got a bookmark list of ${nodes.size}, about to process")
+            val dao = nodeDB.treeNodeDao()
+            for (node in nodes) {
+                val currNode = toRTreeNodeNew(stateID, node)
+                currNode.isBookmarked = true
+                val oldNode = dao.getNode(currNode.encodedState)
+                if (oldNode == null) {
+                    dao.insert(currNode)
+                } else if (!oldNode.isBookmarked) {
+                    oldNode.isBookmarked = true
+                    dao.update(oldNode)
+                }
+            }
+        } catch (se: SDKException) {
+            se.printStackTrace()
+            return@withContext "Could not refresh bookmarks from server: ${se.message}"
+        }
+        return@withContext null
     }
 
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
@@ -521,6 +554,53 @@ class NodeService(
                 null
             }
         }
+
+        fun toRTreeNodeNew(stateID: StateID, fileNode: FileNode): RTreeNode {
+            Log.w(TAG, "... toRTreeNodeNew ${stateID}")
+            Log.w(TAG, "  - WS: ${fileNode.workspace}")
+            Log.w(TAG, "  - Path: ${fileNode.path}")
+            Log.w(TAG, "  - Label: ${fileNode.label}")
+            val childStateID = // Retrieve the account from the passed state
+                StateID.fromId(stateID.accountId)
+                    // Construct the path from file node info
+                    .withPath("/${fileNode.workspace}${fileNode.path}")
+            try {
+                val node = RTreeNode(
+                    encodedState = childStateID.id,
+                    workspace = childStateID.workspace,
+                    parentPath = childStateID.parentFile ?: "",
+                    name = childStateID.fileName ?: childStateID.workspace ,
+                    UUID = fileNode.id,
+                    etag = fileNode.eTag,
+                    mime = fileNode.mimeType,
+                    size = fileNode.size,
+                    isBookmarked = fileNode.isBookmark,
+                    isShared = fileNode.isShared,
+                    remoteModificationTS = fileNode.lastModified,
+                    meta = fileNode.properties,
+                    metaHash = fileNode.metaHashCode
+                )
+
+                // Use Android library to precise MimeType when possible
+                if (SdkNames.NODE_MIME_DEFAULT.equals(node.mime)) {
+                    node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
+                }
+
+                // Add a technical name to easily have a canonical sorting by default,
+                // that is: folders, files, recycle bin.
+                node.sortName = when (node.mime) {
+                    SdkNames.NODE_MIME_FOLDER -> "2_${node.name}"
+                    SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
+                    else -> "5_${node.name}"
+                }
+                return node
+
+            } catch (e: java.lang.Exception) {
+                Log.w(TAG, "could not create RTreeNode for ${childStateID}: ${e.message}")
+                throw e
+            }
+        }
+
 
         fun toRTreeNode(stateID: StateID, fileNode: FileNode): RTreeNode {
             val node = RTreeNode(

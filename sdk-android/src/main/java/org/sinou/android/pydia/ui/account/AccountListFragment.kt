@@ -15,20 +15,12 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentAccountListBinding
-import org.sinou.android.pydia.db.account.AccountDB
 import org.sinou.android.pydia.services.AuthService
 import org.sinou.android.pydia.ui.common.deleteAccount
 
 class AccountListFragment : Fragment() {
 
-    companion object {
-        private const val fTag = "AccountListFragment"
-
-        const val ACTION_LOGIN = "login"
-        const val ACTION_LOGOUT = "logout"
-        const val ACTION_FORGET = "forget"
-        const val ACTION_OPEN = "open"
-    }
+    private val fTag = AccountListFragment::class.java.simpleName
 
     private lateinit var binding: FragmentAccountListBinding
 
@@ -36,34 +28,35 @@ class AccountListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         // Get a reference to the binding object and inflate the fragment views.
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_list, container, false
         )
 
         val application = requireNotNull(this.activity).application
-        val dataSource = AccountDB.getDatabase(application)
-        val viewModelFactory =
-            AccountListViewModel.AccountListViewModelFactory(dataSource, application)
-
+        val viewModelFactory = AccountListViewModel.AccountListViewModelFactory(
+            CellsApp.instance.accountService,
+            application
+        )
         val accountListViewModel: AccountListViewModel by viewModels { viewModelFactory }
 
-        val adapter =
-            AccountListAdapter { accountID, action -> onAccountClicked(accountID, action) }
+        val adapter = AccountListAdapter { accountID, action ->
+            onAccountClicked(accountID, action)
+        }
         binding.accountList.adapter = adapter
 
-        accountListViewModel.sessions.observe(viewLifecycleOwner, {
-            it?.let {
+        accountListViewModel.sessions.observe(viewLifecycleOwner) {
+            if (it.isEmpty()) {
+                binding.emptyContent.visibility = View.VISIBLE
+                binding.accountList.visibility = View.GONE
+            } else {
+                binding.accountList.visibility = View.VISIBLE
+                binding.emptyContent.visibility = View.GONE
                 adapter.submitList(it)
             }
-        })
-
-        // TODO implement color change on session switch
-        // foregroundSessionViewModel.activeSession.observe()
+        }
 
         binding.newAccountFab.setOnClickListener {
-            // it.findNavController().navigate(R.id.server_url_destination)
             val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
             startActivity(toAuthIntent)
         }
@@ -74,9 +67,8 @@ class AccountListFragment : Fragment() {
 
     private fun onAccountClicked(accountID: String, action: String) {
         Log.i(fTag, "ID: $accountID, do $action")
-
         when (action) {
-            ACTION_LOGIN -> {
+            AppNames.ACTION_LOGIN -> {
                 CellsApp.instance.setCurrentState(
                     StateID.fromId(accountID).withPath(AppNames.CUSTOM_PATH_ACCOUNTS)
                 )
@@ -85,7 +77,10 @@ class AccountListFragment : Fragment() {
                     val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
                     toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, server.serverURL.toJson())
                     toAuthIntent.putExtra(AppNames.EXTRA_SERVER_IS_LEGACY, server.isLegacy)
-                    toAuthIntent.putExtra(AppNames.EXTRA_AFTER_AUTH_ACTION, AuthService.NEXT_ACTION_ACCOUNTS)
+                    toAuthIntent.putExtra(
+                        AppNames.EXTRA_AFTER_AUTH_ACTION,
+                        AuthService.NEXT_ACTION_ACCOUNTS
+                    )
                     startActivity(toAuthIntent)
                 } else {
                     lifecycleScope.launch {
@@ -98,23 +93,18 @@ class AccountListFragment : Fragment() {
                     }
                 }
             }
-            ACTION_LOGOUT -> lifecycleScope.launch {
+            AppNames.ACTION_LOGOUT -> lifecycleScope.launch {
                 CellsApp.instance.accountService.logoutAccount(accountID)
             }
-            ACTION_FORGET -> {
+            AppNames.ACTION_FORGET -> {
                 deleteAccount(requireContext(), accountID)
-/*                findNavController().navigate(
-                    AccountListFragmentDirections
-                        .actionAccountsToConfirmDeletion(accountID)
-                )*/
             }
-            ACTION_OPEN -> lifecycleScope.launch {
+            AppNames.ACTION_OPEN -> lifecycleScope.launch {
                 CellsApp.instance.accountService.openSession(accountID)
                 CellsApp.instance.setCurrentState(StateID.fromId(accountID))
                 findNavController().navigate(MainNavDirections.openWorkspaces())
             }
-
-            else -> return// do nothing
+            else -> return // do nothing
         }
     }
 }

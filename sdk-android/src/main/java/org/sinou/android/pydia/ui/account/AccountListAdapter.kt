@@ -33,18 +33,18 @@ class AccountListAdapter(
 
             // TODO also retrieve user's avatar for configured account in the current remote
             binding.root.setOnClickListener {
-                onItemClicked(item.accountID, AccountListFragment.ACTION_OPEN)
+                onItemClicked(item.accountID, AppNames.ACTION_OPEN)
             }
 
             binding.accountDeleteButton.setOnClickListener {
-                onItemClicked(item.accountID, AccountListFragment.ACTION_FORGET)
+                onItemClicked(item.accountID, AppNames.ACTION_FORGET)
             }
 
             binding.accountAuthButton.setOnClickListener {
                 if (item.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-                    onItemClicked(item.accountID, AccountListFragment.ACTION_LOGOUT)
+                    onItemClicked(item.accountID, AppNames.ACTION_LOGOUT)
                 } else {
-                    onItemClicked(item.accountID, AccountListFragment.ACTION_LOGIN)
+                    onItemClicked(item.accountID, AppNames.ACTION_LOGIN)
                 }
             }
 

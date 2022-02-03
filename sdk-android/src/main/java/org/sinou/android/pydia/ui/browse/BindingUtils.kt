@@ -1,6 +1,7 @@
 package org.sinou.android.pydia.ui.browse
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.text.format.DateUtils
 import android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
 import android.text.format.Formatter.formatShortFileSize
@@ -16,6 +17,8 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.WorkspaceNode
+import com.pydio.cells.utils.Str
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.services.NodeService
@@ -39,6 +42,13 @@ fun TextView.setNodeDesc(item: RTreeNode?) {
         return
     }
 
+    if (Str.notEmpty(item.localModificationStatus)) {
+        getMessageFromLocalModifStatus(context, item.localModificationStatus!!)?.let {
+            text = it
+            return
+        }
+    }
+
     val mTimeValue = DateUtils.formatDateTime(
         this.context,
         item.remoteModificationTS * 1000L,
@@ -56,7 +66,7 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
         return
     }
 
-    if (item.localModificationTS > item.remoteModificationTS){
+    if (item.localModificationTS > item.remoteModificationTS) {
         setImageResource(R.drawable.loading_animation)
         return
     }
@@ -87,7 +97,7 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
         return
     }
 
-    if (item.localModificationTS > item.remoteModificationTS){
+    if (item.localModificationTS > item.remoteModificationTS) {
         setImageResource(R.drawable.loading_animation2)
         return
     }
@@ -185,6 +195,16 @@ fun getDrawableFromMime(mime: String): Int {
     }
 }
 
+fun getMessageFromLocalModifStatus(context: Context, status: String): String? {
+    return when (status) {
+        AppNames.LOCAL_MODIF_DELETE -> context.getString(R.string.in_progress_deleting)
+        AppNames.LOCAL_MODIF_RENAME -> context.getString(R.string.in_progress_renaming)
+        AppNames.LOCAL_MODIF_MOVE -> context.getString(R.string.in_progress_moving)
+        AppNames.LOCAL_MODIF_RESTORE -> context.getString(R.string.in_progress_restoring)
+        else -> null
+    }
+}
+
 //fun RTreeNode.isFolder(): Boolean {
 //    return SdkNames.NODE_MIME_FOLDER == mime || SdkNames.NODE_MIME_RECYCLE == mime
 //}
@@ -208,16 +228,20 @@ fun areContentsEquals(
     // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
     // remote modif timestamp and thumb filename.
 
-     // More logs to investigate
-            if (!same){
-                val tag = "ListContentEquals"
-                Log.d(tag, "Found new content for ${oldItem.encodedState}")
-                Log.d(tag, "Old TS: ${oldItem.remoteModificationTS}, " +
-                        "new TS: ${newItem.remoteModificationTS}")
-                Log.d(tag, "Old thumb: ${oldItem.thumbFilename}, " +
-                        "new thumb: ${newItem.thumbFilename}")
-    //            Log.d(tag, "old item: \n${Gson().toJson(oldItem)}")
-    //            Log.d(tag, "new item: \n${Gson().toJson(newItem)}")
-            }
+    // More logs to investigate
+    if (!same) {
+        val tag = "ListContentEquals"
+        Log.d(tag, "Found new content for ${oldItem.encodedState}")
+        Log.d(
+            tag, "Old TS: ${oldItem.remoteModificationTS}, " +
+                    "new TS: ${newItem.remoteModificationTS}"
+        )
+        Log.d(
+            tag, "Old thumb: ${oldItem.thumbFilename}, " +
+                    "new thumb: ${newItem.thumbFilename}"
+        )
+        //            Log.d(tag, "old item: \n${Gson().toJson(oldItem)}")
+        //            Log.d(tag, "new item: \n${Gson().toJson(newItem)}")
+    }
     return same && flagChanged
 }

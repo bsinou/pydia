@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
-import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
@@ -46,17 +45,21 @@ class ChooseWorkspaceFragment : Fragment() {
         )
         super.onResume()
 
-        activeSessionVM.activeSession.observe(
-            viewLifecycleOwner,
-            {
-                it?.let {
-                    val adapter = WorkspaceListAdapter { slug, action -> onWsClicked(slug, action) }
-                    binding.workspaces.adapter = adapter
-                    val currWss = it.workspaces ?: listOf()
+        activeSessionVM.activeSession.observe(viewLifecycleOwner) {
+            it?.let {
+                val adapter = WorkspaceListAdapter { slug, action -> onWsClicked(slug, action) }
+                binding.workspaces.adapter = adapter
+                val currWss = it.workspaces
+                if (currWss == null || currWss.isEmpty()) {
+                    binding.emptyContent.visibility = View.VISIBLE
+                    binding.workspaces.visibility = View.GONE
+                } else {
+                    binding.workspaces.visibility = View.VISIBLE
+                    binding.emptyContent.visibility = View.GONE
                     adapter.submitList(currWss.sorted())
                 }
-            },
-        )
+            }
+        }
 
         CellsApp.instance.getCurrentState()?.let {
             if (it.path != null && it.path.length > 1) {

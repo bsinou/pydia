@@ -1,13 +1,17 @@
 package org.sinou.android.pydia.db.browse
 
+import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.Converters
+import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.utils.getMimeType
 import java.util.*
 
 @Entity(tableName = "tree_node_table")
@@ -34,6 +38,8 @@ data class RTreeNode(
     @ColumnInfo(name = "remote_mod_ts") var remoteModificationTS: Long,
 
     @ColumnInfo(name = "local_mod_ts") var localModificationTS: Long = 0L,
+
+    @ColumnInfo(name = "local_mod_status") var localModificationStatus: String? = null,
 
     @ColumnInfo(name = "last_check_ts") var lastCheckTS: Long = 0L,
 
@@ -79,5 +85,56 @@ data class RTreeNode(
 
     fun isRecycle(): Boolean {
         return name == SdkNames.RECYCLE_BIN_NAME
+    }
+
+    companion object {
+        private const val TAG = "RTreeNode"
+
+        fun toRTreeNodeNew(stateID: StateID, fileNode: FileNode): RTreeNode {
+            Log.w(TAG, "... toRTreeNodeNew ${stateID}")
+            Log.w(TAG, "  - WS: ${fileNode.workspace}")
+            Log.w(TAG, "  - Path: ${fileNode.path}")
+            Log.w(TAG, "  - Label: ${fileNode.label}")
+            val childStateID = // Retrieve the account from the passed state
+                StateID.fromId(stateID.accountId)
+                    // Construct the path from file node info
+                    .withPath("/${fileNode.workspace}${fileNode.path}")
+            try {
+                val node = RTreeNode(
+                    encodedState = childStateID.id,
+                    workspace = childStateID.workspace,
+                    parentPath = childStateID.parentFile ?: "",
+                    name = childStateID.fileName ?: childStateID.workspace ,
+                    UUID = fileNode.id,
+                    etag = fileNode.eTag,
+                    mime = fileNode.mimeType,
+                    size = fileNode.size,
+                    isBookmarked = fileNode.isBookmark,
+                    isShared = fileNode.isShared,
+                    remoteModificationTS = fileNode.lastModified,
+                    meta = fileNode.properties,
+                    metaHash = fileNode.metaHashCode
+                )
+
+                // Use Android library to precise MimeType when possible
+                if (SdkNames.NODE_MIME_DEFAULT.equals(node.mime)) {
+                    node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
+                }
+
+                // Add a technical name to easily have a canonical sorting by default,
+                // that is: folders, files, recycle bin.
+                node.sortName = when (node.mime) {
+                    SdkNames.NODE_MIME_WS_ROOT -> "1_${node.name}"
+                    SdkNames.NODE_MIME_FOLDER -> "3_${node.name}"
+                    SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
+                    else -> "5_${node.name}"
+                }
+                return node
+
+            } catch (e: java.lang.Exception) {
+                Log.w(TAG, "could not create RTreeNode for ${childStateID}: ${e.message}")
+                throw e
+            }
+        }
     }
 }

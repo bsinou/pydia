@@ -205,19 +205,21 @@ class BrowseFolderFragment : Fragment() {
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         )
-
         browseFolderVM.setLoading(true)
         showProgressDialog()
+
         val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
+
+        browseFolderVM.setLoading(false)
+        requireActivity().window.setFlags(
+            0,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+
         file?.let {
             val intent = externallyView(requireContext(), file, node)
             try {
                 startActivity(intent)
-                browseFolderVM.setLoading(false)
-                requireActivity().window.setFlags(
-                    0,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                )
                 loadingDialog?.dismiss()
 
             } catch (e: Exception) {

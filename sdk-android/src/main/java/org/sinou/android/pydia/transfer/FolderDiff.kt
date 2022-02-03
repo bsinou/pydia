@@ -110,7 +110,7 @@ class FolderDiff(
         Log.d(TAG, "add for ${remote.label}")
         changeNumber++
         val childStateID = parentId.child(remote.label)
-        val rNode = NodeService.toRTreeNode(childStateID, remote)
+        val rNode = RTreeNode.toRTreeNodeNew(childStateID, remote)
         dao.insert(rNode)
         if (remote.isImage) {
             diffScope.launch {
@@ -126,7 +126,7 @@ class FolderDiff(
 
         // TODO: Insure corner cases are correctly handled, typically on type switch
         val childStateID = parentId.child(remote.label)
-        val rNode = NodeService.toRTreeNode(childStateID, remote)
+        val rNode = RTreeNode.toRTreeNodeNew(childStateID, remote)
 
         if (local.isFolder() && remote.isFile) {
             dao.delete(local.encodedState)

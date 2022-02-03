@@ -25,6 +25,12 @@ public interface AppNames {
     String ACTION_LOGOUT = "logout";
     String ACTION_FORGET = "forget";
 
+    /* SUPPORTED MODIFICATION STATUS */
+    String LOCAL_MODIF_DELETE = "deleting";
+    String LOCAL_MODIF_RENAME = "renaming";
+    String LOCAL_MODIF_MOVE = "moving";
+    String LOCAL_MODIF_RESTORE = "restore";
+
     /* INTENTS */
     String EXTRA_STATE = KEY_PREFIX_ + "state";
     String EXTRA_ACCOUNT_ID = KEY_PREFIX_ + "account.id";

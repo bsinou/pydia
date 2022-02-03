@@ -19,10 +19,7 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.*
 import org.sinou.android.pydia.db.browse.RTreeNode
-import org.sinou.android.pydia.tasks.createFolder
-import org.sinou.android.pydia.tasks.deleteFromRecycle
-import org.sinou.android.pydia.tasks.emptyRecycle
-import org.sinou.android.pydia.tasks.moveToRecycle
+import org.sinou.android.pydia.tasks.*
 import org.sinou.android.pydia.transfer.FileExporter
 import org.sinou.android.pydia.transfer.FileImporter
 import org.sinou.android.pydia.utils.showLongMessage
@@ -337,7 +334,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     createFolder(requireContext(), node)
                     moreMenu.dismiss()
                 }
-                ACTION_RENAME -> {}
+                ACTION_RENAME -> {
+                    rename(requireContext(), node)
+                    moreMenu.dismiss()
+                }
                 ACTION_COPY -> {}
                 ACTION_MOVE -> {}
                 ACTION_DELETE -> {

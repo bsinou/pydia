@@ -28,7 +28,6 @@ class ChooseTargetViewModel(
     val currentLocation: LiveData<StateID?>
         get() = _currentLocation
 
-
     fun validTarget(): Boolean {
         return currentLocation.value?.path?.let { it.length > 1 } ?: false
     }

@@ -21,7 +21,6 @@ import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDB
 import org.sinou.android.pydia.transfer.FolderDiff
 import org.sinou.android.pydia.transfer.ThumbDownloader
-import org.sinou.android.pydia.utils.getMimeType
 import java.io.*
 import java.util.*
 
@@ -30,9 +29,10 @@ class NodeService(
     private val accountService: AccountService
 ) {
 
+    private val mimeMap = MimeTypeMap.getSingleton()
+
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
-    private val mimeMap = MimeTypeMap.getSingleton()
 
     /* Expose DB content as LiveData for the ViewModels */
 
@@ -168,7 +168,7 @@ class NodeService(
             Log.w(TAG, "Got a bookmark list of ${nodes.size}, about to process")
             val dao = nodeDB.treeNodeDao()
             for (node in nodes) {
-                val currNode = toRTreeNodeNew(stateID, node)
+                val currNode = RTreeNode.toRTreeNodeNew(stateID, node)
                 currNode.isBookmarked = true
                 val oldNode = dao.getNode(currNode.encodedState)
                 if (oldNode == null) {
@@ -236,14 +236,15 @@ class NodeService(
         if (rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
             && rTreeNode.localModificationTS >= remoteStats.getmTime()
         ) {
-            val file = File(getLocalPath(rTreeNode, TYPE_CACHED_FILE))
-            // TODO at this point we are not 100% sure the local file
-            //  is in-line with remote, typically if update is in process
-            if (file.exists()) {
-                return true
+            getLocalPath(rTreeNode, TYPE_CACHED_FILE)?.let {
+                val file = File(it)
+                // TODO at this point we are not 100% sure the local file
+                //  is in-line with remote, typically if update is in process
+                if (file.exists()) {
+                    return true
+                }
             }
         }
-
         return false
     }
 
@@ -404,7 +405,7 @@ class NodeService(
             val node = nodeDB.treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not restore"
             remoteRestore(stateID)
-            persistLocallyModified(node)
+            persistLocallyModified(node, AppNames.LOCAL_MODIF_RESTORE)
         } catch (se: SDKException) {
             se.printStackTrace()
             return@withContext "Could not restore node: ${se.message}"
@@ -418,10 +419,23 @@ class NodeService(
             val node = nodeDB.treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not delete"
             remoteEmptyRecycle(stateID)
-            persistLocallyModified(node)
+            persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
         } catch (se: SDKException) {
             se.printStackTrace()
             return@withContext "Could not empty recycle bin: ${se.message}"
+        }
+        return@withContext null
+    }
+
+    suspend fun rename(stateID: StateID, newName: String): String? = withContext(Dispatchers.IO) {
+        try {
+            val node = nodeDB.treeNodeDao().getNode(stateID.id)
+                ?: return@withContext "No node found at $stateID, could not rename"
+            remoteRename(stateID, newName)
+            persistLocallyModified(node, AppNames.LOCAL_MODIF_RENAME)
+        } catch (se: SDKException) {
+            se.printStackTrace()
+            return@withContext "Could not delete $stateID: ${se.message}"
         }
         return@withContext null
     }
@@ -431,7 +445,7 @@ class NodeService(
             val node = nodeDB.treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not delete"
             remoteDelete(stateID)
-            persistLocallyModified(node)
+            persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
         } catch (se: SDKException) {
             se.printStackTrace()
             return@withContext "Could not delete $stateID: ${se.message}"
@@ -454,6 +468,13 @@ class NodeService(
     }
 
     @Throws(SDKException::class)
+    fun remoteRename(stateID: StateID, newName: String) {
+        val sf = accountService.sessionFactory
+        val client: Client = sf.getUnlockedClient(stateID.accountId)
+        client.rename(stateID.workspace, stateID.file, newName)
+    }
+
+    @Throws(SDKException::class)
     fun remoteDelete(stateID: StateID) {
         val sf = accountService.sessionFactory
         val client: Client = sf.getUnlockedClient(stateID.accountId)
@@ -470,8 +491,9 @@ class NodeService(
         nodeDB.treeNodeDao().update(rTreeNode)
     }
 
-    private fun persistLocallyModified(rTreeNode: RTreeNode) {
+    private fun persistLocallyModified(rTreeNode: RTreeNode, modificationType: String) {
         rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
+        rTreeNode.localModificationStatus = modificationType
         nodeDB.treeNodeDao().update(rTreeNode)
     }
 
@@ -555,84 +577,37 @@ class NodeService(
             }
         }
 
-        fun toRTreeNodeNew(stateID: StateID, fileNode: FileNode): RTreeNode {
-            Log.w(TAG, "... toRTreeNodeNew ${stateID}")
-            Log.w(TAG, "  - WS: ${fileNode.workspace}")
-            Log.w(TAG, "  - Path: ${fileNode.path}")
-            Log.w(TAG, "  - Label: ${fileNode.label}")
-            val childStateID = // Retrieve the account from the passed state
-                StateID.fromId(stateID.accountId)
-                    // Construct the path from file node info
-                    .withPath("/${fileNode.workspace}${fileNode.path}")
-            try {
-                val node = RTreeNode(
-                    encodedState = childStateID.id,
-                    workspace = childStateID.workspace,
-                    parentPath = childStateID.parentFile ?: "",
-                    name = childStateID.fileName ?: childStateID.workspace ,
-                    UUID = fileNode.id,
-                    etag = fileNode.eTag,
-                    mime = fileNode.mimeType,
-                    size = fileNode.size,
-                    isBookmarked = fileNode.isBookmark,
-                    isShared = fileNode.isShared,
-                    remoteModificationTS = fileNode.lastModified,
-                    meta = fileNode.properties,
-                    metaHash = fileNode.metaHashCode
-                )
-
-                // Use Android library to precise MimeType when possible
-                if (SdkNames.NODE_MIME_DEFAULT.equals(node.mime)) {
-                    node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
-                }
-
-                // Add a technical name to easily have a canonical sorting by default,
-                // that is: folders, files, recycle bin.
-                node.sortName = when (node.mime) {
-                    SdkNames.NODE_MIME_FOLDER -> "2_${node.name}"
-                    SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
-                    else -> "5_${node.name}"
-                }
-                return node
-
-            } catch (e: java.lang.Exception) {
-                Log.w(TAG, "could not create RTreeNode for ${childStateID}: ${e.message}")
-                throw e
-            }
-        }
-
-
-        fun toRTreeNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-            val node = RTreeNode(
-                encodedState = stateID.id,
-                workspace = stateID.workspace,
-                parentPath = stateID.parentFile,
-                name = stateID.fileName,
-                UUID = fileNode.id,
-                etag = fileNode.eTag,
-                mime = fileNode.mimeType,
-                size = fileNode.size,
-                isBookmarked = fileNode.isBookmark,
-                isShared = fileNode.isShared,
-                remoteModificationTS = fileNode.getLastModified(),
-                meta = fileNode.properties,
-                metaHash = fileNode.metaHashCode
-            )
-
-            // Use Android library to precise MimeType when possible
-            if (SdkNames.NODE_MIME_DEFAULT.equals(node.mime)) {
-                node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
-            }
-
-            // Add a technical name to easily have a canonical sorting by default,
-            // that is: folders, files, recycle bin.
-            node.sortName = when (node.mime) {
-                SdkNames.NODE_MIME_FOLDER -> "2_${node.name}"
-                SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
-                else -> "5_${node.name}"
-            }
-            return node
-        }
+//        fun toRTreeNode(stateID: StateID, fileNode: FileNode): RTreeNode {
+//            val node = RTreeNode(
+//                encodedState = stateID.id,
+//                workspace = stateID.workspace,
+//                parentPath = stateID.parentFile,
+//                name = stateID.fileName,
+//                UUID = fileNode.id,
+//                etag = fileNode.eTag,
+//                mime = fileNode.mimeType,
+//                size = fileNode.size,
+//                isBookmarked = fileNode.isBookmark,
+//                isShared = fileNode.isShared,
+//                remoteModificationTS = fileNode.getLastModified(),
+//                meta = fileNode.properties,
+//                metaHash = fileNode.metaHashCode
+//            )
+//
+//            // Use Android library to precise MimeType when possible
+//            if (SdkNames.NODE_MIME_DEFAULT.equals(node.mime)) {
+//                node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
+//            }
+//
+//            // Add a technical name to easily have a canonical sorting by default,
+//            // that is: folders, files, recycle bin.
+//            node.sortName = when (node.mime) {
+//                SdkNames.NODE_MIME_FOLDER -> "2_${node.name}"
+//                SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
+//                else -> "5_${node.name}"
+//            }
+//            return node
+//        }
     }
 }
 

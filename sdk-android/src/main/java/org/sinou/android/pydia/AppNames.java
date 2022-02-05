@@ -55,10 +55,21 @@ public interface AppNames {
     String AUTH_STATUS_REFRESHING = "refreshing";
     String AUTH_STATUS_CONNECTED = "connected";
 
+
+    // Local tree:
+    // baseDir +--- cache +--- accountID +--- thumbs
+    //                                   +--- cache
+    //         +--- files +--- accountID +--- offline
+    String THUMB_PARENT_DIR = "thumbs";
+    String CACHED_FILE_PARENT_DIR = "cache";
+    String OFFLINE_FILE_PARENT_DIR = "offline";
+
     // Local file types
     String LOCAL_FILE_TYPE_NONE = "none";
+    String LOCAL_FILE_TYPE_THUMB = "thumb";
     String LOCAL_FILE_TYPE_CACHE = "cache";
     String LOCAL_FILE_TYPE_OFFLINE = "offline";
-    String LOCAL_FILE_TYPE_EXTERNAL = "external";
+    // TODO
+    // String LOCAL_FILE_TYPE_EXTERNAL = "external";
 
 }

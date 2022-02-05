@@ -1,7 +1,6 @@
 package org.sinou.android.pydia.services
 
 import android.util.Log
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.*
 import com.pydio.cells.api.ui.Node
@@ -11,10 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.account.AccountDB
-import org.sinou.android.pydia.db.account.RAccount
-import org.sinou.android.pydia.db.account.RLiveSession
-import org.sinou.android.pydia.db.account.RSession
+import org.sinou.android.pydia.db.account.*
 import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
 import org.sinou.android.pydia.utils.logException
 import java.io.File
@@ -57,12 +53,58 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
 
         if (existingAccount == null) { // creation
             accountDB.accountDao().insert(account)
+
+            // We only update the dir and db names at account creation
+
+            // FIXME finalize this
+            var accountID = RAccountId.newInstance(account, 0)
+            val existingAccounts = accountDB.accountIdDao().getWithDirName(accountID.dirName)
+            if (existingAccounts.isNotEmpty()) {
+                accountID = RAccountId.newInstance(account, existingAccounts.size)
+            }
+            accountDB.accountIdDao().insert(accountID)
+            CellsApp.instance.nodeService.refreshAccountIds()
+
         } else { // update
             accountDB.accountDao().update(account)
         }
         registerLocalSession(StateID(account.username, account.url).id)
 
         return state.id
+    }
+
+    suspend fun forgetAccount(accountID: String): String? = withContext(Dispatchers.IO) {
+        val stateID = StateID.fromId(accountID)
+        try {
+            val oldAccount = accountDB.accountDao().getAccount(accountID)
+                ?: return@withContext null // nothing to forget
+
+            // Files
+            val fileService = FileService.getInstance()
+            fileService.cleanAllLocalFiles(stateID)
+
+            // Index
+            accountDB.accountIdDao().forgetAccount(accountID)
+            CellsApp.instance.nodeService.clearIndexFor(stateID)
+
+            // Credentials
+            if (oldAccount.isLegacy) {
+                accountDB.legacyCredentialsDao().forgetPassword(accountID)
+            } else {
+                accountDB.tokenDao().forgetToken(accountID)
+            }
+            accountDB.sessionDao().forgetSession(accountID)
+            accountDB.accountDao().forgetAccount(accountID)
+
+
+
+            return@withContext null
+
+        } catch (e: Exception) {
+            val msg = "Could not delete account ${StateID.fromId(accountID)}"
+            logException(tag, msg, e)
+            return@withContext msg
+        }
     }
 
     suspend fun logoutAccount(accountID: String) = withContext(Dispatchers.IO) {
@@ -82,28 +124,6 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
             e.printStackTrace()
         }
     }
-
-    suspend fun forgetAccount(accountID: String): String? = withContext(Dispatchers.IO) {
-        try {
-            // First retrieve the account to forget to know if it is legacy or not
-            accountDB.accountDao().getAccount(accountID)?.let {
-                if (it.isLegacy) {
-                    accountDB.legacyCredentialsDao().forgetPassword(accountID)
-                } else {
-                    accountDB.tokenDao().forgetToken(accountID)
-                }
-                accountDB.sessionDao().forgetSession(accountID)
-                accountDB.accountDao().forgetAccount(accountID)
-            }
-            return@withContext null
-
-        } catch (e: Exception) {
-            val msg = "Could not delete account ${StateID.fromId(accountID)}"
-            logException(tag, msg, e)
-            return@withContext msg
-        }
-    }
-
 
     suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
         var isConnected = hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)
@@ -199,36 +219,5 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
             shareCache = listOf(),
         )
         return newSession
-    }
-
-//    public void createLocalFolders(String accountID) throws SDKException {
-//
-//        String baseFolderPath = baseLocalFolderPath(accountID);
-//        File file = new File(baseFolderPath);
-//        if (!file.exists() && !file.mkdirs()) {
-//            throw new SDKException("could not create session base directory");
-//        }
-//
-//        String cacheFolderPath = cacheLocalFolderPath(accountID);
-//        file = new File(cacheFolderPath);
-//        if (!file.exists() && !file.mkdirs()) {
-//            throw new SDKException("could not create cache directory");
-//        }
-//
-//        String tempFolderPath = tempLocalFolderPath(accountID);
-//        file = new File(tempFolderPath);
-//        if (!file.exists() && !file.mkdirs()) {
-//            throw new SDKException("could not create temp directory");
-//        }
-//    }
-
-    @WorkerThread
-    suspend fun insert(account: RAccount) {
-        accountDB.accountDao().insert(account)
-    }
-
-    @WorkerThread
-    suspend fun update(account: RAccount) {
-        accountDB.accountDao().update(account)
     }
 }

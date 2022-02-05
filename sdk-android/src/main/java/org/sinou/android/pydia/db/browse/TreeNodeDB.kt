@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import java.util.concurrent.ConcurrentHashMap
 
 @Database(entities = arrayOf(RTreeNode::class), version = 1, exportSchema = false)
 abstract class TreeNodeDB : RoomDatabase() {
@@ -12,10 +13,10 @@ abstract class TreeNodeDB : RoomDatabase() {
 
     companion object {
         @Volatile
-        private var INSTANCE: TreeNodeDB? = null
+        private var INSTANCES: ConcurrentHashMap<String, TreeNodeDB> = ConcurrentHashMap()
 
-        fun getDatabase(context: Context): TreeNodeDB {
-            val tempInstance = INSTANCE
+        fun getDatabase(context: Context, accountId: String, dbName: String): TreeNodeDB {
+            val tempInstance = INSTANCES[accountId]
             if (tempInstance != null) {
                 return tempInstance
             }
@@ -23,10 +24,21 @@ abstract class TreeNodeDB : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     TreeNodeDB::class.java,
-                    "tree_nodes"
+                    dbName
                 ).build()
-                INSTANCE = instance
+                INSTANCES.put(accountId, instance)
                 return instance
+            }
+        }
+
+        fun closeDatabase(context: Context, accountId: String, dbName: String) {
+            val tempInstance = INSTANCES[accountId]
+            if (tempInstance != null) {
+                synchronized(this) {
+                    INSTANCES.remove(accountId)
+                }
+                tempInstance.close()
+                context.deleteDatabase(dbName)
             }
         }
     }

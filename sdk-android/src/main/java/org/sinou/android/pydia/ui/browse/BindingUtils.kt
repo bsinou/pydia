@@ -71,7 +71,7 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
         return
     }
 
-    val lf = NodeService.getLocalFile(item, NodeService.TYPE_THUMB)
+    val lf = NodeService.getLocalFile(item, AppNames.LOCAL_FILE_TYPE_THUMB)
     if (lf != null && lf.exists()) {
         Glide.with(context)
             .load(lf)
@@ -102,7 +102,7 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
         return
     }
 
-    val lf = NodeService.getLocalFile(item, NodeService.TYPE_THUMB)
+    val lf = NodeService.getLocalFile(item, AppNames.LOCAL_FILE_TYPE_THUMB)
     if (lf != null && lf.exists()) {
         Glide.with(context)
             .load(lf)

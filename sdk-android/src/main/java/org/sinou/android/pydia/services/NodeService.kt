@@ -17,15 +17,18 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.db.account.RAccountId
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDB
+import org.sinou.android.pydia.services.FileService.Companion.dataDir
+import org.sinou.android.pydia.services.FileService.Companion.getLocalPath
 import org.sinou.android.pydia.transfer.FolderDiff
 import org.sinou.android.pydia.transfer.ThumbDownloader
+import org.sinou.android.pydia.utils.logException
 import java.io.*
 import java.util.*
 
 class NodeService(
-    private val nodeDB: TreeNodeDB,
     private val accountService: AccountService
 ) {
 
@@ -34,28 +37,65 @@ class NodeService(
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
 
+    private var accountIds = mutableMapOf<String, RAccountId>()
+
+    init {
+        refreshAccountIds()
+    }
+
+    fun refreshAccountIds() {
+        val accounts = accountService.accountDB.accountIdDao().getAll()
+        accountIds.clear()
+        for (acc in accounts) {
+            accountIds.put(acc.accountID, acc)
+        }
+    }
+
+    fun clearIndexFor(stateID: StateID) {
+        val accId = accountIds.get(stateID.accountId)
+            ?: throw IllegalStateException("No dir name found for $stateID")
+        TreeNodeDB.closeDatabase(
+            CellsApp.instance.applicationContext,
+            stateID.accountId,
+            accId.dbName,
+        )
+        refreshAccountIds()
+    }
+
+    private fun nodeDB(stateID: StateID): TreeNodeDB {
+        // TODO cache this
+        val accId = accountIds.get(stateID.accountId)
+            ?: throw IllegalStateException("No dir name found for $stateID")
+        return TreeNodeDB.getDatabase(
+            CellsApp.instance.applicationContext,
+            stateID.accountId,
+            accId.dbName,
+        )
+    }
+
     /* Expose DB content as LiveData for the ViewModels */
 
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB.treeNodeDao().ls(stateID.id, stateID.file)
+        return nodeDB(stateID).treeNodeDao().ls(stateID.id, stateID.file)
     }
 
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB.treeNodeDao().lsWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
+        return nodeDB(stateID).treeNodeDao()
+            .lsWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
     }
 
     fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB.treeNodeDao().getBookmarked(accountID.id)
+        return nodeDB(accountID).treeNodeDao().getBookmarked(accountID.id)
         // TODO also watch remote folder to get new bookmarks when online.
     }
 
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> =
-        nodeDB.treeNodeDao().getLiveNode(stateID.id)
+        nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
 
     /* Retrieve Objects directly with suspend functions */
 
     suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
-        nodeDB.treeNodeDao().getNode(stateID.id)
+        nodeDB(stateID).treeNodeDao().getNode(stateID.id)
     }
 
     suspend fun query(query: String?, stateID: StateID): List<RTreeNode> =
@@ -67,17 +107,17 @@ class NodeService(
 //            }
 //            return emptyResult
                 // TODO should rather returns an empty list
-                nodeDB.treeNodeDao().query("")
+                nodeDB(stateID).treeNodeDao().query("")
             } else {
-                nodeDB.treeNodeDao().query(query)
+                nodeDB(stateID).treeNodeDao().query(query)
             }
         }
 
     /* Update nodes in the local store */
     suspend fun abortLocalChanges(stateID: StateID) = withContext(Dispatchers.IO) {
-        val node = nodeDB.treeNodeDao().getNode(stateID.id) ?: return@withContext
+        val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
         node.localModificationTS = node.remoteModificationTS
-        nodeDB.treeNodeDao().update(node)
+        nodeDB(stateID).treeNodeDao().update(node)
     }
 
     /* Calls to query both the cache and the remote server */
@@ -90,7 +130,7 @@ class NodeService(
             client.bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked)
             rTreeNode.isBookmarked = !rTreeNode.isBookmarked
             rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
-            nodeDB.treeNodeDao().update(rTreeNode)
+            nodeDB(stateID).treeNodeDao().update(rTreeNode)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             handleSdkException("could not perform DL for " + stateID.id, se)
             return@withContext null
@@ -166,7 +206,7 @@ class NodeService(
             }
             // Manage results
             Log.w(TAG, "Got a bookmark list of ${nodes.size}, about to process")
-            val dao = nodeDB.treeNodeDao()
+            val dao = nodeDB(stateID).treeNodeDao()
             for (node in nodes) {
                 val currNode = RTreeNode.toRTreeNodeNew(stateID, node)
                 currNode.isBookmarked = true
@@ -189,13 +229,24 @@ class NodeService(
     suspend fun pull(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
             val client = getClient(stateID)
-            val dao = nodeDB.treeNodeDao()
-            val thumbDL = ThumbDownloader(client, nodeDB, dataDir(stateID, TYPE_THUMB))
+            val dao = nodeDB(stateID).treeNodeDao()
+
+            // First handle current (parent) node
+            val node = client.getNodeMeta(stateID.workspace, stateID.file)
+            Log.e(TAG, "Retrieved parent node: ${node.path}")
+
+
+            // Then retrieves and compare children
+            // WARNING: this browse **all** files that are in the folder
+            val thumbDL =
+                ThumbDownloader(
+                    client,
+                    nodeDB(stateID),
+                    dataDir(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
+                )
             val folderDiff = FolderDiff(client, dao, thumbDL, stateID)
             folderDiff.compareWithRemote()
-
-            // TODO Also update parent?
-/*
+            /*
             val childStateID = stateID.child(node.label)
             val rNode = toRTreeNode(childStateID, node)
             val old = dao.getSession(childStateID.id)
@@ -222,6 +273,24 @@ class NodeService(
         return null
     }
 
+
+    suspend fun clearAccountCache(stateID: String): String? = withContext(Dispatchers.IO) {
+        val account = StateID.fromId(StateID.fromId(stateID).accountId)
+        try {
+
+            // TODO Deletes Rows and Tables in the DB
+
+            // Delete  files:
+            FileService.getInstance().cleanFileCacheFor(account)
+            return@withContext null
+        } catch (e: Exception) {
+            val msg = "Could not delete account $account"
+            logException(TAG, msg, e)
+            return@withContext msg
+        }
+    }
+
+
     private suspend fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
 
         if (!accountService.isClientConnected(rTreeNode.encodedState)) {
@@ -236,7 +305,7 @@ class NodeService(
         if (rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
             && rTreeNode.localModificationTS >= remoteStats.getmTime()
         ) {
-            getLocalPath(rTreeNode, TYPE_CACHED_FILE)?.let {
+            getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
                 val file = File(it)
                 // TODO at this point we are not 100% sure the local file
                 //  is in-line with remote, typically if update is in process
@@ -256,14 +325,14 @@ class NodeService(
             val isOK = isCacheVersionUpToDate(rTreeNode)
             when {
                 isOK == null && rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
-                -> getLocalPath(rTreeNode, TYPE_CACHED_FILE)?.let { File(it) }
+                -> getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)?.let { File(it) }
                 isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE -> null
-                isOK ?: false -> File(getLocalPath(rTreeNode, TYPE_CACHED_FILE)!!)
+                isOK ?: false -> File(getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)!!)
             }
             Log.e(TAG, "... launching download for ${rTreeNode.name}")
 
             val stateID = rTreeNode.getStateID()
-            val baseDir = dataDir(stateID, TYPE_OFFLINE_FILE)
+            val baseDir = FileService.dataDir(stateID, AppNames.LOCAL_FILE_TYPE_OFFLINE)
             val targetFile = File(baseDir, stateID.path.substring(1))
             targetFile.parentFile.mkdirs()
             var out: FileOutputStream? = null
@@ -279,7 +348,7 @@ class NodeService(
                 rTreeNode.localFileType = AppNames.LOCAL_FILE_TYPE_CACHE
                 rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
                 // rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
-                nodeDB.treeNodeDao().update(rTreeNode)
+                nodeDB(stateID).treeNodeDao().update(rTreeNode)
                 Log.e(TAG, "... download done for ${rTreeNode.name}")
             } catch (se: SDKException) {
                 // Could not retrieve thumb, failing silently for the end user
@@ -301,7 +370,7 @@ class NodeService(
     private suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
         withContext(Dispatchers.IO) {
 
-            val rTreeNode = nodeDB.treeNodeDao().getNode(stateID.id) ?: return@withContext
+            val rTreeNode = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
             val resolver = CellsApp.instance.contentResolver
             var out: OutputStream? = null
             try {
@@ -309,7 +378,12 @@ class NodeService(
                 if (isCacheVersionUpToDate(rTreeNode) ?: return@withContext) {
                     var input: InputStream? = null
                     try {
-                        input = FileInputStream(getLocalFile(rTreeNode, TYPE_CACHED_FILE)!!)
+                        input = FileInputStream(
+                            getLocalFile(
+                                rTreeNode,
+                                AppNames.LOCAL_FILE_TYPE_CACHE
+                            )!!
+                        )
                         IoHelpers.pipeRead(input, out)
                     } finally {
                         IoHelpers.closeQuietly(input)
@@ -402,7 +476,7 @@ class NodeService(
 
     suspend fun restoreNode(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
-            val node = nodeDB.treeNodeDao().getNode(stateID.id)
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not restore"
             remoteRestore(stateID)
             persistLocallyModified(node, AppNames.LOCAL_MODIF_RESTORE)
@@ -416,7 +490,7 @@ class NodeService(
 
     suspend fun emptyRecycle(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
-            val node = nodeDB.treeNodeDao().getNode(stateID.id)
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not delete"
             remoteEmptyRecycle(stateID)
             persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
@@ -429,7 +503,7 @@ class NodeService(
 
     suspend fun rename(stateID: StateID, newName: String): String? = withContext(Dispatchers.IO) {
         try {
-            val node = nodeDB.treeNodeDao().getNode(stateID.id)
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not rename"
             remoteRename(stateID, newName)
             persistLocallyModified(node, AppNames.LOCAL_MODIF_RENAME)
@@ -442,7 +516,7 @@ class NodeService(
 
     suspend fun delete(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
-            val node = nodeDB.treeNodeDao().getNode(stateID.id)
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not delete"
             remoteDelete(stateID)
             persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
@@ -488,13 +562,13 @@ class NodeService(
 
     private fun persistUpdated(rTreeNode: RTreeNode) {
         rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
-        nodeDB.treeNodeDao().update(rTreeNode)
+        nodeDB(rTreeNode.getStateID()).treeNodeDao().update(rTreeNode)
     }
 
     private fun persistLocallyModified(rTreeNode: RTreeNode, modificationType: String) {
         rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
         rTreeNode.localModificationStatus = modificationType
-        nodeDB.treeNodeDao().update(rTreeNode)
+        nodeDB(rTreeNode.getStateID()).treeNodeDao().update(rTreeNode)
     }
 
 
@@ -508,60 +582,14 @@ class NodeService(
 
     companion object {
         private const val TAG = "NodeService"
-        const val TYPE_THUMB = "thumb"
-        const val TYPE_CACHED_FILE = "cached_file"
-        const val TYPE_OFFLINE_FILE = "offline_file"
-
-        private const val THUMB_PARENT_DIR = "thumbs"
-        private const val CACHED_FILE_PARENT_DIR = "cached"
-        private const val OFFLINE_FILE_PARENT_DIR = "files"
-
-        fun dataDir(stateID: StateID, type: String): File {
-            val ps = File.separator
-
-            return when (type) {
-                TYPE_THUMB -> File(
-                    CellsApp.instance.cacheDir.absolutePath
-                            + ps + stateID.accountId + ps + THUMB_PARENT_DIR
-                )
-                TYPE_CACHED_FILE -> File(
-                    CellsApp.instance.cacheDir.absolutePath
-                            + ps + stateID.accountId + ps + CACHED_FILE_PARENT_DIR
-                )
-                TYPE_OFFLINE_FILE -> File(
-                    CellsApp.instance.filesDir.absolutePath
-                            + ps + stateID.accountId + ps + OFFLINE_FILE_PARENT_DIR
-                )
-                else -> throw IllegalStateException("Unknown file type: $type")
-            }
-        }
-
-        @Throws(java.lang.IllegalStateException::class)
-        fun getLocalPath(item: RTreeNode, type: String): String? {
-            val stat = StateID.fromId(item.encodedState)
-            return when (type) {
-                TYPE_THUMB
-                -> if (Str.empty(item.thumbFilename)) {
-                    null
-                } else {
-                    "${dataDir(stat, type)}${File.separator}${item.thumbFilename}"
-                }
-                TYPE_CACHED_FILE
-                -> "${dataDir(stat, type)}${stat.file}"
-                // So that we do not store offline files also in the cache
-                TYPE_OFFLINE_FILE
-                -> "${dataDir(stat, TYPE_OFFLINE_FILE)}${stat.file}"
-                else -> throw IllegalStateException("Unable to generate local path for $type file: ${item.encodedState} ")
-            }
-        }
 
         fun getLocalFile(item: RTreeNode, type: String): File? {
 
             // Trick so that we do not store offline files also in the cache... double check
-            if (type == TYPE_CACHED_FILE && item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
-                || type == TYPE_OFFLINE_FILE
+            if (type == AppNames.LOCAL_FILE_TYPE_CACHE && item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
+                || type == AppNames.LOCAL_FILE_TYPE_OFFLINE
             ) {
-                val p = getLocalPath(item, TYPE_OFFLINE_FILE)
+                val p = FileService.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE)
                 return if (p != null) {
                     File(p)
                 } else {
@@ -569,7 +597,7 @@ class NodeService(
                 }
             }
 
-            val p = getLocalPath(item, type)
+            val p = FileService.getLocalPath(item, type)
             return if (p != null) {
                 File(p)
             } else {

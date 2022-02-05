@@ -6,9 +6,10 @@ import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDao
-import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.utils.areNodeContentEquals
 import java.io.File
 
@@ -74,7 +75,11 @@ class FolderDiff(
                     // last local is smaller than next remote, no more matches for any next remote
                     local = null
                 } else if (order == 0) {
-                    if (areNodeContentEquals(remote, local!!)) { // Found a match, no change to report.
+                    if (areNodeContentEquals(
+                            remote,
+                            local!!
+                        )
+                    ) { // Found a match, no change to report.
                         alsoCheckThumb(remote, local)
                     } else {
                         putUpdateChange(remote, local)
@@ -165,14 +170,14 @@ class FolderDiff(
 
     private fun deleteLocalFile(local: RTreeNode) {
         // Cache or Offline
-        NodeService.getLocalPath(local, NodeService.TYPE_CACHED_FILE)?.let {
+        FileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
             val file = File(it)
             if (file.exists()) {
                 file.delete()
             }
         }
         // thumbs
-        NodeService.getLocalPath(local, NodeService.TYPE_THUMB)?.let {
+        FileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_THUMB)?.let {
             val tf = File(it)
             if (tf.exists()) {
                 tf.delete()
@@ -183,7 +188,7 @@ class FolderDiff(
 
     private fun deleteLocalFolder(local: RTreeNode) {
         // Cache or Offline
-        NodeService.getLocalPath(local, NodeService.TYPE_CACHED_FILE)?.let {
+        FileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
             val file = File(it)
             if (file.exists()) {
                 file.deleteRecursively()

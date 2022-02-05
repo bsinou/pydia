@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 @Database(
     entities = arrayOf(
         RAccount::class,
+        RAccountId::class,
         RSession::class,
         ROAuthState::class,
         RToken::class,
@@ -20,6 +21,8 @@ import androidx.room.RoomDatabase
 abstract class AccountDB : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
+
+    abstract fun accountIdDao(): AccountIdDao
 
     abstract fun authStateDao(): OAuthStateDao
 

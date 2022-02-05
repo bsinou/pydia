@@ -15,6 +15,7 @@ import java.io.File
 
 class FolderDiff(
     private val client: Client,
+    private val fileService: FileService,
     private val dao: TreeNodeDao,
     private val thumbDL: ThumbDownloader,
     private val parentId: StateID
@@ -170,14 +171,14 @@ class FolderDiff(
 
     private fun deleteLocalFile(local: RTreeNode) {
         // Cache or Offline
-        FileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
+        fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
             val file = File(it)
             if (file.exists()) {
                 file.delete()
             }
         }
         // thumbs
-        FileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_THUMB)?.let {
+        fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_THUMB)?.let {
             val tf = File(it)
             if (tf.exists()) {
                 tf.delete()
@@ -188,7 +189,7 @@ class FolderDiff(
 
     private fun deleteLocalFolder(local: RTreeNode) {
         // Cache or Offline
-        FileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
+        fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
             val file = File(it)
             if (file.exists()) {
                 file.deleteRecursively()

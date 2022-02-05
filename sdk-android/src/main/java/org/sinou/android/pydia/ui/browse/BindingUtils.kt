@@ -19,9 +19,11 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.services.NodeService
+import java.io.File
 
 @BindingAdapter("nodeTitle")
 fun TextView.setNodeTitle(item: RTreeNode?) {
@@ -71,10 +73,10 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
         return
     }
 
-    val lf = NodeService.getLocalFile(item, AppNames.LOCAL_FILE_TYPE_THUMB)
-    if (lf != null && lf.exists()) {
+    val lf = CellsApp.instance.fileService.getThumbPath(item)
+    if (Str.notEmpty(lf) && File(lf).exists()) {
         Glide.with(context)
-            .load(lf)
+            .load(File(lf))
             .transform(
                 MultiTransformation(
                     CenterCrop(),
@@ -102,10 +104,10 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
         return
     }
 
-    val lf = NodeService.getLocalFile(item, AppNames.LOCAL_FILE_TYPE_THUMB)
-    if (lf != null && lf.exists()) {
+    val lf = CellsApp.instance.fileService.getThumbPath(item)
+    if (Str.notEmpty(lf) && File(lf).exists()) {
         Glide.with(context)
-            .load(lf)
+            .load(File(lf))
             .transform(CenterCrop())
             .into(this)
     } else {

@@ -62,11 +62,13 @@ public interface AppNames {
     //         +--- files +--- accountID +--- offline
     String THUMB_PARENT_DIR = "thumbs";
     String CACHED_FILE_PARENT_DIR = "cache";
+    String TRANSFER_PARENT_DIR = "transfers";
     String OFFLINE_FILE_PARENT_DIR = "offline";
 
     // Local file types
     String LOCAL_FILE_TYPE_NONE = "none";
     String LOCAL_FILE_TYPE_THUMB = "thumb";
+    String LOCAL_FILE_TYPE_TRANSFER = "transfer";
     String LOCAL_FILE_TYPE_CACHE = "cache";
     String LOCAL_FILE_TYPE_OFFLINE = "offline";
     // TODO

@@ -17,11 +17,8 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.account.RAccountId
 import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.db.browse.TreeNodeDB
-import org.sinou.android.pydia.services.FileService.Companion.dataDir
-import org.sinou.android.pydia.services.FileService.Companion.getLocalPath
 import org.sinou.android.pydia.transfer.FolderDiff
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.logException
@@ -29,7 +26,8 @@ import java.io.*
 import java.util.*
 
 class NodeService(
-    private val accountService: AccountService
+    private val accountService: AccountService,
+    private val fileService: FileService,
 ) {
 
     private val mimeMap = MimeTypeMap.getSingleton()
@@ -37,34 +35,19 @@ class NodeService(
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
 
-    private var accountIds = mutableMapOf<String, RAccountId>()
-
-    init {
-        refreshAccountIds()
-    }
-
-    fun refreshAccountIds() {
-        val accounts = accountService.accountDB.accountIdDao().getAll()
-        accountIds.clear()
-        for (acc in accounts) {
-            accountIds.put(acc.accountID, acc)
-        }
-    }
-
     fun clearIndexFor(stateID: StateID) {
-        val accId = accountIds.get(stateID.accountId)
+        val accId = accountService.accountIds[stateID.accountId]
             ?: throw IllegalStateException("No dir name found for $stateID")
         TreeNodeDB.closeDatabase(
             CellsApp.instance.applicationContext,
             stateID.accountId,
             accId.dbName,
         )
-        refreshAccountIds()
     }
 
     private fun nodeDB(stateID: StateID): TreeNodeDB {
         // TODO cache this
-        val accId = accountIds.get(stateID.accountId)
+        val accId = accountService.accountIds[stateID.accountId]
             ?: throw IllegalStateException("No dir name found for $stateID")
         return TreeNodeDB.getDatabase(
             CellsApp.instance.applicationContext,
@@ -242,9 +225,9 @@ class NodeService(
                 ThumbDownloader(
                     client,
                     nodeDB(stateID),
-                    dataDir(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
+                    fileService.dataDir(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
                 )
-            val folderDiff = FolderDiff(client, dao, thumbDL, stateID)
+            val folderDiff = FolderDiff(client, fileService, dao, thumbDL, stateID)
             folderDiff.compareWithRemote()
             /*
             val childStateID = stateID.child(node.label)
@@ -273,15 +256,14 @@ class NodeService(
         return null
     }
 
-
     suspend fun clearAccountCache(stateID: String): String? = withContext(Dispatchers.IO) {
         val account = StateID.fromId(StateID.fromId(stateID).accountId)
         try {
-
-            // TODO Deletes Rows and Tables in the DB
+            // TODO also delete corresponding index rows
+            //  Should we use 2 distinct tables for cache and offline ?
 
             // Delete  files:
-            FileService.getInstance().cleanFileCacheFor(account)
+            fileService.cleanFileCacheFor(account)
             return@withContext null
         } catch (e: Exception) {
             val msg = "Could not delete account $account"
@@ -289,7 +271,6 @@ class NodeService(
             return@withContext msg
         }
     }
-
 
     private suspend fun isCacheVersionUpToDate(rTreeNode: RTreeNode): Boolean? {
 
@@ -305,7 +286,7 @@ class NodeService(
         if (rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
             && rTreeNode.localModificationTS >= remoteStats.getmTime()
         ) {
-            getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
+            fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
                 val file = File(it)
                 // TODO at this point we are not 100% sure the local file
                 //  is in-line with remote, typically if update is in process
@@ -320,22 +301,28 @@ class NodeService(
     suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
         withContext(Dispatchers.IO) {
 
-            Log.e(TAG, "in getOrDownloadFileToCache for ${rTreeNode.name}")
+            Log.e(TAG, "In getOrDownloadFileToCache for ${rTreeNode.name}")
 
+            // FIXME this smells
             val isOK = isCacheVersionUpToDate(rTreeNode)
             when {
                 isOK == null && rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
-                -> getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)?.let { File(it) }
-                isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE -> null
-                isOK ?: false -> File(getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)!!)
+                -> fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)
+                    ?.let { return@withContext File(it) }
+                isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE
+                -> {}
+                isOK ?: false
+                -> return@withContext File(fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)!!)
             }
-            Log.e(TAG, "... launching download for ${rTreeNode.name}")
+
+            Log.e(TAG, "... Launching download for ${rTreeNode.name}")
 
             val stateID = rTreeNode.getStateID()
-            val baseDir = FileService.dataDir(stateID, AppNames.LOCAL_FILE_TYPE_OFFLINE)
+            val baseDir = fileService.dataPath(stateID, AppNames.LOCAL_FILE_TYPE_CACHE)
             val targetFile = File(baseDir, stateID.path.substring(1))
-            targetFile.parentFile.mkdirs()
+            targetFile.parentFile!!.mkdirs()
             var out: FileOutputStream? = null
+
             try {
                 val sf = accountService.sessionFactory
                 val client: Client = sf.getUnlockedClient(stateID.accountId)
@@ -363,7 +350,6 @@ class NodeService(
             } finally {
                 IoHelpers.closeQuietly(out)
             }
-
             targetFile
         }
 
@@ -589,7 +575,10 @@ class NodeService(
             if (type == AppNames.LOCAL_FILE_TYPE_CACHE && item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
                 || type == AppNames.LOCAL_FILE_TYPE_OFFLINE
             ) {
-                val p = FileService.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE)
+                val p = CellsApp.instance.fileService.getLocalPath(
+                    item,
+                    AppNames.LOCAL_FILE_TYPE_OFFLINE
+                )
                 return if (p != null) {
                     File(p)
                 } else {
@@ -597,45 +586,13 @@ class NodeService(
                 }
             }
 
-            val p = FileService.getLocalPath(item, type)
+            val p = CellsApp.instance.fileService.getLocalPath(item, type)
             return if (p != null) {
                 File(p)
             } else {
                 null
             }
         }
-
-//        fun toRTreeNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-//            val node = RTreeNode(
-//                encodedState = stateID.id,
-//                workspace = stateID.workspace,
-//                parentPath = stateID.parentFile,
-//                name = stateID.fileName,
-//                UUID = fileNode.id,
-//                etag = fileNode.eTag,
-//                mime = fileNode.mimeType,
-//                size = fileNode.size,
-//                isBookmarked = fileNode.isBookmark,
-//                isShared = fileNode.isShared,
-//                remoteModificationTS = fileNode.getLastModified(),
-//                meta = fileNode.properties,
-//                metaHash = fileNode.metaHashCode
-//            )
-//
-//            // Use Android library to precise MimeType when possible
-//            if (SdkNames.NODE_MIME_DEFAULT.equals(node.mime)) {
-//                node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
-//            }
-//
-//            // Add a technical name to easily have a canonical sorting by default,
-//            // that is: folders, files, recycle bin.
-//            node.sortName = when (node.mime) {
-//                SdkNames.NODE_MIME_FOLDER -> "2_${node.name}"
-//                SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
-//                else -> "5_${node.name}"
-//            }
-//            return node
-//        }
     }
 }
 

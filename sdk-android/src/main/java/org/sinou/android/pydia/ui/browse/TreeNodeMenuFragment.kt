@@ -96,6 +96,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         // Communication with the device to import files / take pictures, video, ...
         fileImporter = FileImporter(
             requireActivity().activityResultRegistry,
+            CellsApp.instance.fileService,
             CellsApp.instance.nodeService,
             treeNodeMenuVM,
             fTag,
@@ -384,7 +385,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     // moreMenu.dismiss()
                 }
                 ACTION_IMPORT_FROM_CAMERA -> {
-                    fileImporter.takePicture()
+                    fileImporter.takePicture(node.getStateID())
                 }
                 ACTION_DOWNLOAD_TO_DEVICE -> {
                     fileExporter.pickTargetLocation(node)

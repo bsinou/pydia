@@ -30,6 +30,24 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         const val LIFECYCLE_STATE_PAUSED = "paused"
     }
 
+    // Holds a map to find DB and files for a given account
+    private val _accountIds = mutableMapOf<String, RAccountId>()
+    val accountIds : Map<String, RAccountId>
+            get() = _accountIds
+
+
+    init {
+        refreshAccountIds()
+    }
+
+    fun refreshAccountIds() {
+        val accounts = accountDB.accountIdDao().getAll()
+        _accountIds.clear()
+        for (acc in accounts) {
+            _accountIds.put(acc.accountID, acc)
+        }
+    }
+
     // Expose the session factory for clients to retrieve clients
     val authService = AuthService.getAuthService(this)
     val sessionFactory: SessionFactory = SessionFactory.getSessionFactory(this, authService)
@@ -63,7 +81,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
                 accountID = RAccountId.newInstance(account, existingAccounts.size)
             }
             accountDB.accountIdDao().insert(accountID)
-            CellsApp.instance.nodeService.refreshAccountIds()
+            refreshAccountIds()
 
         } else { // update
             accountDB.accountDao().update(account)
@@ -79,27 +97,26 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
             val oldAccount = accountDB.accountDao().getAccount(accountID)
                 ?: return@withContext null // nothing to forget
 
-            // Files
-            val fileService = FileService.getInstance()
-            fileService.cleanAllLocalFiles(stateID)
-
-            // Index
-            accountDB.accountIdDao().forgetAccount(accountID)
-            CellsApp.instance.nodeService.clearIndexFor(stateID)
-
             // Credentials
             if (oldAccount.isLegacy) {
                 accountDB.legacyCredentialsDao().forgetPassword(accountID)
             } else {
                 accountDB.tokenDao().forgetToken(accountID)
             }
+
+            // Files
+            CellsApp.instance.fileService.cleanAllLocalFiles(stateID)
+            // The account TreeNode DB
+            CellsApp.instance.nodeService.clearIndexFor(stateID)
+            // Remove rows in the account tables
             accountDB.sessionDao().forgetSession(accountID)
             accountDB.accountDao().forgetAccount(accountID)
+            accountDB.accountIdDao().forgetAccount(accountID)
 
-
+            // Update local caches
+            refreshAccountIds()
 
             return@withContext null
-
         } catch (e: Exception) {
             val msg = "Could not delete account ${StateID.fromId(accountID)}"
             logException(tag, msg, e)

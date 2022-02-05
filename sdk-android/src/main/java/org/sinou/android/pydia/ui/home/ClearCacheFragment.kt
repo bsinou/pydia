@@ -17,7 +17,7 @@ import org.sinou.android.pydia.utils.showLongMessage
 
 fun clearCache(
     context: Context,
-    node: RTreeNode
+    encodedState: String
 ): Boolean {
 
     MaterialAlertDialogBuilder(context)
@@ -25,17 +25,17 @@ fun clearCache(
         .setIcon(R.drawable.ic_baseline_delete_24)
         .setMessage(context.resources.getString(R.string.confirm_cache_deletion_message))
         .setPositiveButton(R.string.button_confirm) { _, _ ->
-            doClearCache(context, node)
+            doClearCache(context, encodedState)
         }
         .setNegativeButton(R.string.button_cancel, null)
         .show()
     return true
 }
 
-private fun doClearCache(context: Context, node: RTreeNode) {
+private fun doClearCache(context: Context, encodedState: String) {
     CellsApp.instance.appScope.launch {
         withContext(Dispatchers.IO) {
-            CellsApp.instance.nodeService.clearAccountCache(node.encodedState)
+            CellsApp.instance.nodeService.clearAccountCache(encodedState)
                 ?.let {
                     withContext(Dispatchers.Main) {
                         showLongMessage(context, it)

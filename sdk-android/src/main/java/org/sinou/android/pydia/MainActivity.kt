@@ -22,6 +22,7 @@ import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.databinding.ActivityMainBinding
 import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.browse.getIconForWorkspace
+import org.sinou.android.pydia.ui.home.clearCache
 import org.sinou.android.pydia.ui.search.SearchFragment
 import org.sinou.android.pydia.utils.dumpBackStack
 import org.sinou.android.pydia.utils.showMessage
@@ -93,6 +94,12 @@ class MainActivity : AppCompatActivity() {
                         .child(AppNames.CUSTOM_PATH_BOOKMARKS)
                     CellsApp.instance.setCurrentState(target)
                     navController.navigate(MainNavDirections.openBookmarks())
+                    done = true
+                }
+            }
+            R.id.clear_cache -> {
+                activeSessionVM.activeSession.value?.let { session ->
+                    clearCache(binding.root.context, session.accountID)
                     done = true
                 }
             }
@@ -195,7 +202,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun configureLayoutSwitcher(menu: Menu) {
         val layoutSwitcher = menu.findItem(R.id.switch_recycler_layout)
-
 
         val showSwitch = navController.currentDestination?.let {
             when (it.id) {

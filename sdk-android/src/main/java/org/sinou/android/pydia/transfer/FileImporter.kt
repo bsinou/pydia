@@ -3,7 +3,6 @@ package org.sinou.android.pydia.transfer
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
@@ -12,20 +11,20 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.ui.browse.TreeNodeMenuViewModel
 import org.sinou.android.pydia.utils.DEFAULT_FILE_PROVIDER_ID
-import org.sinou.android.pydia.utils.asFormattedString
-import org.sinou.android.pydia.utils.getCurrentDateTime
 import java.io.File
 import java.io.IOException
 
 class FileImporter(
     private val registry: ActivityResultRegistry,
+    private val fileService: FileService,
     private val nodeService: NodeService,
     private val nodeMenuVM: TreeNodeMenuViewModel,
     private val caller: String,
@@ -72,13 +71,13 @@ class FileImporter(
         getMultipleContents.launch("*/*")
     }
 
-    suspend fun takePicture() = withContext(Dispatchers.IO) {
-        doTakePicture()
+    suspend fun takePicture(stateID: StateID) = withContext(Dispatchers.IO) {
+        doTakePicture(stateID)
     }
 
-    private fun doTakePicture() {
+    private fun doTakePicture(stateID: StateID) {
         val photoFile: File? = try {
-            createImageFile()
+            fileService.createImageFile(stateID)
         } catch (ex: IOException) {
             Log.e(tag, "Cannot create photo file")
             ex.printStackTrace()
@@ -95,27 +94,6 @@ class FileImporter(
             nodeMenuVM.prepareImport(uri)
             takePicture.launch(uri)
         }
-    }
-
-    private val sep = File.separator
-
-    @Throws(IOException::class)
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")
-
-        val parDir = CellsApp.instance.filesDir.absolutePath
-        val picsDir = Environment.DIRECTORY_PICTURES ?: "Pictures"
-        val storageDir = File("$parDir$sep$picsDir")
-        storageDir.mkdirs()
-        return File("${storageDir.absolutePath}${sep}IMG_${timestamp}.jpg")
-
-        // Would be safer but with an ugly name :(
-        //        return File.createTempFile(
-//            "IMG_${timestamp}_", /* prefix */
-//            ".jpg", /* suffix */
-//            storageDir /* directory */
-//        )
     }
 }
 

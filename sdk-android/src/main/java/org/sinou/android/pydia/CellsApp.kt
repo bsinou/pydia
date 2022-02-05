@@ -15,9 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.db.account.AccountDB
-import org.sinou.android.pydia.db.browse.TreeNodeDB
 import org.sinou.android.pydia.db.runtime.RuntimeDB
 import org.sinou.android.pydia.services.AccountService
+import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.services.TransferService
 
@@ -42,6 +42,7 @@ class CellsApp : Application() {
     lateinit var sharedPreferences: SharedPreferences
     lateinit var accountService: AccountService
     lateinit var nodeService: NodeService
+    lateinit var fileService: FileService
     lateinit var transferService: TransferService
 
     companion object {
@@ -84,8 +85,15 @@ class CellsApp : Application() {
 
         Log.i(tag, "... Account service ready")
 
+        fileService = FileService(
+            accountService,
+        )
+
+        Log.i(tag, "... File service ready")
+
         nodeService = NodeService(
             accountService,
+            fileService,
         )
 
         Log.i(tag, "... Node service ready")

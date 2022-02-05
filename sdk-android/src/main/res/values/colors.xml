@@ -8,17 +8,19 @@
     <color name="colorMainLight">#598398</color>
     <color name="colorSurfaceLight">#CFDBE1</color>
     <color name="colorSurfaceXLight">#EDF0F2</color>
+    <color name="colorAccent">#FFFF9800</color>
 
-    <!-- Icons -->
-    <color name="iconTint">@color/colorMain</color>
-    <color name="iconBackground">@color/colorSurfaceXLight</color>
-    <color name="decoratorBackground">#33EDF0F2</color>
+    <color name="ok">#219600</color>
+    <color name="warning">#FFFF9800</color>
+    <color name="danger">@color/selected_red_color</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- Define Main Material Palette -->
 
     <color name="colorPrimary">@color/colorMain</color>
     <color name="colorPrimaryLight">@color/colorMainLight</color>
     <color name="colorPrimaryDark">@color/colorMainAccent</color>
     <color name="colorOnPrimary">@android:color/white</color>
-    <color name="colorAccent">#FFFF9800</color>
 
     <color name="colorSecondary">#FB725C</color>
     <color name="colorSecondaryLight">#FDB8AD</color>
@@ -29,16 +31,25 @@
     <color name="colorTextAccent">@color/colorMainAccent</color>
     <color name="colorAvatarDefault">@color/colorMain</color>
 
-    <color name="ok">#219600</color>
-    <color name="warning">#FFFF9800</color>
-    <color name="danger">@color/selected_red_color</color>
-
-
     <color name="colorScreenBackground">#fff3e0</color>
     <color name="colorTextHint">#E0E0E0</color>
 
-    <color name="transparent">#00000000</color>
+    <!-- Icons -->
+    <color name="iconTint">@color/colorMain</color>
+    <color name="iconBackground">@color/colorSurfaceXLight</color>
+
+    <!-- Various -->
+    <!-- TODO this is not a standard color -->
     <color name="background">@android:color/white</color>
+    <!-- TODO Rather handle this with a style...-->
+    <color name="selected_background">@color/colorSurfaceLight</color>
+
+    <color name="decoratorBackground">#33EDF0F2</color>
+
+    <!-- Custom circular spinner -->
+    <color name="spinner_center_color">@color/colorPrimary</color>
+    <color name="spinner_start_color">@color/colorPrimaryDark</color>
+    <color name="spinner_end_color">@color/colorPrimaryLight</color>
 
     <color name="skip_red_color">#f44336</color>
     <color name="selected_red_color">#ba000d</color>
@@ -52,13 +63,5 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-    <!-- TODO Rather handle this with a style...-->
-    <color name="selected_background">@color/colorSurfaceLight</color>
-
-    <!-- Custom circular spinner -->
-    <color name="spinner_center_color">@color/colorPrimary</color>
-    <color name="spinner_start_color">@color/colorPrimaryDark</color>
-    <color name="spinner_end_color">@color/colorPrimaryLight</color>
 
 </resources>

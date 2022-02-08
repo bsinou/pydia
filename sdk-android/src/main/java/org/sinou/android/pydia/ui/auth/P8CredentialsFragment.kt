@@ -52,7 +52,7 @@ class P8CredentialsFragment : Fragment() {
 
         binding.actionButton.setOnClickListener { launchAuth() }
 
-        viewModel.accountID.observe(requireActivity(), { accountId ->
+        viewModel.accountID.observe(requireActivity()) { accountId ->
             accountId?.let {
                 var nextState = CellsApp.instance.getCurrentState()
                 if (AppNames.CUSTOM_PATH_ACCOUNTS != nextState?.path) {
@@ -63,7 +63,7 @@ class P8CredentialsFragment : Fragment() {
                 startActivity(Intent(requireActivity(), MainActivity::class.java))
                 requireActivity().finish()
             }
-        })
+        }
 
         // TODO handle captcha
         return binding.root

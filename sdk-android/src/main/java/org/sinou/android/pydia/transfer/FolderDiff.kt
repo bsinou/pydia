@@ -2,6 +2,7 @@ package org.sinou.android.pydia.transfer
 
 import android.util.Log
 import com.pydio.cells.api.Client
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
@@ -43,17 +44,13 @@ class FolderDiff(
     private var changeNumber = 0
 
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
-    suspend fun compareWithRemote(): String? = withContext(Dispatchers.IO) {
-        try {
+    @Throws(SDKException::class)
+    suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
             val remotes = RemoteNodeIterator(parentId)
             val locals = dao.getNodesForDiff(parentId.id, parentId.file).iterator()
             // val locals = LocalNodeIterator(dao.getNodesForDiff(parentId.id, parentId.file).iterator())
             processChanges(remotes, locals)
             Log.d(TAG, "Done with $changeNumber changes")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return@withContext null
     }
 
     private fun processChanges(rit: Iterator<FileNode>, lit: Iterator<RTreeNode>) {
@@ -116,7 +113,7 @@ class FolderDiff(
         Log.d(TAG, "add for ${remote.label}")
         changeNumber++
         val childStateID = parentId.child(remote.label)
-        val rNode = RTreeNode.toRTreeNodeNew(childStateID, remote)
+        val rNode = RTreeNode.fromFileNode(childStateID, remote)
         dao.insert(rNode)
         if (remote.isImage) {
             diffScope.launch {
@@ -132,7 +129,7 @@ class FolderDiff(
 
         // TODO: Insure corner cases are correctly handled, typically on type switch
         val childStateID = parentId.child(remote.label)
-        val rNode = RTreeNode.toRTreeNodeNew(childStateID, remote)
+        val rNode = RTreeNode.fromFileNode(childStateID, remote)
 
         if (local.isFolder() && remote.isFile) {
             dao.delete(local.encodedState)

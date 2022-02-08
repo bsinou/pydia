@@ -36,7 +36,7 @@ class NodeService(
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
 
     fun clearIndexFor(stateID: StateID) {
-        val accId = accountService.accountIds[stateID.accountId]
+        val accId = accountService.sessions[stateID.accountId]
             ?: throw IllegalStateException("No dir name found for $stateID")
         TreeNodeDB.closeDatabase(
             CellsApp.instance.applicationContext,
@@ -45,9 +45,9 @@ class NodeService(
         )
     }
 
-    private fun nodeDB(stateID: StateID): TreeNodeDB {
+    fun nodeDB(stateID: StateID): TreeNodeDB {
         // TODO cache this
-        val accId = accountService.accountIds[stateID.accountId]
+        val accId = accountService.sessions[stateID.accountId]
             ?: throw IllegalStateException("No dir name found for $stateID")
         return TreeNodeDB.getDatabase(
             CellsApp.instance.applicationContext,
@@ -72,8 +72,13 @@ class NodeService(
         // TODO also watch remote folder to get new bookmarks when online.
     }
 
-    fun getLiveNode(stateID: StateID): LiveData<RTreeNode> =
-        nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
+    fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
+        val liveData = nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
+        if (liveData.value == null){
+            Log.e(TAG, "no node found for ${stateID.id}")
+        }
+        return liveData
+    }
 
     /* Retrieve Objects directly with suspend functions */
 
@@ -191,7 +196,7 @@ class NodeService(
             Log.w(TAG, "Got a bookmark list of ${nodes.size}, about to process")
             val dao = nodeDB(stateID).treeNodeDao()
             for (node in nodes) {
-                val currNode = RTreeNode.toRTreeNodeNew(stateID, node)
+                val currNode = RTreeNode.fromFileNode(stateID, node)
                 currNode.isBookmarked = true
                 val oldNode = dao.getNode(currNode.encodedState)
                 if (oldNode == null) {
@@ -215,8 +220,10 @@ class NodeService(
             val dao = nodeDB(stateID).treeNodeDao()
 
             // First handle current (parent) node
-            val node = client.getNodeMeta(stateID.workspace, stateID.file)
-            Log.e(TAG, "Retrieved parent node: ${node.path}")
+            // Still TODO. Rather make this in the folder diff.
+            // beware of the WS root corner case
+//            val node = client.getNodeMeta(stateID.workspace, stateID.file)
+//            Log.e(TAG, "Retrieved parent node: ${node.path}")
 
 
             // Then retrieves and compare children
@@ -240,8 +247,9 @@ class NodeService(
             }
 */
         } catch (e: SDKException) {
-            handleSdkException("could not perform ls for " + stateID.id, e)
-            return@withContext "Cannot connect to distant server"
+            val msg = "could not perform ls for ${stateID.id}, cause: ${e.message}"
+            handleSdkException(msg, e)
+            return@withContext msg
         }
         return@withContext null
     }
@@ -560,6 +568,8 @@ class NodeService(
 
     //    private fun handleSdkException(msg: String, se: SDKException): SDKException {
     private fun handleSdkException(msg: String, se: SDKException) {
+
+
         Log.e(TAG, msg)
         Log.e(TAG, "Error code: ${se.code}")
         se.printStackTrace()

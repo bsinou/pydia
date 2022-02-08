@@ -6,6 +6,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.AppNames.*
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.account.RLiveSession
@@ -82,7 +83,7 @@ fun View.setStateColor(item: RLiveSession?) {
         return
     }
     item?.let {
-        if (it.lifecycleState == AccountService.LIFECYCLE_STATE_FOREGROUND) {
+        if (it.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND) {
             setBackgroundColor(resources.getColor(R.color.selected_background, context.theme))
 
         }

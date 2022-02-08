@@ -75,7 +75,7 @@ class BookmarksFragment : Fragment() {
 //        }
 
 
-        val activeSession = activeSessionViewModel.activeSession.value
+        val activeSession = activeSessionViewModel.liveSession.value
         Log.i(fTag, "onResume: ${activeSession?.accountID}")
         activeSession?.let { session ->
             val accountID = StateID.fromId(session.accountID)

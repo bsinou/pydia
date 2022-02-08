@@ -34,15 +34,30 @@ class OAuthViewModel(private val accountService: AccountService) : ViewModel() {
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
+    private val _message = MutableLiveData<String?>()
+    val message: LiveData<String?>
+        get() = _message
+
     private fun switchLoading(newState: Boolean) {
         _isProcessing.value = newState
     }
 
     fun handleResponse(state: String, code: String) {
         vmScope.launch {
-            _accountID.value = withContext(Dispatchers.IO) {
+            _message.value = "Retrieving authentication token..."
+            val newAccount =  withContext(Dispatchers.IO) {
                 accountService.authService.handleOAuthResponse(state, code)
+            } ?: run {
+                _message.value = "could not retrieve token from code"
+                return@launch
             }
+
+            _message.value = "Configuring account..."
+            withContext(Dispatchers.IO) {
+                accountService.refreshWorkspaceList(newAccount.first)
+            }
+
+            _accountID.value = newAccount
             switchLoading(false)
         }
     }

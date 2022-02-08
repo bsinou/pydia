@@ -4,8 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.pydio.cells.api.ui.WorkspaceNode
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.Converters
+import java.net.URL
 
 @Entity(tableName = "session_table")
 @TypeConverters(Converters::class)
@@ -14,16 +15,32 @@ data class RSession(
     @PrimaryKey
     @ColumnInfo(name = "account_id") val accountID: String,
 
-    @ColumnInfo(name = "base_dir") val baseDir: String,
+    // foreground, background, paused, new
+    @ColumnInfo(name = "lifecycle_state") var lifecycleState: String,
 
-    @ColumnInfo(name = "lifecycle_state") var lifecycleState: String, // foreground, background or paused
+    @ColumnInfo(name = "dir_name") val dirName: String,
 
-    @ColumnInfo(name = "workspaces") var workspaces: List<WorkspaceNode>?,
+    @ColumnInfo(name = "db_name") val dbName: String,
+) {
 
-    @ColumnInfo(name = "offline_roots") var offlineRoots: List<String>?,
 
-    @ColumnInfo(name = "bookmark_cache") var bookmarkCache: List<String>?,
+    companion object {
 
-    @ColumnInfo(name = "share_cache") var shareCache: List<String>?,
+        fun newInstance(account: RAccount, index: Int): RSession {
+            var cleanUrl = URL(account.url).host
+            var cleanDbName = "nodes.$cleanUrl"
 
-    )
+            if (index > 0) {
+                cleanUrl += "-$index"
+                cleanDbName += "-$index"
+            }
+
+            return RSession(
+                accountID = account.accountID,
+                lifecycleState = AppNames.SESSION_STATE_NEW,
+                dirName = cleanUrl,
+                dbName = cleanDbName,
+            )
+        }
+    }
+}

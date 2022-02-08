@@ -3,16 +3,13 @@ package org.sinou.android.pydia.db.account
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import androidx.room.TypeConverters
-import com.pydio.cells.api.ui.WorkspaceNode
 import org.sinou.android.pydia.db.Converters
 
 @DatabaseView(
     "SELECT session_table.account_id, " +
-            "session_table.workspaces, " +
             "session_table.lifecycle_state, " +
-            "session_table.offline_roots, " +
-            "session_table.bookmark_cache, " +
-            "session_table.share_cache, " +
+            "session_table.dir_name, " +
+            "session_table.db_name, " +
             "account_table.url, " +
             "account_table.username, " +
             "account_table.auth_status, " +
@@ -27,10 +24,8 @@ import org.sinou.android.pydia.db.Converters
 data class RLiveSession(
     @ColumnInfo(name = "account_id") val accountID: String,
     @ColumnInfo(name = "lifecycle_state") val lifecycleState: String,
-    @ColumnInfo(name = "workspaces") var workspaces: List<WorkspaceNode>?,
-    @ColumnInfo(name = "offline_roots") var offlineRoots: List<String>?,
-    @ColumnInfo(name = "bookmark_cache") var bookmarkCache: List<String>?,
-    @ColumnInfo(name = "share_cache") var shareCache: List<String>?,
+    @ColumnInfo(name = "dir_name") var dirName: String,
+    @ColumnInfo(name = "db_name") var dbName: String,
 
     @ColumnInfo(name = "url") val url: String,
     @ColumnInfo(name = "username") val username: String,

@@ -8,8 +8,8 @@ import androidx.room.RoomDatabase
 @Database(
     entities = arrayOf(
         RAccount::class,
-        RAccountId::class,
         RSession::class,
+        RWorkspace::class,
         ROAuthState::class,
         RToken::class,
         RLegacyCredentials::class
@@ -22,17 +22,17 @@ abstract class AccountDB : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
 
-    abstract fun accountIdDao(): AccountIdDao
-
     abstract fun authStateDao(): OAuthStateDao
-
-    abstract fun tokenDao(): TokenDao
 
     abstract fun legacyCredentialsDao(): LegacyCredentialsDao
 
+    abstract fun liveSessionDao(): LiveSessionDao
+
     abstract fun sessionDao(): SessionDao
 
-    abstract fun liveSessionDao(): LiveSessionDao
+    abstract fun tokenDao(): TokenDao
+
+    abstract fun workspaceDao(): WorkspaceDao
 
     companion object {
         @Volatile

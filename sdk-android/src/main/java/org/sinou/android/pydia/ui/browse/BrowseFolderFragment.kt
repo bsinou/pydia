@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Str
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
@@ -29,9 +28,11 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.browse.RTreeNode
-import org.sinou.android.pydia.services.SessionFactory
 import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
-import org.sinou.android.pydia.utils.*
+import org.sinou.android.pydia.utils.BackStackAdapter
+import org.sinou.android.pydia.utils.dumpBackStack
+import org.sinou.android.pydia.utils.externallyView
+import org.sinou.android.pydia.utils.resetToHomeStateIfNecessary
 
 class BrowseFolderFragment : Fragment() {
 
@@ -44,6 +45,10 @@ class BrowseFolderFragment : Fragment() {
 
     // Temp solution to provide a scrim during long running operations
     private var loadingDialog: LoadingDialogFragment? = null
+
+
+    // FIXME
+    private var isCreated = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,6 +97,7 @@ class BrowseFolderFragment : Fragment() {
         // Put this also in observer when the above has been fixed
         binding.addNodeFab.setOnClickListener { onFabClicked() }
 
+        isCreated = true
         return binding.root
     }
 
@@ -119,6 +125,15 @@ class BrowseFolderFragment : Fragment() {
             }
         }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (isCreated) {
+            Log.e(fTag, "onSaveInstanceState for: ${browseFolderVM.stateID}")
+            outState.putString(AppNames.KEY_STATE, browseFolderVM.stateID.id)
+        }
+    }
+
 
     private fun onClicked(node: RTreeNode, command: String) {
         Log.i(fTag, "Clicked on ${browseFolderVM.stateID} -> $command")
@@ -155,19 +170,34 @@ class BrowseFolderFragment : Fragment() {
 
         browseFolderVM.resume()
 
-        (requireActivity() as AppCompatActivity).supportActionBar?.let {
-            it.title = when {
-                Str.empty(browseFolderVM.stateID.fileName) -> {
-                    browseFolderVM.stateID.workspace
+        (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
+            bar.setDisplayHomeAsUpEnabled(true)
+//            bar.title = when {
+//                "/recycle_bin" == browseFolderVM.stateID.file
+//                -> resources.getString(R.string.recycle_bin_label)
+//
+//                browseFolderVM.currentFolder.value != null
+//                -> browseFolderVM.currentFolder.value!!.name
+//
+//                else
+//                -> browseFolderVM.stateID.fileName
+//            }
+            browseFolderVM.currentFolder.observe(viewLifecycleOwner) {
+//                Log.w(fTag, "Got an event on current folder: ${it?.getStateID()}")
+//                Log.w(fTag, "Yet: ${browseFolderVM.stateID}")
+
+                lifecycleScope.launch {
+                    val tmp = CellsApp.instance.nodeService.getNode(browseFolderVM.stateID)
+//                    Log.w(fTag, "And: ${tmp?.getStateID()}")
                 }
-                "/recycle_bin" == browseFolderVM.stateID.file -> {
-                    resources.getString(R.string.recycle_bin_label)
-                }
-                else -> {
-                    browseFolderVM.stateID.fileName
+
+                it?.let {
+                    bar.title = when {
+                        it.isRecycle() -> resources.getString(R.string.recycle_bin_label)
+                        else -> it.name
+                    }
                 }
             }
-            it.setDisplayHomeAsUpEnabled(true)
         }
     }
 
@@ -185,7 +215,9 @@ class BrowseFolderFragment : Fragment() {
     override fun onDetach() {
         Log.i(fTag, "onDetach")
         super.onDetach()
-        resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateID)
+        if (isCreated) {
+            resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateID)
+        }
     }
 
     override fun onAttach(context: Context) {

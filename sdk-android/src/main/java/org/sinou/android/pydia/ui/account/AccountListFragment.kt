@@ -28,6 +28,7 @@ class AccountListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.e(fTag, "onCreateView ${savedInstanceState?.getString(AppNames.KEY_STATE)}")
         // Get a reference to the binding object and inflate the fragment views.
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_list, container, false
@@ -69,9 +70,9 @@ class AccountListFragment : Fragment() {
         Log.i(fTag, "ID: $accountID, do $action")
         when (action) {
             AppNames.ACTION_LOGIN -> {
-                CellsApp.instance.setCurrentState(
-                    StateID.fromId(accountID).withPath(AppNames.CUSTOM_PATH_ACCOUNTS)
-                )
+//                CellsApp.instance.setCurrentState(
+//                    StateID.fromId(accountID).withPath(AppNames.CUSTOM_PATH_ACCOUNTS)
+//                )
                 val server = CellsApp.instance.accountService.sessionFactory.getServer(accountID)
                 if (server.isLegacy) {
                     val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
@@ -102,7 +103,11 @@ class AccountListFragment : Fragment() {
             AppNames.ACTION_OPEN -> lifecycleScope.launch {
                 CellsApp.instance.accountService.openSession(accountID)
                 CellsApp.instance.setCurrentState(StateID.fromId(accountID))
-                findNavController().navigate(MainNavDirections.openWorkspaces())
+
+                // findNavController().navigate(MainNavDirections.openWorkspaces())
+                val intent = Intent(requireActivity(), MainActivity::class.java)
+                intent.putExtra(AppNames.EXTRA_STATE, accountID)
+                startActivity(intent)
             }
             else -> return // do nothing
         }

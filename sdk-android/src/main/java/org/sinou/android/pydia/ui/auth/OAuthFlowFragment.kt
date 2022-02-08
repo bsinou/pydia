@@ -50,7 +50,7 @@ class OAuthFlowFragment : Fragment() {
         // binding.lifecycleOwner = this
         navController = findNavController()
 
-        viewModel.accountID.observe(requireActivity(), { pair ->
+        viewModel.accountID.observe(requireActivity()) { pair ->
             pair?.let {
                 val (accountID, next) = pair
                 var nextState = CellsApp.instance.getCurrentState()
@@ -66,13 +66,15 @@ class OAuthFlowFragment : Fragment() {
                         // We have registered a new account and want to browse to it
                         nextState = StateID.fromId(accountID)
                         CellsApp.instance.setCurrentState(nextState)
+                        val intent = Intent(requireActivity(), MainActivity::class.java)
+                        intent.putExtra(AppNames.EXTRA_STATE, accountID)
                         Log.i(fTag, "Auth Successful, navigating to $nextState")
-                        startActivity(Intent(requireActivity(), MainActivity::class.java))
+                        startActivity(intent)
                     }
                 }
                 requireActivity().finish()
             }
-        })
+        }
 
         binding.actionButton.setOnClickListener { navController.navigateUp() }
 

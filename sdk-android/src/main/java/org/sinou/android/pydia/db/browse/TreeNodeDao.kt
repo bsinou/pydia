@@ -8,7 +8,7 @@ import org.sinou.android.pydia.db.Converters
 @TypeConverters(Converters::class)
 interface TreeNodeDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(treeNode: RTreeNode)
 
     @Update
@@ -19,6 +19,9 @@ interface TreeNodeDao {
 
     @Query("DELETE FROM tree_node_table WHERE encoded_state like :stateId || '%'")
     fun deleteUnder(stateId: String)
+
+    @Query("SELECT * FROM tree_node_table WHERE encoded_state like :stateId || '%'")
+    fun getUnder(stateId: String): List<RTreeNode>
 
     @Query("SELECT * FROM tree_node_table WHERE encoded_state = :encodedState LIMIT 1")
     fun getLiveNode(encodedState: String): LiveData<RTreeNode>

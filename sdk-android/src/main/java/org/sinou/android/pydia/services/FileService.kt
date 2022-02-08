@@ -22,19 +22,22 @@ class FileService(private val accountService: AccountService) {
     private val appFileDir = CellsApp.instance.filesDir.absolutePath
 
     fun prepareTree(stateID: StateID) = serviceScope.launch {
-        val dirName = accountService.accountIds[stateID.accountId]?.dirName
+        val dirName = accountService.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
 
         val cacheDir = CellsApp.instance.cacheDir.absolutePath + SEP + dirName
         File(cacheDir).mkdirs()
         File(cacheDir + SEP + AppNames.THUMB_PARENT_DIR).mkdir()
-        File(cacheDir + SEP + AppNames.CACHED_FILE_PARENT_DIR).mkdir()
+        // File(cacheDir + SEP + AppNames.CACHED_FILE_PARENT_DIR).mkdir()
         val filesDir = CellsApp.instance.filesDir.absolutePath + SEP + dirName
+        File(filesDir).mkdirs()
         File(filesDir + SEP + AppNames.OFFLINE_FILE_PARENT_DIR).mkdirs()
+        File(filesDir + SEP + AppNames.CACHED_FILE_PARENT_DIR).mkdir()
+        File(filesDir + SEP + AppNames.TRANSFER_PARENT_DIR).mkdir()
     }
 
     fun cleanFileCacheFor(stateID: StateID) = serviceScope.launch {
-        val dirName = accountService.accountIds[stateID.accountId]?.dirName
+        val dirName = accountService.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
 
         val cache = File(CellsApp.instance.cacheDir.absolutePath + SEP + dirName)
@@ -52,7 +55,7 @@ class FileService(private val accountService: AccountService) {
     fun cleanAllLocalFiles(stateID: StateID) = serviceScope.launch {
         cleanFileCacheFor(stateID)
 
-        val dirName = accountService.accountIds[stateID.accountId]?.dirName
+        val dirName = accountService.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
 
         val files = File(CellsApp.instance.filesDir.absolutePath + SEP + dirName)
@@ -66,7 +69,7 @@ class FileService(private val accountService: AccountService) {
     }
 
     fun dataPath(stateID: StateID, type: String): String {
-        val dirName = accountService.accountIds[stateID.accountId]?.dirName
+        val dirName = accountService.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
         val middle = SEP + dirName + SEP
         return when (type) {
@@ -77,11 +80,26 @@ class FileService(private val accountService: AccountService) {
             //   for external viewing
             AppNames.LOCAL_FILE_TYPE_CACHE ->
                 appFileDir + middle + AppNames.CACHED_FILE_PARENT_DIR
+            // Same with the transfer folder, see:
+            // https://developer.android.com/training/data-storage/shared/media#open-file-descriptor
             AppNames.LOCAL_FILE_TYPE_TRANSFER ->
-                appCacheDir + middle + AppNames.TRANSFER_PARENT_DIR
+                appFileDir + middle + AppNames.TRANSFER_PARENT_DIR
             AppNames.LOCAL_FILE_TYPE_OFFLINE ->
                 appFileDir + middle + AppNames.OFFLINE_FILE_PARENT_DIR
             else -> throw IllegalStateException("Unknown file type: $type")
+        }
+    }
+
+    fun getAccountBasePath(stateID: StateID, type: String): String {
+        val dirName = accountService.sessions[stateID.accountId]?.dirName
+            ?: throw IllegalStateException("No record found for $stateID")
+        val middle = SEP + dirName
+        return when (type) {
+            AppNames.LOCAL_DIR_TYPE_CACHE ->
+                appCacheDir + middle
+            AppNames.LOCAL_DIR_TYPE_FILE ->
+                appFileDir + middle
+            else -> throw IllegalStateException("Unknown base folder type: $type")
         }
     }
 
@@ -108,6 +126,8 @@ class FileService(private val accountService: AccountService) {
             AppNames.LOCAL_FILE_TYPE_TRANSFER
             -> "${dataPath(stat, type)}${stat.file}"
             AppNames.LOCAL_FILE_TYPE_OFFLINE
+            -> "${dataPath(stat, type)}${stat.file}"
+            AppNames.LOCAL_FILE_TYPE_THUMB
             -> "${dataPath(stat, type)}${stat.file}"
             else -> throw IllegalStateException("Unable to generate local path for $type file: ${item.encodedState} ")
         }

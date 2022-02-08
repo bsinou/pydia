@@ -49,12 +49,17 @@ public interface AppNames {
     String CUSTOM_PATH_SHARES = "/__shares__";
 
     // TODO finalize auth state management
+    // Account Authentication States
     String AUTH_STATUS_NEW = "new";
     String AUTH_STATUS_NO_CREDS = "no-credentials";
     String AUTH_STATUS_EXPIRED = "expired";
     String AUTH_STATUS_REFRESHING = "refreshing";
     String AUTH_STATUS_CONNECTED = "connected";
-
+    // Session  Lifecycle States
+    String SESSION_STATE_NEW = "new";
+    String LIFECYCLE_STATE_FOREGROUND = "foreground";
+    String LIFECYCLE_STATE_BACKGROUND = "background";
+    String LIFECYCLE_STATE_PAUSED = "paused";
 
     // Local tree:
     // baseDir +--- cache +--- accountID +--- thumbs
@@ -65,7 +70,9 @@ public interface AppNames {
     String TRANSFER_PARENT_DIR = "transfers";
     String OFFLINE_FILE_PARENT_DIR = "offline";
 
-    // Local file types
+    // Local types
+    String LOCAL_DIR_TYPE_CACHE = "cache";
+    String LOCAL_DIR_TYPE_FILE = "files";
     String LOCAL_FILE_TYPE_NONE = "none";
     String LOCAL_FILE_TYPE_THUMB = "thumb";
     String LOCAL_FILE_TYPE_TRANSFER = "transfer";

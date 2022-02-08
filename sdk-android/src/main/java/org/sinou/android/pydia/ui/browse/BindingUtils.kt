@@ -16,13 +16,12 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.pydio.cells.api.SdkNames
-import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
+import org.sinou.android.pydia.db.account.RWorkspace
 import org.sinou.android.pydia.db.browse.RTreeNode
-import org.sinou.android.pydia.services.NodeService
 import java.io.File
 
 @BindingAdapter("nodeTitle")
@@ -132,17 +131,17 @@ fun ImageView.isShared(item: RTreeNode) {
 }
 
 @BindingAdapter("wsTitle")
-fun TextView.setWsTitle(item: WorkspaceNode?) {
+fun TextView.setWsTitle(item: RWorkspace?) {
     item?.let { text = item.label }
 }
 
 @BindingAdapter("wsDesc")
-fun TextView.setWsDesc(item: WorkspaceNode?) {
+fun TextView.setWsDesc(item: RWorkspace?) {
     item?.let { text = item.description }
 }
 
 @BindingAdapter("wsThumb")
-fun ImageView.setWsThumb(item: WorkspaceNode) {
+fun ImageView.setWsThumb(item: RWorkspace) {
     setImageResource(getIconForWorkspace(item))
 }
 
@@ -181,7 +180,7 @@ fun View.setShowForWithinRecycle(item: RTreeNode?) {
     item?.let { visibility = if (it.isInRecycle()) View.VISIBLE else View.GONE }
 }
 
-fun getIconForWorkspace(item: WorkspaceNode) = when (item.workspaceType) {
+fun getIconForWorkspace(item: RWorkspace) = when (item.type) {
     SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
     SdkNames.WS_TYPE_CELL -> R.drawable.cells
     else -> R.drawable.ic_baseline_folder_24

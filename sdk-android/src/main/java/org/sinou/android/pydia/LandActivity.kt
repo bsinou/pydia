@@ -27,26 +27,27 @@ class LandActivity : AppCompatActivity() {
 
     private fun chooseFirstPage() {
         val landActivity = this
-
         lifecycleScope.launch {
+
+            // Wait until necessary services have been initialized
             waitForIt()
 
-            // Try to restart from where we left it
+            // Get the app last recorded state
             var stateID = CellsApp.instance.getCurrentState()
-            if (stateID == null) {
-                // Choose between new account or account list when we have no state.
-                // We go to workspace list when we have only one account
+
+            if (stateID == null) { // No state or (TODO) last state does not exist anymore
+
+                // Fallback on defined accounts:
                 val accounts = withContext(Dispatchers.IO) {
                     CellsApp.instance.accountService.accountDB.accountDao().getAccounts()
                 }
-
                 when (accounts.size) {
-                    0 -> {
+                    0 -> { // No account: launch registration
                         startActivity(Intent(landActivity, AuthActivity::class.java))
                         landActivity.finish()
                         return@launch
                     }
-                    1 -> {
+                    1 -> { // Only one: force state to its root
                         stateID = StateID.fromId(accounts[0].accountID)
                         CellsApp.instance.setCurrentState(stateID)
                     }
@@ -58,7 +59,7 @@ class LandActivity : AppCompatActivity() {
             val intent = Intent(landActivity, MainActivity::class.java)
             if (stateID != null) {
                 CellsApp.instance.accountService.openSession(stateID.accountId)
-                // intent.putExtra(AppNames.EXTRA_STATE, stateID.id)
+                intent.putExtra(AppNames.EXTRA_STATE, stateID.id)
             }
             startActivity(intent)
             landActivity.finish()

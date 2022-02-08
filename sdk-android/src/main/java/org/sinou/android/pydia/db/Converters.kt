@@ -4,7 +4,6 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.pydio.cells.api.ServerURL
-import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import java.lang.reflect.Type
@@ -25,17 +24,17 @@ class Converters {
         return gson.toJson(list)
     }
 
-    @TypeConverter
-    fun fromJSON(value: String): List<WorkspaceNode> {
-        //val listType: Type = object : TypeToken<List<String>>() {}.getType()
-        val listType: Type = object : TypeToken<ArrayList<WorkspaceNode>>() {}.type
-        return Gson().fromJson(value, listType)
-    }
-
-    @TypeConverter
-    fun fromWorkspaces(list: List<WorkspaceNode>): String {
-        return Gson().toJson(list)
-    }
+//    @TypeConverter
+//    fun fromJSON(value: String): List<WorkspaceNode> {
+//        //val listType: Type = object : TypeToken<List<String>>() {}.getType()
+//        val listType: Type = object : TypeToken<ArrayList<WorkspaceNode>>() {}.type
+//        return Gson().fromJson(value, listType)
+//    }
+//
+//    @TypeConverter
+//    fun fromWorkspaces(list: List<WorkspaceNode>): String {
+//        return Gson().toJson(list)
+//    }
 
     @TypeConverter
     fun toProperties(value: String): Properties {

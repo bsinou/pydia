@@ -3,6 +3,9 @@ package org.sinou.android.pydia.db.account
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.pydio.cells.api.Server
+import com.pydio.cells.transport.StateID
+import org.sinou.android.pydia.AppNames
 
 @Entity(tableName = "account_table")
 data class RAccount(
@@ -25,3 +28,16 @@ data class RAccount(
 
     @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
 )
+
+fun toRAccount(username: String, server: Server): RAccount {
+    return RAccount(
+        accountID = StateID(username, server.url()).accountId,
+        username = username,
+        url = server.url(),
+        serverLabel = server.label,
+        tlsMode = if (server.serverURL.skipVerify()) 1 else 0,
+        isLegacy = server.isLegacy,
+        welcomeMessage = server.welcomeMessage,
+        authStatus = AppNames.AUTH_STATUS_NEW,
+    )
+}

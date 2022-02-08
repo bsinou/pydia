@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
@@ -30,6 +29,7 @@ class ChooseWorkspaceFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.e(fTag, "onCreateView ${activeSessionVM.accountId}")
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_workspace_list, container, false
         )
@@ -37,47 +37,42 @@ class ChooseWorkspaceFragment : Fragment() {
     }
 
     override fun onResume() {
-        Log.i(
-            fTag, "onResume: ${
-                activeSessionVM.activeSession.value?.accountID
-                    ?: "No active session"
-            }"
-        )
+        Log.i(fTag, "onResume: ${activeSessionVM.accountId}")
         super.onResume()
 
-        activeSessionVM.activeSession.observe(viewLifecycleOwner) {
+        activeSessionVM.workspaces.observe(viewLifecycleOwner) {
             it?.let {
                 val adapter = WorkspaceListAdapter { slug, action -> onWsClicked(slug, action) }
                 binding.workspaces.adapter = adapter
-                val currWss = it.workspaces
-                if (currWss == null || currWss.isEmpty()) {
+
+                if (it.isEmpty()) {
                     binding.emptyContent.visibility = View.VISIBLE
                     binding.workspaces.visibility = View.GONE
                 } else {
                     binding.workspaces.visibility = View.VISIBLE
                     binding.emptyContent.visibility = View.GONE
-                    adapter.submitList(currWss.sorted())
+                    adapter.submitList(it)
                 }
             }
         }
 
-        CellsApp.instance.getCurrentState()?.let {
-            if (it.path != null && it.path.length > 1) {
-                Log.i(fTag, "onResume, we have a path: ${it.path}. Navigating")
-
-                val action: NavDirections = when {
-                    it.path.startsWith(AppNames.CUSTOM_PATH_BOOKMARKS) -> MainNavDirections.openBookmarks()
-                    it.path.startsWith(AppNames.CUSTOM_PATH_ACCOUNTS) -> MainNavDirections.openAccountList()
-                    else -> MainNavDirections.openFolder(it.id)
-                }
-                findNavController().navigate(action)
-            }
-        }
+//        CellsApp.instance.getCurrentState()?.let {
+//            if (it.path != null && it.path.length > 1) {
+//                Log.i(fTag, "onResume, we have a path: ${it.path}. Navigating")
+//
+//                val action: NavDirections = when {
+//                    it.path.startsWith(AppNames.CUSTOM_PATH_BOOKMARKS) -> MainNavDirections.openBookmarks()
+//                    it.path.startsWith(AppNames.CUSTOM_PATH_ACCOUNTS) -> MainNavDirections.openAccountList()
+//                    else -> MainNavDirections.openFolder(it.id)
+//                }
+//                findNavController().navigate(action)
+//            }
+//        }
         activeSessionVM.resume()
     }
 
     private fun onWsClicked(slug: String, command: String) {
-        val activeSession = activeSessionVM.activeSession.value ?: return
+        val activeSession = activeSessionVM.liveSession.value ?: return
         when (command) {
             AppNames.ACTION_OPEN -> {
                 val targetState = StateID.fromId(activeSession.accountID).withPath("/${slug}")
@@ -91,13 +86,12 @@ class ChooseWorkspaceFragment : Fragment() {
     override fun onPause() {
         Log.i(
             fTag, "Pausing: ${
-                activeSessionVM.activeSession.value?.accountID
+                activeSessionVM.liveSession.value?.accountID
                     ?: "No active session"
             }"
         )
         super.onPause()
         activeSessionVM.pause()
     }
-
 }
 

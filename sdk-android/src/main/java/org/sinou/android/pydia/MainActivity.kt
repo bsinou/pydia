@@ -38,14 +38,32 @@ class MainActivity : AppCompatActivity() {
         private const val tag = "MainActivity"
     }
 
-    private val activeSessionVM: ActiveSessionViewModel by viewModels()
+    private lateinit var activeSessionVM: ActiveSessionViewModel
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
+
+        var encodedState = savedInstanceState?.getString(AppNames.KEY_STATE)
+        if (Str.empty(encodedState)) {
+            encodedState = intent.getStringExtra(AppNames.EXTRA_STATE)
+        }
+
+        val accountState = encodedState?.let { StateID.fromId(it).accountId }
+
+        Log.d(tag, "onCreate for: ${StateID.fromId(encodedState)}")
+
+        val viewModelFactory = ActiveSessionViewModel.ActiveSessionViewModelFactory(
+            CellsApp.instance.accountService,
+            accountState,
+            application,
+        )
+        val tmpVM: ActiveSessionViewModel by viewModels { viewModelFactory }
+        activeSessionVM = tmpVM
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setSupportActionBar(binding.mainToolbar)
@@ -77,8 +95,44 @@ class MainActivity : AppCompatActivity() {
 //                }
 //            )
 //        })
+        handleStateOrIntent(savedInstanceState)
 
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        activeSessionVM.accountId?.let {
+            Log.e(tag, "onSaveInstanceState for: ${StateID.fromId(it)}")
+            outState.putString(AppNames.KEY_STATE, it)
+        }
+    }
+
+    private fun handleStateOrIntent(savedInstanceState: Bundle?) {
+
+        var stateId = savedInstanceState?.getString(AppNames.KEY_STATE)
+        if (Str.empty(stateId)) {
+            stateId = intent.getStringExtra(AppNames.EXTRA_STATE)
+        }
+        if (Str.empty(stateId)) {
+            navController.navigate(MainNavDirections.openAccountList())
+            return
+        }
+        StateID.fromId(stateId)?.let {
+            when {
+                Str.notEmpty(it.workspace) -> {
+                    val action = MainNavDirections.openFolder(it.id)
+                    navController.navigate(action)
+                }
+                // this is the default
+//                it.path == null -> {
+//                    val action = MainNavDirections.openWorkspaces(it.id)
+//                    navController.navigate(action)
+//                }
+
+            }
+        }
+    }
+
 
     private fun closeDrawer() {
         binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
@@ -89,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         var done = false
         when (it.itemId) {
             R.id.open_bookmarks -> {
-                activeSessionVM.activeSession.value?.let { session ->
+                activeSessionVM.liveSession.value?.let { session ->
                     val target = StateID.fromId(session.accountID)
                         .child(AppNames.CUSTOM_PATH_BOOKMARKS)
                     CellsApp.instance.setCurrentState(target)
@@ -98,7 +152,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             R.id.clear_cache -> {
-                activeSessionVM.activeSession.value?.let { session ->
+                activeSessionVM.liveSession.value?.let { session ->
                     clearCache(binding.root.context, session.accountID)
                     done = true
                 }
@@ -128,36 +182,52 @@ class MainActivity : AppCompatActivity() {
 
         // Workspaces
         val item = binding.navView.menu.findItem(R.id.ws_section)
-        activeSessionVM.activeSession.observe(
-            this,
-        ) {
-            it?.let { liveSession ->
-                item.subMenu.clear()
-                for (ws in liveSession.workspaces?.sorted() ?: listOf()) {
-                    val wsItem = item.subMenu.add(ws.label)
-                    wsItem.icon = ContextCompat.getDrawable(this, getIconForWorkspace(ws))
-                    wsItem.setOnMenuItemClickListener {
-                        val state = StateID.fromId(liveSession.accountID)
-                            .withPath("/${ws.slug}")
-                        CellsApp.instance.setCurrentState(state)
-                        navController.navigate(MainNavDirections.openFolder(state.id))
-                        closeDrawer()
-                        true
-                    }
-                }
+        activeSessionVM.accountId?.let { accId ->
 
-                // Also update meta info in the header
-                val headerView = binding.navView.getHeaderView(0)
-                val primaryText =
-                    headerView.findViewById<TextView>(R.id.nav_header_primary_text)
-                primaryText.text = liveSession.username
-                val secondaryText =
-                    headerView.findViewById<TextView>(R.id.nav_header_secondary_text)
-                secondaryText.text = liveSession.url
+
+            activeSessionVM.workspaces.observe(this) {
+                if (it.isNotEmpty()) {
+                    item.subMenu.clear()
+                    for (ws in it) {
+                        val wsItem = item.subMenu.add(ws.label)
+                        wsItem.icon = ContextCompat.getDrawable(this, getIconForWorkspace(ws))
+                        wsItem.setOnMenuItemClickListener {
+                            val state = StateID.fromId(accId).withPath("/${ws.slug}")
+                            CellsApp.instance.setCurrentState(state)
+                            navController.navigate(MainNavDirections.openFolder(state.id))
+                            closeDrawer()
+                            true
+                        }
+                    }
+                    binding.navView.invalidate()
+                }
+            }
+            activeSessionVM.liveSession.observe(
+                this,
+            ) {
+                it?.let { liveSession ->
+                    // Also update meta info in the header
+                    val headerView = binding.navView.getHeaderView(0)
+                    val primaryText =
+                        headerView.findViewById<TextView>(R.id.nav_header_primary_text)
+                    primaryText.text = liveSession.username
+                    val secondaryText =
+                        headerView.findViewById<TextView>(R.id.nav_header_secondary_text)
+                    secondaryText.text = liveSession.url
+                    binding.navView.invalidate()
+                }
             }
         }
+    }
 
-        binding.navView.invalidate()
+    override fun onStart() {
+        Log.d(tag, "onStart, intent: $intent")
+        super.onStart()
+    }
+
+    override fun onStop() {
+        Log.d(tag, "onStop, intent: $intent")
+        super.onStop()
     }
 
     override fun onResume() {
@@ -222,7 +292,11 @@ class MainActivity : AppCompatActivity() {
 
         layoutSwitcher.icon = when (storedLayout) {
             AppNames.RECYCLER_LAYOUT_GRID ->
-                ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_view_list_24, theme)
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_baseline_view_list_24,
+                    theme
+                )
             else ->
                 ResourcesCompat.getDrawable(resources, R.drawable.ic_sharp_grid_view_24, theme)
         }
@@ -236,23 +310,16 @@ class MainActivity : AppCompatActivity() {
             }
             CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
 
-            finish()
-            overridePendingTransition(0, 0)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
+            this.recreate()
+
+//            finish()
+//            overridePendingTransition(0, 0)
+//            startActivity(intent)
+//            overridePendingTransition(0, 0)
 
             return@setOnMenuItemClickListener true
         }
     }
-
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//        if (requestCode == REQUEST_IMAGE_GET && resultCode == Activity.RESULT_OK) {
-//            val thumbnail: Bitmap = data.getParcelableExtra("data")
-//            val fullPhotoUri: Uri = data.data
-//        }
-//    }
-
 
     private inner class SearchListener : OnQueryTextListener {
 
@@ -277,7 +344,8 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     retrieveCurrentContext()
                     stateId?.let { state ->
-                        val action = MainNavDirections.searchEditView(state.id, uiContext!!, query)
+                        val action =
+                            MainNavDirections.searchEditView(state.id, uiContext!!, query)
                         navController.navigate(action)
                     }
                 }
@@ -286,13 +354,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun retrieveCurrentContext() {
-            if (activeSessionVM.activeSession.value == null) {
+            if (activeSessionVM.liveSession.value == null) {
                 showMessage(baseContext, "Cannot search with no active session")
                 return
             }
             showMessage(baseContext, "About to navigate")
 
-            stateId = StateID.fromId(activeSessionVM.activeSession.value!!.accountID)
+            stateId = StateID.fromId(activeSessionVM.liveSession.value!!.accountID)
             uiContext = when (navController.currentDestination!!.id) {
                 R.id.bookmark_list_destination -> AppNames.CUSTOM_PATH_BOOKMARKS
                 else -> ""

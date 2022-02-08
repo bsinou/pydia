@@ -2,6 +2,7 @@ package org.sinou.android.pydia.db.account
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.Converters
 
 @Dao
@@ -24,20 +25,26 @@ interface SessionDao {
     fun getLiveSession(accountID: String): LiveData<RSession?>
 
     @Query("SELECT * FROM session_table")
+    fun getSessions(): List<RSession>
+
+    @Query("SELECT * FROM session_table")
     fun getLiveSessions(): LiveData<List<RSession>>
 
-    @Query("SELECT * FROM session_table WHERE lifecycle_state = 'foreground'")
-    fun getForegroundSession(): LiveData<RSession?>
+    @Query("SELECT * FROM session_table WHERE lifecycle_state = :state")
+    fun getForegroundSession(state: String = AppNames.LIFECYCLE_STATE_FOREGROUND): LiveData<RSession?>
 
     /**
      * Convenience method to insure we reset all sessions to be in the background before
      * putting one live.
      * // TODO rather return not paused sessions
      */
-    @Query("SELECT * FROM session_table WHERE lifecycle_state = 'foreground'")
-    fun foregroundSessions(): List<RSession>
+    @Query("SELECT * FROM session_table WHERE lifecycle_state = :state")
+    fun foregroundSessions(state: String = AppNames.LIFECYCLE_STATE_FOREGROUND): List<RSession>
 
-    @Query("SELECT * FROM session_table WHERE lifecycle_state = 'background'")
-    fun getBackgroundSessions(): List<RSession>
+    @Query("SELECT * FROM session_table WHERE lifecycle_state = :state")
+    fun getBackgroundSessions(state: String = AppNames.LIFECYCLE_STATE_BACKGROUND): List<RSession>
+
+    @Query("SELECT * FROM session_table WHERE dir_name = :dirName")
+    fun getWithDirName(dirName: String): List<RSession>
 
 }

@@ -5,13 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pydio.cells.api.ui.WorkspaceNode
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemWorkspaceBinding
+import org.sinou.android.pydia.db.account.RWorkspace
 
 class WorkspaceListAdapter(
     private val onItemClicked: (slug: String, action: String) -> Unit
-) : ListAdapter<WorkspaceNode, WorkspaceListAdapter.ViewHolder>(WorkspaceNodeDiffCallback()) {
+) : ListAdapter<RWorkspace, WorkspaceListAdapter.ViewHolder>(WorkspaceDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -25,7 +25,7 @@ class WorkspaceListAdapter(
     class ViewHolder private constructor(val binding: ListItemWorkspaceBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: WorkspaceNode) {
+        fun bind(item: RWorkspace) {
             binding.workspace = item
             binding.executePendingBindings()
         }
@@ -51,14 +51,13 @@ class WorkspaceListAdapter(
     }
 }
 
-class WorkspaceNodeDiffCallback : DiffUtil.ItemCallback<WorkspaceNode>() {
+class WorkspaceDiffCallback : DiffUtil.ItemCallback<RWorkspace>() {
 
-    override fun areItemsTheSame(oldItem: WorkspaceNode, newItem: WorkspaceNode): Boolean {
+    override fun areItemsTheSame(oldItem: RWorkspace, newItem: RWorkspace): Boolean {
         return oldItem.slug == newItem.slug
     }
 
-    override fun areContentsTheSame(oldItem: WorkspaceNode, newItem: WorkspaceNode): Boolean {
-        // TODO: WorkspaceNode are not data objects. Implement equality.
+    override fun areContentsTheSame(oldItem: RWorkspace, newItem: RWorkspace): Boolean {
         return oldItem == newItem
     }
 }

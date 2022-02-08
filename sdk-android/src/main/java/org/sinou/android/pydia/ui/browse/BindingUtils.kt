@@ -20,8 +20,8 @@ import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.db.account.RWorkspace
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.accounts.RWorkspace
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import java.io.File
 
 @BindingAdapter("nodeTitle")

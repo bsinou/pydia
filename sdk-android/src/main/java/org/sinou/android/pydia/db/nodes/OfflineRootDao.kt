@@ -1,0 +1,24 @@
+package org.sinou.android.pydia.db.nodes
+
+import androidx.lifecycle.LiveData
+import androidx.room.*
+
+@Dao
+interface OfflineRootDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(treeNode: ROfflineRoot)
+
+    @Update
+    fun update(treeNode: ROfflineRoot)
+
+    @Query("DELETE FROM offline_roots WHERE encoded_state = :stateId")
+    fun delete(stateId: String)
+
+    @Query("SELECT * FROM offline_roots WHERE encoded_state = :encodedState LIMIT 1")
+    fun get(encodedState: String): ROfflineRoot?
+
+    @Query("SELECT * FROM offline_roots ORDER BY sort_name")
+    fun getAll(): LiveData<List<ROfflineRoot>>
+
+}

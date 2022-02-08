@@ -16,10 +16,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.account.AccountDB
-import org.sinou.android.pydia.db.account.RLegacyCredentials
-import org.sinou.android.pydia.db.account.RLiveSession
-import org.sinou.android.pydia.db.account.RToken
+import org.sinou.android.pydia.db.accounts.RLiveSession
+import org.sinou.android.pydia.db.accounts.RToken
 import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
 import org.sinou.android.pydia.utils.hasUnMeteredNetwork
 

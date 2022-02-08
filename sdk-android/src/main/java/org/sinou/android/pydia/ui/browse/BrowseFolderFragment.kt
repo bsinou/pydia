@@ -27,7 +27,7 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
 import org.sinou.android.pydia.utils.BackStackAdapter
 import org.sinou.android.pydia.utils.dumpBackStack
@@ -45,7 +45,6 @@ class BrowseFolderFragment : Fragment() {
 
     // Temp solution to provide a scrim during long running operations
     private var loadingDialog: LoadingDialogFragment? = null
-
 
     // FIXME
     private var isCreated = false
@@ -100,7 +99,6 @@ class BrowseFolderFragment : Fragment() {
         isCreated = true
         return binding.root
     }
-
 
     private fun configureRecyclerAdapter() {
         val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)

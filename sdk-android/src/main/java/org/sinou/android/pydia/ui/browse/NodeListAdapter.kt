@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.nodes.RTreeNode
 
 class NodeListAdapter(
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit

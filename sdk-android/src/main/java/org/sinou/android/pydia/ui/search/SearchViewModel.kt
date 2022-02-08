@@ -2,15 +2,11 @@ package org.sinou.android.pydia.ui.search
 
 
 import android.app.Application
-import android.util.Log
-import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
-import org.sinou.android.pydia.db.browse.RTreeNode
-import org.sinou.android.pydia.services.AccountService
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.NodeService
-import java.util.concurrent.TimeUnit
 
 /**
  * Holds data when performing searches on files

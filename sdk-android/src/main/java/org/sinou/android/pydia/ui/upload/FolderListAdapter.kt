@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.nodes.RTreeNode
 
 class FolderListAdapter(
     private val parentStateID: StateID,

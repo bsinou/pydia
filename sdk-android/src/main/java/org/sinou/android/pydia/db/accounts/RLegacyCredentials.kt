@@ -1,10 +1,10 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "legacy_credentials_table")
+@Entity(tableName = "legacy_credentials")
 data class RLegacyCredentials(
 
     @PrimaryKey

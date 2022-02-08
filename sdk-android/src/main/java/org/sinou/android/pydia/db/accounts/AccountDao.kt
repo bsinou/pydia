@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.room.*
 
@@ -11,16 +11,16 @@ interface AccountDao {
     @Update
     fun update(account: RAccount)
 
-    @Query("DELETE FROM account_table WHERE account_id = :accountID")
+    @Query("DELETE FROM accounts WHERE account_id = :accountID")
     fun forgetAccount(accountID: String)
 
-    @Query("SELECT * FROM account_table WHERE account_id = :accountID LIMIT 1")
+    @Query("SELECT * FROM accounts WHERE account_id = :accountID LIMIT 1")
     fun getAccount(accountID: String): RAccount?
 
-    @Query("SELECT * FROM account_table WHERE username = :username AND url = :url LIMIT 1")
+    @Query("SELECT * FROM accounts WHERE username = :username AND url = :url LIMIT 1")
     fun getAccount(username: String, url: String): RAccount?
 
-    @Query("SELECT * FROM account_table")
+    @Query("SELECT * FROM accounts")
     fun getAccounts(): List<RAccount>
 
 }

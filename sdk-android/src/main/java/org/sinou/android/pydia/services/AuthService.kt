@@ -16,7 +16,7 @@ import com.pydio.cells.transport.auth.jwt.IdToken
 import com.pydio.cells.transport.auth.jwt.OAuthConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.sinou.android.pydia.db.account.ROAuthState
+import org.sinou.android.pydia.db.accounts.ROAuthState
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
 import java.util.*
 

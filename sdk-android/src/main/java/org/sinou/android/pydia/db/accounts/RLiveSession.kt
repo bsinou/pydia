@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
@@ -6,19 +6,19 @@ import androidx.room.TypeConverters
 import org.sinou.android.pydia.db.Converters
 
 @DatabaseView(
-    "SELECT session_table.account_id, " +
-            "session_table.lifecycle_state, " +
-            "session_table.dir_name, " +
-            "session_table.db_name, " +
-            "account_table.url, " +
-            "account_table.username, " +
-            "account_table.auth_status, " +
-            "account_table.tls_mode, " +
-            "account_table.is_legacy, " +
-            "account_table.server_label, " +
-            "account_table.welcome_message " +
-            "FROM session_table INNER JOIN account_table " +
-            "ON session_table.account_id = account_table.account_id"
+    "SELECT sessions.account_id, " +
+            "sessions.lifecycle_state, " +
+            "sessions.dir_name, " +
+            "sessions.db_name, " +
+            "accounts.url, " +
+            "accounts.username, " +
+            "accounts.auth_status, " +
+            "accounts.tls_mode, " +
+            "accounts.is_legacy, " +
+            "accounts.server_label, " +
+            "accounts.welcome_message " +
+            "FROM sessions INNER JOIN accounts " +
+            "ON sessions.account_id = accounts.account_id"
 )
 @TypeConverters(Converters::class)
 data class RLiveSession(

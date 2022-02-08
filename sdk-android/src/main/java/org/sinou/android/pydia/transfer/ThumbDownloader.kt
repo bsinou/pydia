@@ -11,7 +11,7 @@ import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import org.sinou.android.pydia.db.browse.TreeNodeDB
+import org.sinou.android.pydia.db.nodes.TreeNodeDB
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

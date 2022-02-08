@@ -9,7 +9,7 @@
     <data>
         <variable
             name="workspace"
-            type="org.sinou.android.pydia.db.account.RWorkspace" />
+            type="org.sinou.android.pydia.db.accounts.RWorkspace" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

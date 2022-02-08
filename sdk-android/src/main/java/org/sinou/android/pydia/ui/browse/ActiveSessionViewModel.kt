@@ -7,8 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.*
-import org.sinou.android.pydia.db.account.RLiveSession
-import org.sinou.android.pydia.db.account.RWorkspace
+import org.sinou.android.pydia.db.accounts.RLiveSession
+import org.sinou.android.pydia.db.accounts.RWorkspace
 import org.sinou.android.pydia.services.AccountService
 import java.util.concurrent.TimeUnit
 

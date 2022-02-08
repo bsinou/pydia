@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -8,7 +8,7 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.Converters
 import java.net.URL
 
-@Entity(tableName = "session_table")
+@Entity(tableName = "sessions")
 @TypeConverters(Converters::class)
 data class RSession(
 

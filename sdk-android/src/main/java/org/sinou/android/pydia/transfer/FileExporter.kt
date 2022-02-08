@@ -6,11 +6,10 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ReportFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.NodeService
 
 class FileExporter(

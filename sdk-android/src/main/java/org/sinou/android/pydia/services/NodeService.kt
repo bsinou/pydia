@@ -17,8 +17,8 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.browse.RTreeNode
-import org.sinou.android.pydia.db.browse.TreeNodeDB
+import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.db.nodes.TreeNodeDB
 import org.sinou.android.pydia.transfer.FolderDiff
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.logException

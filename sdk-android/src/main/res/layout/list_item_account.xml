@@ -10,7 +10,7 @@
 
         <variable
             name="session"
-            type="org.sinou.android.pydia.db.account.RLiveSession" />
+            type="org.sinou.android.pydia.db.accounts.RLiveSession" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

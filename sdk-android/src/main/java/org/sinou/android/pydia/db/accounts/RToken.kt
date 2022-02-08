@@ -1,10 +1,10 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "token_table")
+@Entity(tableName = "tokens")
 data class RToken(
 
     @PrimaryKey

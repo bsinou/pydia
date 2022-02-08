@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
 import java.util.concurrent.TimeUnit

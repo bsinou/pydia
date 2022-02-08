@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -14,13 +14,13 @@ interface TokenDao {
     @Update
     fun update(RToken: RToken)
 
-    @Query("SELECT * FROM token_table WHERE account_id = :accountID LIMIT 1")
+    @Query("SELECT * FROM tokens WHERE account_id = :accountID LIMIT 1")
     fun getToken(accountID: String): RToken?
 
-    @Query("DELETE FROM token_table WHERE account_id = :accountID")
+    @Query("DELETE FROM tokens WHERE account_id = :accountID")
     fun forgetToken(accountID: String)
 
-    @Query("SELECT * FROM token_table")
+    @Query("SELECT * FROM tokens")
     fun getAll(): List<RToken>
 
 }

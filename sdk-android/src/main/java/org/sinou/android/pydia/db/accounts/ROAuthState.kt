@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -11,7 +11,7 @@ import org.sinou.android.pydia.db.Converters
  *  Stores a map between the state that are generated during the OAuth process
  * and the corresponding {@code ServerURL}
  */
-@Entity(tableName = "oauth_state_table")
+@Entity(tableName = "oauth_states")
 @TypeConverters(Converters::class)
 data class ROAuthState(
 

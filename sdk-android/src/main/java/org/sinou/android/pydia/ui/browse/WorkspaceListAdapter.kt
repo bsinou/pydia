@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemWorkspaceBinding
-import org.sinou.android.pydia.db.account.RWorkspace
+import org.sinou.android.pydia.db.accounts.RWorkspace
 
 class WorkspaceListAdapter(
     private val onItemClicked: (slug: String, action: String) -> Unit

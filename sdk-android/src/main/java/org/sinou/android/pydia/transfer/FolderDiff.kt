@@ -8,8 +8,8 @@ import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.db.browse.RTreeNode
-import org.sinou.android.pydia.db.browse.TreeNodeDao
+import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.db.nodes.TreeNodeDao
 import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.utils.areNodeContentEquals
 import java.io.File

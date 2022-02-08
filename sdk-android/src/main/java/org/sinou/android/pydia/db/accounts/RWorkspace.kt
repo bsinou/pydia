@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import android.util.Log
 import androidx.room.ColumnInfo
@@ -8,11 +8,10 @@ import androidx.room.TypeConverters
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
-import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.Converters
 import java.util.*
 
-@Entity(tableName = "workspace_table")
+@Entity(tableName = "workspaces")
 @TypeConverters(Converters::class)
 data class RWorkspace(
 

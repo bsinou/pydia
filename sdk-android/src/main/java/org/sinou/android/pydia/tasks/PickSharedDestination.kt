@@ -3,7 +3,7 @@ package org.sinou.android.pydia.tasks
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.nodes.RTreeNode
 
 
 fun getOpenFilePickerIntent(node: RTreeNode, pickerInitialUri: Uri?): Intent {

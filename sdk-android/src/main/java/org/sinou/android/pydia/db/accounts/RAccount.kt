@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -7,7 +7,7 @@ import com.pydio.cells.api.Server
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 
-@Entity(tableName = "account_table")
+@Entity(tableName = "accounts")
 data class RAccount(
 
     @PrimaryKey

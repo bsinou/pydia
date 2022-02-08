@@ -11,8 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.db.account.RWorkspace
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.accounts.RWorkspace
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.services.NodeService

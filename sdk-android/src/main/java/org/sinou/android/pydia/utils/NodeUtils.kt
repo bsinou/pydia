@@ -6,8 +6,8 @@ import android.webkit.MimeTypeMap
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.WorkspaceNode
-import org.sinou.android.pydia.db.account.RWorkspace
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.accounts.RWorkspace
+import org.sinou.android.pydia.db.nodes.RTreeNode
 
 //fun isFolder(treeNode: RTreeNode): Boolean {
 //    return SdkNames.NODE_MIME_FOLDER.equals(treeNode.mime) || isRecycle(treeNode)

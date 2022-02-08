@@ -1,7 +1,7 @@
 package org.sinou.android.pydia.services
 
 import com.pydio.cells.api.Store
-import org.sinou.android.pydia.db.account.RLegacyCredentials
+import org.sinou.android.pydia.db.accounts.RLegacyCredentials
 
 class PasswordStore(private val accountService: AccountService) : Store<String> {
 

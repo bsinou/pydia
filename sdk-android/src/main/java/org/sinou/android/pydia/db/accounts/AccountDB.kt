@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import android.content.Context
 import androidx.room.Database
@@ -47,7 +47,7 @@ abstract class AccountDB : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AccountDB::class.java,
-                    "accounts"
+                    "accountdb"
                 ).build()
                 INSTANCE = instance
                 return instance

@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.db.account.RToken
+import org.sinou.android.pydia.db.accounts.RToken
 
 class TokenStore(private val accountService: AccountService) : Store<Token> {
 

@@ -2,13 +2,11 @@ package org.sinou.android.pydia.ui.home
 
 import android.content.Context
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.db.browse.RTreeNode
 import org.sinou.android.pydia.utils.showLongMessage
 
 // TODO extend to add more options

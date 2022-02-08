@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
@@ -15,22 +15,22 @@ interface SessionDao {
     @Update
     fun update(session: RSession)
 
-    @Query("DELETE FROM session_table WHERE account_id = :accountID")
+    @Query("DELETE FROM sessions WHERE account_id = :accountID")
     fun forgetSession(accountID: String)
 
-    @Query("SELECT * FROM session_table WHERE account_id = :accountID LIMIT 1")
+    @Query("SELECT * FROM sessions WHERE account_id = :accountID LIMIT 1")
     fun getSession(accountID: String): RSession?
 
-    @Query("SELECT * FROM session_table WHERE account_id = :accountID LIMIT 1")
+    @Query("SELECT * FROM sessions WHERE account_id = :accountID LIMIT 1")
     fun getLiveSession(accountID: String): LiveData<RSession?>
 
-    @Query("SELECT * FROM session_table")
+    @Query("SELECT * FROM sessions")
     fun getSessions(): List<RSession>
 
-    @Query("SELECT * FROM session_table")
+    @Query("SELECT * FROM sessions")
     fun getLiveSessions(): LiveData<List<RSession>>
 
-    @Query("SELECT * FROM session_table WHERE lifecycle_state = :state")
+    @Query("SELECT * FROM sessions WHERE lifecycle_state = :state")
     fun getForegroundSession(state: String = AppNames.LIFECYCLE_STATE_FOREGROUND): LiveData<RSession?>
 
     /**
@@ -38,13 +38,13 @@ interface SessionDao {
      * putting one live.
      * // TODO rather return not paused sessions
      */
-    @Query("SELECT * FROM session_table WHERE lifecycle_state = :state")
+    @Query("SELECT * FROM sessions WHERE lifecycle_state = :state")
     fun foregroundSessions(state: String = AppNames.LIFECYCLE_STATE_FOREGROUND): List<RSession>
 
-    @Query("SELECT * FROM session_table WHERE lifecycle_state = :state")
+    @Query("SELECT * FROM sessions WHERE lifecycle_state = :state")
     fun getBackgroundSessions(state: String = AppNames.LIFECYCLE_STATE_BACKGROUND): List<RSession>
 
-    @Query("SELECT * FROM session_table WHERE dir_name = :dirName")
+    @Query("SELECT * FROM sessions WHERE dir_name = :dirName")
     fun getWithDirName(dirName: String): List<RSession>
 
 }

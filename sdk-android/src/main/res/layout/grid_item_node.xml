@@ -10,7 +10,7 @@
 
         <variable
             name="node"
-            type="org.sinou.android.pydia.db.browse.RTreeNode" />
+            type="org.sinou.android.pydia.db.nodes.RTreeNode" />
     </data>
 
     <com.google.android.material.card.MaterialCardView

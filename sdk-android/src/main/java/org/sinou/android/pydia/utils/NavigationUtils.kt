@@ -11,7 +11,7 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.BuildConfig
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.browse.RTreeNode
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import java.io.File
 
 

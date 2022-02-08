@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemAccountBinding
-import org.sinou.android.pydia.db.account.RLiveSession
+import org.sinou.android.pydia.db.accounts.RLiveSession
 
 class SessionListAdapter(
     private val onItemClicked: (stateID: StateID, command: String) -> Unit

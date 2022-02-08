@@ -9,8 +9,7 @@ import androidx.databinding.BindingAdapter
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.AppNames.*
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.db.account.RLiveSession
-import org.sinou.android.pydia.services.AccountService
+import org.sinou.android.pydia.db.accounts.RLiveSession
 
 @BindingAdapter("accountStatus")
 fun ImageView.setAccountImage(item: RLiveSession?) {

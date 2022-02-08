@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.browse
+package org.sinou.android.pydia.db.nodes
 
 import android.content.Context
 import androidx.room.Database
@@ -6,10 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import java.util.concurrent.ConcurrentHashMap
 
-@Database(entities = arrayOf(RTreeNode::class), version = 1, exportSchema = false)
+@Database(
+    entities = [RTreeNode::class, ROfflineRoot::class],
+    version = 1,
+    exportSchema = false,
+)
 abstract class TreeNodeDB : RoomDatabase() {
 
     abstract fun treeNodeDao(): TreeNodeDao
+
+    abstract fun offlineRootDao(): OfflineRootDao
 
     companion object {
         @Volatile

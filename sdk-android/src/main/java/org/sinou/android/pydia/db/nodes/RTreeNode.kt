@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.browse
+package org.sinou.android.pydia.db.nodes
 
 import android.util.Log
 import androidx.room.ColumnInfo
@@ -14,14 +14,14 @@ import org.sinou.android.pydia.db.Converters
 import org.sinou.android.pydia.utils.getMimeType
 import java.util.*
 
-@Entity(tableName = "tree_node_table")
+@Entity(tableName = "tree_nodes")
 @TypeConverters(Converters::class)
 data class RTreeNode(
 
     @PrimaryKey
     @ColumnInfo(name = "encoded_state") val encodedState: String,
 
-    @ColumnInfo(name = "uuid") val UUID: String? = null,
+    @ColumnInfo(name = "uuid") val uuid: String? = null,
 
     @ColumnInfo(name = "workspace") val workspace: String,
 
@@ -105,7 +105,7 @@ data class RTreeNode(
                     workspace = childStateID.workspace,
                     parentPath = childStateID.parentFile ?: "",
                     name = childStateID.fileName ?: childStateID.workspace,
-                    UUID = fileNode.id,
+                    uuid = fileNode.id,
                     etag = fileNode.eTag,
                     mime = fileNode.mimeType,
                     size = fileNode.size,
@@ -155,7 +155,7 @@ data class RTreeNode(
                     parentPath = "",
                     name = node.label,
                     // TODO rather handle the UUID
-                    UUID = node.slug,
+                    uuid = node.slug,
                     etag = "",
                     mime = SdkNames.NODE_MIME_WS_ROOT,
                     size = 0L,

@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.db.account
+package org.sinou.android.pydia.db.accounts
 
 import androidx.room.*
 
@@ -14,13 +14,13 @@ interface LegacyCredentialsDao {
     @Delete
     fun delete(credentials: RLegacyCredentials)
 
-    @Query("DELETE FROM legacy_credentials_table WHERE account_id = :accountID")
+    @Query("DELETE FROM legacy_credentials WHERE account_id = :accountID")
     fun forgetPassword(accountID: String)
 
-    @Query("SELECT * FROM legacy_credentials_table WHERE account_id = :accountID LIMIT 1")
+    @Query("SELECT * FROM legacy_credentials WHERE account_id = :accountID LIMIT 1")
     fun getCredential(accountID: String): RLegacyCredentials?
 
-    @Query("SELECT * FROM legacy_credentials_table")
+    @Query("SELECT * FROM legacy_credentials")
     fun getAll(): List<RLegacyCredentials>
 
 }

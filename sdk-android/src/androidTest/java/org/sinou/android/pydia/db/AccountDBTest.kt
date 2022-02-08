@@ -10,9 +10,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.db.account.AccountDB
-import org.sinou.android.pydia.db.account.AccountDao
-import org.sinou.android.pydia.db.account.RAccount
+import org.sinou.android.pydia.db.accounts.AccountDB
+import org.sinou.android.pydia.db.accounts.AccountDao
+import org.sinou.android.pydia.db.accounts.RAccount
 import java.io.IOException
 
 /**

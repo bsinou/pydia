@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemAccountBinding
-import org.sinou.android.pydia.db.account.RLiveSession
+import org.sinou.android.pydia.db.accounts.RLiveSession
 
 class AccountListAdapter(
     private val onItemClicked: (accountID: String, action: String) -> Unit,

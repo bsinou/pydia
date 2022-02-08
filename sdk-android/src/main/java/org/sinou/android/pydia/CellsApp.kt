@@ -14,7 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.db.account.AccountDB
+import org.sinou.android.pydia.db.accounts.AccountDB
 import org.sinou.android.pydia.db.runtime.RuntimeDB
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.FileService

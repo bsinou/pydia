@@ -3,16 +3,12 @@ package org.sinou.android.pydia.services
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.*
-import com.pydio.cells.api.ui.Node
-import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.account.*
-import org.sinou.android.pydia.transfer.FolderDiff
-import org.sinou.android.pydia.transfer.ThumbDownloader
+import org.sinou.android.pydia.db.accounts.*
 import org.sinou.android.pydia.transfer.WorkspaceDiff
 import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
 import org.sinou.android.pydia.utils.logException

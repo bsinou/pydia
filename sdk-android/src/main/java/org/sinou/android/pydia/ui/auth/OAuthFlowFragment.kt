@@ -50,7 +50,7 @@ class OAuthFlowFragment : Fragment() {
         // binding.lifecycleOwner = this
         navController = findNavController()
 
-        viewModel.accountID.observe(requireActivity()) { pair ->
+        viewModel.accountID.observe(viewLifecycleOwner) { pair ->
             pair?.let {
                 val (accountID, next) = pair
                 var nextState = CellsApp.instance.getCurrentState()

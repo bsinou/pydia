@@ -74,7 +74,7 @@ class NodeService(
 
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
         val liveData = nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
-        if (liveData.value == null){
+        if (liveData.value == null) {
             Log.e(TAG, "no node found for ${stateID.id}")
         }
         return liveData
@@ -113,9 +113,7 @@ class NodeService(
     suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         try {
-            val sf = accountService.sessionFactory
-            val client: Client = sf.getUnlockedClient(stateID.accountId)
-            client.bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked)
+            getClient(stateID).bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked)
             rTreeNode.isBookmarked = !rTreeNode.isBookmarked
             rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
             nodeDB(stateID).treeNodeDao().update(rTreeNode)
@@ -132,8 +130,7 @@ class NodeService(
     suspend fun toggleShared(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         try {
-            val sf = accountService.sessionFactory
-            val client: Client = sf.getUnlockedClient(stateID.accountId)
+            val client = getClient(stateID)
 
             if (rTreeNode.isShared) {
                 client.unshare(stateID.workspace, stateID.file)
@@ -181,11 +178,9 @@ class NodeService(
 
     suspend fun refreshBookmarks(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
-            val client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
-
             // TODO rather use a cursor than loading everything in memory...
             val nodes = mutableListOf<FileNode>()
-            client.getBookmarks { node: Node? ->
+            getClient(stateID).getBookmarks { node: Node? ->
                 if (node !is FileNode) {
                     Log.w(TAG, "could not store node: $node")
                 } else {
@@ -256,8 +251,7 @@ class NodeService(
 
     private fun statRemoteNode(stateID: StateID): Stats? {
         try {
-            val client: Client = accountService.sessionFactory.getUnlockedClient(stateID.accountId)
-            return client.stats(stateID.workspace, stateID.file, true)
+            return getClient(stateID).stats(stateID.workspace, stateID.file, true)
         } catch (e: SDKException) {
             handleSdkException("could not stat at ${stateID}", e)
         }
@@ -318,9 +312,15 @@ class NodeService(
                 -> fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)
                     ?.let { return@withContext File(it) }
                 isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE
-                -> {}
+                -> {
+                }
                 isOK ?: false
-                -> return@withContext File(fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)!!)
+                -> return@withContext File(
+                    fileService.getLocalPath(
+                        rTreeNode,
+                        AppNames.LOCAL_FILE_TYPE_CACHE
+                    )!!
+                )
             }
 
             Log.e(TAG, "... Launching download for ${rTreeNode.name}")
@@ -332,12 +332,10 @@ class NodeService(
             var out: FileOutputStream? = null
 
             try {
-                val sf = accountService.sessionFactory
-                val client: Client = sf.getUnlockedClient(stateID.accountId)
                 out = FileOutputStream(targetFile)
 
                 // TODO handle progress
-                client.download(stateID.workspace, stateID.file, out, null)
+                getClient(stateID).download(stateID.workspace, stateID.file, out, null)
 
                 // Success persist change
                 rTreeNode.localFileType = AppNames.LOCAL_FILE_TYPE_CACHE
@@ -385,10 +383,8 @@ class NodeService(
                     // File(getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)).copyTo(to, true)
                 } else {
                     // Directly download to final destination
-                    val sf = accountService.sessionFactory
-                    val client: Client = sf.getUnlockedClient(stateID.accountId)
                     // TODO handle progress
-                    client.download(stateID.workspace, stateID.file, out, null)
+                    getClient(stateID).download(stateID.workspace, stateID.file, out, null)
                 }
                 Log.i(TAG, "... File has been copied to ${uri.path}")
 
@@ -456,9 +452,7 @@ class NodeService(
         mime: String, input: InputStream
     ) = withContext(Dispatchers.IO) {
         try {
-            val sf = accountService.sessionFactory
-            val client: Client = sf.getUnlockedClient(parentID.accountId)
-            client.upload(
+            getClient(parentID).upload(
                 input, size, mime, parentID.workspace, parentID.file, fileName,
                 true, null
             )
@@ -480,7 +474,6 @@ class NodeService(
         }
         return@withContext null
     }
-
 
     suspend fun emptyRecycle(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
@@ -523,30 +516,22 @@ class NodeService(
 
     @Throws(SDKException::class)
     fun remoteRestore(stateID: StateID) {
-        val sf = accountService.sessionFactory
-        val client: Client = sf.getUnlockedClient(stateID.accountId)
-        client.restore(stateID.workspace, arrayOf<String>(stateID.path))
+        getClient(stateID).restore(stateID.workspace, arrayOf<String>(stateID.path))
     }
 
     @Throws(SDKException::class)
     fun remoteEmptyRecycle(stateID: StateID) {
-        val sf = accountService.sessionFactory
-        val client: Client = sf.getUnlockedClient(stateID.accountId)
-        client.emptyRecycleBin(stateID.workspace)
+        getClient(stateID).emptyRecycleBin(stateID.workspace)
     }
 
     @Throws(SDKException::class)
     fun remoteRename(stateID: StateID, newName: String) {
-        val sf = accountService.sessionFactory
-        val client: Client = sf.getUnlockedClient(stateID.accountId)
-        client.rename(stateID.workspace, stateID.file, newName)
+        getClient(stateID).rename(stateID.workspace, stateID.file, newName)
     }
 
     @Throws(SDKException::class)
     fun remoteDelete(stateID: StateID) {
-        val sf = accountService.sessionFactory
-        val client: Client = sf.getUnlockedClient(stateID.accountId)
-        client.delete(stateID.workspace, arrayOf<String>(stateID.file))
+        getClient(stateID).delete(stateID.workspace, arrayOf<String>(stateID.file))
     }
 
     /* Constants and helpers */

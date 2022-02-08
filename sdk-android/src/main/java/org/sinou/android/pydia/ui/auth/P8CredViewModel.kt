@@ -53,15 +53,23 @@ class P8CredViewModel(
 
     fun logToP8(login: String, password: String, captcha: String?) {
         // TODO validate passed parameters
+        switchLoading(true)
         vmScope.launch {
-            switchLoading(true)
             _errorMessage.value = doP8Auth(login, password, captcha)
             switchLoading(false)
         }
     }
 
+    fun cancel() {
+        val wasOn = isProcessing.value ?: false
+        if (wasOn){
+            _isProcessing.value = false
+        }
+        // TODO also cancel running jobs
+    }
+
     private fun switchLoading(newState: Boolean) {
-        _isProcessing.value = true
+        _isProcessing.value = newState
     }
 
     private suspend fun doP8Auth(login: String, password: String, captcha: String?): String? {
@@ -73,12 +81,16 @@ class P8CredViewModel(
             var id: String? = null
             try {
                 id = accountService.registerAccount(serverURL, creds)
+
+                accountService.refreshWorkspaceList(id)
+
             } catch (e: SDKException) {
                 // TODO handle captcha here
                 errorMsg = e.message ?: "Invalid credentials, please try again"
             }
             id
         }
+
         if (accountIDStr != null) {
             _accountID.value = accountIDStr
         }

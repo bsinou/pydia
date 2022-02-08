@@ -5,7 +5,6 @@ import com.pydio.cells.api.*
 import com.pydio.cells.client.CellsClient
 import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
-import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
@@ -37,25 +36,29 @@ class SessionFactory(
         @Volatile
         private var INSTANCE: SessionFactory? = null
 
-        // Locally store a cache of known sessions
-        @Volatile
-        private lateinit var sessions: Store<RLiveSession>
+//        // Locally store a cache of known sessions
+//        @Volatile
+//        private lateinit var sessions: Store<RLiveSession>
+
         @Volatile
         private lateinit var servers: Store<Server>
+
         @Volatile
         private lateinit var transports: Store<Transport>
 
-        fun getSessionFactory(accountService: AccountService, authService: AuthService): SessionFactory {
+        fun getSessionFactory(
+            accountService: AccountService,
+            authService: AuthService
+        ): SessionFactory {
             val tempInstance = INSTANCE
             if (tempInstance != null) {
                 return tempInstance
             }
 
-            val accountDB = accountService.accountDB
             synchronized(this) {
                 servers = MemoryStore()
                 transports = MemoryStore()
-                sessions = MemoryStore()
+//                sessions = MemoryStore()
                 val instance = SessionFactory(
                     accountService,
                     servers,
@@ -86,14 +89,14 @@ class SessionFactory(
 
     init {
         sessionFactoryScope.launch(Dispatchers.IO) {
-            val accounts = accountService.accountDB.accountDao().getAccounts()
-            for (account in accounts) {
-                try {
-                    restoreSession(account.accountID)
-                } catch (e: SDKException) {
-                    Log.e(tag, "Cannot restore session for " + account.accountID + ": " + e.message)
-                }
-            }
+//            val accounts = accountService.accountDB.accountDao().getAccounts()
+//            for (account in accounts) {
+//                try {
+//                    restoreSession(account.accountID)
+//                } catch (e: SDKException) {
+//                    Log.e(tag, "Cannot restore session for " + account.accountID + ": " + e.message)
+//                }
+//            }
             Log.i(tag, "... Session factory initialised")
             ready = true
         }
@@ -130,63 +133,51 @@ class SessionFactory(
         // until it breaks :) ... code defensively afterwards and correctly handle errors
         // First check if we are connected to the internet
 
-        sessions.get(accountID) ?: run {
-            try {
-                restoreSession(accountID)
-            } catch (e: SDKException) {
-               throw e
+        val session: RLiveSession = accountService.accountDB.liveSessionDao().getSession(accountID)
+            ?: run {
+                throw SDKException(ErrorCodes.not_found, "cannot retrieve client for $accountID")
             }
-        }
 
-        sessions.get(accountID).let {
-            if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-                return getClient(transports.get(accountID)!!)
-            } else {
-                throw SDKException(
-                    ErrorCodes.authentication_required,
-                    "cannot unlock session for $accountID, auth status:" + it.authStatus
-                )
+        if (session.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+            var currTransport = transports.get(accountID)
+            if (currTransport == null) {
+                currTransport = prepareTransport(session)
             }
+            return getClient(currTransport)
+        } else {
+            Log.d(tag, "Listing sessions")
+            for (sess in accountService.accountDB.liveSessionDao().getSessions()) {
+                Log.d(tag, "$sess.dbName} / ${sess.authStatus}")
+            }
+
+            throw SDKException(
+                ErrorCodes.authentication_required,
+                "cannot unlock session for $accountID, auth status:" + session.authStatus
+            )
         }
     }
 
+
     @Throws(SDKException::class)
-    fun restoreSession(accountID: String) {
-        Log.i(tag, "### Restoring session with client data ${ClientData.getInstance().name}")
-
-        val db = accountService.accountDB
-        val account = db.accountDao().getAccount(accountID)
-            ?: throw SDKException(
-                ErrorCodes.unknown_account,
-                "No account for $accountID, cannot restore session"
-            )
-
+    private fun prepareTransport(session: RLiveSession): Transport {
         try {
-            val skipVerify = account.tlsMode == 1
-            val serverURL = ServerURLImpl.fromAddress(account.url, skipVerify)
-            // TODO probably useless
-            servers[accountID] ?: registerServer(serverURL)
-            transports.get(accountID) ?: restoreAccount(serverURL, account.username)
-
-            val session = db.liveSessionDao().getSession(accountID) ?: throw SDKException(
-                ErrorCodes.internal_error,
-                "Session for $accountID should exist at this point"
-            )
-            sessions.put(accountID, session)
+            val skipVerify = session.tlsMode == 1
+            val serverURL = ServerURLImpl.fromAddress(session.url, skipVerify)
+            return restoreAccount(serverURL, session.username)
 
         } catch (se: SDKException) {
-            Log.e(tag, "could not resurrect session: " + se.message)
-            // Handle well known errors and transfer the error to the caller
-            when (se.code) {
-                ErrorCodes.authentication_required -> {
-                    account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
-                    db.accountDao().update(account)
-                }
-                ErrorCodes.token_expired -> {
-                    account.authStatus = AppNames.AUTH_STATUS_EXPIRED
-                    db.accountDao().update(account)
-                }
-            }
+//            Log.e(TAG, "could not resurrect session: " + se.message)
+//            // Handle well known errors and transfer the error to the caller
+//            when (se.code) {
+//                ErrorCodes.authentication_required -> {
+//                    account.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+//                    db.accountDao().update(account)
+//                }
+//                ErrorCodes.token_expired -> {
+//                    account.authStatus = AppNames.AUTH_STATUS_EXPIRED
+//                    db.accountDao().update(account)
+//                }
+//            }
             throw se
         }
     }

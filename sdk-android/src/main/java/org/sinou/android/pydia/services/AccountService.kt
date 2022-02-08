@@ -57,7 +57,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
     val liveSessions: LiveData<List<RLiveSession>> = accountDB.liveSessionDao().getLiveSessions()
 
     @Throws(SDKException::class)
-    fun registerAccount(serverURL: ServerURL, credentials: Credentials): String? {
+    fun registerAccount(serverURL: ServerURL, credentials: Credentials): String {
 
         val state = StateID(credentials.username, serverURL.id)
         val existingAccount = accountDB.accountDao().getAccount(state.accountId)
@@ -130,11 +130,13 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         try {
             // First retrieve the account to be logged out to know if it is legacy or not
             accountDB.accountDao().getAccount(accountID)?.let {
+                // There is also a token that is generated for P8, so in case of legacy server
+                // we have to discard a row in **both** tables
                 if (it.isLegacy) {
                     accountDB.legacyCredentialsDao().forgetPassword(accountID)
-                } else {
-                    accountDB.tokenDao().forgetToken(accountID)
                 }
+                accountDB.tokenDao().forgetToken(accountID)
+
                 it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
                 accountDB.accountDao().update(it)
 

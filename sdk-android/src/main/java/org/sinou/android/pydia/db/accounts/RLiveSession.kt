@@ -3,6 +3,7 @@ package org.sinou.android.pydia.db.accounts
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import androidx.room.TypeConverters
+import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.db.Converters
 
 @DatabaseView(
@@ -34,7 +35,11 @@ data class RLiveSession(
     @ColumnInfo(name = "is_legacy") var isLegacy: Boolean,
     @ColumnInfo(name = "server_label") val serverLabel: String?,
     @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
-)
+) {
+    fun getStateID(): StateID {
+        return StateID.fromId(accountID)
+    }
+}
 
 //// Not very useful for the time being, kept here for the pattern
 //fun List<RLiveSession>.asDomainModel(): List<RLiveSession> {

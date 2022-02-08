@@ -10,7 +10,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
+import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
@@ -23,6 +23,7 @@ class AccountListFragment : Fragment() {
     private val fTag = AccountListFragment::class.java.simpleName
 
     private lateinit var binding: FragmentAccountListBinding
+    private lateinit var accountListViewModel: AccountListViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +40,8 @@ class AccountListFragment : Fragment() {
             CellsApp.instance.accountService,
             application
         )
-        val accountListViewModel: AccountListViewModel by viewModels { viewModelFactory }
+        val tmp: AccountListViewModel by viewModels { viewModelFactory }
+        accountListViewModel = tmp
 
         val adapter = AccountListAdapter { accountID, action ->
             onAccountClicked(accountID, action)
@@ -73,11 +75,22 @@ class AccountListFragment : Fragment() {
 //                CellsApp.instance.setCurrentState(
 //                    StateID.fromId(accountID).withPath(AppNames.CUSTOM_PATH_ACCOUNTS)
 //                )
-                val server = CellsApp.instance.accountService.sessionFactory.getServer(accountID)
-                if (server.isLegacy) {
+
+                val currSession = accountListViewModel.sessions.value
+                    ?.filter { it.accountID == accountID }
+                    ?.get(0)
+                if (currSession == null) {
+                    Log.i(fTag, "No live session found for: $accountID in ViewModel, aborting...")
+                    return
+                }
+                // FIXME clean this when implementing custom certificate acceptance.
+                val serverURL = ServerURLImpl.fromAddress(currSession.url, currSession.tlsMode == 1)
+
+                if (currSession.isLegacy) {
                     val toAuthIntent = Intent(requireActivity(), AuthActivity::class.java)
-                    toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, server.serverURL.toJson())
-                    toAuthIntent.putExtra(AppNames.EXTRA_SERVER_IS_LEGACY, server.isLegacy)
+
+                    toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, serverURL.toJson())
+                    toAuthIntent.putExtra(AppNames.EXTRA_SERVER_IS_LEGACY, true)
                     toAuthIntent.putExtra(
                         AppNames.EXTRA_AFTER_AUTH_ACTION,
                         AuthService.NEXT_ACTION_ACCOUNTS
@@ -87,7 +100,7 @@ class AccountListFragment : Fragment() {
                     lifecycleScope.launch {
                         val toAuthIntent =
                             CellsApp.instance.accountService.authService.createOAuthIntent(
-                                server.serverURL,
+                                serverURL,
                                 AuthService.NEXT_ACTION_ACCOUNTS
                             )
                         startActivity(toAuthIntent)

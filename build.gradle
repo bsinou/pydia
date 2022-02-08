@@ -18,7 +18,7 @@ buildscript {
         def preference_version = '1.1.1'
         def androidx_core_version  = '1.7.0'
 
-        def appcompat_version = '1.4.0'
+        def appcompat_version = '1.4.1'
         def material_version = '1.5.0'
         def navigation_version = '2.4.0'
         def constraint_layout_version = '2.1.3'

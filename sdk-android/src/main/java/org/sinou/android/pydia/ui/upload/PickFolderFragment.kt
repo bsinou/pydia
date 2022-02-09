@@ -18,6 +18,8 @@ import org.sinou.android.pydia.databinding.FragmentPickFolderBinding
 
 class PickFolderFragment : Fragment() {
 
+    // private val fTag = PickSessionFragment::class.java.simpleName
+
     private lateinit var binding: FragmentPickFolderBinding
     private lateinit var pickFolderVM: PickFolderViewModel
     private lateinit var chooseTargetVM: ChooseTargetViewModel

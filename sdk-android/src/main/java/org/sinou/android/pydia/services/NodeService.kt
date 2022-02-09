@@ -63,8 +63,17 @@ class NodeService(
     }
 
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB(stateID).treeNodeDao()
-            .lsWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
+        // Tweak to also be able to list workspaces roots
+        var parPath = stateID.file
+        var mime = SdkNames.NODE_MIME_FOLDER
+        if (Str.empty(parPath)) {
+            parPath = ""
+            mime = SdkNames.NODE_MIME_WS_ROOT
+        } else if (parPath == "/"){
+
+        }
+        Log.i(TAG, "Listing children of $stateID: parPath: $parPath, mime: $mime")
+        return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, parPath, mime)
     }
 
     fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
@@ -550,11 +559,8 @@ class NodeService(
         nodeDB(rTreeNode.getStateID()).treeNodeDao().update(rTreeNode)
     }
 
-
     //    private fun handleSdkException(msg: String, se: SDKException): SDKException {
     private fun handleSdkException(msg: String, se: SDKException) {
-
-
         Log.e(TAG, msg)
         Log.e(TAG, "Error code: ${se.code}")
         se.printStackTrace()

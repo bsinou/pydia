@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import org.sinou.android.pydia.services.AccountService
 
 /**
- * This holds the list of connected clients to choose a target destination for uploads and moves.
+ * Holds a list of connected clients to choose a target destination for uploads and moves.
  */
 class PickSessionViewModel(
     accountService: AccountService,

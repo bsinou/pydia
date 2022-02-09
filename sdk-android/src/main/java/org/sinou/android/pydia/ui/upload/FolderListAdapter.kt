@@ -37,10 +37,14 @@ class FolderListAdapter(
             parentStateID: StateID,
             onItemClicked: (stateID: StateID, command: String) -> Unit
         ): ViewHolder {
-
             binding.root.setOnClickListener {
                 binding.node?.let {
-                    onItemClicked(parentStateID.child(it.name), AppNames.ACTION_OPEN)
+                    // Handle corner case when we list folder roots
+                    var targetStateID = parentStateID.child(it.name)
+                    if (parentStateID.id == parentStateID.accountId){
+                        targetStateID = parentStateID.withPath("/${it.workspace}")
+                    }
+                    onItemClicked(targetStateID, AppNames.ACTION_OPEN)
                 }
             }
             return this

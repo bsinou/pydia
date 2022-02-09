@@ -15,24 +15,11 @@
         android:label="@string/pick_up_session"
         tools:layout="@layout/fragment_pick_session">
         <action
-            android:id="@+id/action_pick_ws"
-            app:destination="@id/choose_ws_destination" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/choose_ws_destination"
-        android:name="org.sinou.android.pydia.ui.upload.PickWSFragment"
-        android:label="@string/pick_up_workspace"
-        tools:layout="@layout/fragment_pick_ws">
-        <action
             android:id="@+id/action_pick_folder"
             app:destination="@id/choose_folder_destination" />
-        <argument
-            android:name="state"
-            app:argType="string" />
     </fragment>
 
-    <fragment
+     <fragment
         android:id="@+id/choose_folder_destination"
         android:name="org.sinou.android.pydia.ui.upload.PickFolderFragment"
         android:label="@string/pick_up_folder"

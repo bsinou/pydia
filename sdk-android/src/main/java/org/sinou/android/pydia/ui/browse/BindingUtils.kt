@@ -87,7 +87,7 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
             .into(this)
     } else {
         // Log.w("SetNodeThumb", "no thumb found for ${item.name}")
-        setImageResource(getDrawableFromMime(item.mime))
+        setImageResource(getDrawableFromMime(item.mime, item.sortName))
     }
 }
 
@@ -111,7 +111,7 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
             .into(this)
     } else {
         Log.w("SetCardThumb", "no thumb found for ${item.name}")
-        setImageResource(getDrawableFromMime(item.mime))
+        setImageResource(getDrawableFromMime(item.mime, item.sortName))
     }
 }
 
@@ -181,17 +181,27 @@ fun View.setShowForWithinRecycle(item: RTreeNode?) {
 }
 
 fun getIconForWorkspace(item: RWorkspace) = when (item.type) {
+    // TODO we hard code the tint in the XML Layout
     SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
     SdkNames.WS_TYPE_CELL -> R.drawable.cells
     else -> R.drawable.ic_baseline_folder_24
 }
 
-fun getDrawableFromMime(mime: String): Int {
+fun getDrawableFromMime(mime: String, sortName: String?): Int {
     // TODO enrich with more specific icons for files depending on the mime
+
     return when (mime) {
         SdkNames.NODE_MIME_FOLDER -> R.drawable.icon_folder
-        SdkNames.NODE_MIME_WS_ROOT -> R.drawable.icon_folder
         SdkNames.NODE_MIME_RECYCLE -> R.drawable.icon_recycle
+        SdkNames.NODE_MIME_WS_ROOT -> {
+            // Tweak: we deduce type of ws root from the sort name. Not very clean
+            val prefix = sortName ?: ""
+            when {
+                prefix.startsWith("1_2") -> R.drawable.ic_baseline_folder_shared_24
+                prefix.startsWith("1_8") -> R.drawable.cells_icon
+                else -> R.drawable.icon_folder
+            }
+        }
         else -> R.drawable.icon_file
     }
 }

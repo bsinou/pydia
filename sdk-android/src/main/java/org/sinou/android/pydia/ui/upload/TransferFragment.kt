@@ -51,18 +51,13 @@ class TransferFragment : Fragment() {
     }
 
     override fun onResume() {
-        super
-
-            .onResume()
-
-
+        super.onResume()
         dumpBackStack(fTag, parentFragmentManager)
-
         // transferVM.resume()
     }
 
-    override fun onPause() {
-        super.onPause()
-        // transferVM.pause()
-    }
+//    override fun onPause() {
+//        super.onPause()
+//        // transferVM.pause()
+//    }
 }

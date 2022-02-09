@@ -34,7 +34,6 @@ class SessionListAdapter(
         fun with(
             onItemClicked: (stateID: StateID, command: String) -> Unit
         ): ViewHolder {
-
             binding.root.setOnClickListener {
                 binding.session?.let {
                     onItemClicked(StateID.fromId(it.accountID), AppNames.ACTION_OPEN)

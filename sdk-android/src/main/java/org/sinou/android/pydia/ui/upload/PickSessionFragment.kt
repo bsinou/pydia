@@ -1,7 +1,6 @@
 package org.sinou.android.pydia.ui.upload
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,12 +17,11 @@ import org.sinou.android.pydia.databinding.FragmentPickSessionBinding
 
 class PickSessionFragment : Fragment() {
 
-    private val fTag = "PickSessionFragment"
+    // private val fTag = PickSessionFragment::class.java.simpleName
 
     private lateinit var binding: FragmentPickSessionBinding
     private lateinit var targetAccountVM: PickSessionViewModel
     private lateinit var chooseTargetVM: ChooseTargetViewModel
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,7 +36,6 @@ class PickSessionFragment : Fragment() {
             CellsApp.instance.accountService,
             requireActivity().application,
         )
-
         val tmpVM: PickSessionViewModel by viewModels { viewModelFactory }
         targetAccountVM = tmpVM
 
@@ -46,23 +43,21 @@ class PickSessionFragment : Fragment() {
             CellsApp.instance.nodeService,
             requireActivity().application,
         )
-
         val tmpAVM: ChooseTargetViewModel by activityViewModels { chooseTargetFactory }
         chooseTargetVM = tmpAVM
 
         val adapter = SessionListAdapter { stateID, action -> onClicked(stateID, action) }
         binding.sessions.adapter = adapter
-        targetAccountVM.sessions.observe(viewLifecycleOwner, { adapter.submitList(it) })
+        targetAccountVM.sessions.observe(viewLifecycleOwner) { adapter.submitList(it) }
 
         return binding.root
     }
 
     private fun onClicked(stateID: StateID, command: String) {
-        Log.i(fTag, "ID: $stateID, do $command")
-
+        // Log.d(fTag, "Clicked on: $stateID, do $command")
         when (command) {
             AppNames.ACTION_OPEN -> {
-                val action = PickSessionFragmentDirections.actionPickWs(stateID.id)
+                val action = PickSessionFragmentDirections.actionPickFolder(stateID.id)
                 findNavController().navigate(action)
             }
             else -> return // do nothing

@@ -30,8 +30,6 @@ class OAuthFlowFragment : Fragment() {
     private lateinit var viewModel: OAuthViewModel
     private lateinit var navController: NavController
 
-    private val flowArgs by navArgs<OAuthFlowFragmentArgs>()
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,7 +45,6 @@ class OAuthFlowFragment : Fragment() {
         val tmp: OAuthViewModel by viewModels { viewModelFactory }
         viewModel = tmp
         binding.oAuthViewModel = viewModel
-        // binding.lifecycleOwner = this
         navController = findNavController()
 
         viewModel.accountID.observe(viewLifecycleOwner) { pair ->
@@ -101,5 +98,4 @@ class OAuthFlowFragment : Fragment() {
         Log.i(fTag, "onStop")
         super.onStop()
     }
-
 }

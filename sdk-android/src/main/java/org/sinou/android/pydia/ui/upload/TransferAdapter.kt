@@ -59,7 +59,7 @@ class TransferListAdapter(
 class TransferDiffCallback : DiffUtil.ItemCallback<RUpload>() {
 
     override fun areItemsTheSame(oldItem: RUpload, newItem: RUpload): Boolean {
-        return oldItem.targetState == newItem.targetState
+        return oldItem.encodedState == newItem.encodedState
     }
 
     override fun areContentsTheSame(oldItem: RUpload, newItem: RUpload): Boolean {

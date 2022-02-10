@@ -13,39 +13,48 @@
             type="org.sinou.android.pydia.db.runtime.RUpload" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
+        <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/progress"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="visible"
-            app:updateProgress="@{transfer}"/>
-
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:indeterminate="true"
+             />
+<!--        app:updateProgress="@{transfer}"-->
         <TextView
             android:id="@+id/primaryText"
             style="@style/text_list_secondary"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
+            app:layout_constraintStart_toStartOf="@id/secondaryText"
+            app:layout_constraintBottom_toTopOf="@id/secondaryText"
             app:transferText="@{transfer}"
             tools:text="my-image-88639.jpg - 658KB - Started 2 years ago..." />
 
         <TextView
             android:id="@+id/secondaryText"
             style="@style/text_list_error"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
+            android:layout_marginStart="@dimen/margin"
             app:transferStatus="@{transfer}"
+            app:layout_constraintBaseline_toBaselineOf="@id/progress"
+            app:layout_constraintStart_toEndOf="@id/progress"
             tools:text="2 years ago... Maybe the server is unreachable?" />
 
-    </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

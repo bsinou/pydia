@@ -118,8 +118,12 @@ class FileService(private val accountService: AccountService) {
      * and persisted from the remote server
      * */
     @Throws(java.lang.IllegalStateException::class)
-    fun getLocalPath(item: RTreeNode, type: String): String? {
+    fun getLocalPath(item: RTreeNode, type: String): String {
         val stat = StateID.fromId(item.encodedState)
+        return getLocalPathFromState(stat, type)
+    }
+
+    fun getLocalPathFromState(stat : StateID, type: String): String {
         return when (type) {
             AppNames.LOCAL_FILE_TYPE_CACHE
             -> "${dataPath(stat, type)}${stat.file}"
@@ -129,9 +133,10 @@ class FileService(private val accountService: AccountService) {
             -> "${dataPath(stat, type)}${stat.file}"
             AppNames.LOCAL_FILE_TYPE_THUMB
             -> "${dataPath(stat, type)}${stat.file}"
-            else -> throw IllegalStateException("Unable to generate local path for $type file: ${item.encodedState} ")
+            else -> throw IllegalStateException("Cannot create $type path for $stat")
         }
     }
+
 
     fun createImageFile(stateID: StateID): File {
         val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")

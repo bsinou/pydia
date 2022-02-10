@@ -41,9 +41,9 @@ class PickFolderFragment : Fragment() {
             StateID.fromId(args.state)
         }
 
-        val viewModelFactory = PickFolderViewModel.TargetFolderViewModelFactory(
-            CellsApp.instance.nodeService,
+        val viewModelFactory = PickFolderViewModel.PickFolderViewModelFactory(
             stateID,
+            CellsApp.instance.nodeService,
             requireActivity().application,
         )
         val tmpVM: PickFolderViewModel by viewModels { viewModelFactory }

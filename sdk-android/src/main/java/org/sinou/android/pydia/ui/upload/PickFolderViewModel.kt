@@ -12,22 +12,22 @@ import org.sinou.android.pydia.services.NodeService
  * for uploads and moves.
  */
 class PickFolderViewModel(
-    nodeService: NodeService,
     val stateID: StateID,
+    nodeService: NodeService,
     application: Application
 ) : AndroidViewModel(application) {
 
     val children = nodeService.listChildFolders(stateID)
 
-    class TargetFolderViewModelFactory(
-        private val nodeService: NodeService,
+    class PickFolderViewModelFactory(
         private val stateID: StateID,
+        private val nodeService: NodeService,
         private val application: Application
     ) : ViewModelProvider.Factory {
         @Suppress("unchecked_cast")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(PickFolderViewModel::class.java)) {
-                return PickFolderViewModel(nodeService, stateID, application) as T
+                return PickFolderViewModel(stateID, nodeService, application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

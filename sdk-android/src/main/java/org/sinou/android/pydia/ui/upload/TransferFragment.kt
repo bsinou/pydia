@@ -43,11 +43,17 @@ class TransferFragment : Fragment() {
         binding.transferList.adapter = adapter
         transferVM.transfers.observe(viewLifecycleOwner, { adapter.submitList(it) })
 
+//        binding.forceLaunch.setOnClickListener {
+//            lifecycleScope.launch {
+//                CellsApp.instance.nodeService.uploadAllNew()
+//            }
+//        }
+
         return binding.root
     }
 
     private fun onClicked(node: RUpload, command: String) {
-        Log.i(fTag, "Clicked on ${node.targetState} -> $command")
+        Log.i(fTag, "Clicked on ${node.encodedState} -> $command")
     }
 
     override fun onResume() {

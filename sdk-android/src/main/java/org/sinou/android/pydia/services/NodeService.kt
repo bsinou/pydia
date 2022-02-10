@@ -19,6 +19,9 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.db.nodes.TreeNodeDB
+import org.sinou.android.pydia.db.runtime.RUpload
+import org.sinou.android.pydia.db.runtime.RuntimeDB
+import org.sinou.android.pydia.db.runtime.UploadDao
 import org.sinou.android.pydia.transfer.FolderDiff
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.logException
@@ -69,7 +72,7 @@ class NodeService(
         if (Str.empty(parPath)) {
             parPath = ""
             mime = SdkNames.NODE_MIME_WS_ROOT
-        } else if (parPath == "/"){
+        } else if (parPath == "/") {
 
         }
         Log.i(TAG, "Listing children of $stateID: parPath: $parPath, mime: $mime")
@@ -262,7 +265,7 @@ class NodeService(
         try {
             return getClient(stateID).stats(stateID.workspace, stateID.file, true)
         } catch (e: SDKException) {
-            handleSdkException("could not stat at ${stateID}", e)
+            handleSdkException("could not stat at $stateID", e)
         }
         return null
     }
@@ -410,10 +413,9 @@ class NodeService(
         }
 
     fun enqueueUpload(parentID: StateID, uri: Uri) {
+        val cr = CellsApp.instance.contentResolver
+
         serviceScope.launch {
-
-            val cr = CellsApp.instance.contentResolver
-
             // Name and size
             var name: String? = null
             var size: Long = 0
@@ -442,33 +444,175 @@ class NodeService(
                 }
             }
 
-            // Real upload in single part
+            // FIXME to by-pass permission issues, we make a local copy of the file to upload
+            //   in Cells app storage
+            val fs = CellsApp.instance.fileService
+            val targetStateID = createLocalState(parentID, name as String)
+            val localFile =
+                File(fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_CACHE))
+            localFile.parentFile!!.mkdirs()
+            //val localFile = createTargetFile(parentID, name as String)
+
             var inputStream: InputStream? = null
+            var outputStream: OutputStream? = null
             try {
                 inputStream = cr.openInputStream(uri)
-                val error = uploadAt(parentID, name!!, size, mime, inputStream!!)
+                outputStream = FileOutputStream(localFile)
+                IoHelpers.pipeRead(inputStream, outputStream)
+
+//                val error = uploadAt(
+//                    StateID.fromId(uploadRecord.targetState),
+//                    uploadRecord.name,
+//                    uploadRecord.byteSize,
+//                    uploadRecord.mime,
+//                    inputStream!!
+//                )
             } catch (ioe: IOException) {
                 ioe.printStackTrace()
             } finally {
                 IoHelpers.closeQuietly(inputStream)
+                IoHelpers.closeQuietly(outputStream)
+            }
+
+            val rec = RUpload.fromState(targetStateID.id, "device", size, mime)
+            val dao = RuntimeDB.getDatabase(CellsApp.instance.applicationContext).uploadDao()
+            val rowId = dao.insert(rec)
+
+            serviceScope.launch {
+                uploadOne(targetStateID.id)
             }
         }
     }
 
-    @Throws(SDKException::class)
-    suspend fun uploadAt(
-        parentID: StateID, fileName: String, size: Long,
-        mime: String, input: InputStream
-    ) = withContext(Dispatchers.IO) {
+    private fun bumpFileVersion(name: String): String {
+        val index = name.lastIndexOf(".")
+        return if (index == -1) {
+            handleWOExt(name)
+        } else {
+            val newPrefix = handleWOExt(name.substring(0, index))
+            newPrefix + name.substring(index + 1, name.length)
+        }
+    }
+
+    private fun handleWOExt(name: String): String {
+        val index = name.lastIndexOf("-")
+        return if (index == -1) {
+            "${name}-2"
+        } else {
+            val suffix = name.substring(index + 1, name.length)
+            if (isInt(suffix)) {
+                val newPrefix = handleWOExt(name.substring(0, index))
+                val newSuffix = suffix.toInt() + 1
+                "${newPrefix}-${newSuffix}"
+            } else {
+                "${name}-2"
+            }
+        }
+    }
+
+    private fun isInt(value: String): Boolean {
+        return try {
+            value.toInt()
+            true
+        } catch (ex: java.lang.Exception) {
+            false
+        }
+    }
+
+    private fun createTargetFile(parentID: StateID, name: String): File {
+        val fs = CellsApp.instance.fileService
+        val targetStateID = createLocalState(parentID, name)
+        val tf = File(fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_CACHE))
+        tf.parentFile!!.mkdirs()
+        return tf
+    }
+
+    private fun createLocalState(parentID: StateID, name: String): StateID {
+        val fs = CellsApp.instance.fileService
+        var parentPath = fs.getLocalPathFromState(parentID, AppNames.LOCAL_FILE_TYPE_CACHE)
+        var targetFile = File(File(parentPath), name)
+        while (targetFile.exists()) {
+            val newName = bumpFileVersion(targetFile.name)
+            targetFile = File(targetFile.parentFile!!, newName)
+        }
+        return parentID.child(targetFile.name)
+    }
+
+    suspend fun uploadOne(id: String) {
+        val dao = RuntimeDB.getDatabase(CellsApp.instance.applicationContext).uploadDao()
+        val uploadRecord = dao.get(id)
+            ?: throw java.lang.IllegalStateException("No upload found for $id")
+        doUpload(uploadRecord)
+    }
+
+    suspend fun uploadAllNew() {
+        serviceScope.launch {
+            val dao = RuntimeDB.getDatabase(CellsApp.instance.applicationContext).uploadDao()
+            val uploads = dao.getAllNew()
+            for (one in uploads) {
+                serviceScope.launch {
+                    doUpload(one)
+                }
+            }
+        }
+    }
+
+//    suspend fun doLiveUpload(uploadRecord: RUpload) {
+//        val cr = CellsApp.instance.contentResolver
+//
+//        // Real upload in single part
+//        var inputStream: InputStream? = null
+//        try {
+//            inputStream = cr.openInputStream(Uri.parse(uploadRecord.uri))
+//
+//            val error = uploadAt(
+//                StateID.fromId(uploadRecord.targetState),
+//                uploadRecord.name,
+//                uploadRecord.byteSize,
+//                uploadRecord.mime,
+//                inputStream!!
+//            )
+//        } catch (ioe: IOException) {
+//            ioe.printStackTrace()
+//        } finally {
+//            IoHelpers.closeQuietly(inputStream)
+//        }
+//    }
+//
+
+    fun getUploadDao(): UploadDao {
+        return RuntimeDB.getDatabase(CellsApp.instance.applicationContext).uploadDao()
+    }
+
+    suspend fun doUpload(uploadRecord: RUpload) {
+        // Real upload in single part
+        var inputStream: InputStream? = null
         try {
-            getClient(parentID).upload(
-                input, size, mime, parentID.workspace, parentID.file, fileName,
+            // Mark the upload as started
+            uploadRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            getUploadDao().update(uploadRecord)
+            val fs = CellsApp.instance.fileService
+            val state = uploadRecord.getStateId()
+            var srcPath = fs.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
+            var srcFile = File(srcPath)
+            inputStream = FileInputStream(srcFile)
+
+            val parent = state.parentFolder()
+            getClient(state).upload(
+                inputStream!!, uploadRecord.byteSize,
+                uploadRecord.mime, parent.workspace, parent.file, state.fileName,
                 true, null
             )
+
         } catch (e: Exception) {
+            // TODO manage errors correctly
+            uploadRecord.error = e.message
             e.printStackTrace()
+        } finally {
+            IoHelpers.closeQuietly(inputStream)
+            uploadRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            getUploadDao().update(uploadRecord)
         }
-        null
     }
 
     suspend fun restoreNode(stateID: StateID): String? = withContext(Dispatchers.IO) {

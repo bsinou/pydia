@@ -29,10 +29,7 @@ import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
-import org.sinou.android.pydia.utils.BackStackAdapter
-import org.sinou.android.pydia.utils.dumpBackStack
-import org.sinou.android.pydia.utils.externallyView
-import org.sinou.android.pydia.utils.resetToHomeStateIfNecessary
+import org.sinou.android.pydia.utils.*
 
 class BrowseFolderFragment : Fragment() {
 
@@ -95,6 +92,13 @@ class BrowseFolderFragment : Fragment() {
         }
         // Put this also in observer when the above has been fixed
         binding.addNodeFab.setOnClickListener { onFabClicked() }
+
+
+        // Used for refresh the data
+        binding.nodesForceRefresh.setOnRefreshListener {
+            binding.nodesForceRefresh.isRefreshing = false
+            showMessage(requireContext(), "Refreshing")
+        }
 
         isCreated = true
         return binding.root

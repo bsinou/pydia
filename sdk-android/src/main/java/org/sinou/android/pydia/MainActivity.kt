@@ -1,5 +1,7 @@
 package org.sinou.android.pydia
 
+import android.app.ActivityManager
+import android.net.TrafficStats
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -26,7 +28,9 @@ import org.sinou.android.pydia.ui.home.clearCache
 import org.sinou.android.pydia.ui.search.SearchFragment
 import org.sinou.android.pydia.utils.dumpBackStack
 import org.sinou.android.pydia.utils.showMessage
+import java.util.*
 import kotlin.system.exitProcess
+
 
 /**
  * Central activity for browsing, managing accounts and settings. Various
@@ -104,6 +108,26 @@ class MainActivity : AppCompatActivity() {
         activeSessionVM.accountId?.let {
             Log.e(tag, "onSaveInstanceState for: ${StateID.fromId(it)}")
             outState.putString(AppNames.KEY_STATE, it)
+        }
+    }
+
+    private fun networkUsage() {
+        // Get running processes
+        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val runningApps = manager.runningAppProcesses
+        for (runningApp in runningApps) {
+            val received = TrafficStats.getUidRxBytes(runningApp.uid)
+            val sent = TrafficStats.getUidTxBytes(runningApp.uid)
+            Log.d(
+                tag, java.lang.String.format(
+                    Locale.getDefault(),
+                    "uid: %1d - name: %s: Sent = %1d, Rcvd = %1d",
+                    runningApp.uid,
+                    runningApp.processName,
+                    sent,
+                    received
+                )
+            )
         }
     }
 
@@ -232,6 +256,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         Log.d(tag, "onResume, intent: $intent")
+        Log.d(tag, "#### Calling network usage for: ${activeSessionVM.accountId}")
+        networkUsage()
         super.onResume()
         dumpBackStack(tag, supportFragmentManager)
     }

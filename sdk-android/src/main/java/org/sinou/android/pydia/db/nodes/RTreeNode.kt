@@ -87,6 +87,21 @@ data class RTreeNode(
         return name == SdkNames.RECYCLE_BIN_NAME
     }
 
+    fun toFileNode(): FileNode {
+        // TODO double check we might drop some info that we have missed on first draft implementation
+        val fn = FileNode()
+        fn.setProperty(SdkNames.NODE_PROPERTY_UUID, uuid)
+        fn.setProperty(SdkNames.NODE_PROPERTY_ETAG, etag)
+        fn.setProperty(SdkNames.NODE_PROPERTY_MTIME, "$remoteModificationTS")
+        fn.setProperty(SdkNames.NODE_PROPERTY_PATH, getStateID().path)
+        fn.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, workspace)
+        fn.setProperty(SdkNames.NODE_PROPERTY_FILENAME, name)
+        fn.setProperty(SdkNames.NODE_PROPERTY_IS_FILE, "${isFile()}")
+        fn.setProperty(SdkNames.NODE_PROPERTY_MIME, mime)
+        fn.setProperty(SdkNames.NODE_PROPERTY_BYTESIZE, "$size");
+        return fn
+    }
+
     companion object {
         private const val TAG = "RTreeNode"
 
@@ -143,7 +158,7 @@ data class RTreeNode(
             Log.w(TAG, "  - Label: ${node.label}")
             Log.w(TAG, "  - Desc: ${node.description}")
             try {
-                val currSortName = when (node.workspaceType){
+                val currSortName = when (node.workspaceType) {
                     SdkNames.WS_TYPE_PERSONAL -> "1_2_${node.label}"
                     SdkNames.WS_TYPE_CELL -> "1_8_${node.label}"
                     else -> "1_5_${node.label}"

@@ -667,9 +667,21 @@ class NodeService(
         return@withContext null
     }
 
-    @Throws(SDKException::class)
-    fun remoteRestore(stateID: StateID) {
-        getClient(stateID).restore(stateID.workspace, arrayOf<String>(stateID.path))
+    suspend fun remoteRestore(stateID: StateID): String? = withContext(Dispatchers.IO) {
+        try {
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+                ?: return@withContext "No node found at $stateID, could not restore"
+
+            val nodes = arrayOf(node.toFileNode())
+            getClient(stateID).restore(stateID.workspace, nodes)
+
+            remoteDelete(stateID)
+            persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
+        } catch (se: SDKException) {
+            se.printStackTrace()
+            return@withContext "Could not delete $stateID: ${se.message}"
+        }
+        return@withContext null
     }
 
     @Throws(SDKException::class)

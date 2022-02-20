@@ -36,10 +36,6 @@ class SessionFactory(
         @Volatile
         private var INSTANCE: SessionFactory? = null
 
-//        // Locally store a cache of known sessions
-//        @Volatile
-//        private lateinit var sessions: Store<RLiveSession>
-
         @Volatile
         private lateinit var servers: Store<Server>
 
@@ -58,7 +54,6 @@ class SessionFactory(
             synchronized(this) {
                 servers = MemoryStore()
                 transports = MemoryStore()
-//                sessions = MemoryStore()
                 val instance = SessionFactory(
                     accountService,
                     servers,
@@ -92,12 +87,11 @@ class SessionFactory(
             val sessions = accountService.accountDB.liveSessionDao().getSessions()
             // val accounts = accountService.accountDB.accountDao().getAccounts()
             for (rLiveSession in sessions) {
+                // TODO skip sessions when we know they are not usable?
                 try {
-                    // Rather do this
                     prepareTransport(rLiveSession)
-                    // than this (legacy)
-                    // restoreSession(account.accountID)
                 } catch (e: SDKException) {
+                    // TODO update live session depending on the error0
                     Log.e(
                         tag,
                         "Cannot restore session for " + rLiveSession.accountID + ": " + e.message
@@ -163,7 +157,6 @@ class SessionFactory(
             )
         }
     }
-
 
     @Throws(SDKException::class)
     private fun prepareTransport(session: RLiveSession): Transport {

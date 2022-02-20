@@ -89,14 +89,21 @@ class SessionFactory(
 
     init {
         sessionFactoryScope.launch(Dispatchers.IO) {
-//            val accounts = accountService.accountDB.accountDao().getAccounts()
-//            for (account in accounts) {
-//                try {
-//                    restoreSession(account.accountID)
-//                } catch (e: SDKException) {
-//                    Log.e(tag, "Cannot restore session for " + account.accountID + ": " + e.message)
-//                }
-//            }
+            val sessions = accountService.accountDB.liveSessionDao().getSessions()
+            // val accounts = accountService.accountDB.accountDao().getAccounts()
+            for (rLiveSession in sessions) {
+                try {
+                    // Rather do this
+                    prepareTransport(rLiveSession)
+                    // than this (legacy)
+                    // restoreSession(account.accountID)
+                } catch (e: SDKException) {
+                    Log.e(
+                        tag,
+                        "Cannot restore session for " + rLiveSession.accountID + ": " + e.message
+                    )
+                }
+            }
             Log.i(tag, "... Session factory initialised")
             ready = true
         }

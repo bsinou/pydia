@@ -14,6 +14,7 @@ import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
+import org.sinou.android.pydia.UploadNavigationDirections
 import org.sinou.android.pydia.databinding.FragmentPickFolderBinding
 
 class PickFolderFragment : Fragment() {
@@ -67,7 +68,7 @@ class PickFolderFragment : Fragment() {
     private fun onClicked(stateID: StateID, command: String) {
         when (command) {
             AppNames.ACTION_OPEN -> {
-                val action = PickFolderFragmentDirections.actionPickChild(stateID.id)
+                val action = UploadNavigationDirections.actionPickFolder(stateID.id)
                 findNavController().navigate(action)
             }
             else -> return // do nothing

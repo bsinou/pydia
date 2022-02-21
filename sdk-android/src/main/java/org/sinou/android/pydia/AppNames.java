@@ -16,10 +16,14 @@ public interface AppNames {
     String RECYCLER_LAYOUT_GRID = "grid";
 
     /* GENERIC ACTIONS */
-    String ACTION_MORE = "more";
-    String ACTION_OPEN = "open";
-    String ACTION_CANCEL = "cancel";
-    String ACTION_RESTART = "restart";
+    String ACTION_MORE = KEY_PREFIX_ + "more";
+    String ACTION_OPEN = KEY_PREFIX_ + "open";
+    String ACTION_CANCEL = KEY_PREFIX_ + "cancel";
+    String ACTION_RESTART = KEY_PREFIX_ + "restart";
+    String ACTION_CHOOSE_TARGET = KEY_PREFIX_ + "choosetarget";
+    String ACTION_COPY = KEY_PREFIX_ + "copy";
+    String ACTION_MOVE = KEY_PREFIX_ + "move";
+    String ACTION_UPLOAD = KEY_PREFIX_ + "upload";
 
     String ACTION_LOGIN = "login";
     String ACTION_LOGOUT = "logout";
@@ -33,10 +37,10 @@ public interface AppNames {
 
     /* INTENTS */
     String EXTRA_STATE = KEY_PREFIX_ + "state";
-    String EXTRA_ACCOUNT_ID = KEY_PREFIX_ + "account.id";
     String EXTRA_SERVER_URL = KEY_PREFIX_ + "server.url";
     String EXTRA_SERVER_IS_LEGACY = KEY_PREFIX_ + "server.islegacy";
     String EXTRA_AFTER_AUTH_ACTION = KEY_PREFIX_ + "auth.next.action";
+    String EXTRA_ACTION_CONTEXT = KEY_PREFIX_ + "context.action";
     String EXTRA_SESSION_UID = KEY_PREFIX_ + "session.uid";
 
     String KEY_CODE = "code";

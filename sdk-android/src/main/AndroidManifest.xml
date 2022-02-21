@@ -44,7 +44,7 @@
         </activity>
 
         <activity
-            android:name=".UploadActivity"
+            android:name=".ChooseTargetActivity"
             android:exported="true">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />

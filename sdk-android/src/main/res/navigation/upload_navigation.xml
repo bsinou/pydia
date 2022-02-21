@@ -9,24 +9,23 @@
     android:id="@+id/upload_navigation"
     app:startDestination="@id/choose_session_destination">
 
+    <!-- GLOBAL ACTIONS -->
+    <action
+        android:id="@+id/action_pick_folder"
+        app:destination="@id/choose_folder_destination" />
+
+    <!-- Destinations -->
     <fragment
         android:id="@+id/choose_session_destination"
         android:name="org.sinou.android.pydia.ui.upload.PickSessionFragment"
         android:label="@string/pick_up_session"
-        tools:layout="@layout/fragment_pick_session">
-        <action
-            android:id="@+id/action_pick_folder"
-            app:destination="@id/choose_folder_destination" />
-    </fragment>
+        tools:layout="@layout/fragment_pick_session"></fragment>
 
-     <fragment
+    <fragment
         android:id="@+id/choose_folder_destination"
         android:name="org.sinou.android.pydia.ui.upload.PickFolderFragment"
         android:label="@string/pick_up_folder"
         tools:layout="@layout/fragment_pick_folder">
-        <action
-            android:id="@+id/action_pick_child"
-            app:destination="@id/choose_folder_destination" />
         <argument
             android:name="state"
             app:argType="string" />

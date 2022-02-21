@@ -180,6 +180,36 @@ class NodeService(
         return@withContext null
     }
 
+    suspend fun copy(sources: List<StateID>, targetParent: StateID) = withContext(Dispatchers.IO) {
+        try {
+            val srcFiles = mutableListOf<String>()
+            for (source in sources){
+                srcFiles.add(source.file)
+            }
+            getClient(targetParent).copy(targetParent.workspace, srcFiles.toTypedArray(), targetParent.file)
+        } catch (e: SDKException) {
+            val msg = "could not copy to $targetParent"
+            handleSdkException(msg, e)
+            return@withContext msg
+        }
+        return@withContext null
+    }
+
+    suspend fun move(sources: List<StateID>, targetParent: StateID) = withContext(Dispatchers.IO) {
+        try {
+            val srcFiles = mutableListOf<String>()
+            for (source in sources){
+                srcFiles.add(source.file)
+            }
+            getClient(targetParent).move(targetParent.workspace, srcFiles.toTypedArray(), targetParent.file)
+        } catch (e: SDKException) {
+            val msg = "could not move to $targetParent"
+            handleSdkException(msg, e)
+            return@withContext msg
+        }
+        return@withContext null
+    }
+
     /* Handle communication with the remote server to refresh locally stored data */
 
     fun enqueueDownload(stateID: StateID, uri: Uri) {

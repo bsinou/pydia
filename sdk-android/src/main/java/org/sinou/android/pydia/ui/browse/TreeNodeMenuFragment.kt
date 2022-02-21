@@ -14,12 +14,14 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.*
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.tasks.*
+import org.sinou.android.pydia.transfer.ChooseTargetContract
 import org.sinou.android.pydia.transfer.FileExporter
 import org.sinou.android.pydia.transfer.FileImporter
 import org.sinou.android.pydia.utils.showLongMessage
@@ -75,6 +77,20 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     // Contracts for file transfers to and from the device
     private lateinit var fileImporter: FileImporter
     private lateinit var fileExporter: FileExporter
+
+    private var launchCopy = registerForActivityResult(ChooseTargetContract()) {
+        it?.let {
+            dismiss() // close the "more" menu
+            copyNode(requireContext(), stateID, it)
+        }
+    }
+
+    private var launchMove = registerForActivityResult(ChooseTargetContract()) {
+        it?.let {
+            dismiss()
+            moveNode(requireContext(), stateID, it)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -339,8 +355,12 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     rename(requireContext(), node)
                     moreMenu.dismiss()
                 }
-                ACTION_COPY -> {}
-                ACTION_MOVE -> {}
+                ACTION_COPY -> {
+                    launchCopy.launch(Pair(StateID.fromId(node.encodedState), AppNames.ACTION_COPY))
+                }
+                ACTION_MOVE -> {
+                    launchMove.launch(Pair(StateID.fromId(node.encodedState), AppNames.ACTION_MOVE))
+                }
                 ACTION_DELETE -> {
                     moveToRecycle(requireContext(), node)
                     moreMenu.dismiss()

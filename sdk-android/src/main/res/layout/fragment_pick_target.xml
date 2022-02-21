@@ -1,41 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/pick_target_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/nodes"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="@dimen/recycler_bottom_fab_padding"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+    <!--<layout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--    xmlns:app="http://schemas.android.com/apk/res-auto">-->
 
-        <include
-            android:id="@+id/empty_content"
-            layout="@layout/list_empty_background"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:background="@color/white"
-            android:visibility="gone" />
+    <!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->
+    <!--        android:id="@+id/pick_target_fragment"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent">-->
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_node_fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            android:contentDescription="@string/node_add_button"
-            android:padding="@dimen/fab_padding"
-            android:visibility="gone"
-            app:maxImageSize="@dimen/fab_inner_image_size"
-            app:srcCompat="@drawable/ic_baseline_add_24" />
+    <!--        <androidx.recyclerview.widget.RecyclerView-->
+    <!--            android:id="@+id/nodes"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:clipToPadding="false"-->
+    <!--            android:paddingBottom="@dimen/recycler_bottom_fab_padding"-->
+    <!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />-->
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</layout>
+    <!--        <include-->
+    <!--            android:id="@+id/empty_content"-->
+    <!--            layout="@layout/list_empty_background"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:layout_gravity="center_vertical"-->
+    <!--            android:background="@color/white"-->
+    <!--            android:visibility="gone" />-->
+
+    <!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--            android:id="@+id/add_node_fab"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="bottom|end"-->
+    <!--            android:layout_margin="@dimen/fab_margin"-->
+    <!--            android:contentDescription="@string/node_add_button"-->
+    <!--            android:padding="@dimen/fab_padding"-->
+    <!--            android:visibility="gone"-->
+    <!--            app:maxImageSize="@dimen/fab_inner_image_size"-->
+    <!--            app:srcCompat="@drawable/ic_baseline_add_24" />-->
+
+    <!--    </androidx.coordinatorlayout.widget.CoordinatorLayout>-->
+    <!--</layout>-->

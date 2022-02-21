@@ -69,11 +69,9 @@ class BookmarksFragment : Fragment() {
         super.onResume()
 //        dumpBackStack(fTag, parentFragmentManager)
 
-
 //        (requireActivity() as AppCompatActivity).supportActionBar?.let {
 //            it.title = "Bookmarks" // accountID.toString()
 //        }
-
 
         val activeSession = activeSessionViewModel.liveSession.value
         Log.i(fTag, "onResume: ${activeSession?.accountID}")

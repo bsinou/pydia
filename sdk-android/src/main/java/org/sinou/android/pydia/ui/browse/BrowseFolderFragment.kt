@@ -93,7 +93,6 @@ class BrowseFolderFragment : Fragment() {
         // Put this also in observer when the above has been fixed
         binding.addNodeFab.setOnClickListener { onFabClicked() }
 
-
         // Used for refresh the data
         binding.nodesForceRefresh.setOnRefreshListener {
             binding.nodesForceRefresh.isRefreshing = false
@@ -135,7 +134,6 @@ class BrowseFolderFragment : Fragment() {
             outState.putString(AppNames.KEY_STATE, browseFolderVM.stateID.id)
         }
     }
-
 
     private fun onClicked(node: RTreeNode, command: String) {
         Log.i(fTag, "Clicked on ${browseFolderVM.stateID} -> $command")

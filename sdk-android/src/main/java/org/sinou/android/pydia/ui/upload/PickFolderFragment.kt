@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -11,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Log
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
@@ -19,7 +21,7 @@ import org.sinou.android.pydia.databinding.FragmentPickFolderBinding
 
 class PickFolderFragment : Fragment() {
 
-    // private val fTag = PickSessionFragment::class.java.simpleName
+    private val fTag = PickFolderFragment::class.java.simpleName
 
     private lateinit var binding: FragmentPickFolderBinding
     private lateinit var pickFolderVM: PickFolderViewModel
@@ -60,7 +62,14 @@ class PickFolderFragment : Fragment() {
         val adapter = FolderListAdapter(stateID) { state, action ->
             onClicked(state, action)
         }
+
         binding.folders.adapter = adapter
+
+        binding.openParentFolder.setText("Open parent ...")
+        binding.openParentFolder.setOnClickListener {
+            Log.e(fTag, "Open parent...")
+        }
+
         pickFolderVM.children.observe(viewLifecycleOwner) { adapter.submitList(it) }
         return binding.root
     }
@@ -78,7 +87,13 @@ class PickFolderFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         chooseTargetVM.setCurrentState(pickFolderVM.stateID)
+
+        (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
+            bar.setDisplayHomeAsUpEnabled(false)
+            bar.title = pickFolderVM.stateID.fileName
+        }
     }
+
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         savedInstanceState.putSerializable(AppNames.EXTRA_STATE, pickFolderVM.stateID.id)

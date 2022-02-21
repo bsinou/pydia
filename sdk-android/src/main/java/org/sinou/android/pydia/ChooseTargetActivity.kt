@@ -36,9 +36,8 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
     private lateinit var model: ChooseTargetViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
         Log.d(tag, "onCreate: launching target choice process")
+        super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_choose_target)
         setSupportActionBar(binding.toolbar)
@@ -72,12 +71,17 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
                 finishAndRemoveTask()
             }
         }
+
+        // supportActionBar?.title = "My Title"
+        // Log.e(tag, "Got a **support** action bar: $supportActionBar")
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onResume() {
         Log.i(tag, "onResume, intent: $intent")
         super.onResume()
         handleIntent(intent)
+        // supportActionBar?.title = "My Title From on resume"
     }
 
     override fun onPause() {
@@ -157,7 +161,6 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.upload_fragment_host)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
     }

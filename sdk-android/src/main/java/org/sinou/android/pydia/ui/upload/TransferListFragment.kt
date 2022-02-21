@@ -15,9 +15,9 @@ import org.sinou.android.pydia.databinding.FragmentTransferListBinding
 import org.sinou.android.pydia.db.runtime.RUpload
 import org.sinou.android.pydia.utils.dumpBackStack
 
-class TransferFragment : Fragment() {
+class TransferListFragment : Fragment() {
 
-    private val fTag = TransferFragment::class.java.simpleName
+    private val fTag = TransferListFragment::class.java.simpleName
 
     private lateinit var binding: FragmentTransferListBinding
     private lateinit var transferVM: TransferViewModel

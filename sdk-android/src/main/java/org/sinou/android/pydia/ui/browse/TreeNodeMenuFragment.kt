@@ -356,10 +356,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     moreMenu.dismiss()
                 }
                 ACTION_COPY -> {
-                    launchCopy.launch(Pair(StateID.fromId(node.encodedState), AppNames.ACTION_COPY))
+                    launchCopy.launch(Pair(StateID.fromId(node.encodedState).parentFolder(), AppNames.ACTION_COPY))
                 }
                 ACTION_MOVE -> {
-                    launchMove.launch(Pair(StateID.fromId(node.encodedState), AppNames.ACTION_MOVE))
+                    launchMove.launch(Pair(StateID.fromId(node.encodedState).parentFolder(), AppNames.ACTION_MOVE))
                 }
                 ACTION_DELETE -> {
                     moveToRecycle(requireContext(), node)

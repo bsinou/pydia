@@ -65,8 +65,13 @@ class PickFolderFragment : Fragment() {
 
         binding.folders.adapter = adapter
 
-        binding.openParentFolder.setText("Open parent ...")
+        binding.openParentFolder.setText("Open parent...")
+
+        binding.openParentFolder.visibility =
+            if (stateID.isWorkspaceRoot()) View.GONE else View.VISIBLE
         binding.openParentFolder.setOnClickListener {
+            val action = UploadNavigationDirections.actionPickFolder(stateID.parentFolder().id)
+            findNavController().navigate(action)
             Log.e(fTag, "Open parent...")
         }
 

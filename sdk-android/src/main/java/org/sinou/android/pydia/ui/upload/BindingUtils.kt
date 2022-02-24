@@ -2,9 +2,14 @@ package org.sinou.android.pydia.ui.upload
 
 import android.text.format.DateUtils
 import android.text.format.Formatter
+import android.util.Log
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
+import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.runtime.RUpload
 
 @BindingAdapter("transferText")
@@ -56,3 +61,29 @@ fun ProgressBar.setUpdateProgress(item: RUpload?) {
         progress = it.progress
     }
 }
+
+@BindingAdapter("parentPrimaryText")
+fun TextView.setParentPrimaryText(parentState: StateID?) {
+    parentState?.let {
+        text = when {
+            parentState.id == AppNames.CELLS_ROOT_ENCODED_STATE -> this.resources.getString(R.string.switch_account)
+            Str.empty(parentState.workspace) -> this.resources.getString(R.string.switch_workspace)
+            else -> ".."
+        }
+    }
+}
+
+@BindingAdapter("parentSecondaryText")
+fun TextView.setParentSecondaryText(parentState: StateID?) {
+    Log.e("setParentSecondaryText", "ParentState: $parentState")
+    parentState?.let {
+        text = when {
+            parentState.id == AppNames.CELLS_ROOT_ENCODED_STATE -> ""
+            Str.empty(parentState.workspace) -> parentState.serverHost
+            else -> this.resources.getString(R.string.parent_folder)
+        }
+    }
+}
+
+
+

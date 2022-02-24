@@ -1,6 +1,7 @@
 package org.sinou.android.pydia.ui.upload
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.UploadNavigationDirections
 import org.sinou.android.pydia.databinding.FragmentPickFolderBinding
+import org.sinou.android.pydia.tasks.createFolder
 
 class PickFolderFragment : Fragment() {
 
@@ -63,16 +65,27 @@ class PickFolderFragment : Fragment() {
             onClicked(state, action)
         }
 
-        binding.folders.adapter = adapter
+        if (Str.empty(stateID.workspace)) {
+            binding.addNodeFab.visibility = View.GONE
+        } else {
+            binding.addNodeFab.visibility = View.VISIBLE
+            binding.addNodeFab.setOnClickListener { onFabClicked() }
+        }
 
-//        binding.openParentFolder.setText("Open parent...")
-//        binding.openParentFolder.visibility =
-//            if (stateID.isWorkspaceRoot()) View.GONE else View.VISIBLE
-//        binding.openParentFolder.setOnClickListener {
-//            val action = UploadNavigationDirections.actionPickFolder(stateID.parentFolder().id)
-//            findNavController().navigate(action)
-//            Log.e(fTag, "Open parent...")
-//        }
+        // Used for refresh the data
+        binding.pickFolderForceRefresh.setOnRefreshListener {
+            if (Str.empty(stateID.workspace)) { // Does nothing for the time being
+                binding.pickFolderForceRefresh.isRefreshing = false
+            } else {
+                tmpVM.forceRefresh()
+            }
+        }
+
+        tmpVM.isLoading.observe(viewLifecycleOwner) {
+            binding.pickFolderForceRefresh.isRefreshing = it
+        }
+
+        binding.folders.adapter = adapter
 
         pickFolderVM.children.observe(viewLifecycleOwner) { adapter.addHeaderAndSubmitList(it) }
         return binding.root
@@ -92,7 +105,13 @@ class PickFolderFragment : Fragment() {
         }
     }
 
+    private fun onFabClicked() {
+        Log.d(fTag, "onFabClicked")
+        createFolder(requireContext(), pickFolderVM.stateID)
+    }
+
     override fun onResume() {
+        Log.d(fTag, "onResume: ${pickFolderVM.stateID}")
         super.onResume()
         chooseTargetVM.setCurrentState(pickFolderVM.stateID)
 

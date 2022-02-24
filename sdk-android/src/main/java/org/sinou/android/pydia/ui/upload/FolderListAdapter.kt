@@ -13,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.databinding.ListItemParentBinding
 import org.sinou.android.pydia.databinding.ListItemTargetLocationBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
@@ -22,7 +21,7 @@ private const val ITEM_VIEW_TYPE_HEADER = 0
 private const val ITEM_VIEW_TYPE_ITEM = 1
 
 class FolderListAdapter(
-    private val parentStateID: StateID,
+    private val currFolderStateID: StateID,
     private val activityContext: String,
     private val onItemClicked: (stateID: StateID, command: String) -> Unit
 ) : ListAdapter<DataItem, RecyclerView.ViewHolder>(PickFolderDiffCallback()) {
@@ -31,8 +30,8 @@ class FolderListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            ITEM_VIEW_TYPE_HEADER -> HeaderHolder.from(parent).with(onItemClicked)
-            ITEM_VIEW_TYPE_ITEM -> TreeNodeHolder.from(parent).with(parentStateID, onItemClicked)
+            ITEM_VIEW_TYPE_HEADER -> HeaderHolder.from(parent)
+            ITEM_VIEW_TYPE_ITEM -> TreeNodeHolder.from(parent)
             else -> throw ClassCastException("Unknown viewType $viewType")
         }
     }
@@ -48,10 +47,10 @@ class FolderListAdapter(
         when (holder) {
             is TreeNodeHolder -> {
                 val nodeItem = getItem(position) as DataItem.TreeNodeItem
-                holder.bind(nodeItem.treeNode)
+                holder.bind(nodeItem.treeNode, onItemClicked)
             }
             is HeaderHolder -> {
-                holder.bind(StateID.fromId(getItem(position).encodedState))
+                holder.bind(StateID.fromId(getItem(position).encodedState), onItemClicked)
             }
         }
     }
@@ -60,14 +59,18 @@ class FolderListAdapter(
         adapterScope.launch {
 
             val parentState =
-                if (Str.empty(parentStateID.workspace)) null else parentStateID.parentFolder()
+                if (Str.empty(currFolderStateID.workspace)) null else currFolderStateID.parentFolder()
 
             var items = when (list) {
                 null -> listOf(DataItem.HeaderItem(parentState))
-                else -> listOf(DataItem.HeaderItem(parentState)) + list.map { DataItem.TreeNodeItem(it) }
+                else -> listOf(DataItem.HeaderItem(parentState)) + list.map {
+                    DataItem.TreeNodeItem(
+                        it
+                    )
+                }
             }
 
-            if (activityContext != AppNames.ACTION_UPLOAD && parentStateID.fileName == null){
+            if (activityContext != AppNames.ACTION_UPLOAD && currFolderStateID.fileName == null) {
                 // Do not show "parent" header for account and ws roots
                 items = when (list) {
                     null -> listOf()
@@ -84,26 +87,16 @@ class FolderListAdapter(
     class TreeNodeHolder private constructor(val binding: ListItemTargetLocationBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: RTreeNode) {
+        fun bind(item: RTreeNode, onItemClicked: (stateID: StateID, command: String) -> Unit) {
             binding.node = item
             binding.executePendingBindings()
-        }
-
-        fun with(
-            parentStateID: StateID,
-            onItemClicked: (stateID: StateID, command: String) -> Unit
-        ): TreeNodeHolder {
             binding.root.setOnClickListener {
                 binding.node?.let {
                     // Handle corner case when we list folder roots
-                    var targetStateID = parentStateID.child(it.name)
-                    if (parentStateID.id == parentStateID.accountId) {
-                        targetStateID = parentStateID.withPath("/${it.workspace}")
-                    }
-                    onItemClicked(targetStateID, AppNames.ACTION_OPEN)
+                    val tmpID = it.getStateID()
+                    onItemClicked(tmpID, AppNames.ACTION_OPEN)
                 }
             }
-            return this
         }
 
         companion object {
@@ -118,20 +111,14 @@ class FolderListAdapter(
     class HeaderHolder private constructor(val binding: ListItemParentBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(parentState: StateID) {
+        fun bind(parentState: StateID, onItemClicked: (stateID: StateID, command: String) -> Unit) {
             binding.parentState = parentState
             binding.executePendingBindings()
-        }
-
-        fun with(
-            onItemClicked: (stateID: StateID, command: String) -> Unit
-        ): RecyclerView.ViewHolder {
             binding.root.setOnClickListener {
                 binding.parentState?.let {
                     onItemClicked(it, AppNames.ACTION_OPEN)
                 }
             }
-            return this
         }
 
         companion object {

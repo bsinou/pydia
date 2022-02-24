@@ -348,7 +348,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 // Impact remote server
                 //  TODO handle a loading state
                 ACTION_CREATE_FOLDER -> {
-                    createFolder(requireContext(), node)
+                    createFolder(requireContext(), node.getStateID())
                     moreMenu.dismiss()
                 }
                 ACTION_RENAME -> {

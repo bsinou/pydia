@@ -158,6 +158,9 @@
     <string name="empty_content_message">No content here yet</string>
     <string name="confirm_cache_deletion_message">This action will free space but will force re-downloading of image preview and folder content.</string>
     <string name="confirm_cache_deletion_title">Clear cache</string>
+    <string name="switch_account">Switch account</string>
+    <string name="switch_workspace">Switch workspace</string>
+    <string name="parent_folder">Parent folder</string>
 
     in_progress_deleting)
     )

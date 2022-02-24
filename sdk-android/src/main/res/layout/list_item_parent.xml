@@ -40,26 +40,24 @@
             android:maxLines="1"
             android:singleLine="true"
             android:text=".."
-
             app:layout_constraintBottom_toTopOf="@+id/node_desc"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="@+id/node_desc"
+            app:parentPrimaryText="@{parentState}"
             tools:text="Folder 1" />
 
         <TextView
             android:id="@+id/node_desc"
             style="@style/text_list_secondary"
-
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_small"
-            android:text="parent folder"
-
             app:layout_constraintBottom_toBottomOf="@id/node_thumb"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/node_thumb"
+            app:parentSecondaryText="@{parentState}"
             tools:text="Your personal files" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

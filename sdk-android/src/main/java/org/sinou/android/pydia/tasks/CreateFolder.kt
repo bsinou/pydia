@@ -10,12 +10,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.utils.showMessage
 
 fun createFolder(
     context: Context,
-    parent: RTreeNode
+    parentId: StateID,
 ): Boolean {
 
     MaterialAlertDialogBuilder(context)
@@ -23,17 +22,17 @@ fun createFolder(
         .setView(R.layout.dialog_edit_text)
         .setPositiveButton(R.string.dialog_create_folder_positive_btn) { dialog, _ ->
             val input = (dialog as AlertDialog).findViewById<TextView>(android.R.id.text1)
-            doCreateFolder(context, parent, input!!.text)
+            doCreateFolder(context, parentId, input!!.text)
         }
         .setNegativeButton(R.string.button_cancel, null)
         .show()
     return true
 }
 
-private fun doCreateFolder(context: Context, parent: RTreeNode, name: CharSequence) {
+private fun doCreateFolder(context: Context, parentId: StateID, name: CharSequence) {
     CellsApp.instance.appScope.launch {
         CellsApp.instance.nodeService.createFolder(
-            StateID.fromId(parent.encodedState),
+            parentId,
             name.toString()
         )
             ?.let {
@@ -45,7 +44,7 @@ private fun doCreateFolder(context: Context, parent: RTreeNode, name: CharSequen
                 withContext(Dispatchers.Main) {
                     showMessage(
                         context,
-                        "Folder created at ${StateID.fromId(parent.encodedState).file}."
+                        "Folder created at ${parentId.file}."
                     )
                 }
             }

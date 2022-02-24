@@ -8,16 +8,14 @@
 
     <item
         android:id="@+id/launch_upload"
-        android:icon="@drawable/ic_outline_upload_24"
+        android:icon="@drawable/ic_baseline_check_24"
         android:title="@string/button_ok"
-        android:visible="false"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/cancel_upload"
-        android:icon="@drawable/ic_outline_cancel_24"
+        android:icon="@drawable/ic_baseline_close_24"
         android:title="@string/button_cancel"
-        android:visible="true"
         app:showAsAction="ifRoom" />
 
 </menu>

@@ -26,7 +26,10 @@ class ChooseTargetViewModel(
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     // Context
-    private var actionContext: String? = null
+    private var _actionContext: String? = null
+    val actionContext: String
+        get() = _actionContext ?: AppNames.ACTION_UPLOAD
+
     private var uris = mutableListOf<Uri>()
 
     // Runtime
@@ -49,13 +52,14 @@ class ChooseTargetViewModel(
     }
 
     fun isTargetValid(): Boolean {
-        return currentLocation.value?.path?.let { it.length > 1 } ?: false
+        val valid = currentLocation.value?.path?.let { it.length > 1 } ?: false
+        return valid
     }
 
     fun launchPost(context: Context) {
         currentLocation.value?.let { stateID ->
             vmScope.launch {
-                when (actionContext) {
+                when (_actionContext) {
                     AppNames.ACTION_COPY -> {
                         val intent = Intent(context, MainActivity::class.java)
                         intent.action = AppNames.ACTION_CHOOSE_TARGET
@@ -81,14 +85,14 @@ class ChooseTargetViewModel(
                             _postDone.value = true
                         }
                     }
-                    else -> Log.e(tag, "Unexpected action context: $actionContext")
+                    else -> Log.e(tag, "Unexpected action context: $_actionContext")
                 }
             }
         }
     }
 
     fun setActionContext(actionContext: String) {
-        this.actionContext = actionContext
+        this._actionContext = actionContext
     }
 
     fun initUploadAction(targets: List<Uri>) {

@@ -11,6 +11,10 @@
 
     <!-- GLOBAL ACTIONS -->
     <action
+        android:id="@+id/action_pick_session"
+        app:destination="@id/choose_session_destination" />
+
+    <action
         android:id="@+id/action_pick_folder"
         app:destination="@id/choose_folder_destination" />
 

@@ -10,16 +10,16 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/open_parent_folder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:textSize="@dimen/text_accent_size"
-            android:layout_gravity="start"
-            tools:text=".. (Parent Folder)"
-            />
+<!--        <Button-->
+<!--            android:id="@+id/open_parent_folder"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="@dimen/margin"-->
+<!--            style="@style/Widget.Material3.Button.TextButton"-->
+<!--            android:textSize="@dimen/text_accent_size"-->
+<!--            android:layout_gravity="start"-->
+<!--            tools:text=".. (Parent Folder)"-->
+<!--            />-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/folders"

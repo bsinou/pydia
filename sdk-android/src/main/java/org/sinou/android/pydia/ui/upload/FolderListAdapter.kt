@@ -7,25 +7,81 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
+import org.sinou.android.pydia.databinding.ListItemParentBinding
+import org.sinou.android.pydia.databinding.ListItemTargetLocationBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
+
+private const val ITEM_VIEW_TYPE_HEADER = 0
+private const val ITEM_VIEW_TYPE_ITEM = 1
 
 class FolderListAdapter(
     private val parentStateID: StateID,
+    private val activityContext: String,
     private val onItemClicked: (stateID: StateID, command: String) -> Unit
-) : ListAdapter<RTreeNode, FolderListAdapter.ViewHolder>(PickFolderDiffCallback()) {
+) : ListAdapter<DataItem, RecyclerView.ViewHolder>(PickFolderDiffCallback()) {
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
-        holder.bind(item)
+    private val adapterScope = CoroutineScope(Dispatchers.Default)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            ITEM_VIEW_TYPE_HEADER -> HeaderHolder.from(parent).with(onItemClicked)
+            ITEM_VIEW_TYPE_ITEM -> TreeNodeHolder.from(parent).with(parentStateID, onItemClicked)
+            else -> throw ClassCastException("Unknown viewType $viewType")
+        }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent).with(parentStateID, onItemClicked)
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is DataItem.HeaderItem -> ITEM_VIEW_TYPE_HEADER
+            is DataItem.TreeNodeItem -> ITEM_VIEW_TYPE_ITEM
+        }
     }
 
-    class ViewHolder private constructor(val binding: ListItemNodeBinding) :
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is TreeNodeHolder -> {
+                val nodeItem = getItem(position) as DataItem.TreeNodeItem
+                holder.bind(nodeItem.treeNode)
+            }
+            is HeaderHolder -> {
+                holder.bind(StateID.fromId(getItem(position).encodedState))
+            }
+        }
+    }
+
+    fun addHeaderAndSubmitList(list: List<RTreeNode>?) {
+        adapterScope.launch {
+
+            val parentState =
+                if (Str.empty(parentStateID.workspace)) null else parentStateID.parentFolder()
+
+            var items = when (list) {
+                null -> listOf(DataItem.HeaderItem(parentState))
+                else -> listOf(DataItem.HeaderItem(parentState)) + list.map { DataItem.TreeNodeItem(it) }
+            }
+
+            if (activityContext != AppNames.ACTION_UPLOAD && parentStateID.fileName == null){
+                // Do not show "parent" header for account and ws roots
+                items = when (list) {
+                    null -> listOf()
+                    else -> list.map { DataItem.TreeNodeItem(it) }
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                submitList(items)
+            }
+        }
+    }
+
+    class TreeNodeHolder private constructor(val binding: ListItemTargetLocationBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: RTreeNode) {
@@ -36,12 +92,12 @@ class FolderListAdapter(
         fun with(
             parentStateID: StateID,
             onItemClicked: (stateID: StateID, command: String) -> Unit
-        ): ViewHolder {
+        ): TreeNodeHolder {
             binding.root.setOnClickListener {
                 binding.node?.let {
                     // Handle corner case when we list folder roots
                     var targetStateID = parentStateID.child(it.name)
-                    if (parentStateID.id == parentStateID.accountId){
+                    if (parentStateID.id == parentStateID.accountId) {
                         targetStateID = parentStateID.withPath("/${it.workspace}")
                     }
                     onItemClicked(targetStateID, AppNames.ACTION_OPEN)
@@ -51,20 +107,48 @@ class FolderListAdapter(
         }
 
         companion object {
-            fun from(parent: ViewGroup): ViewHolder {
+            fun from(parent: ViewGroup): TreeNodeHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = ListItemNodeBinding.inflate(layoutInflater, parent, false)
-                return ViewHolder(binding)
+                val binding = ListItemTargetLocationBinding.inflate(layoutInflater, parent, false)
+                return TreeNodeHolder(binding)
+            }
+        }
+    }
+
+    class HeaderHolder private constructor(val binding: ListItemParentBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(parentState: StateID) {
+            binding.parentState = parentState
+            binding.executePendingBindings()
+        }
+
+        fun with(
+            onItemClicked: (stateID: StateID, command: String) -> Unit
+        ): RecyclerView.ViewHolder {
+            binding.root.setOnClickListener {
+                binding.parentState?.let {
+                    onItemClicked(it, AppNames.ACTION_OPEN)
+                }
+            }
+            return this
+        }
+
+        companion object {
+            fun from(parent: ViewGroup): HeaderHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ListItemParentBinding.inflate(layoutInflater, parent, false)
+                return HeaderHolder(binding)
             }
         }
     }
 }
 
-class PickFolderDiffCallback : DiffUtil.ItemCallback<RTreeNode>() {
+class PickFolderDiffCallback : DiffUtil.ItemCallback<DataItem>() {
 
     private val tag = "PickFolderDiffCallback"
 
-    override fun areItemsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
+    override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
 
         val same = oldItem.encodedState == newItem.encodedState
         if (!same) {
@@ -73,7 +157,29 @@ class PickFolderDiffCallback : DiffUtil.ItemCallback<RTreeNode>() {
         return same
     }
 
-    override fun areContentsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
-        return oldItem.remoteModificationTS == newItem.remoteModificationTS
+    override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        return if (
+            (oldItem is DataItem.HeaderItem && newItem is DataItem.TreeNodeItem) ||
+            (oldItem is DataItem.TreeNodeItem && newItem is DataItem.HeaderItem)
+        ) {
+            false
+        } else if (oldItem is DataItem.HeaderItem && newItem is DataItem.HeaderItem) {
+            true
+        } else
+            (oldItem as DataItem.TreeNodeItem).treeNode.remoteModificationTS ==
+                    (newItem as DataItem.TreeNodeItem).treeNode.remoteModificationTS
+    }
+}
+
+sealed class DataItem {
+
+    abstract val encodedState: String
+
+    data class TreeNodeItem(val treeNode: RTreeNode) : DataItem() {
+        override val encodedState = treeNode.encodedState
+    }
+
+    data class HeaderItem(val stateID: StateID?) : DataItem() {
+        override val encodedState: String = stateID?.id ?: AppNames.CELLS_ROOT_ENCODED_STATE
     }
 }

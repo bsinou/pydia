@@ -12,7 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.utils.Log
+import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
@@ -59,30 +59,33 @@ class PickFolderFragment : Fragment() {
         val tmpAVM: ChooseTargetViewModel by activityViewModels { chooseTargetFactory }
         chooseTargetVM = tmpAVM
 
-        val adapter = FolderListAdapter(stateID) { state, action ->
+        val adapter = FolderListAdapter(stateID, tmpAVM.actionContext) { state, action ->
             onClicked(state, action)
         }
 
         binding.folders.adapter = adapter
 
-        binding.openParentFolder.setText("Open parent...")
+//        binding.openParentFolder.setText("Open parent...")
+//        binding.openParentFolder.visibility =
+//            if (stateID.isWorkspaceRoot()) View.GONE else View.VISIBLE
+//        binding.openParentFolder.setOnClickListener {
+//            val action = UploadNavigationDirections.actionPickFolder(stateID.parentFolder().id)
+//            findNavController().navigate(action)
+//            Log.e(fTag, "Open parent...")
+//        }
 
-        binding.openParentFolder.visibility =
-            if (stateID.isWorkspaceRoot()) View.GONE else View.VISIBLE
-        binding.openParentFolder.setOnClickListener {
-            val action = UploadNavigationDirections.actionPickFolder(stateID.parentFolder().id)
-            findNavController().navigate(action)
-            Log.e(fTag, "Open parent...")
-        }
-
-        pickFolderVM.children.observe(viewLifecycleOwner) { adapter.submitList(it) }
+        pickFolderVM.children.observe(viewLifecycleOwner) { adapter.addHeaderAndSubmitList(it) }
         return binding.root
     }
 
     private fun onClicked(stateID: StateID, command: String) {
         when (command) {
             AppNames.ACTION_OPEN -> {
-                val action = UploadNavigationDirections.actionPickFolder(stateID.id)
+                val action = if (stateID.id == AppNames.CELLS_ROOT_ENCODED_STATE) {
+                    UploadNavigationDirections.actionPickSession()
+                } else {
+                    UploadNavigationDirections.actionPickFolder(stateID.id)
+                }
                 findNavController().navigate(action)
             }
             else -> return // do nothing
@@ -95,14 +98,26 @@ class PickFolderFragment : Fragment() {
 
         (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
             bar.setDisplayHomeAsUpEnabled(false)
-            bar.title = pickFolderVM.stateID.fileName
+            if (pickFolderVM.stateID.fileName == null) {
+                if (Str.notEmpty(pickFolderVM.stateID.workspace)) {
+                    bar.title = pickFolderVM.stateID.workspace
+//                    bar.subtitle =
+//                        "${pickFolderVM.stateID.workspace}@${pickFolderVM.stateID.serverHost}"
+                } else {
+                    bar.title = "${pickFolderVM.stateID.username}"
+                }
+                bar.subtitle = "${pickFolderVM.stateID.serverHost}"
+            } else {
+                bar.title = pickFolderVM.stateID.fileName
+                // Rather display the full path (without WS) ?
+                bar.subtitle = pickFolderVM.stateID.file
+                // TODO configure ellipsize
+            }
         }
     }
-
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         savedInstanceState.putSerializable(AppNames.EXTRA_STATE, pickFolderVM.stateID.id)
         super.onSaveInstanceState(savedInstanceState)
     }
-
 }

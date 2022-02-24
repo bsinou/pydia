@@ -54,7 +54,12 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         model = tmpVM
 
         tmpVM.currentLocation.observe(this) {
-            binding.toolbar.menu.findItem(R.id.launch_upload)?.isVisible = model.isTargetValid()
+            binding.toolbar.menu.findItem(R.id.launch_upload)?.let {
+                if (it.isVisible != tmpVM.isTargetValid()) {
+                    it.isVisible = !it.isVisible
+                }
+                binding.executePendingBindings()
+            }
         }
 
         tmpVM.postDone.observe(this) {
@@ -66,7 +71,7 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
 
         tmpVM.postIntent.observe(this) {
             it?.let {
-                Log.d(tag, "Result OK, target state: ${model.currentLocation.value}")
+                Log.d(tag, "Result OK, target state: ${tmpVM.currentLocation.value}")
                 setResult(Activity.RESULT_OK, it)
                 finishAndRemoveTask()
             }

@@ -46,6 +46,8 @@ public interface AppNames {
     String KEY_CODE = "code";
     String KEY_STATE = "state";
 
+    String CELLS_ROOT_ENCODED_STATE = "cells%3A%2F%2Froot";
+
     // Workaround to store additional destinations as state
     String CUSTOM_PATH_ACCOUNTS = "/__acounts__";
     String CUSTOM_PATH_BOOKMARKS = "/__bookmarks__";

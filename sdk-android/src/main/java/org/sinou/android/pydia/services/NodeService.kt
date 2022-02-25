@@ -183,10 +183,14 @@ class NodeService(
     suspend fun copy(sources: List<StateID>, targetParent: StateID) = withContext(Dispatchers.IO) {
         try {
             val srcFiles = mutableListOf<String>()
-            for (source in sources){
+            for (source in sources) {
                 srcFiles.add(source.file)
             }
-            getClient(targetParent).copy(targetParent.workspace, srcFiles.toTypedArray(), targetParent.file)
+            getClient(targetParent).copy(
+                targetParent.workspace,
+                srcFiles.toTypedArray(),
+                targetParent.file
+            )
         } catch (e: SDKException) {
             val msg = "could not copy to $targetParent"
             handleSdkException(msg, e)
@@ -198,10 +202,14 @@ class NodeService(
     suspend fun move(sources: List<StateID>, targetParent: StateID) = withContext(Dispatchers.IO) {
         try {
             val srcFiles = mutableListOf<String>()
-            for (source in sources){
+            for (source in sources) {
                 srcFiles.add(source.file)
             }
-            getClient(targetParent).move(targetParent.workspace, srcFiles.toTypedArray(), targetParent.file)
+            getClient(targetParent).move(
+                targetParent.workspace,
+                srcFiles.toTypedArray(),
+                targetParent.file
+            )
         } catch (e: SDKException) {
             val msg = "could not move to $targetParent"
             handleSdkException(msg, e)
@@ -251,7 +259,9 @@ class NodeService(
     }
 
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
-    suspend fun pull(stateID: StateID): String? = withContext(Dispatchers.IO) {
+    suspend fun pull(stateID: StateID): Pair<Int, String?> = withContext(Dispatchers.IO) {
+        var result: Pair<Int, String?>
+
         try {
             val client = getClient(stateID)
             val dao = nodeDB(stateID).treeNodeDao()
@@ -272,7 +282,8 @@ class NodeService(
                     fileService.dataDir(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
                 )
             val folderDiff = FolderDiff(client, fileService, dao, thumbDL, stateID)
-            folderDiff.compareWithRemote()
+            val changeNb = folderDiff.compareWithRemote()
+            result = Pair(changeNb, null)
             /*
             val childStateID = stateID.child(node.label)
             val rNode = toRTreeNode(childStateID, node)
@@ -286,9 +297,9 @@ class NodeService(
         } catch (e: SDKException) {
             val msg = "could not perform ls for ${stateID.id}, cause: ${e.message}"
             handleSdkException(msg, e)
-            return@withContext msg
+            return@withContext Pair(0, msg)
         }
-        return@withContext null
+        return@withContext result
     }
 
     private fun statRemoteNode(stateID: StateID): Stats? {

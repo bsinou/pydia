@@ -51,6 +51,7 @@ class FolderDiff(
             // val locals = LocalNodeIterator(dao.getNodesForDiff(parentId.id, parentId.file).iterator())
             processChanges(remotes, locals)
             Log.d(TAG, "Done with $changeNumber changes")
+            return@withContext changeNumber
     }
 
     private fun processChanges(rit: Iterator<FileNode>, lit: Iterator<RTreeNode>) {

@@ -20,6 +20,7 @@ import org.sinou.android.pydia.R
 import org.sinou.android.pydia.UploadNavigationDirections
 import org.sinou.android.pydia.databinding.FragmentPickFolderBinding
 import org.sinou.android.pydia.tasks.createFolder
+import org.sinou.android.pydia.utils.showLongMessage
 
 class PickFolderFragment : Fragment() {
 
@@ -85,6 +86,10 @@ class PickFolderFragment : Fragment() {
             binding.pickFolderForceRefresh.isRefreshing = it
         }
 
+        tmpVM.errorMessage.observe(viewLifecycleOwner) { msg ->
+            msg?.let { showLongMessage(requireContext(), msg) }
+        }
+
         binding.folders.adapter = adapter
 
         pickFolderVM.children.observe(viewLifecycleOwner) { adapter.addHeaderAndSubmitList(it) }
@@ -106,7 +111,6 @@ class PickFolderFragment : Fragment() {
     }
 
     private fun onFabClicked() {
-        Log.d(fTag, "onFabClicked")
         createFolder(requireContext(), pickFolderVM.stateID)
     }
 
@@ -114,18 +118,17 @@ class PickFolderFragment : Fragment() {
         Log.d(fTag, "onResume: ${pickFolderVM.stateID}")
         super.onResume()
         chooseTargetVM.setCurrentState(pickFolderVM.stateID)
+        pickFolderVM.resume()
 
         (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
             bar.setDisplayHomeAsUpEnabled(false)
             if (pickFolderVM.stateID.fileName == null) {
                 if (Str.notEmpty(pickFolderVM.stateID.workspace)) {
                     bar.title = pickFolderVM.stateID.workspace
-//                    bar.subtitle =
-//                        "${pickFolderVM.stateID.workspace}@${pickFolderVM.stateID.serverHost}"
                 } else {
-                    bar.title = "${pickFolderVM.stateID.username}"
+                    bar.title = pickFolderVM.stateID.username
                 }
-                bar.subtitle = "${pickFolderVM.stateID.serverHost}"
+                bar.subtitle = pickFolderVM.stateID.serverHost
             } else {
                 bar.title = pickFolderVM.stateID.fileName
                 // Rather display the full path (without WS) ?
@@ -133,6 +136,12 @@ class PickFolderFragment : Fragment() {
                 // TODO configure ellipsize
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        pickFolderVM.pause()
+
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {

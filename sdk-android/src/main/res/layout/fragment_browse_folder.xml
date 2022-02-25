@@ -8,6 +8,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <include
+            android:id="@+id/empty_content"
+            layout="@layout/list_empty_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="@color/white"
+            android:visibility="gone" />
+
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/nodes_force_refresh"
             android:layout_width="match_parent"
@@ -23,14 +32,6 @@
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <include
-            android:id="@+id/empty_content"
-            layout="@layout/list_empty_background"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:background="@color/white"
-            android:visibility="gone" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_node_fab"

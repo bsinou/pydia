@@ -45,6 +45,7 @@ class FileService(private val accountService: AccountService) {
             cache.deleteRecursively()
         }
 
+
         val tmpCache = File(dataPath(stateID, AppNames.LOCAL_FILE_TYPE_CACHE))
         if (tmpCache.exists()) {
             tmpCache.deleteRecursively()

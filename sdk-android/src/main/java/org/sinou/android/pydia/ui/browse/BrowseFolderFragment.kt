@@ -36,14 +36,13 @@ class BrowseFolderFragment : Fragment() {
     private val fTag = BrowseFolderFragment::class.java.simpleName
 
     private val args: BrowseFolderFragmentArgs by navArgs()
-
     private lateinit var binding: FragmentBrowseFolderBinding
     private lateinit var browseFolderVM: BrowseFolderViewModel
 
     // Temp solution to provide a scrim during long running operations
     private var loadingDialog: LoadingDialogFragment? = null
 
-    // FIXME
+    // FIXME: the flag is set at the end of create view method
     private var isCreated = false
 
     override fun onCreateView(
@@ -74,7 +73,7 @@ class BrowseFolderFragment : Fragment() {
             backPressedCallback
         )
 
-        browseFolderVM.currentFolder.observe(viewLifecycleOwner) {
+        tmpVM.currentFolder.observe(viewLifecycleOwner) {
             it?.let {
                 if (it.isRecycle() || it.isInRecycle()) {
                     binding.addNodeFab.visibility = View.GONE
@@ -87,7 +86,7 @@ class BrowseFolderFragment : Fragment() {
         setHasOptionsMenu(true)
 
         // TODO workspace root is not a RTreeNode => we must handle it explicitly.
-        if (browseFolderVM.stateID.isWorkspaceRoot) {
+        if (tmpVM.stateID.isWorkspaceRoot) {
             binding.addNodeFab.visibility = View.VISIBLE
         }
         // Put this also in observer when the above has been fixed
@@ -95,8 +94,17 @@ class BrowseFolderFragment : Fragment() {
 
         // Used for refresh the data
         binding.nodesForceRefresh.setOnRefreshListener {
-            binding.nodesForceRefresh.isRefreshing = false
-            showMessage(requireContext(), "Refreshing")
+            tmpVM.forceRefresh()
+//            binding.nodesForceRefresh.isRefreshing = false
+//            showMessage(requireContext(), "Refreshing")
+        }
+
+        tmpVM.isLoading.observe(viewLifecycleOwner) {
+            binding.nodesForceRefresh.isRefreshing = it
+        }
+
+        tmpVM.errorMessage.observe(viewLifecycleOwner) { msg ->
+            msg?.let { showLongMessage(requireContext(), msg) }
         }
 
         isCreated = true
@@ -116,11 +124,11 @@ class BrowseFolderFragment : Fragment() {
         }
         binding.nodes.adapter = adapter
         browseFolderVM.children.observe(viewLifecycleOwner) {
+            // binding.nodes.visibility = View.VISIBLE
             if (it.isEmpty()) {
                 binding.emptyContent.visibility = View.VISIBLE
-                binding.nodes.visibility = View.GONE
+                // binding.nodes.visibility = View.GONE
             } else {
-                binding.nodes.visibility = View.VISIBLE
                 binding.emptyContent.visibility = View.GONE
                 adapter.submitList(it)
             }

@@ -8,21 +8,18 @@ import kotlinx.coroutines.*
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.utils.BackOffTicker
 import java.util.concurrent.TimeUnit
 
 /**
  * Holds a folder and all its children
  */
 class BrowseFolderViewModel(
+    val stateID: StateID,
     private val accountService: AccountService,
     private val nodeService: NodeService,
-    val stateID: StateID,
     application: Application
 ) : AndroidViewModel(application) {
-
-    private val tag = "TreeFolderViewModel"
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private var _currentFolder = nodeService.getLiveNode(stateID)
     val currentFolder: LiveData<RTreeNode>
@@ -30,34 +27,64 @@ class BrowseFolderViewModel(
 
     val children = nodeService.ls(stateID)
 
+    private val tag = BrowseFolderViewModel::class.simpleName
+    private var viewModelJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    private val backOffTicker = BackOffTicker()
+    private var _isActive = false
+    private var currWatcher: Job? = null
+
     // Manage UI
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean>
         get() = _isLoading
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
 
-    private var _isActive = false
+    init {
+        setLoading(true)
+    }
 
     private fun watchFolder() = vmScope.launch {
         while (_isActive) {
-            if (accountService.isClientConnected(stateID.accountId)) {
-                Log.i(tag, "Watching ${stateID}, found ${children.value?.size} children")
-                nodeService.pull(stateID)?.let {
-                    // Not-Null response is an error message, pause polling
-                    Log.e(tag, "$it, pausing poll")
-                    pause()
-                }
+            doPull()
+            val nd = backOffTicker.getNextDelay()
+            delay(TimeUnit.SECONDS.toMillis(nd))
+            Log.d(tag, "... Next delay: $nd")
+        }
+    }
+
+    private suspend fun doPull() {
+        val result = nodeService.pull(stateID)
+        withContext(Dispatchers.Main) {
+            if (result.second != null) {
+                _errorMessage.value = result.second
+                pause()
+            } else if (result.first > 0) {
+                backOffTicker.resetIndex()
             }
-            delay(TimeUnit.SECONDS.toMillis(4))
+            setLoading(false)
         }
     }
 
     fun resume() {
-        _isActive = true
-        watchFolder()
+        if (!_isActive) {
+            _isActive = true
+            currWatcher = watchFolder()
+        }
+        backOffTicker.resetIndex()
     }
 
     fun pause() {
         _isActive = false
+    }
+
+    fun forceRefresh() {
+        setLoading(true)
+        pause()
+        currWatcher?.cancel()
+        resume()
     }
 
     override fun onCleared() {
@@ -78,7 +105,7 @@ class BrowseFolderViewModel(
         @Suppress("unchecked_cast")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(BrowseFolderViewModel::class.java)) {
-                return BrowseFolderViewModel(accountService, nodeService, stateID, application) as T
+                return BrowseFolderViewModel(stateID, accountService, nodeService, application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

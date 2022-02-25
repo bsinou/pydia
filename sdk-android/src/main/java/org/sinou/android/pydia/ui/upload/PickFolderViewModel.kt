@@ -9,8 +9,8 @@ import org.sinou.android.pydia.utils.BackOffTicker
 import java.util.concurrent.TimeUnit
 
 /**
- * This holds a folder and all its children folders to choose a target destination
- * for uploads and moves.
+ * Holds a folder and all its children folders to choose a target destination
+ * for uploads and copy/moves.
  */
 class PickFolderViewModel(
     val stateID: StateID,
@@ -27,7 +27,6 @@ class PickFolderViewModel(
     private val backOffTicker = BackOffTicker()
     private var _isActive = false
     private var currWatcher: Job? = null
-
 
     // UI
     private val _isLoading = MutableLiveData<Boolean>()

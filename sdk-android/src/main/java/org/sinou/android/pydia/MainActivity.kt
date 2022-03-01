@@ -23,7 +23,7 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.databinding.ActivityMainBinding
 import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
-import org.sinou.android.pydia.ui.browse.getIconForWorkspace
+import org.sinou.android.pydia.ui.browse.getWsIconForMenu
 import org.sinou.android.pydia.ui.home.clearCache
 import org.sinou.android.pydia.ui.search.SearchFragment
 import org.sinou.android.pydia.utils.dumpBackStack
@@ -214,7 +214,7 @@ class MainActivity : AppCompatActivity() {
                     item.subMenu.clear()
                     for (ws in it) {
                         val wsItem = item.subMenu.add(ws.label)
-                        wsItem.icon = ContextCompat.getDrawable(this, getIconForWorkspace(ws))
+                        wsItem.icon = ContextCompat.getDrawable(this, getWsIconForMenu(ws))
                         wsItem.setOnMenuItemClickListener {
                             val state = StateID.fromId(accId).withPath("/${ws.slug}")
                             CellsApp.instance.setCurrentState(state)

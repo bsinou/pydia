@@ -192,8 +192,14 @@ fun View.setShowForWithinRecycle(item: RTreeNode?) {
     item?.let { visibility = if (it.isInRecycle()) View.VISIBLE else View.GONE }
 }
 
-fun getIconForWorkspace(item: RWorkspace) = when (item.type) {
+
+fun getWsIconForMenu(item: RWorkspace) = when (item.type) {
     // TODO we hard code the tint in the XML Layout
+    SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
+    SdkNames.WS_TYPE_CELL -> R.drawable.cells
+    else -> R.drawable.ic_baseline_folder_24
+}
+fun getIconForWorkspace(item: RWorkspace) = when (item.type) {
     SdkNames.WS_TYPE_PERSONAL -> R.drawable.icon_personal
     SdkNames.WS_TYPE_CELL -> R.drawable.icon_cell
     else -> R.drawable.icon_workspace

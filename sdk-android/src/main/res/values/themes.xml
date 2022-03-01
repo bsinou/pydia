@@ -13,8 +13,7 @@
         <item name="colorOnSecondary">@color/colorOnSecondary</item>
 
         <!-- Top Android Status bar color -->
-        <!--  This is the default for the time being, but kept here for later reference -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/colorPrimaryDark</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/defaultStatusBarColor</item>
 
         <!-- Type styles -->
         <item name="textAppearanceHeadline1">
@@ -92,7 +91,6 @@
     <style name="Theme.Cells.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" >
         <item name="colorPrimary">@color/colorAccent</item>
     </style>
-
 
     <style name="Theme.Cells.SplashScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimaryDark">@color/colorPrimary</item>

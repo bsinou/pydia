@@ -15,6 +15,11 @@
     <color name="danger">@color/selected_red_color</color>
     <color name="transparent">#00000000</color>
 
+    <!-- First try for dynamic status bar color -->
+    <!-- This is the default (defined by material?) -->
+    <color name="defaultStatusBarColor">@color/colorPrimaryDark</color>
+    <color name="searchStatusBarColor">@color/colorSecondary</color>
+
     <!-- Define Main Material Palette -->
 
     <color name="colorPrimary">@color/colorMain</color>

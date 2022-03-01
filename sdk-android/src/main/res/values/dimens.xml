@@ -41,6 +41,15 @@
     <dimen name="card_elevation">10dp</dimen>
     <dimen name="card_max_elevation">12dp</dimen>
     <dimen name="grid_layout_card_icon_size">96dp</dimen>
+    <!-- Grid layout for the account home-->
+    <integer name="grid_ws_column_number">2</integer>
+    <dimen name="grid_ws_image_size">144dp</dimen>
+    <dimen name="grid_ws_image_corner_radius">6dp</dimen>
+    <dimen name="grid_ws_icon_size">24dp</dimen>
+    <dimen name="grid_ws_icon_margin">24dp</dimen>
+    <dimen name="grid_ws_icon_inner_size">16dp</dimen>
+    <dimen name="grid_ws_card_elevation">4dp</dimen>
+    <dimen name="grid_ws_card_max_elevation">8dp</dimen>
 
     <!-- Decorators -->
     <dimen name="list_item_flag_decorator">12dp</dimen>

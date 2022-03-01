@@ -5,16 +5,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentAccountHomeBinding
+
 
 class AccountHomeFragment : Fragment() {
 
@@ -40,7 +43,18 @@ class AccountHomeFragment : Fragment() {
         activeSessionVM.workspaces.observe(viewLifecycleOwner) {
             it?.let {
                 val adapter = WorkspaceListAdapter { slug, action -> onWsClicked(slug, action) }
+
                 binding.workspaces.adapter = adapter
+                val columns = resources.getInteger(R.integer.grid_ws_column_number)
+                val manager = GridLayoutManager(requireContext(), columns)
+                manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int) =
+                        when (adapter.getItemViewType(position)) {
+                            AppNames.ITEM_TYPE_HEADER -> columns
+                            else -> 1
+                        }
+                }
+                binding.workspaces.layoutManager = manager
 
                 if (it.isEmpty()) {
                     binding.emptyContent.visibility = View.VISIBLE
@@ -48,7 +62,15 @@ class AccountHomeFragment : Fragment() {
                 } else {
                     binding.workspaces.visibility = View.VISIBLE
                     binding.emptyContent.visibility = View.GONE
-                    adapter.submitList(it)
+                    adapter.addHeaderAndSubmitList(it)
+                }
+            }
+        }
+
+        activeSessionVM.liveSession.observe(viewLifecycleOwner) {
+            it?.let { liveSession ->
+                (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
+                    bar.title = liveSession.serverLabel ?: liveSession.url
                 }
             }
         }

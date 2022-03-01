@@ -14,6 +14,10 @@ public interface AppNames {
     /* SHARED PREFERENCE WELL KNOWN VALUES */
     String RECYCLER_LAYOUT_LIST = "list";
     String RECYCLER_LAYOUT_GRID = "grid";
+    int ITEM_TYPE_HEADER = 0;
+    int ITEM_TYPE_WS = 1;
+    int ITEM_TYPE_NODE = 2;
+
 
     /* GENERIC ACTIONS */
     String ACTION_MORE = KEY_PREFIX_ + "more";

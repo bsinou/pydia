@@ -15,6 +15,9 @@ android {
     compileSdkVersion ownVersions['android.sdk.compile'] as int
     buildToolsVersion ownVersions['android.build.tools']
 
+    // Gather overrides in a distinct folder for easier maintenance
+    sourceSets.main.res.srcDir 'src/main/res-overrides'
+
     defaultConfig {
 
         applicationId "org.sinou.android.pydia"

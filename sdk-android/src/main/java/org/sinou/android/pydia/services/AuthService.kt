@@ -43,7 +43,6 @@ class AuthService(
                 return tempInstance
             }
 
-            val accountDB = accountService.accountDB
             synchronized(this) {
                 val instance = AuthService(
                     accountService,
@@ -110,7 +109,7 @@ class AuthService(
             if (accountID == null) {
                 return@withContext null
             } else {
-                return@withContext Pair(accountID!!, rState.next)
+                return@withContext Pair(accountID, rState.next)
             }
         }
 

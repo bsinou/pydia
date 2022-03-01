@@ -34,6 +34,7 @@
     <dimen name="list_button_margin">@dimen/margin_small</dimen>
     <dimen name="glide_thumb_radius">6</dimen>
     <!-- Grid Layout with card view-->
+    <integer name="grid_default_column_number">3</integer>
     <dimen name="grid_layout_card_margin">4dp</dimen>
     <dimen name="card_padding">4dp</dimen>
     <dimen name="card_corner_radius">6dp</dimen>

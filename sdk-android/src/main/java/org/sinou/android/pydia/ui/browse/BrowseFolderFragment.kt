@@ -116,7 +116,8 @@ class BrowseFolderFragment : Fragment() {
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
         var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
         if (asGrid) {
-            binding.nodes.layoutManager = GridLayoutManager(activity, 3)
+            val columns = resources.getInteger(R.integer.grid_default_column_number)
+            binding.nodes.layoutManager = GridLayoutManager(requireActivity(), columns)
             adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
         } else {
             binding.nodes.layoutManager = LinearLayoutManager(requireActivity())

@@ -14,16 +14,13 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.databinding.FragmentWorkspaceListBinding
+import org.sinou.android.pydia.databinding.FragmentAccountHomeBinding
 
-class ChooseWorkspaceFragment : Fragment() {
+class AccountHomeFragment : Fragment() {
 
-    companion object {
-        private const val fTag = "ChooseWorkspaceFragment"
-    }
-
+    private val fTag = AccountHomeFragment::class.simpleName
     private val activeSessionVM: ActiveSessionViewModel by activityViewModels()
-    private lateinit var binding: FragmentWorkspaceListBinding
+    private lateinit var binding: FragmentAccountHomeBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,7 +28,7 @@ class ChooseWorkspaceFragment : Fragment() {
     ): View {
         Log.e(fTag, "onCreateView ${activeSessionVM.accountId}")
         binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_workspace_list, container, false
+            inflater, R.layout.fragment_account_home, container, false
         )
         return binding.root
     }
@@ -84,14 +81,9 @@ class ChooseWorkspaceFragment : Fragment() {
     }
 
     override fun onPause() {
-        Log.i(
-            fTag, "Pausing: ${
-                activeSessionVM.liveSession.value?.accountID
-                    ?: "No active session"
-            }"
-        )
+        val idStr = activeSessionVM.liveSession.value?.accountID ?: "No active session"
+        Log.d(fTag, "Pausing: $idStr")
         super.onPause()
         activeSessionVM.pause()
     }
 }
-

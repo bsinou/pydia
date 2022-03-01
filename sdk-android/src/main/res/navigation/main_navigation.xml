@@ -67,9 +67,9 @@
 
     <fragment
         android:id="@+id/workspace_list_destination"
-        android:name="org.sinou.android.pydia.ui.browse.ChooseWorkspaceFragment"
+        android:name="org.sinou.android.pydia.ui.browse.AccountHomeFragment"
         android:label="@string/action_open_workspaces"
-        tools:layout="@layout/fragment_workspace_list">
+        tools:layout="@layout/fragment_account_home">
         <argument
             android:name="state"
             app:argType="string" />

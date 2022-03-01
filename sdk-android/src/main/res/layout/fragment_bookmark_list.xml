@@ -2,8 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data></data>
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/bookmark_list_fragment"
         android:layout_width="match_parent"

@@ -72,7 +72,7 @@ class AccountListAdapter(
         override fun areContentsTheSame(oldItem: RLiveSession, newItem: RLiveSession): Boolean {
             // This relies on Room's auto-generated equality to check
             // if the corresponding view needs to be redrawn.
-            // This can be further configured in more complex scenarii
+            // This can be further configured in a more complex scenario
             return oldItem == newItem
         }
     }

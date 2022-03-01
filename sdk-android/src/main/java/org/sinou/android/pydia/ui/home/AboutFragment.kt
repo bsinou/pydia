@@ -68,7 +68,7 @@ class AboutFragment : Fragment() {
     private fun getTimestampAsStringRecent(timestamp: Long): String {
         try {
             val netDate = Date(timestamp)
-            val sdf = SimpleDateFormat("MM/dd/yyyy")
+            val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
             return sdf.format(netDate)
         } catch (e: Exception) {
             return e.toString()

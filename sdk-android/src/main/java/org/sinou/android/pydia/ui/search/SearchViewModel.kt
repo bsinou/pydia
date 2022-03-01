@@ -21,7 +21,6 @@ class SearchViewModel (
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-
     private lateinit var _currentFolder: LiveData<RTreeNode>
     val currentFolder: LiveData<RTreeNode>
         get() = _currentFolder
@@ -34,14 +33,31 @@ class SearchViewModel (
     val queryString: String?
         get() = _queryString
 
+    // Manage UI
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
+
+
     fun query(query: String) = vmScope.launch {
-        _hits.value = nodeService.query(query, stateID)
+        setLoading(true)
         _queryString = query
+        _hits.value = nodeService.remoteQuery(stateID, query)
+//         _hits.value = nodeService.queryLocally(query, stateID)
+        setLoading(false)
     }
 
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
+    }
+
+
+    fun setLoading(loading: Boolean) {
+        _isLoading.value = loading
     }
 
     class SearchViewModelFactory(

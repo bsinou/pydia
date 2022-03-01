@@ -349,17 +349,22 @@ class MainActivity : AppCompatActivity() {
 
     private inner class SearchListener : OnQueryTextListener {
 
+        // FIXME clean this class:
+        //   - why local state?
+        //   - externalize
+
         private var searchFragment: SearchFragment? = null
         private var stateId: StateID? = null
         private var uiContext: String? = null
 
         override fun onQueryTextChange(newText: String): Boolean {
             if (Str.empty(newText)) return true
-            navController.currentDestination?.let {
-                if (it.id == R.id.search_destination) {
-                    getSearchFragment()?.updateQuery(newText)
-                }
-            }
+            // TODO for the time being, we do not remote query at each key stroke.
+//            navController.currentDestination?.let {
+//                if (it.id == R.id.search_destination) {
+//                    getSearchFragment()?.updateQuery(newText)
+//                }
+//            }
             return true
         }
 
@@ -384,7 +389,7 @@ class MainActivity : AppCompatActivity() {
                 showMessage(baseContext, "Cannot search with no active session")
                 return
             }
-            showMessage(baseContext, "About to navigate")
+            // showMessage(baseContext, "About to navigate")
 
             stateId = StateID.fromId(activeSessionVM.liveSession.value!!.accountID)
             uiContext = when (navController.currentDestination!!.id) {

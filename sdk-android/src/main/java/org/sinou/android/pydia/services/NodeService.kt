@@ -98,7 +98,7 @@ class NodeService(
         nodeDB(stateID).treeNodeDao().getNode(stateID.id)
     }
 
-    suspend fun query(query: String?, stateID: StateID): List<RTreeNode> =
+    suspend fun queryLocally(query: String?, stateID: StateID): List<RTreeNode> =
         withContext(Dispatchers.IO) {
 
             return@withContext if (query == null) {
@@ -598,34 +598,11 @@ class NodeService(
         }
     }
 
-//    suspend fun doLiveUpload(uploadRecord: RUpload) {
-//        val cr = CellsApp.instance.contentResolver
-//
-//        // Real upload in single part
-//        var inputStream: InputStream? = null
-//        try {
-//            inputStream = cr.openInputStream(Uri.parse(uploadRecord.uri))
-//
-//            val error = uploadAt(
-//                StateID.fromId(uploadRecord.targetState),
-//                uploadRecord.name,
-//                uploadRecord.byteSize,
-//                uploadRecord.mime,
-//                inputStream!!
-//            )
-//        } catch (ioe: IOException) {
-//            ioe.printStackTrace()
-//        } finally {
-//            IoHelpers.closeQuietly(inputStream)
-//        }
-//    }
-//
-
     fun getUploadDao(): UploadDao {
         return RuntimeDB.getDatabase(CellsApp.instance.applicationContext).uploadDao()
     }
 
-    suspend fun doUpload(uploadRecord: RUpload) {
+    fun doUpload(uploadRecord: RUpload) {
         // Real upload in single part
         var inputStream: InputStream? = null
         try {
@@ -707,6 +684,19 @@ class NodeService(
         }
         return@withContext null
     }
+
+    /* Directly communicate with the distant server */
+    suspend fun remoteQuery(stateID: StateID, query: String): List<RTreeNode> =
+        withContext(Dispatchers.IO) {
+            try {
+                return@withContext getClient(stateID).search(stateID.path, query, 20)
+                    .map { RTreeNode.fromFileNode(stateID, it) }
+            } catch (se: SDKException) {
+                se.printStackTrace()
+                return@withContext listOf()
+            }
+        }
+
 
     suspend fun remoteRestore(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {

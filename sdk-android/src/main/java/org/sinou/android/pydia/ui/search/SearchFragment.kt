@@ -26,7 +26,7 @@ import org.sinou.android.pydia.utils.externallyView
 
 class SearchFragment : Fragment() {
 
-    private val fTag = "SearchFragment"
+    private val fTag = SearchFragment::class.simpleName
     private val args: SearchFragmentArgs by navArgs()
 
     private lateinit var binding: FragmentSearchBinding
@@ -49,6 +49,15 @@ class SearchFragment : Fragment() {
         )
         val tmpVM: SearchViewModel by viewModels { viewModelFactory }
         searchVM = tmpVM
+
+        tmpVM.isLoading.observe(viewLifecycleOwner) {
+            binding.swipeRefresh.isRefreshing = it
+        }
+
+        binding.swipeRefresh.setOnRefreshListener {
+            // Does nothing yet.
+            binding.swipeRefresh.isRefreshing = false
+        }
 
         val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
         binding.hits.adapter = adapter
@@ -75,7 +84,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
-        Log.i(fTag, "Clicked on ${node.name} -> $command")
+        Log.d(fTag, "Clicked on ${node.name} -> $command")
         when (command) {
             AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {

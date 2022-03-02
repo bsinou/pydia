@@ -136,6 +136,8 @@
     <!-- Dialogs -->
     <string name="confirm_account_deletion_title">Delete account\n%s ?</string>
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
+    <string name="confirm_account_logout_title">Logout account\n%s ?</string>
+    <string name="confirm_account_logout_desc">It will forget your credentials for this server: you must then log again to connect.</string>
     <string name="my_account">My Account</string>
     <string name="node_add_button">Create or import</string>
     <string name="create_account">Create an account</string>

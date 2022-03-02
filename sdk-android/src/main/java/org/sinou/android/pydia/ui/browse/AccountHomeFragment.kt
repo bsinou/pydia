@@ -18,7 +18,10 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentAccountHomeBinding
 
-
+/**
+ * Displays the landing page for a given account, mainly the workspace list.
+ * This is the default entry point for the MainActivity.
+ */
 class AccountHomeFragment : Fragment() {
 
     private val fTag = AccountHomeFragment::class.simpleName

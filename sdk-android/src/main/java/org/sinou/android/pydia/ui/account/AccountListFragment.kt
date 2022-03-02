@@ -17,6 +17,7 @@ import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentAccountListBinding
 import org.sinou.android.pydia.services.AuthService
 import org.sinou.android.pydia.ui.common.deleteAccount
+import org.sinou.android.pydia.ui.common.logoutAccount
 
 class AccountListFragment : Fragment() {
 
@@ -108,7 +109,7 @@ class AccountListFragment : Fragment() {
                 }
             }
             AppNames.ACTION_LOGOUT -> lifecycleScope.launch {
-                CellsApp.instance.accountService.logoutAccount(accountID)
+                logoutAccount(requireContext(), accountID)
             }
             AppNames.ACTION_FORGET -> {
                 deleteAccount(requireContext(), accountID)

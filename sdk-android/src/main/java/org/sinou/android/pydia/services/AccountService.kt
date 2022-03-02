@@ -126,23 +126,23 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         }
     }
 
-    suspend fun logoutAccount(accountID: String) = withContext(Dispatchers.IO) {
+    suspend fun logoutAccount(accountID: String): String? = withContext(Dispatchers.IO) {
         try {
-            // First retrieve the account to be logged out to know if it is legacy or not
             accountDB.accountDao().getAccount(accountID)?.let {
-                // There is also a token that is generated for P8, so in case of legacy server
-                // we have to discard a row in **both** tables
+                // There is also a token that is generated for P8:
+                // In case of legacy server, we have to discard a row in **both** tables
                 if (it.isLegacy) {
                     accountDB.legacyCredentialsDao().forgetPassword(accountID)
                 }
                 accountDB.tokenDao().forgetToken(accountID)
-
                 it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
                 accountDB.accountDao().update(it)
-
+                return@withContext null
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            val msg = "Could not delete credentials for ${StateID.fromId(accountID)}"
+            logException(tag, msg, e)
+            return@withContext msg
         }
     }
 

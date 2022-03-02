@@ -10,25 +10,25 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.utils.showMessage
 
-fun deleteAccount(
+fun logoutAccount(
     context: Context,
     accountId: String
 ): Boolean {
     val account = StateID.fromId(accountId)
     MaterialAlertDialogBuilder(context)
-        .setTitle(context.resources.getString(R.string.confirm_account_deletion_title, account))
-        .setMessage(R.string.confirm_account_deletion_desc)
+        .setTitle(context.resources.getString(R.string.confirm_account_logout_title, account))
+        .setMessage(R.string.confirm_account_logout_desc)
         .setPositiveButton(R.string.button_ok) { dialog, _ ->
-            doDelete(context, accountId)
+            doLogout(context, accountId)
         }
         .setNegativeButton(R.string.button_cancel, null)
         .show()
     return true
 }
 
-private fun doDelete(context: Context, accountId: String) {
+private fun doLogout(context: Context, accountId: String) {
     CellsApp.instance.appScope.launch {
-        CellsApp.instance.accountService.forgetAccount(accountId)
+        CellsApp.instance.accountService.logoutAccount(accountId)
             ?.let {
                 withContext(Dispatchers.Main) {
                     showMessage(context, it)
@@ -38,7 +38,7 @@ private fun doDelete(context: Context, accountId: String) {
                 withContext(Dispatchers.Main) {
                     showMessage(
                         context,
-                        "${StateID.fromId(accountId)} has been removed"
+                        "${StateID.fromId(accountId)} has been disconnected"
                     )
                 }
             }

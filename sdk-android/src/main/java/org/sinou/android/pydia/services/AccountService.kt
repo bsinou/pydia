@@ -45,6 +45,10 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
 
     val sessionFactory: SessionFactory = SessionFactory.getSessionFactory(this, authService)
 
+    fun getClient(stateId: StateID): Client {
+        return sessionFactory.getUnlockedClient(stateId.accountId)
+    }
+
     fun getLiveSession(accountID: String): LiveData<RLiveSession?> = accountDB
         .liveSessionDao().getLiveSession(accountID)
 

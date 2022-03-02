@@ -10,14 +10,13 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.MainActivity
-import org.sinou.android.pydia.services.NodeService
-import java.util.concurrent.TimeUnit
+import org.sinou.android.pydia.services.TransferService
 
 /**
  * Holds the current location while choosing a target for file uploads or moves.
  */
 class ChooseTargetViewModel(
-    private val nodeService: NodeService,
+    private val transferService: TransferService,
     currApp: Application,
 ) : AndroidViewModel(currApp) {
 
@@ -80,7 +79,7 @@ class ChooseTargetViewModel(
                     AppNames.ACTION_UPLOAD -> {
                         for (uri in uris) {
                             // TODO implement error management
-                            val error = nodeService.enqueueUpload(stateID, uri)
+                            val error = transferService.enqueueUpload(stateID, uri)
                         }
                         withContext(Dispatchers.Main) {
                             _postDone.value = true
@@ -102,13 +101,13 @@ class ChooseTargetViewModel(
     }
 
     class ChooseTargetViewModelFactory(
-        private val nodeService: NodeService,
+        private val transferService: TransferService,
         private val application: Application
     ) : ViewModelProvider.Factory {
         @Suppress("unchecked_cast")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ChooseTargetViewModel::class.java)) {
-                return ChooseTargetViewModel(nodeService, application) as T
+                return ChooseTargetViewModel(transferService, application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

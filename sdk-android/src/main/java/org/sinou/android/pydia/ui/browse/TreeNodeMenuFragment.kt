@@ -58,7 +58,6 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val ACTION_CREATE_FOLDER = "create_folder"
         const val ACTION_IMPORT_FILES = "import_files"
         const val ACTION_IMPORT_FROM_CAMERA = "import_from_camera"
-
     }
 
     private val args: TreeNodeMenuFragmentArgs by navArgs()
@@ -113,7 +112,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         fileImporter = FileImporter(
             requireActivity().activityResultRegistry,
             CellsApp.instance.fileService,
-            CellsApp.instance.nodeService,
+            CellsApp.instance.transferService,
             treeNodeMenuVM,
             fTag,
             this,

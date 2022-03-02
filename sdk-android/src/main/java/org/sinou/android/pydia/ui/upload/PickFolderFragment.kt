@@ -56,7 +56,7 @@ class PickFolderFragment : Fragment() {
         pickFolderVM = tmpVM
 
         val chooseTargetFactory = ChooseTargetViewModel.ChooseTargetViewModelFactory(
-            CellsApp.instance.nodeService,
+            CellsApp.instance.transferService,
             requireActivity().application,
         )
         val tmpAVM: ChooseTargetViewModel by activityViewModels { chooseTargetFactory }

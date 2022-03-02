@@ -47,7 +47,7 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         val chooseTargetFactory = ChooseTargetViewModel.ChooseTargetViewModelFactory(
-            CellsApp.instance.nodeService,
+            CellsApp.instance.transferService,
             application,
         )
         val tmpVM: ChooseTargetViewModel by viewModels { chooseTargetFactory }

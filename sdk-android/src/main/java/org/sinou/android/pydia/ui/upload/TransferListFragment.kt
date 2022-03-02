@@ -41,7 +41,7 @@ class TransferListFragment : Fragment() {
         binding.transferList.layoutManager = LinearLayoutManager(activity)
         val adapter = TransferListAdapter(this::onClicked)
         binding.transferList.adapter = adapter
-        transferVM.transfers.observe(viewLifecycleOwner, { adapter.submitList(it) })
+        transferVM.transfers.observe(viewLifecycleOwner) { adapter.submitList(it) }
 
 //        binding.forceLaunch.setOnClickListener {
 //            lifecycleScope.launch {

@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.services.FileService
-import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.services.TransferService
 import org.sinou.android.pydia.ui.browse.TreeNodeMenuViewModel
 import org.sinou.android.pydia.utils.DEFAULT_FILE_PROVIDER_ID
 import java.io.File
@@ -25,7 +25,7 @@ import java.io.IOException
 class FileImporter(
     private val registry: ActivityResultRegistry,
     private val fileService: FileService,
-    private val nodeService: NodeService,
+    private val transferService: TransferService,
     private val nodeMenuVM: TreeNodeMenuViewModel,
     private val caller: String,
     private val callingFragment: BottomSheetDialogFragment,
@@ -46,7 +46,7 @@ class FileImporter(
         )
         { uris ->
             for (uri in uris) {
-                nodeService.enqueueUpload(nodeMenuVM.stateID, uri)
+                transferService.enqueueUpload(nodeMenuVM.stateID, uri)
             }
             callingFragment.dismiss()
         }
@@ -60,7 +60,7 @@ class FileImporter(
                 callingFragment.dismiss()
             } else {
                 nodeMenuVM.targetUri?.let {
-                    nodeService.enqueueUpload(nodeMenuVM.stateID, it)
+                    transferService.enqueueUpload(nodeMenuVM.stateID, it)
                     callingFragment.dismiss()
                 }
             }

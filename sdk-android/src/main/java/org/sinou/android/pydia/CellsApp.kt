@@ -77,7 +77,7 @@ class CellsApp : Application() {
 
     private fun initServices() {
 
-        // TODO this should be handled lazily
+        // TODO use dependency injection
         accountService = AccountService(
             AccountDB.getDatabase(applicationContext),
             filesDir
@@ -99,6 +99,8 @@ class CellsApp : Application() {
         Log.i(tag, "... Node service ready")
 
         transferService = TransferService(
+            accountService,
+            fileService,
             RuntimeDB.getDatabase(applicationContext),
         )
 

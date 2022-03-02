@@ -16,7 +16,7 @@ import org.sinou.android.pydia.db.runtime.RUpload
 fun TextView.setTransferText(item: RUpload?) {
     item?.let {
         val state = item.getStateId()
-        text = "${state.fileName} (${state.username}@${state.serverHost})"
+        text = "${state.fileName} -> ${state.username}@${state.serverHost}"
     }
 }
 
@@ -26,6 +26,9 @@ fun TextView.setTransferStatus(item: RUpload?) {
 
         val sizeValue = Formatter.formatShortFileSize(this.context, item.byteSize)
         var desc = "$sizeValue,"
+
+        // TODO handle error
+
 
         if (item.doneTimestamp > 0) {
 
@@ -57,8 +60,9 @@ fun TextView.setTransferStatus(item: RUpload?) {
 @BindingAdapter("updateProgress")
 fun ProgressBar.setUpdateProgress(item: RUpload?) {
     item?.let {
-        // TODO compute from total size
-        progress = it.progress
+        val percentage = (it.progress * 100) / it.byteSize
+        Log.e("Progress", "${it.progress} - ${it.byteSize} - $percentage")
+        progress = percentage.toInt()
     }
 }
 

@@ -8,12 +8,15 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentTransferListBinding
 import org.sinou.android.pydia.db.runtime.RUpload
 import org.sinou.android.pydia.utils.dumpBackStack
+import org.sinou.android.pydia.utils.showMessage
 
 class TransferListFragment : Fragment() {
 
@@ -48,6 +51,10 @@ class TransferListFragment : Fragment() {
 //                CellsApp.instance.nodeService.uploadAllNew()
 //            }
 //        }
+
+        binding.clearList.setOnClickListener {
+            showMessage(requireContext(), "to do: clear out the list")
+        }
 
         return binding.root
     }

@@ -68,10 +68,19 @@ class TransferService(
 
             val parent = state.parentFolder()
             accountService.getClient(state).upload(
-                inputStream!!, uploadRecord.byteSize,
+                inputStream, uploadRecord.byteSize,
                 uploadRecord.mime, parent.workspace, parent.file, state.fileName,
-                true, null
-            )
+                true
+            ) { progressL ->
+                uploadRecord.progress = progressL
+                getUploadDao().update(uploadRecord)
+                true
+            }
+
+            uploadRecord.error = null
+            uploadRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            // uploadRecord.progress = 100
+
         } catch (e: Exception) {
             // TODO manage errors correctly
             uploadRecord.error = e.message
@@ -84,13 +93,29 @@ class TransferService(
     }
 
 
-    private fun copyAndRegister(
-        cr: ContentResolver,
-        uri: Uri,
-        parentID: StateID
-    ): StateID? {
+    suspend fun uploadAllNew() {
+        serviceScope.launch {
+            val uploads = getUploadDao().getAllNew()
+            for (one in uploads) {
+                serviceScope.launch {
+                    doUpload(one)
+                }
+            }
+        }
+    }
+
+    fun getUploadDao(): UploadDao {
+        return runtimeDB.uploadDao()
+    }
+
+    /**
+     * Does all the dirty work to copy the file from the device to in-app folder
+     * and register a new transfer record in the DB
+     */
+    private fun copyAndRegister(cr: ContentResolver, uri: Uri, parentID: StateID): StateID? {
         var name: String? = null
-        var size: Long = 0
+        // TODO rather throw an exception 5 lines below if we do not have a valid size
+        var size: Long = 1
         cr.query(uri, null, null, null, null)?.use { cursor ->
             val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
@@ -102,7 +127,6 @@ class TransferService(
         if (Str.empty(name)) {
             return null
         }
-
 
         val filename = name!!
 
@@ -154,22 +178,6 @@ class TransferService(
         return targetStateID
     }
 
-
-
-    suspend fun uploadAllNew() {
-        serviceScope.launch {
-            val uploads = getUploadDao().getAllNew()
-            for (one in uploads) {
-                serviceScope.launch {
-                    doUpload(one)
-                }
-            }
-        }
-    }
-
-    fun getUploadDao(): UploadDao {
-        return runtimeDB.uploadDao()
-    }
 
     private fun createTargetFile(parentID: StateID, name: String): File {
         val fs = CellsApp.instance.fileService

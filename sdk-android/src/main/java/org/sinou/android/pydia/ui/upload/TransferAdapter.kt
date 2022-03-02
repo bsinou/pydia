@@ -63,9 +63,9 @@ class TransferDiffCallback : DiffUtil.ItemCallback<RUpload>() {
     }
 
     override fun areContentsTheSame(oldItem: RUpload, newItem: RUpload): Boolean {
-        return oldItem.progress == newItem.progress
-                && oldItem.doneTimestamp == newItem.doneTimestamp
+        return  oldItem.doneTimestamp == newItem.doneTimestamp
                 && oldItem.error == newItem.error
+                && oldItem.progress == newItem.progress
     }
 }
 

@@ -25,13 +25,17 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:indeterminate="true"
+            app:updateProgress="@{transfer}"
+
              />
-<!--        app:updateProgress="@{transfer}"-->
+<!--        android:indeterminate="true"-->
+
+        <!-- TODO  Add an overlay with a check when the tranfer has been done -->
+
         <TextView
             android:id="@+id/primaryText"
-            style="@style/text_list_secondary"
-            android:layout_width="wrap_content"
+            style="@style/text_header"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
@@ -39,11 +43,11 @@
             app:layout_constraintStart_toStartOf="@id/secondaryText"
             app:layout_constraintBottom_toTopOf="@id/secondaryText"
             app:transferText="@{transfer}"
-            tools:text="my-image-88639.jpg - 658KB - Started 2 years ago..." />
+            tools:text="my-image-88639.jpg -> eva@files.example.com" />
 
         <TextView
             android:id="@+id/secondaryText"
-            style="@style/text_list_error"
+            style="@style/text_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -54,7 +58,6 @@
             app:layout_constraintBaseline_toBaselineOf="@id/progress"
             app:layout_constraintStart_toEndOf="@id/progress"
             tools:text="2 years ago... Maybe the server is unreachable?" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

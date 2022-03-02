@@ -24,7 +24,7 @@ data class RUpload(
 
     @ColumnInfo(name = "error") var error: String? = null,
 
-    @ColumnInfo(name = "progress") val progress: Int = 0,
+    @ColumnInfo(name = "progress") var progress: Long = 0,
 ) {
 
     fun getStateId(): StateID{

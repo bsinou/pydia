@@ -36,6 +36,11 @@ class AccountHomeFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_home, container, false
         )
+
+        binding.switchAccountButton.setOnClickListener {
+            findNavController().navigate(MainNavDirections.openAccountList())
+        }
+
         return binding.root
     }
 
@@ -75,6 +80,8 @@ class AccountHomeFragment : Fragment() {
                 (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
                     bar.title = liveSession.serverLabel ?: liveSession.url
                 }
+
+                binding.session = liveSession
             }
         }
 

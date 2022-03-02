@@ -163,6 +163,8 @@
     <string name="switch_account">Switch account</string>
     <string name="switch_workspace">Switch workspace</string>
     <string name="parent_folder">Parent folder</string>
+    <string name="account_server_label">Server: %s</string>
+    <string name="account_logged_in_as_label">Logged in as %s</string>
 
     in_progress_deleting)
     )

@@ -73,7 +73,7 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
     }
 
     val lf = CellsApp.instance.fileService.getThumbPath(item)
-    if (Str.notEmpty(lf) && File(lf).exists()) {
+    if (Str.notEmpty(lf) && File(lf!!).exists()) {
         Glide.with(context)
             .load(File(lf))
             .transform(
@@ -104,7 +104,7 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
     }
 
     val lf = CellsApp.instance.fileService.getThumbPath(item)
-    if (Str.notEmpty(lf) && File(lf).exists()) {
+    if (Str.notEmpty(lf) && File(lf!!).exists()) {
         Glide.with(context)
             .load(File(lf))
             .transform(CenterCrop())
@@ -192,7 +192,6 @@ fun View.setShowForWithinRecycle(item: RTreeNode?) {
     item?.let { visibility = if (it.isInRecycle()) View.VISIBLE else View.GONE }
 }
 
-
 fun getWsIconForMenu(item: RWorkspace) = when (item.type) {
     // TODO we hard code the tint in the XML Layout
     SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
@@ -256,7 +255,7 @@ fun areContentsEquals(
 
     // With Room: we should get equality based on equality of each fields (column) for free
     // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
-    // remote modif timestamp and thumb filename.
+    // remote modification timestamp and thumb filename.
 
     // More logs to investigate
     if (!same) {

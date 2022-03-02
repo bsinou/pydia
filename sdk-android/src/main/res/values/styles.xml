@@ -7,6 +7,10 @@
         <item name="android:textSize">@dimen/text_body_size</item>
     </style>
 
+    <style name="text_header" parent="text_body">
+        <item name="android:textSize">@dimen/text_header_size</item>
+    </style>
+
     <style name="text_title" parent="text_body">
         <item name="android:textColor">@color/colorTextAccent</item>
         <!--        <item name="android:textFontWeight">600</item>-->

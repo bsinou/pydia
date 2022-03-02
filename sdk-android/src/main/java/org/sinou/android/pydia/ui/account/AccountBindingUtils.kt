@@ -1,5 +1,6 @@
 package org.sinou.android.pydia.ui.account
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.view.View
 import android.widget.ImageView
@@ -68,10 +69,25 @@ fun TextView.setAccountPrimaryText(item: RLiveSession?) {
 
 }
 
+@SuppressLint("SetTextI18n")
 @BindingAdapter("account_secondary_text")
 fun TextView.setAccountSecondaryText(item: RLiveSession?) {
     item?.let {
         text = "${item.username}@${item.url}"
+    }
+}
+
+@BindingAdapter("accountHomePrimary")
+fun TextView.setAccountHomePrimary(item: RLiveSession?) {
+    item?.let {
+        text = this.resources.getString(R.string.account_server_label, item.url)
+    }
+}
+
+@BindingAdapter("accountHomeSecondary")
+fun TextView.setAccountHomeSecondary(item: RLiveSession?) {
+    item?.let {
+        text = this.resources.getString(R.string.account_logged_in_as_label, item.username)
     }
 }
 

@@ -68,4 +68,3 @@ class TransferDiffCallback : DiffUtil.ItemCallback<RUpload>() {
                 && oldItem.progress == newItem.progress
     }
 }
-

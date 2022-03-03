@@ -63,7 +63,7 @@ class TreeNodeDiffCallback : DiffUtil.ItemCallback<RTreeNode>() {
     }
 
     override fun areContentsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
-        return areContentsEquals(oldItem, newItem)
+        return oldItem.isContentEquals(newItem)
     }
 }
 

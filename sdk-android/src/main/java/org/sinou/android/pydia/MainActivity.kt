@@ -22,8 +22,8 @@ import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.databinding.ActivityMainBinding
+import org.sinou.android.pydia.ui.bindings.getWsIconForMenu
 import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
-import org.sinou.android.pydia.ui.browse.getWsIconForMenu
 import org.sinou.android.pydia.ui.home.clearCache
 import org.sinou.android.pydia.ui.search.SearchFragment
 import org.sinou.android.pydia.utils.dumpBackStack

@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.ui.account
+package org.sinou.android.pydia.ui.bindings
 
 import android.annotation.SuppressLint
 import android.os.Build

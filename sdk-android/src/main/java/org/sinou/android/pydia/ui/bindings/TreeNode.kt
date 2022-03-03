@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.ui.browse
+package org.sinou.android.pydia.ui.bindings
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -20,7 +20,6 @@ import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.db.accounts.RWorkspace
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import java.io.File
 
@@ -130,33 +129,6 @@ fun ImageView.isShared(item: RTreeNode) {
     visibility = if (item.isShared) View.VISIBLE else View.GONE
 }
 
-
-@BindingAdapter("wsHeaderLabel")
-fun TextView.setWsHeaderLabel(type: String?) {
-    type?.let {
-        text =
-            when (it) {
-                SdkNames.WS_TYPE_CELL -> "Cells"
-                else -> "Workspaces"
-            }
-    }
-}
-
-@BindingAdapter("wsTitle")
-fun TextView.setWsTitle(item: RWorkspace?) {
-    item?.let { text = item.label }
-}
-
-@BindingAdapter("wsDesc")
-fun TextView.setWsDesc(item: RWorkspace?) {
-    item?.let { text = item.description }
-}
-
-@BindingAdapter("wsThumb")
-fun ImageView.setWsThumb(item: RWorkspace) {
-    setImageResource(getIconForWorkspace(item))
-}
-
 @BindingAdapter("hasPublicLink")
 fun SwitchMaterial.setHasPublicLink(item: RTreeNode?) {
     item?.let { isChecked = it.isShared }
@@ -192,18 +164,6 @@ fun View.setShowForWithinRecycle(item: RTreeNode?) {
     item?.let { visibility = if (it.isInRecycle()) View.VISIBLE else View.GONE }
 }
 
-fun getWsIconForMenu(item: RWorkspace) = when (item.type) {
-    // TODO we hard code the tint in the XML Layout
-    SdkNames.WS_TYPE_PERSONAL -> R.drawable.ic_baseline_folder_shared_24
-    SdkNames.WS_TYPE_CELL -> R.drawable.cells
-    else -> R.drawable.ic_baseline_folder_24
-}
-
-fun getIconForWorkspace(item: RWorkspace) = when (item.type) {
-    SdkNames.WS_TYPE_PERSONAL -> R.drawable.icon_personal
-    SdkNames.WS_TYPE_CELL -> R.drawable.icon_cell
-    else -> R.drawable.icon_workspace
-}
 
 fun getDrawableFromMime(mime: String, sortName: String?): Int {
     // TODO enrich with more specific icons for files depending on the mime
@@ -237,40 +197,3 @@ fun getMessageFromLocalModifStatus(context: Context, status: String): String? {
 //fun RTreeNode.isFolder(): Boolean {
 //    return SdkNames.NODE_MIME_FOLDER == mime || SdkNames.NODE_MIME_RECYCLE == mime
 //}
-
-fun areContentsEquals(
-    oldItem: RTreeNode,
-    newItem: RTreeNode
-): Boolean {
-    var same = oldItem.remoteModificationTS == newItem.remoteModificationTS
-            && oldItem.localModificationTS == newItem.localModificationTS
-
-    if (same && newItem.thumbFilename != null) {
-        same = newItem.thumbFilename.equals(oldItem.thumbFilename)
-    }
-
-    val flagChanged = newItem.isBookmarked == oldItem.isBookmarked
-            && newItem.isOfflineRoot == oldItem.isOfflineRoot
-            && newItem.isShared == oldItem.isShared
-
-    // With Room: we should get equality based on equality of each fields (column) for free
-    // (RTreeNode is a @Data class). But this doesn't work for now, so we rather only check:
-    // remote modification timestamp and thumb filename.
-
-    // More logs to investigate
-    if (!same) {
-        val tag = "ListContentEquals"
-        Log.d(tag, "Found new content for ${oldItem.encodedState}")
-        Log.d(
-            tag, "Old TS: ${oldItem.remoteModificationTS}, " +
-                    "new TS: ${newItem.remoteModificationTS}"
-        )
-        Log.d(
-            tag, "Old thumb: ${oldItem.thumbFilename}, " +
-                    "new thumb: ${newItem.thumbFilename}"
-        )
-        //            Log.d(tag, "old item: \n${Gson().toJson(oldItem)}")
-        //            Log.d(tag, "new item: \n${Gson().toJson(newItem)}")
-    }
-    return same && flagChanged
-}

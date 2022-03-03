@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.ui.upload
+package org.sinou.android.pydia.ui.bindings
 
 import android.text.format.DateUtils
 import android.text.format.Formatter

@@ -62,6 +62,7 @@ public interface AppNames {
     // Account Authentication States
     String AUTH_STATUS_NEW = "new";
     String AUTH_STATUS_NO_CREDS = "no-credentials";
+    String AUTH_STATUS_UNAUTHORIZED = "unauthorized";
     String AUTH_STATUS_EXPIRED = "expired";
     String AUTH_STATUS_REFRESHING = "refreshing";
     String AUTH_STATUS_CONNECTED = "connected";

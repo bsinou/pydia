@@ -46,7 +46,7 @@ class OAuthViewModel(private val accountService: AccountService) : ViewModel() {
         vmScope.launch {
             _message.value = "Retrieving authentication token..."
             val newAccount =  withContext(Dispatchers.IO) {
-                accountService.authService.handleOAuthResponse(state, code)
+                accountService.authService.handleOAuthResponse(accountService, state, code)
             } ?: run {
                 _message.value = "could not retrieve token from code"
                 return@launch

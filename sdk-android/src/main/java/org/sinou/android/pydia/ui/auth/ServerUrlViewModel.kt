@@ -150,6 +150,7 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
     fun launchOAuthProcess(serverURL: ServerURL) {
         vmScope.launch {
             _nextIntent.value = accountService.authService.createOAuthIntent(
+                accountService,
                 serverURL,
                 AuthService.NEXT_ACTION_BROWSE
             )

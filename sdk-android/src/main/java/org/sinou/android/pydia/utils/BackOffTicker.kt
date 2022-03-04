@@ -20,6 +20,12 @@ class BackOffTicker {
         }
     }
 
+    fun getCurrentIndex():Int {
+        synchronized(lock) {
+            return currentBackoffIndex
+        }
+    }
+
     fun resetIndex() {
         synchronized(lock) {
             currentBackoffIndex = 0

@@ -1,9 +1,7 @@
 package org.sinou.android.pydia.services
 
 import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
@@ -19,9 +17,6 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.db.nodes.TreeNodeDB
-import org.sinou.android.pydia.db.runtime.RUpload
-import org.sinou.android.pydia.db.runtime.RuntimeDB
-import org.sinou.android.pydia.db.runtime.UploadDao
 import org.sinou.android.pydia.transfer.FolderDiff
 import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.utils.logException
@@ -128,7 +123,7 @@ class NodeService(
             rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
             nodeDB(stateID).treeNodeDao().update(rTreeNode)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-            handleSdkException("could not perform DL for " + stateID.id, se)
+            handleSdkException(stateID, "could not perform DL for $stateID", se)
             return@withContext null
         } catch (ioe: IOException) {
             Log.e(TAG, "cannot toggle bookmark for ${stateID}: ${ioe.message}")
@@ -172,7 +167,7 @@ class NodeService(
             getClient(parentId).mkdir(parentId.workspace, parentId.file, folderName)
         } catch (e: SDKException) {
             val msg = "could not create folder at ${parentId.path}"
-            handleSdkException(msg, e)
+            handleSdkException(parentId, msg, e)
             return@withContext msg
         }
         return@withContext null
@@ -191,7 +186,7 @@ class NodeService(
             )
         } catch (e: SDKException) {
             val msg = "could not copy to $targetParent"
-            handleSdkException(msg, e)
+            handleSdkException(targetParent, msg, e)
             return@withContext msg
         }
         return@withContext null
@@ -210,7 +205,7 @@ class NodeService(
             )
         } catch (e: SDKException) {
             val msg = "could not move to $targetParent"
-            handleSdkException(msg, e)
+            handleSdkException(targetParent, msg, e)
             return@withContext msg
         }
         return@withContext null
@@ -294,17 +289,17 @@ class NodeService(
 */
         } catch (e: SDKException) {
             val msg = "could not perform ls for ${stateID.id}, cause: ${e.message}"
-            handleSdkException(msg, e)
+            handleSdkException(stateID, msg, e)
             return@withContext Pair(0, msg)
         }
         return@withContext result
     }
 
-    private fun statRemoteNode(stateID: StateID): Stats? {
+    private suspend fun statRemoteNode(stateID: StateID): Stats? {
         try {
             return getClient(stateID).stats(stateID.workspace, stateID.file, true)
         } catch (e: SDKException) {
-            handleSdkException("could not stat at $stateID", e)
+            handleSdkException(stateID, "could not stat at $stateID", e)
         }
         return null
     }
@@ -352,6 +347,7 @@ class NodeService(
     }
 
     suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
+
         withContext(Dispatchers.IO) {
 
             Log.e(TAG, "In getOrDownloadFileToCache for ${rTreeNode.name}")
@@ -397,7 +393,7 @@ class NodeService(
             } catch (se: SDKException) {
                 // Could not retrieve thumb, failing silently for the end user
                 val msg = "could not perform DL for " + stateID.id
-                handleSdkException(msg, se)
+                handleSdkException(stateID, msg, se)
                 return@withContext null
             } catch (ioe: IOException) {
                 // TODO handle this: what should we do ?
@@ -566,11 +562,12 @@ class NodeService(
     }
 
     //    private fun handleSdkException(msg: String, se: SDKException): SDKException {
-    private fun handleSdkException(msg: String, se: SDKException) {
+    private suspend fun handleSdkException(stateID: StateID, msg: String, se: SDKException) {
         Log.e(TAG, msg)
         Log.e(TAG, "Error code: ${se.code}")
+        accountService.notifyError(stateID, se.code)
+
         se.printStackTrace()
-//         return se
     }
 
     companion object {

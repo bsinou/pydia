@@ -3,6 +3,6 @@
 
     <style name="TextAppearance.Cells.H5" parent="TextAppearance.MaterialComponents.Headline5">
         <item name="fontFamily">@font/roboto</item>
-        <item name="android:textColor">@color/colorPrimaryLight</item>
+        <item name="android:textColor">@color/cells_main_light</item>
     </style>
 </resources>

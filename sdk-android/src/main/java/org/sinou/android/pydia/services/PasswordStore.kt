@@ -1,11 +1,10 @@
 package org.sinou.android.pydia.services
 
 import com.pydio.cells.api.Store
+import org.sinou.android.pydia.db.accounts.LegacyCredentialsDao
 import org.sinou.android.pydia.db.accounts.RLegacyCredentials
 
-class PasswordStore(private val accountService: AccountService) : Store<String> {
-
-    private val dao = accountService.accountDB.legacyCredentialsDao()
+class PasswordStore(private val dao: LegacyCredentialsDao) : Store<String> {
 
     override fun put(id: String, password: String) {
         val cred = RLegacyCredentials(accountID = id, password = password)

@@ -16,12 +16,12 @@ import com.pydio.cells.transport.auth.jwt.IdToken
 import com.pydio.cells.transport.auth.jwt.OAuthConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.sinou.android.pydia.db.accounts.AccountDB
 import org.sinou.android.pydia.db.accounts.ROAuthState
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
 import java.util.*
 
 class AuthService(
-    private val accountService: AccountService,
     val credentialService: CredentialService
 ) {
 
@@ -37,32 +37,38 @@ class AuthService(
         @Volatile
         private var INSTANCE: AuthService? = null
 
-        fun getAuthService(accountService: AccountService): AuthService {
-            val tempInstance = AuthService.INSTANCE
+        fun getAuthService(accountDB: AccountDB): AuthService {
+            val tempInstance = INSTANCE
             if (tempInstance != null) {
                 return tempInstance
             }
 
             synchronized(this) {
                 val instance = AuthService(
-                    accountService,
                     CredentialService(
-                        TokenStore(accountService),
-                        PasswordStore(accountService),
+                        TokenStore(accountDB.tokenDao()),
+                        PasswordStore(accountDB.legacyCredentialsDao()),
                     )
                 )
-                AuthService.INSTANCE = instance
+                INSTANCE = instance
             }
-            return AuthService.INSTANCE!!
+            return INSTANCE!!
         }
     }
 
     /** Cells' Credentials flow management */
 
-    suspend fun createOAuthIntent(url: ServerURL, next: String): Intent? =
+    suspend fun createOAuthIntent(
+        accountService: AccountService,
+        url: ServerURL,
+        next: String
+    ): Intent? =
         withContext(Dispatchers.IO) {
             val serverID = StateID(url.id).id
             val server = accountService.sessionFactory.getServer(serverID)
+
+// FIXME MAYBE TRY TO RE-REGISTER THE SERVER AT THIS POINT
+
                 ?: return@withContext null
 
             val oAuthState = generateOAuthState()
@@ -80,7 +86,11 @@ class AuthService(
             intent
         }
 
-    suspend fun handleOAuthResponse(oauthState: String, code: String): Pair<String, String?>? =
+    suspend fun handleOAuthResponse(
+        accountService: AccountService,
+        oauthState: String,
+        code: String
+    ): Pair<String, String?>? =
         withContext(Dispatchers.IO) {
             var accountID: String? = null
 
@@ -93,7 +103,7 @@ class AuthService(
                 val transport = accountService.sessionFactory
                     .getAnonymousTransport(rState.serverURL.id) as CellsTransport
                 val token = transport.getTokenFromCode(code, encoder)
-                accountID = manageRetrievedToken(transport, token)
+                accountID = manageRetrievedToken(accountService, transport, token)
 
                 // Leave OAuth state cacheDB clean
                 accountService.accountDB.authStateDao().delete(oauthState)
@@ -114,7 +124,11 @@ class AuthService(
         }
 
     @Throws(SDKException::class)
-    private fun manageRetrievedToken(transport: CellsTransport, token: Token): String {
+    private fun manageRetrievedToken(
+        accountService: AccountService,
+        transport: CellsTransport,
+        token: Token
+    ): String {
         val idToken = IdToken.parse(encoder, token.idToken)
         val accountID = StateID(idToken.claims.name, transport.server.url())
         val jwtCredentials = JWTCredentials(accountID.username, token)

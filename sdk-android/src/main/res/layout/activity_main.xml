@@ -15,14 +15,13 @@
             <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <!--                android:theme="@style/Theme.Cells.AppBarOverlay"-->
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/main_toolbar"
                     style="@style/Widget.Cells.Toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    app:popupTheme="@style/Theme.Cells.PopupOverlay" />
+                   app:popupTheme="@style/ThemeOverlay.Cells.Popup" />
 
 
                 <!--                    android:theme="@style/Widget.Cells.Toolbar"-->
@@ -48,7 +47,6 @@
                 app:navGraph="@navigation/main_navigation" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/nav_view"

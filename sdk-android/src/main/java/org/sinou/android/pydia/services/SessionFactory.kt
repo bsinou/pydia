@@ -7,7 +7,6 @@ import com.pydio.cells.client.ClientFactory
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.auth.CredentialService
-import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.MemoryStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,24 +14,29 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.db.accounts.LiveSessionDao
 import org.sinou.android.pydia.db.accounts.RLiveSession
-import org.sinou.android.pydia.db.accounts.RToken
 import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
 import org.sinou.android.pydia.utils.hasUnMeteredNetwork
 
+/**
+ * The android specific session factory wraps the Java SDK Server and Client Factories,
+ * to provide a Android specific S3 client for file transfer with cells.
+ * It also holds server and transport memory stores that are used by the SDK to manage clients.
+ */
 class SessionFactory(
-    private val accountService: AccountService,
+    credentialService: CredentialService,
     serverStore: Store<Server>,
     transportStore: Store<Transport>,
-    credentialService: CredentialService,
+    private val liveSessionDao: LiveSessionDao,
 ) : ClientFactory(credentialService, serverStore, transportStore) {
 
     private val tag = SessionFactory::class.java.simpleName
-
     private var sessionFactoryJob = Job()
     private val sessionFactoryScope = CoroutineScope(Dispatchers.IO + sessionFactoryJob)
 
     companion object {
+
         @Volatile
         private var INSTANCE: SessionFactory? = null
 
@@ -43,8 +47,8 @@ class SessionFactory(
         private lateinit var transports: Store<Transport>
 
         fun getSessionFactory(
-            accountService: AccountService,
-            authService: AuthService
+            credentialService: CredentialService,
+            liveSessionDao: LiveSessionDao,
         ): SessionFactory {
             val tempInstance = INSTANCE
             if (tempInstance != null) {
@@ -55,27 +59,14 @@ class SessionFactory(
                 servers = MemoryStore()
                 transports = MemoryStore()
                 val instance = SessionFactory(
-                    accountService,
+                    credentialService,
                     servers,
                     transports,
-                    authService.credentialService
+                    liveSessionDao
                 )
                 INSTANCE = instance
             }
             return INSTANCE!!
-        }
-
-        fun fromRToken(rToken: RToken): Token {
-            val currToken = Token()
-            currToken.tokenType = rToken.tokenType
-            currToken.value = rToken.value
-            currToken.subject = rToken.subject
-            currToken.expiresIn = rToken.expiresIn
-            currToken.expirationTime = rToken.expirationTime
-            currToken.idToken = rToken.idToken
-            currToken.refreshToken = rToken.refreshToken
-            currToken.scope = rToken.scope
-            return currToken
         }
     }
 
@@ -84,14 +75,16 @@ class SessionFactory(
 
     init {
         sessionFactoryScope.launch(Dispatchers.IO) {
-            val sessions = accountService.accountDB.liveSessionDao().getSessions()
+            val sessions = liveSessionDao.getSessions()
             // val accounts = accountService.accountDB.accountDao().getAccounts()
+            Log.i(tag, "... Initialise SessionFactory")
             for (rLiveSession in sessions) {
                 // TODO skip sessions when we know they are not usable?
+                Log.i(tag, "... Preparing transport for ${rLiveSession.getStateID()}")
                 try {
                     prepareTransport(rLiveSession)
                 } catch (e: SDKException) {
-                    // TODO update live session depending on the error0
+                    // TODO update live session depending on the error
                     Log.e(
                         tag,
                         "Cannot restore session for " + rLiveSession.accountID + ": " + e.message
@@ -103,8 +96,13 @@ class SessionFactory(
         }
     }
 
-    override fun getCellsClient(transport: CellsTransport?): CellsClient {
-        return CellsClient(transport, S3Client(transport))
+    @Throws(SDKException::class)
+    fun getUnlockedClient(accountID: String): Client {
+        if (!hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)) {
+            throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
+        }
+
+        return internalGetClient(accountID)
     }
 
     @Throws(SDKException::class)
@@ -119,22 +117,13 @@ class SessionFactory(
     }
 
     @Throws(SDKException::class)
-    fun getUnlockedClient(accountID: String): Client {
-        if (!hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)) {
-            throw SDKException(ErrorCodes.no_internet, "No internet connection is available")
-        }
-
-        return internalGetClient(accountID)
-    }
-
-    @Throws(SDKException::class)
     private fun internalGetClient(accountID: String): Client {
 
         // At this point we are sure we have a connection to the internet
         // until it breaks :) ... code defensively afterwards and correctly handle errors
         // First check if we are connected to the internet
 
-        val session: RLiveSession = accountService.accountDB.liveSessionDao().getSession(accountID)
+        val session: RLiveSession = liveSessionDao.getSession(accountID)
             ?: run {
                 throw SDKException(ErrorCodes.not_found, "cannot retrieve client for $accountID")
             }
@@ -146,9 +135,10 @@ class SessionFactory(
             }
             return getClient(currTransport)
         } else {
-            Log.d(tag, "Listing sessions")
-            for (sess in accountService.accountDB.liveSessionDao().getSessions()) {
-                Log.d(tag, "$sess.dbName} / ${sess.authStatus}")
+
+            Log.d(tag, "... Required session is not connected, listing known sessions:")
+            for (currentSession in liveSessionDao.getSessions()) {
+                Log.d(tag, "$currentSession.dbName} / ${currentSession.authStatus}")
             }
 
             throw SDKException(
@@ -180,5 +170,12 @@ class SessionFactory(
 //            }
             throw se
         }
+    }
+
+    /**
+     * Enables the use of a android specific S3 client by the ancestor classes in the JAVA only SDK
+     * */
+    override fun getCellsClient(transport: CellsTransport?): CellsClient {
+        return CellsClient(transport, S3Client(transport))
     }
 }

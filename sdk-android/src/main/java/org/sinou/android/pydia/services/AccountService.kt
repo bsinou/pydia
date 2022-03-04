@@ -13,6 +13,7 @@ import org.sinou.android.pydia.transfer.WorkspaceDiff
 import org.sinou.android.pydia.utils.hasAtLeastMeteredNetwork
 import org.sinou.android.pydia.utils.logException
 import java.io.File
+import java.net.HttpURLConnection
 
 /**
  * AccountService is the single source of truth for accounts, sessions and auth in the app.
@@ -32,18 +33,17 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         refreshSessionCache()
     }
 
-    fun refreshSessionCache() {
+    private fun refreshSessionCache() {
         val sessions = accountDB.sessionDao().getSessions()
         _sessions.clear()
-        for (acc in sessions) {
-            _sessions.put(acc.accountID, acc)
+        for (rSession in sessions) {
+            _sessions[rSession.accountID] =  rSession
         }
     }
 
     // Expose the session factory to retrieve unlocked clients
-    val authService = AuthService.getAuthService(this)
-
-    val sessionFactory: SessionFactory = SessionFactory.getSessionFactory(this, authService)
+    val authService = AuthService.getAuthService(accountDB)
+    val sessionFactory: SessionFactory = SessionFactory.getSessionFactory(authService.credentialService, accountDB.liveSessionDao())
 
     fun getClient(stateId: StateID): Client {
         return sessionFactory.getUnlockedClient(stateId.accountId)
@@ -83,7 +83,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         return state.id
     }
 
-    fun safelyCreateSession(account: RAccount) {
+    private fun safelyCreateSession(account: RAccount) {
         // We only update the dir and db names at account creation
         // FIXME finalize this
         var session = RSession.newInstance(account, 0)
@@ -149,6 +149,25 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
             return@withContext msg
         }
     }
+
+    suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {
+        try {
+            accountDB.accountDao().getAccount(stateID.accountId)?.let {
+                when (code) {
+                    HttpURLConnection.HTTP_UNAUTHORIZED -> {
+                        if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED){
+                            it.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
+                            accountDB.accountDao().update(it)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            val msg = "Could not update account for $stateID after error $code"
+            logException(tag, msg, e)
+        }
+    }
+
 
     suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
         var isConnected = hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)

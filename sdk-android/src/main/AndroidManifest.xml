@@ -22,7 +22,7 @@
         android:icon="@android:drawable/star_on"
         android:label="@string/application_title"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Cells.NoActionBar">
+        android:theme="@style/Theme.Cells">
 
         <activity
             android:name=".LandActivity"

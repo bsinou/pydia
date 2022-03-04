@@ -11,9 +11,7 @@ import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.BackOffTicker
 import java.util.concurrent.TimeUnit
 
-/**
- * Holds a folder and all its children
- */
+/** Holds a folder and all its children */
 class BrowseFolderViewModel(
     val stateID: StateID,
     private val accountService: AccountService,
@@ -59,7 +57,12 @@ class BrowseFolderViewModel(
         val result = nodeService.pull(stateID)
         withContext(Dispatchers.Main) {
             if (result.second != null) {
-                _errorMessage.value = result.second
+                if (backOffTicker.getCurrentIndex() > 0) {
+                    // Not optimal, we should rather check the current session status
+                    // before launching the poll
+                    // We do not display the error message if first
+                    _errorMessage.value = result.second
+                }
                 pause()
             } else if (result.first > 0) {
                 backOffTicker.resetIndex()
@@ -95,6 +98,25 @@ class BrowseFolderViewModel(
     fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
+
+
+    // To observe liveData from with the view model (even not recommended)
+    // See: https://stackoverflow.com/questions/47515997/observing-livedata-from-viewmodel
+//    fun start(id : Long) : LiveData<User>? {
+//        val liveData = MediatorLiveData<User>()
+//        liveData.addSource(dataSource.getById(id), Observer {
+//            if (it != null) {
+//                // put your logic here
+//            }
+//        })
+//    }
+
+//// Activity/Fragment
+//    viewModel.start(id)?.observe(this, Observer {
+//        // blank observe here
+//    })
+
+
 
     class BrowseFolderViewModelFactory(
         private val accountService: AccountService,

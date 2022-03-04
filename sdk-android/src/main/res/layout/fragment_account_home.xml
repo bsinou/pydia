@@ -52,7 +52,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/colorSurfaceLight" />
+                app:tint="@color/cells_main_surface" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -69,7 +69,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:background="@color/white"
             android:visibility="gone" />
 
     </LinearLayout>

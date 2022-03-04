@@ -27,9 +27,9 @@
         <item name="android:textColor">@color/danger</item>
     </style>
 
-    <style name="Cells.SearchView" parent="Widget.AppCompat.SearchView">
+    <style name="Cells.SearchView" parent="Widget.AppCompat.SearchView.ActionBar">
         <item name="searchIcon">@drawable/ic_sharp_search_24</item>
-        <item name="iconTint">@color/white</item>
+        <item name="iconTint">?attr/colorOnPrimary</item>
         <item name="colorButtonNormal">@color/colorAccent</item>
     </style>
 
@@ -47,38 +47,38 @@
         <item name="android:textAppearance">
             @android:style/TextAppearance.Large
         </item>
-        <item name="android:background">@color/colorPrimaryLight</item>
+        <item name="android:background">@color/cells_main_light</item>
         <item name="android:layout_marginTop">8dp</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:padding">16dp</item>
-        <item name="android:textColor">@color/colorOnPrimary</item>
+        <item name="android:textColor">@color/cells_on_main</item>
     </style>
 
     <style name="button_style" parent="android:style/Widget.Material.Button">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:background">@color/cells_main_accent</item>
         <item name="android:textAppearance">@android:style/TextAppearance.Large</item>
         <item name="android:layout_marginTop">16dp</item>
-        <item name="android:textColor">@color/colorOnPrimary</item>
+        <item name="android:textColor">@color/cells_on_main</item>
     </style>
 
     <!-- Button Styles -->
     <style name="GoButton" parent="Widget.AppCompat.Button.Colored">
-        <item name="colorButtonNormal">@color/colorPrimaryLight</item>
-        <item name="colorControlHighlight">@color/colorPrimaryDark</item>
-        <item name="android:textColor">@color/colorOnPrimary</item>
+        <item name="colorButtonNormal">@color/cells_main_light</item>
+        <item name="colorControlHighlight">@color/cells_main_accent</item>
+        <item name="android:textColor">@color/cells_on_main</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="SkipButton" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
-        <item name="android:textColor">@color/grey_button_color</item>
-        <item name="colorControlHighlight">@color/skip_red_color</item>
-    </style>
+<!--    <style name="SkipButton" parent="Widget.AppCompat.Button.Colored">-->
+<!--        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>-->
+<!--        <item name="android:textColor">@color/grey_button_color</item>-->
+<!--        <item name="colorControlHighlight">@color/skip_red_color</item>-->
+<!--    </style>-->
 
     <style name="Divider">
-        <item name="android:background">@color/colorPrimaryLight</item>
+        <item name="android:background">@color/cells_main_light</item>
     </style>
 
     <style name="Divider.Horizontal" parent="Divider">

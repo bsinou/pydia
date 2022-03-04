@@ -10,7 +10,7 @@ import org.sinou.android.pydia.services.AccountService
  * Central ViewModel when dealing with a user's accounts.
  */
 class AccountListViewModel(
-    accountService: AccountService,
+    val accountService: AccountService,
     application: Application
 ) : AndroidViewModel(application) {
 

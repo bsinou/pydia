@@ -100,10 +100,16 @@ class AccountListFragment : Fragment() {
                 } else {
                     lifecycleScope.launch {
                         val toAuthIntent =
-                            CellsApp.instance.accountService.authService.createOAuthIntent(
+                            accountListViewModel.accountService.authService.createOAuthIntent(
+                                accountListViewModel.accountService,
                                 serverURL,
                                 AuthService.NEXT_ACTION_ACCOUNTS
                             )
+
+                        if (toAuthIntent == null){
+                            Log.e(fTag, "Could not create OAuth intent for ${serverURL.url}")
+                            return@launch
+                        }
                         startActivity(toAuthIntent)
                     }
                 }

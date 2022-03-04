@@ -31,7 +31,6 @@ import org.sinou.android.pydia.utils.showMessage
 import java.util.*
 import kotlin.system.exitProcess
 
-
 /**
  * Central activity for browsing, managing accounts and settings. Various
  * screens are implemented via fragments that are gathered in the ui package.
@@ -49,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        setTheme(CellsApp.instance.currentTheme)
         super.onCreate(savedInstanceState)
 
         var encodedState = savedInstanceState?.getString(AppNames.KEY_STATE)
@@ -81,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         // Add custom listeners
         binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
 
-        wireNavViewObserver()
+        configureObservers()
 
 // TODO back navigation is still clumsy, the "onBackPress() method from activity
         //   and thus the custom adapters are not called when back is triggered by clicking
@@ -121,7 +120,7 @@ class MainActivity : AppCompatActivity() {
             Log.d(
                 tag, java.lang.String.format(
                     Locale.getDefault(),
-                    "uid: %1d - name: %s: Sent = %1d, Rcvd = %1d",
+                    "uid: %1d - name: %s: Sent = %1d, Received = %1d",
                     runningApp.uid,
                     runningApp.processName,
                     sent,
@@ -157,7 +156,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun closeDrawer() {
         binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
     }
@@ -189,59 +187,75 @@ class MainActivity : AppCompatActivity() {
         done
     }
 
-    private fun wireNavViewObserver() {
-        // Top header button to switch account and logout
+    private fun configureObservers() {
+
+        // Configure navigation View header buttons
         val header = binding.navView.getHeaderView(0)
         val switchBtn = header.findViewById<ImageButton>(R.id.nav_header_switch_account)
         switchBtn?.setOnClickListener {
             navController.navigate(MainNavDirections.openAccountList())
             closeDrawer()
         }
-        val btn = header.findViewById<ImageButton>(R.id.nav_header_exit)
-        btn?.setOnClickListener {
+        val exitBtn = header.findViewById<ImageButton>(R.id.nav_header_exit)
+        exitBtn?.setOnClickListener {
             closeDrawer()
             finish()
             exitProcess(0)
         }
 
-        // Workspaces
-        val item = binding.navView.menu.findItem(R.id.ws_section)
-        activeSessionVM.accountId?.let { accId ->
+        if (activeSessionVM.accountId == null) {
+            return
+        }
+        val accId = activeSessionVM.accountId
 
+        // Observe current live session to update the UI
+        activeSessionVM.liveSession.observe(this) {
+            it?.let { liveSession ->
 
-            activeSessionVM.workspaces.observe(this) {
-                if (it.isNotEmpty()) {
-                    item.subMenu.clear()
-                    for (ws in it) {
-                        val wsItem = item.subMenu.add(ws.label)
-                        wsItem.icon = ContextCompat.getDrawable(this, getWsIconForMenu(ws))
-                        wsItem.setOnMenuItemClickListener {
-                            val state = StateID.fromId(accId).withPath("/${ws.slug}")
-                            CellsApp.instance.setCurrentState(state)
-                            navController.navigate(MainNavDirections.openFolder(state.id))
-                            closeDrawer()
-                            true
-                        }
-                    }
-                    binding.navView.invalidate()
+                // Change base them based on current session status
+                val newTheme = when (it.authStatus) {
+                    AppNames.AUTH_STATUS_CONNECTED -> R.style.Theme_Cells
+                    else ->  R.style.Theme_Cells_Offline
                 }
-            }
-            activeSessionVM.liveSession.observe(
-                this,
-            ) {
-                it?.let { liveSession ->
-                    // Also update meta info in the header
-                    val headerView = binding.navView.getHeaderView(0)
-                    val primaryText =
-                        headerView.findViewById<TextView>(R.id.nav_header_primary_text)
-                    primaryText.text = liveSession.username
-                    val secondaryText =
-                        headerView.findViewById<TextView>(R.id.nav_header_secondary_text)
-                    secondaryText.text = liveSession.url
-                    binding.navView.invalidate()
+                if (newTheme != CellsApp.instance.currentTheme) {
+                    CellsApp.instance.currentTheme = newTheme
+                    recreate()
                 }
+
+                // Set current session info in the Navigation view header
+                val headerView = binding.navView.getHeaderView(0)
+                val primaryText =
+                    headerView.findViewById<TextView>(R.id.nav_header_primary_text)
+                primaryText.text = liveSession.username
+                val secondaryText =
+                    headerView.findViewById<TextView>(R.id.nav_header_secondary_text)
+                secondaryText.text = liveSession.url
+
+                // Force refresh of the navigation view
+                binding.navView.invalidate()
             }
         }
+
+        // Workspaces
+        val wsMenuSection = binding.navView.menu.findItem(R.id.ws_section)
+        activeSessionVM.workspaces.observe(this) {
+            if (it.isNotEmpty()) {
+                wsMenuSection.subMenu.clear()
+                for (ws in it) {
+                    val wsItem = wsMenuSection.subMenu.add(ws.label)
+                    wsItem.icon = ContextCompat.getDrawable(this, getWsIconForMenu(ws))
+                    wsItem.setOnMenuItemClickListener {
+                        val state = StateID.fromId(accId).withPath("/${ws.slug}")
+                        CellsApp.instance.setCurrentState(state)
+                        navController.navigate(MainNavDirections.openFolder(state.id))
+                        closeDrawer()
+                        true
+                    }
+                }
+                binding.navView.invalidate()
+            }
+        }
+
     }
 
     override fun onStart() {
@@ -337,11 +351,6 @@ class MainActivity : AppCompatActivity() {
             CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
 
             this.recreate()
-
-//            finish()
-//            overridePendingTransition(0, 0)
-//            startActivity(intent)
-//            overridePendingTransition(0, 0)
 
             return@setOnMenuItemClickListener true
         }

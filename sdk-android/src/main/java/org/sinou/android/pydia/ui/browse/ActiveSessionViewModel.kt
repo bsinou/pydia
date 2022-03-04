@@ -45,6 +45,7 @@ class ActiveSessionViewModel(
         } else {
             Log.e(tag, "Initialising model with no account ID.")
         }
+
     }
 
     // TODO handle network status

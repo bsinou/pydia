@@ -3,6 +3,7 @@ package org.sinou.android.pydia.db.accounts
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.pydio.cells.transport.auth.Token
 
 @Entity(tableName = "tokens")
 data class RToken(
@@ -32,4 +33,36 @@ data class RToken(
 
     // valid, expired, refreshing...
     // @ColumnInfo(name = "status") val status: Int,
-)
+) {
+    fun toToken(): Token {
+
+        val currToken = Token()
+        currToken.tokenType = tokenType
+        currToken.value = value
+        currToken.subject = subject
+        currToken.expiresIn = expiresIn
+        currToken.expirationTime = expirationTime
+        currToken.idToken = idToken
+        currToken.refreshToken = refreshToken
+        currToken.scope = scope
+        return currToken
+    }
+
+    companion object {
+        fun fromToken(accountId: String, token: Token): RToken {
+            return RToken(
+                accountID = accountId,
+                idToken = token.idToken,
+                subject = token.subject,
+                value = token.value,
+                expiresIn = token.expiresIn,
+                expirationTime = token.expirationTime,
+                scope = token.scope,
+                refreshToken = token.refreshToken,
+                tokenType = token.tokenType
+            )
+        }
+    }
+
+
+}

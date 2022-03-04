@@ -5,7 +5,7 @@
 
     <item
         android:id="@+id/search_edit_view"
-        android:iconTint="@color/colorOnPrimary"
+        android:iconTint="@color/cells_on_main"
         android:icon="@drawable/ic_sharp_search_24"
         android:title="@string/search_hint"
         app:actionViewClass="androidx.appcompat.widget.SearchView"

@@ -24,7 +24,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:background="@color/white"
             android:visibility="gone" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -33,10 +32,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            android:backgroundTint="@color/colorPrimaryDark"
+            android:backgroundTint="@color/cells_main_accent"
             android:contentDescription="@string/create_account"
             android:padding="2dp"
-            android:tint="@color/colorOnPrimary"
+            android:tint="@color/cells_on_main"
             app:maxImageSize="32dp"
             app:srcCompat="@drawable/ic_baseline_person_add_24" />
 

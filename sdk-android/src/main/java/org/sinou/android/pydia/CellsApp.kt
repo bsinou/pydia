@@ -36,6 +36,8 @@ class CellsApp : Application() {
     // Typically for actions launched from the "More" menu (copy, move...)
     val appScope = CoroutineScope(SupervisorJob())
 
+    var currentTheme = R.style.Theme_Cells
+
     // TODO Rather use an Application model that raises a flag when everything is setup.
     var ready = false
 

@@ -35,6 +35,13 @@ data class RLiveSession(
     @ColumnInfo(name = "is_legacy") var isLegacy: Boolean,
     @ColumnInfo(name = "server_label") val serverLabel: String?,
     @ColumnInfo(name = "welcome_message") val welcomeMessage: String?,
+
+    // TODO Add a simple state that stores the current network info and put it in this view
+
+   // TODO implement a helper method that returns current session "mode" depending on:
+    //    - network info
+    //    - lifecycle state
+    //    - auth status
 ) {
     fun getStateID(): StateID {
         return StateID.fromId(accountID)

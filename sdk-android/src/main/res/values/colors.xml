@@ -3,13 +3,15 @@
 <resources>
 
     <!-- Main Colors -->
+    <color name="cells_text">#134E6C</color>
+    <color name="cells_text_accent">#0F3E56</color>
     <color name="cells_main">#134E6C</color>
     <color name="cells_on_main">@android:color/white</color>
     <color name="cells_main_accent">#0F3E56</color>
     <color name="cells_main_light">#598398</color>
     <color name="cells_main_surface">#CFDBE1</color>
     <color name="cells_main_surface_light">#EDF0F2</color>
-    <color name="color_secondary">#FB725C</color>
+    <color name="cells_secondary">#FB725C</color>
     <color name="cells_on_secondary">@android:color/white</color>
     <color name="cells_secondary_light">#FDB8AD</color>
     <color name="cells_secondary_dark">#E16652</color>
@@ -23,7 +25,7 @@
     <!-- First try for dynamic status bar color -->
     <!-- This is the default (defined by material?) -->
     <color name="defaultStatusBarColor">@color/cells_main_accent</color>
-    <color name="searchStatusBarColor">@color/color_secondary</color>
+    <color name="searchStatusBarColor">@color/cells_secondary</color>
 
     <!-- Define Main Material Palette -->
 
@@ -32,8 +34,8 @@
 <!--    <color name="colorPrimaryDark">@color/colorMainAccent</color>-->
 
 
-    <color name="colorTextPrimary">@color/cells_main</color>
-    <color name="colorTextAccent">@color/cells_main_accent</color>
+    <color name="colorTextPrimary">@color/cells_text</color>
+    <color name="colorTextAccent">@color/cells_text_accent</color>
     <color name="colorAvatarDefault">@color/cells_main</color>
 
     <!-- Icons -->

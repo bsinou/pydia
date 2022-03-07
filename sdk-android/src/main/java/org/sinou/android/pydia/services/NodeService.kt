@@ -72,6 +72,12 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, parPath, mime)
     }
 
+    fun listViewable(stateID: StateID, mimeFilter: String): LiveData<List<RTreeNode>> {
+        var parPath = stateID.file
+        Log.i(TAG, "Listing children of $stateID: parPath: $parPath, mime: $mimeFilter")
+        return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, parPath, mimeFilter)
+    }
+
     fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
         return nodeDB(accountID).treeNodeDao().getBookmarked(accountID.id)
         // TODO also watch remote folder to get new bookmarks when online.

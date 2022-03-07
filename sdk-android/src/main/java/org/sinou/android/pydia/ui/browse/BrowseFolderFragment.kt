@@ -1,6 +1,7 @@
 package org.sinou.android.pydia.ui.browse
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,10 +23,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.MainNavDirections
-import org.sinou.android.pydia.R
+import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
@@ -144,34 +142,6 @@ class BrowseFolderFragment : Fragment() {
         }
     }
 
-    private fun onClicked(node: RTreeNode, command: String) {
-        Log.i(fTag, "Clicked on ${browseFolderVM.stateID} -> $command")
-        when (command) {
-            AppNames.ACTION_OPEN -> navigateTo(node)
-            AppNames.ACTION_MORE -> {
-                val action = BrowseFolderFragmentDirections
-                    .openMoreMenu(
-                        node.encodedState,
-                        if (node.isInRecycle() || node.isRecycle()) {
-                            TreeNodeMenuFragment.CONTEXT_RECYCLE
-                        } else {
-                            TreeNodeMenuFragment.CONTEXT_BROWSE
-                        }
-                    )
-                findNavController().navigate(action)
-            }
-            else -> return // Unknown action, log warning and returns
-        }
-    }
-
-    private fun onFabClicked() {
-        val action = BrowseFolderFragmentDirections.openMoreMenu(
-            browseFolderVM.stateID.id,
-            TreeNodeMenuFragment.CONTEXT_ADD
-        )
-        findNavController().navigate(action)
-    }
-
     override fun onResume() {
         Log.i(fTag, "onResume")
         super.onResume()
@@ -210,11 +180,6 @@ class BrowseFolderFragment : Fragment() {
         }
     }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        Log.i(fTag, "onViewStateRestored")
-        super.onViewStateRestored(savedInstanceState)
-    }
-
     override fun onPause() {
         Log.i(fTag, "onPause")
         super.onPause()
@@ -229,9 +194,38 @@ class BrowseFolderFragment : Fragment() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        Log.i(fTag, "onAttach")
-        super.onAttach(context)
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        Log.i(fTag, "onViewStateRestored")
+        super.onViewStateRestored(savedInstanceState)
+    }
+
+
+    private fun onClicked(node: RTreeNode, command: String) {
+        Log.i(fTag, "Clicked on ${browseFolderVM.stateID} -> $command")
+        when (command) {
+            AppNames.ACTION_OPEN -> navigateTo(node)
+            AppNames.ACTION_MORE -> {
+                val action = BrowseFolderFragmentDirections
+                    .openMoreMenu(
+                        node.encodedState,
+                        if (node.isInRecycle() || node.isRecycle()) {
+                            TreeNodeMenuFragment.CONTEXT_RECYCLE
+                        } else {
+                            TreeNodeMenuFragment.CONTEXT_BROWSE
+                        }
+                    )
+                findNavController().navigate(action)
+            }
+            else -> return // Unknown action, log warning and returns
+        }
+    }
+
+    private fun onFabClicked() {
+        val action = BrowseFolderFragmentDirections.openMoreMenu(
+            browseFolderVM.stateID.id,
+            TreeNodeMenuFragment.CONTEXT_ADD
+        )
+        findNavController().navigate(action)
     }
 
     private fun navigateTo(node: RTreeNode) = lifecycleScope.launch {
@@ -240,6 +234,22 @@ class BrowseFolderFragment : Fragment() {
             findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             return@launch
         }
+
+        Log.i(fTag, "About to navigate to ${node.getStateID()}, mime type: ${node.mime}")
+
+        if (node.mime.startsWith("image") || node.mime.startsWith("\"image")) {
+            val intent = Intent(requireActivity(), CarouselActivity::class.java)
+            intent.putExtra(AppNames.EXTRA_STATE, node.encodedState)
+            startActivity(intent)
+
+            Log.i(fTag, "It's an image, open carousel ${node.getStateID()}, mime type: ${node.mime}")
+
+            // FIXME
+            return@launch
+        }
+
+        Log.i(fTag, "**NOT** an image, opening in external viewer: ${node.getStateID()}, mime type: ${node.mime}")
+
 
         // TODO double check. It smells.
         requireActivity().window.setFlags(
@@ -276,6 +286,11 @@ class BrowseFolderFragment : Fragment() {
         val fm: FragmentManager = requireActivity().supportFragmentManager
         loadingDialog = LoadingDialogFragment.newInstance()
         loadingDialog?.show(fm, "fragment_edit_name")
+    }
+
+    override fun onAttach(context: Context) {
+        Log.i(fTag, "onAttach")
+        super.onAttach(context)
     }
 
 }

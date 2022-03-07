@@ -71,6 +71,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".CarouselActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="org.sinou.android.pydia.fileprovider"

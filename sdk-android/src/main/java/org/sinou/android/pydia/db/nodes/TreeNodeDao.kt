@@ -45,6 +45,13 @@ interface TreeNodeDao {
         mime: String
     ): LiveData<List<RTreeNode>>
 
+    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath AND mime like :mime || '%' ORDER BY sort_name")
+    fun lsWithMimeFilter(
+        encodedParentStateID: String,
+        parentPath: String,
+        mime: String
+    ): LiveData<List<RTreeNode>>
+
     @Query("SELECT * FROM tree_nodes WHERE encoded_state like :accountID || '%' AND is_bookmarked = 1 ORDER BY name")
     fun getBookmarked(accountID: String): LiveData<List<RTreeNode>>
 //

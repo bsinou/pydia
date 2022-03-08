@@ -14,10 +14,11 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-
+        android:id="@+id/row_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/text_padding_x_small">
+        android:layout_marginTop="@dimen/text_padding_x_small"
+        android:background="@drawable/item_background">
 
         <ImageView
             android:id="@+id/node_thumb"

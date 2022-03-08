@@ -18,10 +18,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/grid_layout_card_margin"
-        app:cardBackgroundColor="@color/iconBackground"
+        android:background="@drawable/item_background"
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/card_elevation"
         app:cardMaxElevation="@dimen/card_max_elevation">
+<!--        app:cardBackgroundColor="@color/iconBackground"-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -39,9 +40,11 @@
                 tools:srcCompat="@drawable/ic_baseline_folder_24" />
 
             <LinearLayout
+                android:id="@+id/node_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:background="@drawable/item_background"
                 android:padding="@dimen/card_padding">
 
                 <!-- Title, secondary and supporting text -->

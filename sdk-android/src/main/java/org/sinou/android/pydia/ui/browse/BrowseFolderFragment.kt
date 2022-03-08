@@ -17,6 +17,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -32,7 +35,6 @@ import org.sinou.android.pydia.utils.*
 class BrowseFolderFragment : Fragment() {
 
     private val fTag = BrowseFolderFragment::class.java.simpleName
-
     private val args: BrowseFolderFragmentArgs by navArgs()
     private lateinit var binding: FragmentBrowseFolderBinding
     private lateinit var browseFolderVM: BrowseFolderViewModel
@@ -71,6 +73,8 @@ class BrowseFolderFragment : Fragment() {
             backPressedCallback
         )
 
+        setHasOptionsMenu(true)
+
         tmpVM.currentFolder.observe(viewLifecycleOwner) {
             it?.let {
                 if (it.isRecycle() || it.isInRecycle()) {
@@ -81,8 +85,6 @@ class BrowseFolderFragment : Fragment() {
                 }
             }
         }
-        setHasOptionsMenu(true)
-
         // TODO workspace root is not a RTreeNode => we must handle it explicitly.
         if (tmpVM.stateID.isWorkspaceRoot) {
             binding.addNodeFab.visibility = View.VISIBLE
@@ -90,17 +92,11 @@ class BrowseFolderFragment : Fragment() {
         // Put this also in observer when the above has been fixed
         binding.addNodeFab.setOnClickListener { onFabClicked() }
 
-        // Used for refresh the data
-        binding.nodesForceRefresh.setOnRefreshListener {
-            tmpVM.forceRefresh()
-//            binding.nodesForceRefresh.isRefreshing = false
-//            showMessage(requireContext(), "Refreshing")
-        }
+        binding.nodesForceRefresh.setOnRefreshListener { tmpVM.forceRefresh() }
 
         tmpVM.isLoading.observe(viewLifecycleOwner) {
             binding.nodesForceRefresh.isRefreshing = it
         }
-
         tmpVM.errorMessage.observe(viewLifecycleOwner) { msg ->
             msg?.let { showLongMessage(requireContext(), msg) }
         }
@@ -110,27 +106,63 @@ class BrowseFolderFragment : Fragment() {
     }
 
     private fun configureRecyclerAdapter() {
+
+        // Manage grid or linear layouts
         val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
         var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
+        var trackerBuilder: SelectionTracker.Builder<String>?
         if (asGrid) {
             val columns = resources.getInteger(R.integer.grid_default_column_number)
             binding.nodes.layoutManager = GridLayoutManager(requireActivity(), columns)
             adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
+            binding.nodes.adapter = adapter
+            trackerBuilder = SelectionTracker.Builder(
+                "folder_multi_selection",
+                binding.nodes,
+                NodeGridItemKeyProvider(adapter),
+                NodeGridItemDetailsLookup(binding.nodes),
+                StorageStrategy.createStringStorage()
+            )
         } else {
             binding.nodes.layoutManager = LinearLayoutManager(requireActivity())
             adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+            binding.nodes.adapter = adapter
+            trackerBuilder = SelectionTracker.Builder(
+                "folder_multi_selection",
+                binding.nodes,
+                NodeListItemKeyProvider(adapter),
+                NodeListItemDetailsLookup(binding.nodes),
+                StorageStrategy.createStringStorage()
+            )
         }
-        binding.nodes.adapter = adapter
+
+        // Set the content by observing the view Model
         browseFolderVM.children.observe(viewLifecycleOwner) {
-            // binding.nodes.visibility = View.VISIBLE
             if (it.isEmpty()) {
                 binding.emptyContent.visibility = View.VISIBLE
-                // binding.nodes.visibility = View.GONE
             } else {
                 binding.emptyContent.visibility = View.GONE
                 adapter.submitList(it)
             }
+        }
+
+        // Manage multi selection
+        trackerBuilder?.let {
+            val tracker = it.withSelectionPredicate(
+                SelectionPredicates.createSelectAnything()
+            ).build()
+            if (adapter is NodeListAdapter){
+                adapter.tracker = tracker
+            }
+            tracker.addObserver(
+                object : SelectionTracker.SelectionObserver<String>() {
+                    override fun onSelectionChanged() {
+                        super.onSelectionChanged()
+                        val itemNb = tracker.selection.size()
+                        Log.w(fTag, "Selection changed, size: $itemNb")
+                    }
+                })
         }
     }
 
@@ -242,14 +274,19 @@ class BrowseFolderFragment : Fragment() {
             intent.putExtra(AppNames.EXTRA_STATE, node.encodedState)
             startActivity(intent)
 
-            Log.i(fTag, "It's an image, open carousel ${node.getStateID()}, mime type: ${node.mime}")
+            Log.i(
+                fTag,
+                "It's an image, open carousel ${node.getStateID()}, mime type: ${node.mime}"
+            )
 
             // FIXME
             return@launch
         }
 
-        Log.i(fTag, "**NOT** an image, opening in external viewer: ${node.getStateID()}, mime type: ${node.mime}")
-
+        Log.i(
+            fTag, "**NOT** an image, opening in external viewer:" +
+                    " ${node.getStateID()}, mime type: ${node.mime}"
+        )
 
         // TODO double check. It smells.
         requireActivity().window.setFlags(
@@ -292,5 +329,6 @@ class BrowseFolderFragment : Fragment() {
         Log.i(fTag, "onAttach")
         super.onAttach(context)
     }
+
 
 }

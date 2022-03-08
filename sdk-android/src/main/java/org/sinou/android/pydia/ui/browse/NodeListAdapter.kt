@@ -14,11 +14,15 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
 
+/**
+ * Custom adapter for browsing folders with a recycler view using a list layout.
+ * Also provides necessary callbacks to use the RecyclerView.Selection library
+ * that enables selecting more than one element at a time.
+ */
 class NodeListAdapter(
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit
 ) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()) {
 
-    private val tag = NodeListAdapter::class.simpleName
     var tracker: SelectionTracker<String>? = null
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -34,7 +38,7 @@ class NodeListAdapter(
         return ViewHolder.from(parent).with(onItemClicked)
     }
 
-    fun doGetKey(position: Int): String? {
+    fun doGetKey(position: Int): String {
         val item = getItem(position)
         return item.encodedState
     }
@@ -78,9 +82,9 @@ class NodeListAdapter(
                 override fun getPosition(): Int = adapterPosition
                 override fun getSelectionKey(): String {
                     val node = binding.node
-                    if (node == null){
+                    if (node == null) {
                         Log.e("NodeListAdapter.ViewHolder", "getSelectionKey for $node")
-                        return  "no state"
+                        return "no state"
                     }
                     return node.encodedState
                 }
@@ -99,7 +103,7 @@ class NodeListAdapter(
 class NodeListItemKeyProvider(private val adapter: NodeListAdapter) :
     ItemKeyProvider<String>(SCOPE_MAPPED) {
 
-    override fun getKey(position: Int): String? {
+    override fun getKey(position: Int): String {
         return adapter.doGetKey(position)
     }
 
@@ -124,8 +128,7 @@ class NodeListItemDetailsLookup(private val recyclerView: RecyclerView) :
 class TreeNodeDiffCallback : DiffUtil.ItemCallback<RTreeNode>() {
 
     override fun areItemsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {
-        val same = oldItem.encodedState == newItem.encodedState
-        return same
+        return oldItem.encodedState == newItem.encodedState
     }
 
     override fun areContentsTheSame(oldItem: RTreeNode, newItem: RTreeNode): Boolean {

@@ -31,7 +31,7 @@ class NodeGridAdapter(
         return ViewHolder.from(parent).with(onItemClicked)
     }
 
-    fun doGetKey(position: Int): String? {
+    fun doGetKey(position: Int): String {
         val item = getItem(position)
         return item.encodedState
     }
@@ -89,7 +89,7 @@ class NodeGridAdapter(
 class NodeGridItemKeyProvider(private val adapter: NodeGridAdapter) :
     ItemKeyProvider<String>(SCOPE_MAPPED) {
 
-    override fun getKey(position: Int): String? {
+    override fun getKey(position: Int): String {
         return adapter.doGetKey(position)
     }
 

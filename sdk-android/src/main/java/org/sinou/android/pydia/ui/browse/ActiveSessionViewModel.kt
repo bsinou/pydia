@@ -53,13 +53,13 @@ class ActiveSessionViewModel(
         while (isRunning) {
 
             if (liveSession.value == null){
-                Log.w(tag, "No live session for ${accountId} ")
+                Log.w(tag, "No live session for $accountId ")
              } else {
                 Log.i(tag, "Watching ${liveSession.value!!.accountID} ")
             }
 
-            liveSession.value?.let {
-                accountService.refreshWorkspaceList(it.accountID)?.let {
+            liveSession.value?.let { liveSession ->
+                accountService.refreshWorkspaceList(liveSession.accountID)?.let {
                     // Not-Null response is an error message, pause polling
                     Log.e(tag, "$it, pausing poll")
                     pause()

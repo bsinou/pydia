@@ -15,6 +15,10 @@ import org.sinou.android.pydia.databinding.GridHeaderBinding
 import org.sinou.android.pydia.databinding.GridItemWorkspaceBinding
 import org.sinou.android.pydia.db.accounts.RWorkspace
 
+/**
+ * Custom adapter used for the account landing page.
+ * It manages a sorted list of workspaces and Cells with headers.
+ */
 class WorkspaceListAdapter(
     private val onItemClicked: (slug: String, action: String) -> Unit
 ) : ListAdapter<WsDataItem, RecyclerView.ViewHolder>(WorkspaceDiffCallback()) {
@@ -58,7 +62,7 @@ class WorkspaceListAdapter(
 
             for (node in list) {
                 // TODO hard-coded prefix. enhance
-                if (node.sortName?.startsWith("8_") ?: false) {
+                if (node.sortName?.startsWith("8_") == true) {
                     cells.add(WsDataItem.WorkspaceItem(node))
                 } else {
                     wss.add(WsDataItem.WorkspaceItem(node))

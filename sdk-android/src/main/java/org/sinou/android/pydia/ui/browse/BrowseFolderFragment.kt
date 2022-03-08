@@ -32,6 +32,14 @@ import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
 import org.sinou.android.pydia.utils.*
 
+/**
+ * Main fragment when browsing a given account. It displays all content of a workspaces or
+ * one of its child folder, providing following features:
+ * - action on a given node
+ * - multi selection
+ * - navigation to another folder, an external viewer for a node or a carousel to display supported
+ *   files in the current folder.
+ */
 class BrowseFolderFragment : Fragment() {
 
     private val fTag = BrowseFolderFragment::class.java.simpleName
@@ -110,8 +118,8 @@ class BrowseFolderFragment : Fragment() {
         // Manage grid or linear layouts
         val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
-        var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
-        var trackerBuilder: SelectionTracker.Builder<String>?
+        val adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
+        val trackerBuilder: SelectionTracker.Builder<String>?
         if (asGrid) {
             val columns = resources.getInteger(R.integer.grid_default_column_number)
             binding.nodes.layoutManager = GridLayoutManager(requireActivity(), columns)
@@ -148,11 +156,13 @@ class BrowseFolderFragment : Fragment() {
         }
 
         // Manage multi selection
-        trackerBuilder?.let {
+        trackerBuilder.let {
             val tracker = it.withSelectionPredicate(
                 SelectionPredicates.createSelectAnything()
             ).build()
-            if (adapter is NodeListAdapter){
+            if (adapter is NodeListAdapter) {
+                adapter.tracker = tracker
+            } else if (adapter is NodeGridAdapter) {
                 adapter.tracker = tracker
             }
             tracker.addObserver(
@@ -230,7 +240,6 @@ class BrowseFolderFragment : Fragment() {
         Log.i(fTag, "onViewStateRestored")
         super.onViewStateRestored(savedInstanceState)
     }
-
 
     private fun onClicked(node: RTreeNode, command: String) {
         Log.i(fTag, "Clicked on ${browseFolderVM.stateID} -> $command")
@@ -329,6 +338,4 @@ class BrowseFolderFragment : Fragment() {
         Log.i(fTag, "onAttach")
         super.onAttach(context)
     }
-
-
 }

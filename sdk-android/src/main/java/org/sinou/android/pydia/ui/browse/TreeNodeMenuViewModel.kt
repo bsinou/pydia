@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import org.sinou.android.pydia.services.NodeService
 
 /**
- * Holds a FileNode for the various context menus.
+ * Holds a TreeNode for the various context menus.
  */
 class TreeNodeMenuViewModel(
     val stateID: StateID,

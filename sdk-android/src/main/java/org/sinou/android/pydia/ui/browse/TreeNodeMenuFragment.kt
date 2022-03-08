@@ -32,8 +32,9 @@ import org.sinou.android.pydia.utils.showLongMessage
  */
 class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
+    private val fTag = TreeNodeMenuFragment::class.java.simpleName
+
     companion object {
-        private val fTag = TreeNodeMenuFragment::class.java.simpleName
 
         const val CONTEXT_BROWSE = "browse"
         const val CONTEXT_ADD = "add"
@@ -42,7 +43,6 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val CONTEXT_SEARCH = "from_search"
         const val CONTEXT_OFFLINE = "from_offline"
 
-        //         const val ACTION_OPEN_WITH = "open_with"
         const val ACTION_DOWNLOAD_TO_DEVICE = "download_to_device"
         const val ACTION_OPEN_IN_WORKSPACES = "open_in_workspaces"
         const val ACTION_OPEN_PARENT_IN_WORKSPACES = "open_parent_in_workspaces"
@@ -52,6 +52,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val ACTION_DELETE = "delete"
         const val ACTION_TOGGLE_BOOKMARK = "toggle_bookmark"
         const val ACTION_TOGGLE_SHARED = "toggle_shared"
+        const val ACTION_TOGGLE_OFFLINE = "toggle_offline"
         const val ACTION_EMPTY_RECYCLE = "empty_recycle"
         const val ACTION_RESTORE_FROM_RECYCLE = "restore_from_recycle"
         const val ACTION_DELETE_PERMANENTLY = "delete_permanently"
@@ -191,6 +192,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         binding.delete.setOnClickListener { onClicked(node, ACTION_DELETE) }
         binding.bookmarkSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_BOOKMARK) }
         binding.sharedSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_SHARED) }
+        binding.offlineSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_OFFLINE) }
 
         binding.executePendingBindings()
     }
@@ -385,6 +387,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 ACTION_TOGGLE_SHARED -> {
                     // TODO ask confirmation
                     CellsApp.instance.nodeService.toggleShared(node)
+                    moreMenu.dismiss()
+                }
+                ACTION_TOGGLE_OFFLINE -> {
+                    CellsApp.instance.nodeService.toggleOffline(node)
                     moreMenu.dismiss()
                 }
                 // In-app navigation

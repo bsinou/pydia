@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
 
     android:id="@+id/main_nav"
-    app:startDestination="@id/workspace_list_destination">
+    app:startDestination="@id/account_home_destination">
 
     <!-- GLOBAL ACTIONS -->
     <action
@@ -14,7 +14,7 @@
 
     <action
         android:id="@+id/open_workspaces"
-        app:destination="@id/workspace_list_destination" />
+        app:destination="@id/account_home_destination" />
 
     <action
         android:id="@+id/open_folder"
@@ -23,6 +23,10 @@
     <action
         android:id="@+id/open_bookmarks"
         app:destination="@id/bookmark_list_destination" />
+
+    <action
+        android:id="@+id/open_offline_roots"
+        app:destination="@id/offline_root_list_destination" />
 
     <action
         android:id="@+id/open_transfers"
@@ -66,9 +70,8 @@
     </fragment>
 
     <fragment
-        android:id="@+id/workspace_list_destination"
+        android:id="@+id/account_home_destination"
         android:name="org.sinou.android.pydia.ui.browse.AccountHomeFragment"
-        android:label="@string/action_open_workspaces"
         tools:layout="@layout/fragment_account_home">
         <argument
             android:name="state"
@@ -96,6 +99,15 @@
         android:name="org.sinou.android.pydia.ui.browse.BookmarksFragment"
         android:label="@string/action_open_bookmarks"
         tools:layout="@layout/fragment_bookmark_list">
+        <action
+            android:id="@+id/open_more_menu"
+            app:destination="@id/tree_node_more_menu" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/offline_root_list_destination"
+        android:name="org.sinou.android.pydia.ui.browse.OfflineRootsFragment"
+        tools:layout="@layout/fragment_offine_root_list">
         <action
             android:id="@+id/open_more_menu"
             app:destination="@id/tree_node_more_menu" />

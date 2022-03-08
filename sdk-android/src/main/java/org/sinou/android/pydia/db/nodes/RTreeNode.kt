@@ -98,7 +98,7 @@ data class RTreeNode(
         fn.setProperty(SdkNames.NODE_PROPERTY_FILENAME, name)
         fn.setProperty(SdkNames.NODE_PROPERTY_IS_FILE, "${isFile()}")
         fn.setProperty(SdkNames.NODE_PROPERTY_MIME, mime)
-        fn.setProperty(SdkNames.NODE_PROPERTY_BYTESIZE, "$size");
+        fn.setProperty(SdkNames.NODE_PROPERTY_BYTESIZE, "$size")
         return fn
     }
 
@@ -123,7 +123,7 @@ data class RTreeNode(
         // More logs to investigate
         if (!same) {
             val tag = "ListContentEquals"
-            Log.d(tag, "Found new content for ${encodedState}")
+            Log.d(tag, "Found new content for $encodedState")
             Log.d(
                 tag, "Old TS: ${remoteModificationTS}, " +
                         "new TS: ${newItem.remoteModificationTS}"
@@ -200,7 +200,7 @@ data class RTreeNode(
                     else -> "1_5_${node.label}"
                 }
 
-                val outNode = RTreeNode(
+                return RTreeNode(
                     encodedState = stateID.id,
                     workspace = node.slug,
                     parentPath = "",
@@ -218,8 +218,6 @@ data class RTreeNode(
                     metaHash = 0,
                     sortName = currSortName,
                 )
-
-                return outNode
             } catch (e: java.lang.Exception) {
                 Log.w(
                     TAG, "could not create RTreeNode for " +

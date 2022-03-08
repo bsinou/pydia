@@ -52,13 +52,6 @@ interface TreeNodeDao {
         mime: String
     ): LiveData<List<RTreeNode>>
 
-    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :accountID || '%' AND is_bookmarked = 1 ORDER BY name")
-    fun getBookmarked(accountID: String): LiveData<List<RTreeNode>>
-//
-//    @Query("SELECT * FROM tree_node_table WHERE account_id = :accountID AND is_shared = 1")
-//    fun getShared(accountID: String): LiveData<List<RTreeNode>>
-//
-//    @Query("SELECT * FROM tree_node_table WHERE account_id = :accountID AND is_offline = 1")
-//    fun getOfflineRoots(accountID: String): LiveData<List<RTreeNode>>
-
+    @Query("SELECT * FROM tree_nodes WHERE is_bookmarked = 1 ORDER BY sort_name")
+    fun getBookmarked(): LiveData<List<RTreeNode>>
 }

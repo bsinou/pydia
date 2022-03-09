@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Database(
     entities = [RTreeNode::class, ROfflineRoot::class],
+    views = arrayOf(RLiveOfflineRoot::class),
     version = 1,
     exportSchema = false,
 )
@@ -16,6 +17,8 @@ abstract class TreeNodeDB : RoomDatabase() {
     abstract fun treeNodeDao(): TreeNodeDao
 
     abstract fun offlineRootDao(): OfflineRootDao
+
+    abstract fun liveOfflineRootDao(): LiveOfflineRootDao
 
     companion object {
         @Volatile

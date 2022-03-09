@@ -15,6 +15,8 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.db.nodes.RLiveOfflineRoot
+import org.sinou.android.pydia.db.nodes.ROfflineRoot
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.db.nodes.TreeNodeDB
 import org.sinou.android.pydia.transfer.FolderDiff
@@ -79,8 +81,11 @@ class NodeService(
     }
 
     fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB(accountID).treeNodeDao().getBookmarked(accountID.id)
-        // TODO also watch remote folder to get new bookmarks when online.
+        return nodeDB(accountID).treeNodeDao().getBookmarked()
+    }
+
+    fun listOfflineRoots(stateID: StateID): LiveData<List<RLiveOfflineRoot>> {
+        return nodeDB(stateID).liveOfflineRootDao().getLiveOfflineRoots()
     }
 
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
@@ -163,6 +168,34 @@ class NodeService(
             return@withContext null
         } catch (ioe: IOException) {
             Log.e(TAG, "could update share link for ${stateID}: ${ioe.message}")
+            ioe.printStackTrace()
+            return@withContext null
+        }
+    }
+
+    suspend fun toggleOffline(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+        val stateID = rTreeNode.getStateID()
+        try {
+            val currState = StateID.fromId(rTreeNode.encodedState)
+            val db = nodeDB(currState)
+            val offlineDao = db.offlineRootDao()
+
+            if (rTreeNode.isOfflineRoot) {
+                offlineDao.delete(rTreeNode.encodedState)
+            } else {
+                // TODO should we check if this node is already a descendant of
+                //  an existing offline root ?
+                val newRoot = ROfflineRoot.fromTreeNode(rTreeNode)
+                offlineDao.insert(newRoot)
+            }
+            rTreeNode.isOfflineRoot = !rTreeNode.isOfflineRoot
+            persistUpdated(rTreeNode)
+        } catch (se: SDKException) {
+            Log.e(TAG, "could update offline sync status for " + stateID.id)
+            se.printStackTrace()
+            return@withContext null
+        } catch (ioe: IOException) {
+            Log.e(TAG, "could update offline sync status for ${stateID}: ${ioe.message}")
             ioe.printStackTrace()
             return@withContext null
         }

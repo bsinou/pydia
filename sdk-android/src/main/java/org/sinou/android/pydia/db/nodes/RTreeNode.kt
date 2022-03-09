@@ -55,6 +55,7 @@ data class RTreeNode(
 
     @ColumnInfo(name = "sort_name") var sortName: String? = null,
 
+    // FIXME with Filename prefix or not
     @ColumnInfo(name = "thumb") var thumbFilename: String? = null,
 
     // Can be: none, cache, offline, external
@@ -70,9 +71,7 @@ data class RTreeNode(
     }
 
     fun isFolder(): Boolean {
-        return mime == SdkNames.NODE_MIME_FOLDER
-                || mime == SdkNames.NODE_MIME_WS_ROOT
-                || mime == SdkNames.NODE_MIME_RECYCLE
+        return isFolderFromMime(mime)
     }
 
     fun isFile(): Boolean {
@@ -226,5 +225,12 @@ data class RTreeNode(
                 throw e
             }
         }
+
+        fun isFolderFromMime(mime: String): Boolean {
+            return mime == SdkNames.NODE_MIME_FOLDER
+                    || mime == SdkNames.NODE_MIME_WS_ROOT
+                    || mime == SdkNames.NODE_MIME_RECYCLE
+        }
+
     }
 }

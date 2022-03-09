@@ -8,6 +8,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.db.nodes.RLiveOfflineRoot
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.utils.asFormattedString
 import org.sinou.android.pydia.utils.getCurrentDateTime
@@ -105,6 +106,15 @@ class FileService(private val accountService: AccountService) {
     }
 
     fun getThumbPath(item: RTreeNode): String? {
+        val stat = StateID.fromId(item.encodedState)
+        return if (Str.empty(item.thumbFilename)) {
+            null
+        } else {
+            "${dataPath(stat, AppNames.LOCAL_FILE_TYPE_THUMB)}${SEP}${item.thumbFilename}"
+        }
+    }
+
+    fun getOfflineThumbPath(item: RLiveOfflineRoot): String? {
         val stat = StateID.fromId(item.encodedState)
         return if (Str.empty(item.thumbFilename)) {
             null

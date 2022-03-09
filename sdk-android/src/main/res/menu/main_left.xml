@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/offline_root_list_destination"
+        android:icon="@drawable/ic_baseline_offline_pin_24"
+        android:title="@string/action_open_offline_roots" />
+
+    <item
         android:id="@+id/bookmark_list_destination"
         android:icon="@drawable/ic_baseline_star_24"
         android:title="@string/action_open_bookmarks" />

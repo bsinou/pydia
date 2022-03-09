@@ -25,6 +25,7 @@ import org.sinou.android.pydia.transfer.ChooseTargetContract
 import org.sinou.android.pydia.transfer.FileExporter
 import org.sinou.android.pydia.transfer.FileImporter
 import org.sinou.android.pydia.utils.showLongMessage
+import org.sinou.android.pydia.utils.showMessage
 
 /**
  * More menu fragment: it is used to present the end-user with various possible actions
@@ -59,6 +60,8 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val ACTION_CREATE_FOLDER = "create_folder"
         const val ACTION_IMPORT_FILES = "import_files"
         const val ACTION_IMPORT_FROM_CAMERA = "import_from_camera"
+        const val ACTION_FORCE_RESYNC = "force_resync"
+
     }
 
     private val args: TreeNodeMenuFragmentArgs by navArgs()
@@ -69,6 +72,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     // Only *one* of the below bindings is not null, depending on the context
     private var browseBinding: MoreMenuBrowseBinding? = null
+    private var offlineRootsBinding: MoreMenuOfflineRootsBinding? = null
     private var addBinding: MoreMenuAddBinding? = null
     private var searchBinding: MoreMenuSearchBinding? = null
     private var bookmarkBinding: MoreMenuBookmarksBinding? = null
@@ -198,34 +202,34 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     }
 
     /* OFFLINE CONTEXT */
-    // We only slightly modify the "browse" default context more menu
 
     private fun inflateOfflineLayout(inflater: LayoutInflater, container: ViewGroup?): View {
-        browseBinding = DataBindingUtil.inflate(
-            inflater, R.layout.more_menu_browse, container, false
+        offlineRootsBinding = DataBindingUtil.inflate(
+            inflater, R.layout.more_menu_offline_roots, container, false
         )
-        val binding = browseBinding as MoreMenuBrowseBinding
+        val binding = offlineRootsBinding as MoreMenuOfflineRootsBinding
         treeNodeMenuVM.node.observe(this) {
             it?.let {
-                offlineBind(binding, it)
+                bind(binding, it)
             }
         }
         binding.executePendingBindings()
         return binding.root
     }
 
-    private fun offlineBind(binding: MoreMenuBrowseBinding, node: RTreeNode) {
-        // STILL TODO
-        binding.node = node
-//        binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
-//        binding.download.setOnClickListener { onClicked(node, ACTION_DOWNLOAD_TO_DEVICE) }
-//        binding.rename.setOnClickListener { onClicked(node, ACTION_RENAME) }
-//        binding.copyTo.setOnClickListener { onClicked(node, ACTION_COPY) }
-//        binding.moveTo.setOnClickListener { onClicked(node, ACTION_MOVE) }
-//        binding.delete.setOnClickListener { onClicked(node, ACTION_DELETE) }
-//        binding.bookmarkSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_BOOKMARK) }
-//        binding.sharedSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_SHARED) }
+    private fun bind(binding: MoreMenuOfflineRootsBinding, node: RTreeNode) {
 
+        binding.node = node
+        binding.forceResync.setOnClickListener { onClicked(node, ACTION_FORCE_RESYNC) }
+        binding.download.setOnClickListener { onClicked(node, ACTION_DOWNLOAD_TO_DEVICE) }
+        binding.offlineSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_OFFLINE) }
+
+        binding.openParentInWorkspace.setOnClickListener {
+            onClicked(node, ACTION_OPEN_PARENT_IN_WORKSPACES)
+        }
+        // TODO
+        // binding.openInWorkspaces.setOnClickListener { onClicked(node, ACTION_OPEN_IN_WORKSPACES) }
+        // binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
         binding.executePendingBindings()
     }
 
@@ -391,6 +395,11 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 }
                 ACTION_TOGGLE_OFFLINE -> {
                     CellsApp.instance.nodeService.toggleOffline(node)
+                    moreMenu.dismiss()
+                }
+                ACTION_FORCE_RESYNC -> {
+                    // TODO implement
+                    showMessage(requireContext(), "Resync is not yet implemented")
                     moreMenu.dismiss()
                 }
                 // In-app navigation

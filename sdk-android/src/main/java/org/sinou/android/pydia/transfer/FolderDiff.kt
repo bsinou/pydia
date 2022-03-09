@@ -158,6 +158,12 @@ class FolderDiff(
         // Also remove:
         // folder recursively
         // thumbs and thumb for children if we are in the case of a folder
+
+        // FIXME rather implement clean recursive delete to correctly address:
+        //   - potential offline roots
+        //   - thumbs in child folders
+        //   - ... what else ?
+        // File and
         when {
             local.isFolder() -> {
                 deleteLocalFolder(local)

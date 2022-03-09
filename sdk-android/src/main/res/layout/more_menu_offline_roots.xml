@@ -42,7 +42,7 @@
                 android:layout_height="@dimen/menu_icon"
                 android:layout_margin="@dimen/menu_margin"
                 android:contentDescription="@string/force_resync_desc"
-                android:src="@drawable/ic_baseline_check_24" />
+                android:src="@drawable/ic_baseline_sync_24" />
 
             <TextView
                 android:layout_width="wrap_content"

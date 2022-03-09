@@ -92,8 +92,8 @@ class OfflineRootsFragment : Fragment() {
                 binding.emptyContent.visibility = View.VISIBLE
             } else {
                 binding.emptyContent.visibility = View.GONE
-                adapter.submitList(it)
             }
+            adapter.submitList(it)
         }
     }
 

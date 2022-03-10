@@ -21,7 +21,6 @@ class FolderDiff(
     private val fileDL: FileDownloader?,
     private val thumbDL: ThumbDownloader,
     private val parentId: StateID,
-//     private val downloadFiles: Boolean,
 ) {
 
     private val tag = FolderDiff::class.java.simpleName
@@ -77,12 +76,10 @@ class FolderDiff(
                     // last local is smaller than next remote, no more matches for any next remote
                     local = null
                 } else if (order == 0) {
-                    if (areNodeContentEquals(
-                            remote,
-                            local!!
-                        )
-                    ) { // Found a match, no change to report.
-                        alsoCheckFile(remote, local)
+                    if (areNodeContentEquals(remote, local!!)) {
+                        // Found a match with no detected change,
+                        // we yet insure necessary files (offline & thumbs for viewable) are present
+                        alsoCheckFile(local)
                         alsoCheckThumb(remote, local)
                     } else {
                         putUpdateChange(remote, local)
@@ -105,7 +102,48 @@ class FolderDiff(
         }
     }
 
-    private fun alsoCheckFile(remote: FileNode, local: RTreeNode) {
+    private fun putAddChange(remote: FileNode) {
+        Log.d(tag, "add for ${remote.label}")
+        changeNumber++
+        val childStateID = parentId.child(remote.label)
+        val rNode = RTreeNode.fromFileNode(childStateID, remote)
+        dao.insert(rNode)
+        downloadFilesIfNecessary(remote, childStateID)
+    }
+
+    private fun putUpdateChange(remote: FileNode, local: RTreeNode) {
+        Log.d(tag, "update for ${remote.label}")
+
+        changeNumber++
+
+        // TODO: Insure corner cases are correctly handled, typically on type switch
+        val childStateID = parentId.child(remote.label)
+        val rNode = RTreeNode.fromFileNode(childStateID, remote)
+
+        if (local.isFolder() && remote.isFile) {
+            deleteLocalFolder(local)
+            dao.insert(rNode)
+        } else {
+            dao.update(rNode)
+        }
+        downloadFilesIfNecessary(remote, childStateID)
+    }
+
+    private fun putDeleteChange(local: RTreeNode) {
+        Log.d(tag, "delete for ${local.name}")
+        changeNumber++
+
+        when {
+            local.isFolder() -> {
+                deleteLocalFolder(local)
+            }
+            else -> deleteLocalFile(local)
+        }
+    }
+
+    /* LOCAL HELPERS */
+
+    private fun alsoCheckFile(local: RTreeNode) {
         fileDL?.let {
             diffScope.launch {
                 if (local.isFolder()) { // we do only files
@@ -132,88 +170,27 @@ class FolderDiff(
         }
     }
 
-    private fun putAddChange(remote: FileNode) {
-        Log.d(tag, "add for ${remote.label}")
-        changeNumber++
-        val childStateID = parentId.child(remote.label)
-        val rNode = RTreeNode.fromFileNode(childStateID, remote)
-        dao.insert(rNode)
+    private fun downloadFilesIfNecessary(remote: FileNode, stateID: StateID) {
         if (remote.isImage) {
             diffScope.launch {
-                thumbDL.orderThumbDL(childStateID.id)
+                thumbDL.orderThumbDL(stateID.id)
             }
         }
         fileDL?.let {
             diffScope.launch {
-                it.orderFileDL(childStateID.id)
+                it.orderFileDL(stateID.id)
             }
-        }
-    }
-
-    private fun putUpdateChange(remote: FileNode, local: RTreeNode) {
-        Log.d(tag, "update for ${remote.label}")
-
-        changeNumber++
-
-        // TODO: Insure corner cases are correctly handled, typically on type switch
-        val childStateID = parentId.child(remote.label)
-        val rNode = RTreeNode.fromFileNode(childStateID, remote)
-
-        if (local.isFolder() && remote.isFile) {
-            dao.delete(local.encodedState)
-            dao.deleteUnder(local.encodedState)
-            // TODO also delete  thumbs **and** local files that have been created for this folder
-//            val file = File(it)
-//            if (file.exists()) {
-//                file.delete()
-//            }
-            dao.insert(rNode)
-        } else {
-            dao.update(rNode)
-        }
-        if (remote.isImage) {
-            diffScope.launch {
-                thumbDL.orderThumbDL(childStateID.id)
-            }
-        }
-        fileDL?.let {
-            diffScope.launch {
-                it.orderFileDL(childStateID.id)
-            }
-        }
-    }
-
-    private fun putDeleteChange(local: RTreeNode) {
-        Log.d(tag, "delete for ${local.name}")
-        changeNumber++
-
-        // Also remove:
-        // folder recursively
-        // thumbs and thumb for children if we are in the case of a folder
-
-        // FIXME rather implement clean recursive delete to correctly address:
-        //   - potential offline roots
-        //   - thumbs in child folders
-        //   - ... what else ?
-        // File and
-        when {
-            local.isFolder() -> {
-                deleteLocalFolder(local)
-            }
-            else -> deleteLocalFile(local)
         }
     }
 
     private fun deleteLocalFile(local: RTreeNode) {
-        // Cache or Offline
-        fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
-            val file = File(it)
-            if (file.exists()) {
-                file.delete()
-            }
+        // Local cache or offline file
+        val file = File(fileService.getLocalPath(local, getCurrentFileType()))
+        if (file.exists()) {
+            file.delete()
         }
-        // thumbs
-        fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_THUMB)?.let {
+        // Corresponding thumb
+        fileService.getThumbPath(local)?.let {
             val tf = File(it)
             if (tf.exists()) {
                 tf.delete()
@@ -223,32 +200,31 @@ class FolderDiff(
     }
 
     private fun deleteLocalFolder(local: RTreeNode) {
-        // Cache or Offline
-        fileService.getLocalPath(local, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
-            val file = File(it)
-            if (file.exists()) {
-                file.deleteRecursively()
-            }
+
+        val file = File(fileService.getLocalPath(local, getCurrentFileType()))
+        if (file.exists()) {
+            file.deleteRecursively()
         }
+
         // TODO look for all thumbs defined for pre-viewable files that are in the child path
         //   and remove them.
-        dao.delete(local.encodedState)
         dao.deleteUnder(local.encodedState)
+        dao.delete(local.encodedState)
     }
 
-// Temp wrapper to add more logs
-//    inner class LocalNodeIterator(private val nodes: Iterator<RTreeNode>) : Iterator<RTreeNode> {
-//        override fun hasNext(): Boolean {
-//            return nodes.hasNext()
-//        }
-//
-//        override fun next(): RTreeNode {
-//            val next = nodes.next()
-//            Log.i(TAG, "Local: ${next.name}")
-//            return next
-//        }
-//    }
+    /** Detect current context (offline or cache) relying on the presence of a FileDownloader */
+    private fun getCurrentFileType(): String {
+        val isOfflineContext = fileDL != null
+        return if (isOfflineContext)
+            AppNames.LOCAL_FILE_TYPE_CACHE
+        else
+            AppNames.LOCAL_FILE_TYPE_OFFLINE
+    }
 
+    /**
+     * Convenience class that iterates on remote pages to list the full content of
+     * a remote workspace or folder
+     */
     inner class RemoteNodeIterator(private val parentId: StateID) : Iterator<FileNode> {
 
         private val nodes = mutableListOf<FileNode>()
@@ -284,4 +260,17 @@ class FolderDiff(
             }
         }
     }
+
+// Temp wrapper to add more logs
+//    inner class LocalNodeIterator(private val nodes: Iterator<RTreeNode>) : Iterator<RTreeNode> {
+//        override fun hasNext(): Boolean {
+//            return nodes.hasNext()
+//        }
+//
+//        override fun next(): RTreeNode {
+//            val next = nodes.next()
+//            Log.i(TAG, "Local: ${next.name}")
+//            return next
+//        }
+//    }
 }

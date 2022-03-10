@@ -164,11 +164,21 @@ class MainActivity : AppCompatActivity() {
         Log.i(tag, "... Item selected: #${it.itemId}")
         var done = false
         when (it.itemId) {
-            R.id.open_bookmarks -> {
+            R.id.offline_root_list_destination -> {
+                Log.i(tag, "... OPEN Offline Root: #${it.itemId}")
                 activeSessionVM.liveSession.value?.let { session ->
-                    val target = StateID.fromId(session.accountID)
-                        .child(AppNames.CUSTOM_PATH_BOOKMARKS)
-                    CellsApp.instance.setCurrentState(target)
+//                    val target = StateID.fromId(session.accountID)
+//                        .withPath(AppNames.CUSTOM_PATH_OFFLINE)
+//                    CellsApp.instance.setCurrentState(target)
+                    navController.navigate(MainNavDirections.openOfflineRoots())
+                    done = true
+                }
+            }
+            R.id.bookmark_list_destination -> {
+                activeSessionVM.liveSession.value?.let { session ->
+//                    val target = StateID.fromId(session.accountID)
+//                        .withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
+//                    CellsApp.instance.setCurrentState(target)
                     navController.navigate(MainNavDirections.openBookmarks())
                     done = true
                 }

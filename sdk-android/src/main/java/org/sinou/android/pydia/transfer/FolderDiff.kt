@@ -18,14 +18,17 @@ class FolderDiff(
     private val client: Client,
     private val fileService: FileService,
     private val dao: TreeNodeDao,
+    private val fileDL: FileDownloader?,
     private val thumbDL: ThumbDownloader,
-    private val parentId: StateID
+    private val parentId: StateID,
+//     private val downloadFiles: Boolean,
 ) {
+
+    private val tag = FolderDiff::class.java.simpleName
 
     companion object {
 
         private const val PAGE_SIZE = 100
-        private val TAG = FolderDiff::class.java.simpleName
 
         fun firstPage(): PageOptions {
             val page = PageOptions()
@@ -46,12 +49,12 @@ class FolderDiff(
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     @Throws(SDKException::class)
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
-            val remotes = RemoteNodeIterator(parentId)
-            val locals = dao.getNodesForDiff(parentId.id, parentId.file).iterator()
-            // val locals = LocalNodeIterator(dao.getNodesForDiff(parentId.id, parentId.file).iterator())
-            processChanges(remotes, locals)
-            Log.d(TAG, "Done with $changeNumber changes")
-            return@withContext changeNumber
+        val remotes = RemoteNodeIterator(parentId)
+        val locals = dao.getNodesForDiff(parentId.id, parentId.file).iterator()
+        // val locals = LocalNodeIterator(dao.getNodesForDiff(parentId.id, parentId.file).iterator())
+        processChanges(remotes, locals)
+        Log.d(tag, "Done with $changeNumber changes")
+        return@withContext changeNumber
     }
 
     private fun processChanges(rit: Iterator<FileNode>, lit: Iterator<RTreeNode>) {
@@ -79,6 +82,7 @@ class FolderDiff(
                             local!!
                         )
                     ) { // Found a match, no change to report.
+                        alsoCheckFile(remote, local)
                         alsoCheckThumb(remote, local)
                     } else {
                         putUpdateChange(remote, local)
@@ -101,7 +105,25 @@ class FolderDiff(
         }
     }
 
+    private fun alsoCheckFile(remote: FileNode, local: RTreeNode) {
+        fileDL?.let {
+            diffScope.launch {
+                if (local.isFolder()) { // we do only files
+                    return@launch
+                }
+                var doIt = local.localFilePath == null
+                if (!doIt) { // we might have recorded the name but have a missing file
+                    doIt = File(local.localFilePath!!).exists()
+                }
+                if (doIt) {
+                    it.orderFileDL(local.encodedState)
+                }
+            }
+        }
+    }
+
     private fun alsoCheckThumb(remote: FileNode, local: RTreeNode) {
+        // FIXME we miss the event when we have a filename but the thumb is not present
         if (remote.isImage && local.thumbFilename == null) {
             diffScope.launch {
                 val childStateID = parentId.child(remote.label)
@@ -111,7 +133,7 @@ class FolderDiff(
     }
 
     private fun putAddChange(remote: FileNode) {
-        Log.d(TAG, "add for ${remote.label}")
+        Log.d(tag, "add for ${remote.label}")
         changeNumber++
         val childStateID = parentId.child(remote.label)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
@@ -121,10 +143,15 @@ class FolderDiff(
                 thumbDL.orderThumbDL(childStateID.id)
             }
         }
+        fileDL?.let {
+            diffScope.launch {
+                it.orderFileDL(childStateID.id)
+            }
+        }
     }
 
     private fun putUpdateChange(remote: FileNode, local: RTreeNode) {
-        Log.d(TAG, "update for ${remote.label}")
+        Log.d(tag, "update for ${remote.label}")
 
         changeNumber++
 
@@ -149,10 +176,15 @@ class FolderDiff(
                 thumbDL.orderThumbDL(childStateID.id)
             }
         }
+        fileDL?.let {
+            diffScope.launch {
+                it.orderFileDL(childStateID.id)
+            }
+        }
     }
 
     private fun putDeleteChange(local: RTreeNode) {
-        Log.d(TAG, "delete for ${local.name}")
+        Log.d(tag, "delete for ${local.name}")
         changeNumber++
 
         // Also remove:
@@ -170,7 +202,6 @@ class FolderDiff(
             }
             else -> deleteLocalFile(local)
         }
-
     }
 
     private fun deleteLocalFile(local: RTreeNode) {
@@ -205,7 +236,7 @@ class FolderDiff(
         dao.deleteUnder(local.encodedState)
     }
 
-    // Temp wrapper to add more logs
+// Temp wrapper to add more logs
 //    inner class LocalNodeIterator(private val nodes: Iterator<RTreeNode>) : Iterator<RTreeNode> {
 //        override fun hasNext(): Boolean {
 //            return nodes.hasNext()
@@ -246,7 +277,7 @@ class FolderDiff(
             nodes.clear()
             nextPage = client.ls(parentId.workspace, parentId.file, page) {
                 if (it !is FileNode) {
-                    Log.w(TAG, "could not store node: $it")
+                    Log.w(tag, "could not store node: $it")
                 } else {
                     nodes.add(it)
                 }

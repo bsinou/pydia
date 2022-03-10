@@ -27,7 +27,7 @@ class ThumbDownloader(
 
     private val tag = ThumbDownloader::class.java.simpleName
 
-    private val doneChannel = Channel<Boolean>()
+    protected val doneChannel = Channel<Boolean>()
     private val queue = Channel<String>()
 
     private var dlJob = Job()
@@ -76,7 +76,7 @@ class ThumbDownloader(
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
             Log.e(tag, "Could not retrieve thumb for " + state + ": " + se.message)
         } catch (ioe: IOException) {
-            // TODO Could not write the thumb in the local cache, we notify the user
+            // TODO Could not write the thumb in the local cache, we should notify the user
             Log.e(
                 tag,
                 "could not write newly downloaded thumb to the local device for "
@@ -160,5 +160,4 @@ class ThumbDownloader(
         }
         coroutineContext.cancelChildren()
     }
-
 }

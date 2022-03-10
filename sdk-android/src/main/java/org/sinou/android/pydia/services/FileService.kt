@@ -14,66 +14,33 @@ import org.sinou.android.pydia.utils.asFormattedString
 import org.sinou.android.pydia.utils.getCurrentDateTime
 import java.io.File
 
+/** Centralizes management of local files and where to store/find them. */
 class FileService(private val accountService: AccountService) {
+
+    private val tag = FileService::class.simpleName
 
     private val fileServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + fileServiceJob)
+    private val sep: String = File.separator
 
     private val appCacheDir = CellsApp.instance.cacheDir.absolutePath
-    private val appFileDir = CellsApp.instance.filesDir.absolutePath
+    private val appFilesDir = CellsApp.instance.filesDir.absolutePath
 
     fun prepareTree(stateID: StateID) = serviceScope.launch {
-        val dirName = accountService.sessions[stateID.accountId]?.dirName
-            ?: throw IllegalStateException("No record found for $stateID")
-
-        val cacheDir = CellsApp.instance.cacheDir.absolutePath + SEP + dirName
-        File(cacheDir).mkdirs()
-        File(cacheDir + SEP + AppNames.THUMB_PARENT_DIR).mkdir()
-        // File(cacheDir + SEP + AppNames.CACHED_FILE_PARENT_DIR).mkdir()
-        val filesDir = CellsApp.instance.filesDir.absolutePath + SEP + dirName
-        File(filesDir).mkdirs()
-        File(filesDir + SEP + AppNames.OFFLINE_FILE_PARENT_DIR).mkdirs()
-        File(filesDir + SEP + AppNames.CACHED_FILE_PARENT_DIR).mkdir()
-        File(filesDir + SEP + AppNames.TRANSFER_PARENT_DIR).mkdir()
+        File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_CACHE)).mkdirs()
+        File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)).mkdirs()
+        File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_TRANSFER)).mkdirs()
+        File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_OFFLINE)).mkdirs()
     }
 
-    fun cleanFileCacheFor(stateID: StateID) = serviceScope.launch {
-        val dirName = accountService.sessions[stateID.accountId]?.dirName
-            ?: throw IllegalStateException("No record found for $stateID")
-
-        val cache = File(CellsApp.instance.cacheDir.absolutePath + SEP + dirName)
-        if (cache.exists()) {
-            cache.deleteRecursively()
-        }
-
-
-        val tmpCache = File(dataPath(stateID, AppNames.LOCAL_FILE_TYPE_CACHE))
-        if (tmpCache.exists()) {
-            tmpCache.deleteRecursively()
-        }
-
+    fun dataParentFolder(stateID: StateID, type: String): File {
+        return File(dataParentPath(stateID, type))
     }
 
-    fun cleanAllLocalFiles(stateID: StateID) = serviceScope.launch {
-        cleanFileCacheFor(stateID)
-
+    fun dataParentPath(stateID: StateID, type: String): String {
         val dirName = accountService.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
-
-        val files = File(CellsApp.instance.filesDir.absolutePath + SEP + dirName)
-        if (files.exists()) {
-            files.deleteRecursively()
-        }
-    }
-
-    fun dataDir(stateID: StateID, type: String): File {
-        return File(dataPath(stateID, type))
-    }
-
-    fun dataPath(stateID: StateID, type: String): String {
-        val dirName = accountService.sessions[stateID.accountId]?.dirName
-            ?: throw IllegalStateException("No record found for $stateID")
-        val middle = SEP + dirName + SEP
+        val middle = sep + dirName + sep
         return when (type) {
             AppNames.LOCAL_FILE_TYPE_THUMB ->
                 appCacheDir + middle + AppNames.THUMB_PARENT_DIR
@@ -81,45 +48,14 @@ class FileService(private val accountService: AccountService) {
             //   we do not know how to configure the file provider to allow access to this location
             //   for external viewing
             AppNames.LOCAL_FILE_TYPE_CACHE ->
-                appFileDir + middle + AppNames.CACHED_FILE_PARENT_DIR
+                appFilesDir + middle + AppNames.CACHED_FILE_PARENT_DIR
             // Same with the transfer folder, see:
             // https://developer.android.com/training/data-storage/shared/media#open-file-descriptor
             AppNames.LOCAL_FILE_TYPE_TRANSFER ->
-                appFileDir + middle + AppNames.TRANSFER_PARENT_DIR
+                appFilesDir + middle + AppNames.TRANSFER_PARENT_DIR
             AppNames.LOCAL_FILE_TYPE_OFFLINE ->
-                appFileDir + middle + AppNames.OFFLINE_FILE_PARENT_DIR
+                appFilesDir + middle + AppNames.OFFLINE_FILE_PARENT_DIR
             else -> throw IllegalStateException("Unknown file type: $type")
-        }
-    }
-
-    fun getAccountBasePath(stateID: StateID, type: String): String {
-        val dirName = accountService.sessions[stateID.accountId]?.dirName
-            ?: throw IllegalStateException("No record found for $stateID")
-        val middle = SEP + dirName
-        return when (type) {
-            AppNames.LOCAL_DIR_TYPE_CACHE ->
-                appCacheDir + middle
-            AppNames.LOCAL_DIR_TYPE_FILE ->
-                appFileDir + middle
-            else -> throw IllegalStateException("Unknown base folder type: $type")
-        }
-    }
-
-    fun getThumbPath(item: RTreeNode): String? {
-        val stat = StateID.fromId(item.encodedState)
-        return if (Str.empty(item.thumbFilename)) {
-            null
-        } else {
-            "${dataPath(stat, AppNames.LOCAL_FILE_TYPE_THUMB)}${SEP}${item.thumbFilename}"
-        }
-    }
-
-    fun getOfflineThumbPath(item: RLiveOfflineRoot): String? {
-        val stat = StateID.fromId(item.encodedState)
-        return if (Str.empty(item.thumbFilename)) {
-            null
-        } else {
-            "${dataPath(stat, AppNames.LOCAL_FILE_TYPE_THUMB)}${SEP}${item.thumbFilename}"
         }
     }
 
@@ -134,28 +70,57 @@ class FileService(private val accountService: AccountService) {
         return getLocalPathFromState(stat, type)
     }
 
-    fun getLocalPathFromState(stat : StateID, type: String): String {
+    fun getLocalPathFromState(stat: StateID, type: String): String {
         return when (type) {
             AppNames.LOCAL_FILE_TYPE_CACHE
-            -> "${dataPath(stat, type)}${stat.file}"
+            -> "${dataParentPath(stat, type)}${stat.path}"
             AppNames.LOCAL_FILE_TYPE_TRANSFER
-            -> "${dataPath(stat, type)}${stat.file}"
+            -> "${dataParentPath(stat, type)}${stat.path}"
             AppNames.LOCAL_FILE_TYPE_OFFLINE
-            -> "${dataPath(stat, type)}${stat.file}"
+            -> "${dataParentPath(stat, type)}${stat.path}"
             AppNames.LOCAL_FILE_TYPE_THUMB
-            -> "${dataPath(stat, type)}${stat.file}"
+            -> "${dataParentPath(stat, type)}${stat.file}"
             else -> throw IllegalStateException("Cannot create $type path for $stat")
+        }
+    }
+
+    fun getThumbPath(item: RTreeNode): String? {
+        return if (Str.empty(item.thumbFilename)) {
+            null
+        } else {
+            "${dataParentPath(item.getStateID(), AppNames.LOCAL_FILE_TYPE_THUMB)}${sep}${item.thumbFilename}"
+        }
+    }
+
+    fun getOfflineThumbPath(item: RLiveOfflineRoot): String? {
+        return if (Str.empty(item.thumbFilename)) {
+            null
+        } else {
+            "${dataParentPath(item.getStateID(), AppNames.LOCAL_FILE_TYPE_THUMB)}${sep}${item.thumbFilename}"
+        }
+    }
+
+    fun getAccountBasePath(stateID: StateID, type: String): String {
+        val dirName = accountService.sessions[stateID.accountId]?.dirName
+            ?: throw IllegalStateException("No record found for $stateID")
+        val middle = sep + dirName
+        return when (type) {
+            AppNames.LOCAL_DIR_TYPE_CACHE ->
+                appCacheDir + middle
+            AppNames.LOCAL_DIR_TYPE_FILE ->
+                appFilesDir + middle
+            else -> throw IllegalStateException("Unknown base folder type: $type")
         }
     }
 
 
     fun createImageFile(stateID: StateID): File {
         val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")
-        val imgPath = dataPath(stateID, AppNames.LOCAL_FILE_TYPE_TRANSFER)
+        val imgPath = dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_TRANSFER)
         // TODO do we really want a lazy creation for this base folder? or rather rely on a tree
         //    initialisation when the account is created
         File(imgPath).mkdirs()
-        return File("${imgPath}${SEP}IMG_${timestamp}.jpg")
+        return File("${imgPath}${sep}IMG_${timestamp}.jpg")
 
         // Would be safer but with an ugly name :(
         //        return File.createTempFile(
@@ -166,22 +131,32 @@ class FileService(private val accountService: AccountService) {
     }
 
 
-    companion object {
+    fun cleanFileCacheFor(stateID: StateID) = serviceScope.launch {
+        val dirName = accountService.sessions[stateID.accountId]?.dirName
+            ?: throw IllegalStateException("No record found for $stateID")
 
-        private val SEP: String = File.separator
+        val cache = File(CellsApp.instance.cacheDir.absolutePath + sep + dirName)
+        if (cache.exists()) {
+            cache.deleteRecursively()
+        }
 
-//        @Volatile
-//        private var INSTANCE: FileService? = null
-//
-//        fun getInstance(): FileService {
-//
-//            INSTANCE?.let { return it }
-//
-//            synchronized(this) {
-//                val instance = FileService()
-//                INSTANCE = instance
-//                return instance
-//            }
-//        }
+
+        val tmpCache = File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_CACHE))
+        if (tmpCache.exists()) {
+            tmpCache.deleteRecursively()
+        }
+
+    }
+
+    fun cleanAllLocalFiles(stateID: StateID) = serviceScope.launch {
+        cleanFileCacheFor(stateID)
+
+        val dirName = accountService.sessions[stateID.accountId]?.dirName
+            ?: throw IllegalStateException("No record found for $stateID")
+
+        val files = File(CellsApp.instance.filesDir.absolutePath + sep + dirName)
+        if (files.exists()) {
+            files.deleteRecursively()
+        }
     }
 }

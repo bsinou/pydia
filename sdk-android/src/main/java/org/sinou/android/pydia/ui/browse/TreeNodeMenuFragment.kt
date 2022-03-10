@@ -398,8 +398,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     moreMenu.dismiss()
                 }
                 ACTION_FORCE_RESYNC -> {
-                    // TODO implement
-                    showMessage(requireContext(), "Resync is not yet implemented")
+                    CellsApp.instance.nodeService.launchResync(node)
                     moreMenu.dismiss()
                 }
                 // In-app navigation

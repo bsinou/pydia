@@ -53,8 +53,9 @@ class CellsApp : Application() {
     }
 
     override fun onCreate() {
-        Log.i(tag, "###############################")
-        Log.i(tag, "### Launching Cells application")
+        Log.i(tag, "#################################################################")
+        Log.i(tag, "#########  Launching Cells Android Client application  ##########")
+        Log.i(tag, "#################################################################")
         super.onCreate()
         instance = this
         delayedInit()

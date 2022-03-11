@@ -41,7 +41,7 @@
             android:maxLines="1"
             android:singleLine="true"
             app:layout_constraintBottom_toTopOf="@+id/node_desc"
-            app:layout_constraintEnd_toStartOf="@+id/listItemMore"
+            app:layout_constraintEnd_toStartOf="@+id/list_item_more_button"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="@+id/node_desc"
@@ -64,7 +64,7 @@
             tools:text="Your personal files" />
 
         <ImageView
-            android:id="@+id/listItemMore"
+            android:id="@+id/list_item_more_button"
             android:layout_width="@dimen/list_icon_size"
             android:layout_height="@dimen/list_icon_size"
             android:layout_alignParentEnd="true"

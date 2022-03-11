@@ -54,7 +54,7 @@
     <dimen name="grid_ws_card_max_elevation">8dp</dimen>
 
     <!-- Decorators -->
-    <dimen name="list_item_flag_decorator">12dp</dimen>
+    <dimen name="list_item_flag_decorator">14dp</dimen>
     <dimen name="account_status_decorator">20dp</dimen>
 
     <!-- Menus -->

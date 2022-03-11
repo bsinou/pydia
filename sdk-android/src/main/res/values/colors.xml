@@ -3,7 +3,7 @@
 <resources>
 
     <!-- Main Colors -->
-    <color name="cells_text">#134E6C</color>
+    <color name="cells_text">#000000</color>
     <color name="cells_text_accent">#0F3E56</color>
     <color name="cells_main">#134E6C</color>
     <color name="cells_on_main">@android:color/white</color>
@@ -16,6 +16,13 @@
     <color name="cells_secondary_light">#FDB8AD</color>
     <color name="cells_secondary_dark">#E16652</color>
 
+    <color name="cells_xlight_status_bar">@android:color/white</color>
+
+
+    <color name="flag_bookmark">#FFFF9800</color>
+    <color name="flag_offline">#FF03DAC5</color>
+    <color name="flag_share">#219600</color>
+
     <color name="colorAccent">#FFFF9800</color>
     <color name="ok">#219600</color>
     <color name="warning">#FFFF9800</color>
@@ -24,7 +31,7 @@
 
     <!-- First try for dynamic status bar color -->
     <!-- This is the default (defined by material?) -->
-    <color name="defaultStatusBarColor">@color/cells_main_accent</color>
+    <color name="defaultStatusBarColor">@color/cells_xlight_status_bar</color>
     <color name="searchStatusBarColor">@color/cells_secondary</color>
 
     <!-- Define Main Material Palette -->

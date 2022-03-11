@@ -32,6 +32,13 @@
             layout="@layout/more_menu_header"
             app:node="@{node}" />
 
+        <View style="@style/Divider.Horizontal" />
+
+<!--        <View-->
+<!--            android:id="@+id/border"-->
+<!--            android:layout_width="fill_parent"-->
+<!--            android:layout_height="0.2dp"-->
+<!--            android:background="@color/cells_main_surface_light" />-->
         <!-- Files only -->
         <!--        <LinearLayout-->
         <!--            android:id="@+id/open_with"-->
@@ -71,7 +78,7 @@
                 android:layout_height="@dimen/menu_icon"
                 android:layout_margin="@dimen/menu_margin"
                 android:contentDescription="@string/download_to_device"
-                android:src="@drawable/ic_baseline_cloud_download_24" />
+                android:src="@drawable/ic_outline_cloud_download_24" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -142,7 +149,7 @@
                 android:layout_height="@dimen/menu_icon"
                 android:layout_margin="@dimen/menu_margin"
                 android:contentDescription="@string/move_to"
-                android:src="@drawable/ic_baseline_drive_file_move_24" />
+                android:src="@drawable/ic_outline_drive_file_move_24" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -212,7 +219,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/menu_margin"
                 android:contentDescription="@string/keep_offline"
-                android:src="@drawable/ic_baseline_offline_pin_24"
+                android:src="@drawable/outline_offline_pin_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -255,7 +262,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/menu_margin"
                 android:contentDescription="@string/bookmark"
-                android:src="@drawable/ic_baseline_star_24"
+                android:src="@drawable/ic_baseline_star_border_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -298,7 +305,7 @@
                 android:layout_height="@dimen/menu_icon"
                 android:layout_margin="@dimen/menu_margin"
                 android:contentDescription="@string/delete"
-                android:src="@drawable/ic_baseline_delete_24" />
+                android:src="@drawable/ic_outline_delete_outline_24" />
 
             <TextView
                 android:layout_width="wrap_content"

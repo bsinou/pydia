@@ -18,22 +18,10 @@
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/main_toolbar"
-                    style="@style/Widget.Cells.Toolbar"
+                    style="@style/Cells.AppBar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                   app:popupTheme="@style/ThemeOverlay.Cells.Popup" />
-
-
-                <!--                    android:theme="@style/Widget.Cells.Toolbar"-->
-
-                <!--                <androidx.appcompat.widget.Toolbar-->
-                <!--                    android:id="@+id/main_toolbar"-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    style="@style/ThemeOverlay.Cells.Toolbar"-->
-                <!--                    android:theme="@style/ThemeOverlay.Cells.Toolbar"-->
-                <!--                    android:layout_height="?attr/actionBarSize"-->
-                <!--                    app:popupTheme="@style/Theme.Cells.PopupOverlay" />-->
-                <!--                                android:theme="@style/Theme.Cells.AppBarOverlay"-->
+                    app:popupTheme="@style/ThemeOverlay.Cells.Popup" />
 
             </com.google.android.material.appbar.AppBarLayout>
 

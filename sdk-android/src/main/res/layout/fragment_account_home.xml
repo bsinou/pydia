@@ -31,7 +31,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Server: https://files.example.com" />
+                tools:text="Ivanka" />
 
             <TextView
                 android:id="@+id/account_description"
@@ -41,18 +41,18 @@
                 app:accountHomeSecondary="@{session}"
                 app:layout_constraintStart_toStartOf="@id/account_title"
                 app:layout_constraintTop_toBottomOf="@id/account_title"
-                tools:text="Logged in as volodomir" />
+                tools:text="files.example.com" />
 
             <ImageView
                 android:id="@+id/switch_account_button"
-                android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/icon_size"
-                android:layout_margin="@dimen/margin_medium"
-                android:src="@drawable/ic_baseline_switch_account_24"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:padding="@dimen/margin_small"
+                android:layout_margin="@dimen/margin_xsmall"
+                android:src="@drawable/button_switch_account"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/cells_main_surface" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

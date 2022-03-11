@@ -3,14 +3,15 @@
 <resources>
 
     <!-- Main Colors -->
-    <color name="cells_text">#ff675c</color>
-    <color name="cells_text_accent">#ff007e</color>
+    <color name="cells_text">#CFDBE1</color>
+    <color name="cells_text_accent">#CFDBE1</color>
     <color name="cells_main">#7194A6</color>
+    <color name="cells_on_main">#CFDBE1</color>
     <color name="cells_main_accent">#CFDBE1</color>
     <color name="cells_main_light">#435863</color>
     <color name="cells_main_surface">#3E4143</color>
     <color name="cells_main_surface_light">#2F3030</color>
 
-    <color name="defaultStatusBarColor">#658595</color>
+    <color name="cells_xlight_status_bar">#2F3030</color>
 
 </resources>

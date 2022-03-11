@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_xsmall"
+            android:layout_marginStart="@dimen/margin_xsmall"
             android:background="?android:attr/selectableItemBackground"
             android:backgroundTint="@color/background"
             android:orientation="horizontal"
@@ -34,14 +35,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/margin"
+                android:layout_marginStart="@dimen/margin_small"
 
                 android:padding="@dimen/menu_label_padding"
                 app:nodeTitle="@{node}"
                 tools:text="Current File" />
         </LinearLayout>
 
-        <View style="@style/Divider.Horizontal" />
     </merge>
 
 </layout>

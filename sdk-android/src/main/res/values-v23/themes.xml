@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Cells" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- Primary Cells color. -->
+        <item name="colorPrimary">@color/cells_main</item>
+        <item name="colorPrimaryDark">@color/cells_main_accent</item>
+        <item name="colorControlNormal">@color/cells_main</item>
+        <item name="colorOnPrimary">@color/cells_on_main</item>
+
+        <!-- Secondary Cells color. -->
+        <item name="colorSecondary">@color/cells_secondary</item>
+        <item name="colorSecondaryVariant">@color/cells_secondary_dark</item>
+        <item name="colorOnSecondary">@color/cells_on_secondary</item>
+
+        <!-- Top Android Status bar color -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/defaultStatusBarColor</item>
+        <item name="android:actionBarStyle">@style/Cells.AppBar</item>
+
+    </style>
+</resources>

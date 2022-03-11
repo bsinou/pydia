@@ -227,19 +227,29 @@ class NodeService(
             val thumbs = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
             val thumbDL = ThumbDownloader(client, nodeDB(stateID), thumbs)
 
-            val changeNb = if (rTreeNode.isFolder()) {
-                syncFolderAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
+            val results = preSyncCheck(currRoot, rTreeNode, client, treeNodeDao, offlineDao, fileDL, thumbDL)
+
+            var changeNb = 0
+
+            if (results.first){ // needs sync
+                changeNb = syncFolderAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
+            }
+//            if (rTreeNode.isFolder()) {
+//            } else {
+//                syncFileAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
+//            }
+
+            if (results.second) { // Needs deletion
+
             } else {
-                syncFileAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
-            }
+                if (changeNb > 0) {
+                    currRoot.localModificationTS = System.currentTimeMillis() / 1000L
+                    currRoot.message = null // TODO double check
+                }
+                currRoot.lastCheckTS = System.currentTimeMillis() / 1000L
 
-            if (changeNb > 0) {
-                currRoot.localModificationTS = System.currentTimeMillis() / 1000L
-                currRoot.message = null // TODO double check
+                offlineDao.update(currRoot)
             }
-            currRoot.lastCheckTS = System.currentTimeMillis() / 1000L
-
-            offlineDao.update(currRoot)
             // TODO add more info on the corresponding root RTreeNode ??
             persistUpdated(rTreeNode)
         } catch (se: SDKException) {
@@ -251,6 +261,21 @@ class NodeService(
 //            ioe.printStackTrace()
 //            return@withContext
         }
+    }
+
+    private suspend fun preSyncCheck(
+        offlineRoot: ROfflineRoot,
+        rTreeNode: RTreeNode,
+        client: Client,
+        treeNodeDao: TreeNodeDao,
+        offlineDao: OfflineRootDao,
+        fileDL: FileDownloader,
+        thumbDL: ThumbDownloader
+    ): Pair<Boolean, Boolean> {
+
+        // First check if everything is OK locally
+
+        return Pair(first = true, second = false)
     }
 
     private suspend fun syncFileAt(

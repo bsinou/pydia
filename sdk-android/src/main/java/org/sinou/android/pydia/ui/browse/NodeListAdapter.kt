@@ -70,7 +70,7 @@ class NodeListAdapter(
                 binding.node?.let { onItemClicked(it, AppNames.ACTION_OPEN) }
             }
 
-            binding.listItemMore.setOnClickListener {
+            binding.listItemMoreButton.setOnClickListener {
                 binding.node?.let { onItemClicked(it, AppNames.ACTION_MORE) }
             }
 

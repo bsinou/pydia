@@ -17,7 +17,7 @@
         <item name="android:textSize">@dimen/text_title_size</item>
     </style>
 
-    <style name="text_list_primary" parent="text_title">
+    <style name="text_list_primary" parent="text_body">
         <item name="android:textSize">@dimen/text_accent_size</item>
     </style>
 
@@ -31,6 +31,11 @@
         <item name="searchIcon">@drawable/ic_sharp_search_24</item>
         <item name="iconTint">?attr/colorOnPrimary</item>
         <item name="colorButtonNormal">@color/colorAccent</item>
+    </style>
+
+    <style name="Cells.AppBar" parent="Widget.Material3.Light.ActionBar.Solid">
+        <item name="titleTextColor">@color/colorTextAccent</item>
+        <item name="background">@color/colorAccent</item>
     </style>
 
     <style name="avatar_icon">
@@ -71,21 +76,61 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-<!--    <style name="SkipButton" parent="Widget.AppCompat.Button.Colored">-->
-<!--        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>-->
-<!--        <item name="android:textColor">@color/grey_button_color</item>-->
-<!--        <item name="colorControlHighlight">@color/skip_red_color</item>-->
-<!--    </style>-->
+    <!--    <style name="SkipButton" parent="Widget.AppCompat.Button.Colored">-->
+    <!--        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>-->
+    <!--        <item name="android:textColor">@color/grey_button_color</item>-->
+    <!--        <item name="colorControlHighlight">@color/skip_red_color</item>-->
+    <!--    </style>-->
+
+    <!-- Widgets -->
+    <style name="Widget.Cells.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Cells.Appbar</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Cells.H5</item>
+    </style>
+
+    <style name="Widget.Cells.NavigationView" parent="Widget.MaterialComponents.NavigationView">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Cells.NavigationView</item>
+        <item name="itemIconTint">@color/cells_main</item>
+        <item name="itemTextColor">@color/cells_main</item>
+        <item name="itemShapeFillColor">@color/transparent</item>
+    </style>
+
+
+    <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="iconPadding">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
 
     <style name="Divider">
-        <item name="android:background">@color/cells_main_light</item>
+        <item name="android:background">@color/cells_main_surface_light</item>
     </style>
 
-    <style name="Divider.Horizontal" parent="Divider">
+    <style name="Divider.Horizontal">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0.3dp</item>
-        <item name="android:layout_marginTop">@dimen/margin_xsmall</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">@dimen/margin_small</item>
         <item name="android:layout_marginBottom">@dimen/margin</item>
     </style>
+
+    <style name="Divider.Horizontal.List">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+    </style>
+
+
+    <style name="Divider.Horizontal.Dev" >
+        <item name="android:layout_height">0.5dp</item>
+        <item name="android:background">@color/danger</item>
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+    </style>
+
 
 </resources>

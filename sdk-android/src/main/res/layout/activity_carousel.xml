@@ -3,7 +3,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-        <androidx.constraintlayout.motion.widget.MotionLayout
+        <org.sinou.android.pydia.SavingMotionLayout
             android:id="@+id/motionLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -87,5 +87,5 @@
                 app:carousel_touchUp_dampeningFactor="0.8"
                 app:constraint_referenced_ids="imageView0,imageView1,imageView2,imageView3,imageView4" />
 
-        </androidx.constraintlayout.motion.widget.MotionLayout>
+        </org.sinou.android.pydia.SavingMotionLayout>
 </layout>

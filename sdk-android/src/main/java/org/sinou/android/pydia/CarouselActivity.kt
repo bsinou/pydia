@@ -1,6 +1,10 @@
 package org.sinou.android.pydia
 
+import android.content.Context
 import android.os.Bundle
+import android.os.Parcelable
+import android.os.PersistableBundle
+import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -8,13 +12,17 @@ import android.widget.ImageView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Carousel
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.sinou.android.pydia.databinding.ActivityCarouselBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.ui.viewer.CarouselViewModel
@@ -29,10 +37,21 @@ class CarouselActivity : AppCompatActivity() {
     var numImages = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(tag, "onCreate, intent: $intent")
         super.onCreate(savedInstanceState)
         handleIntent(savedInstanceState)
         setupActivity()
+    }
+
+    override fun onResume() {
+        Log.d(tag, "onResume, intent: $intent")
+        super.onResume()
         setupCarousel()
+        lifecycleScope.launch {
+            // Workaround the NPE on creation
+            delay(800)
+            observe()
+        }
     }
 
     private fun handleIntent(savedInstanceState: Bundle?) {
@@ -54,30 +73,6 @@ class CarouselActivity : AppCompatActivity() {
             )
             val tmpVM: CarouselViewModel by viewModels { viewModelFactory }
             carouselVM = tmpVM
-
-            tmpVM.elements.observe(this) {
-                numImages = it.size
-                if (binding.carousel != null) {
-                    Log.i(tag, "got a carousel, refreshing")
-
-                    val currItems = carouselVM.elements.value!!
-                    var startItem: RTreeNode? = null
-                    var index: Int = -1
-                    var i = 0
-                    for (currNode in currItems) {
-                        if (currNode.encodedState == carouselVM.startElement.id) {
-                            startItem = currNode
-                            index = i
-                        }
-                        i++
-                    }
-                    Log.w(tag, "...Got a carousel, start index: $index")
-                    binding.carousel.jumpToIndex(if (index >= 0) index else 0)
-                    binding.carousel.refresh()
-                } else {
-                    Log.w(tag, "...**NO** carousel")
-                }
-            }
         }
         // TODO handle errors
     }
@@ -90,9 +85,14 @@ class CarouselActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
         supportActionBar?.hide()
+        // binding.invalidateAll()
     }
 
     private fun setupCarousel() {
+
+        val ml = binding.motionLayout
+        Log.e(tag, "Motion layout is shown: ${ml.isShown}")
+
         binding.carousel.setAdapter(object : Carousel.Adapter {
             val fs = CellsApp.instance.fileService
 
@@ -125,19 +125,55 @@ class CarouselActivity : AppCompatActivity() {
             }
 
             override fun onNewItem(index: Int) {
+                // Retrieve the encoded state of the current item and store it in the view model
+                // to stay at the same place upon restart.
                 Log.i(tag, "onNewItem, index: $index")
             }
         })
     }
 
+    private fun observe() {
+        carouselVM.elements.observe(this) {
+            numImages = it.size
+            jumpToIndex()
+        }
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        Log.i(tag, "onPostCreate")
+        super.onPostCreate(savedInstanceState, persistentState)
+        jumpToIndex()
+    }
+
+    private fun jumpToIndex(){
+        if (binding.carousel != null) {
+            val currItems = carouselVM.elements.value!!
+            var startItem: RTreeNode? = null
+            var index: Int = -1
+            var i = 0
+            for (currNode in currItems) {
+                if (currNode.encodedState == carouselVM.startElement.id) {
+                    startItem = currNode
+                    index = i
+                    break
+                }
+                i++
+            }
+            Log.w(tag, "... Got a carousel, start index: $index")
+
+            if (index > 0) {
+                binding.carousel.jumpToIndex(index)
+            } else {
+                binding.carousel.refresh()
+            }
+        } else {
+            Log.w(tag, "...**NO** carousel")
+        }
+    }
+
     override fun onStart() {
         Log.d(tag, "onStart, intent: $intent")
         super.onStart()
-    }
-
-    override fun onResume() {
-        Log.i(tag, "onResume, intent: $intent")
-        super.onResume()
     }
 
     override fun onPause() {
@@ -177,3 +213,37 @@ class CarouselActivity : AppCompatActivity() {
     //        }
     //    }
 }
+
+/**
+ * Avoid NPE on screen rotation and other configuration changes
+ * Thanks to https://stackoverflow.com/questions/65048418/how-to-restore-transition-state-of-motionlayout-without-auto-playing-the-transit
+ */
+open class SavingMotionLayout @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : MotionLayout(context, attrs, defStyleAttr) {
+
+    private val tag = SavingMotionLayout::class.simpleName
+
+    override fun onSaveInstanceState(): Parcelable {
+        Log.d(tag, "onSaveInstanceState()")
+        return SaveState(super.onSaveInstanceState(), startState, endState, targetPosition)
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        Log.d(tag, "onRestoreInstanceState()")
+        (state as? SaveState)?.let {
+            super.onRestoreInstanceState(it.superParcel)
+            setTransition(it.startState, it.endState)
+            progress = it.progress
+        }
+    }
+
+    @kotlinx.parcelize.Parcelize
+    private class SaveState(
+        val superParcel: Parcelable?,
+        val startState: Int,
+        val endState: Int,
+        val progress: Float
+    ) : Parcelable
+}
+

@@ -1,14 +1,9 @@
 package org.sinou.android.pydia.ui.browse
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.services.NodeService
 
@@ -21,10 +16,35 @@ class OfflineRootsViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
+    private val tag = OfflineRootsViewModel::class.simpleName
+
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     val offlineRoots = CellsApp.instance.nodeService.listOfflineRoots(stateID)
+
+    // Manage UI
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
+
+    fun forceRefresh() {
+        setLoading(true)
+        vmScope.launch {
+            withContext(Dispatchers.Main) {
+                // TODO handle errors
+                nodeService.syncAll(stateID)
+                setLoading(false)
+            }
+        }
+    }
+
+    fun setLoading(loading: Boolean) {
+        _isLoading.value = loading
+    }
 
     class OfflineRootsViewModelFactory(
         private val nodeService: NodeService,

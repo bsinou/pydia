@@ -39,6 +39,7 @@ class OfflineRootsFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_offine_root_list, container, false
         )
+
         return binding.root
     }
 
@@ -68,9 +69,15 @@ class OfflineRootsFragment : Fragment() {
                 accountID,
                 requireActivity().application,
             )
-            val tmp: OfflineRootsViewModel by viewModels { viewModelFactory }
-            offlineVM = tmp
+            val tmpVM: OfflineRootsViewModel by viewModels { viewModelFactory }
+            offlineVM = tmpVM
+
             configureRecyclerAdapter()
+
+            binding.forceRefresh.setOnRefreshListener { tmpVM.forceRefresh() }
+            tmpVM.isLoading.observe(viewLifecycleOwner) {
+                binding.forceRefresh.isRefreshing = it
+            }
         }
     }
 

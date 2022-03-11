@@ -25,7 +25,6 @@ import org.sinou.android.pydia.transfer.ChooseTargetContract
 import org.sinou.android.pydia.transfer.FileExporter
 import org.sinou.android.pydia.transfer.FileImporter
 import org.sinou.android.pydia.utils.showLongMessage
-import org.sinou.android.pydia.utils.showMessage
 
 /**
  * More menu fragment: it is used to present the end-user with various possible actions
@@ -398,7 +397,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     moreMenu.dismiss()
                 }
                 ACTION_FORCE_RESYNC -> {
-                    CellsApp.instance.nodeService.launchResync(node)
+                    CellsApp.instance.nodeService.launchSync(node)
                     moreMenu.dismiss()
                 }
                 // In-app navigation

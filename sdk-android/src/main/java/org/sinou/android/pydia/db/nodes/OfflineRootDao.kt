@@ -19,6 +19,9 @@ interface OfflineRootDao {
     fun get(encodedState: String): ROfflineRoot?
 
     @Query("SELECT * FROM offline_roots ORDER BY sort_name")
-    fun getAll(): LiveData<List<ROfflineRoot>>
+    fun getAllLive(): LiveData<List<ROfflineRoot>>
+
+    @Query("SELECT * FROM offline_roots ORDER BY sort_name")
+    fun getAll(): List<ROfflineRoot>
 
 }

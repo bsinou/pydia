@@ -1,5 +1,6 @@
 package org.sinou.android.pydia.ui.bindings
 
+import android.annotation.SuppressLint
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import android.util.Log
@@ -12,6 +13,7 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.runtime.RUpload
 
+@SuppressLint("SetTextI18n")
 @BindingAdapter("transferText")
 fun TextView.setTransferText(item: RUpload?) {
     item?.let {
@@ -37,7 +39,7 @@ fun TextView.setTransferStatus(item: RUpload?) {
                 item.doneTimestamp * 1000L,
                 DateUtils.FORMAT_ABBREV_RELATIVE
             )
-            desc += "uploaded on $mTimeValue"
+            desc += " uploaded on $mTimeValue"
         } else {
 
             var ts = item.startTimestamp
@@ -50,7 +52,7 @@ fun TextView.setTransferStatus(item: RUpload?) {
                 ts * 1000L,
                 DateUtils.FORMAT_ABBREV_RELATIVE
             )
-            desc += "started on $mTimeValue"
+            desc += " started on $mTimeValue"
         }
         text = desc
 
@@ -88,6 +90,3 @@ fun TextView.setParentSecondaryText(parentState: StateID?) {
         }
     }
 }
-
-
-

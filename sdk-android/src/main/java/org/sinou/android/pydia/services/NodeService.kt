@@ -27,19 +27,8 @@ class NodeService(
     private val accountService: AccountService,
     private val fileService: FileService,
 ) {
-
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
-
-    fun clearIndexFor(stateID: StateID) {
-        val accId = accountService.sessions[stateID.accountId]
-            ?: throw IllegalStateException("No dir name found for $stateID")
-        TreeNodeDB.closeDatabase(
-            CellsApp.instance.applicationContext,
-            stateID.accountId,
-            accId.dbName,
-        )
-    }
 
     fun nodeDB(stateID: StateID): TreeNodeDB {
         // TODO cache this
@@ -122,6 +111,16 @@ class NodeService(
         nodeDB(stateID).treeNodeDao().update(node)
     }
 
+    fun clearIndexFor(stateID: StateID) {
+        val accId = accountService.sessions[stateID.accountId]
+            ?: throw IllegalStateException("No dir name found for $stateID")
+        TreeNodeDB.closeDatabase(
+            CellsApp.instance.applicationContext,
+            stateID.accountId,
+            accId.dbName,
+        )
+    }
+
     /* Calls to query both the cache and the remote server */
 
     suspend fun toggleBookmark(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
@@ -198,47 +197,73 @@ class NodeService(
         }
     }
 
-    suspend fun launchResync(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
+    suspend fun syncAll(stateID: StateID) = withContext(Dispatchers.IO) {
+
+        val offlineDao = nodeDB(stateID).offlineRootDao()
+        val roots = offlineDao.getAll()
+        val dao = nodeDB(stateID).treeNodeDao()
+
+        for (offlineRoot in roots) {
+            dao.getNode(offlineRoot.encodedState)?.let {
+                // TODO handle case where remote node has disappeared on server
+                launchSync(it)
+            }
+        }
+
+    }
+
+    suspend fun launchSync(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
         val stateID = rTreeNode.getStateID()
         try {
-            val db = nodeDB(stateID)
-            val offlineDao = db.offlineRootDao()
-            val currRoot = offlineDao.get(rTreeNode.encodedState) ?: return@withContext // should never happen
-
             val client = getClient(stateID)
-            val dao = nodeDB(stateID).treeNodeDao()
+
+            val db = nodeDB(stateID)
+            val treeNodeDao = nodeDB(stateID).treeNodeDao()
+            val offlineDao = db.offlineRootDao()
+            val currRoot = offlineDao.get(rTreeNode.encodedState)
+                ?: return@withContext // should never happen
 
             val fileDL = FileDownloader(client, nodeDB(stateID))
-            val thumbParPath = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
-            val thumbDL = ThumbDownloader(client,nodeDB(stateID),thumbParPath)
+            val thumbs = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
+            val thumbDL = ThumbDownloader(client, nodeDB(stateID), thumbs)
 
             val changeNb = if (rTreeNode.isFolder()) {
-                resyncAt(rTreeNode, client, dao, fileDL, thumbDL)
+                syncFolderAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
             } else {
-                // FIXME  implement this
-                0
+                syncFileAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
             }
 
-            if (changeNb >0){
-                currRoot.localModificationTS
+            if (changeNb > 0) {
+                currRoot.localModificationTS = System.currentTimeMillis() / 1000L
                 currRoot.message = null // TODO double check
             }
-            currRoot.lastCheckTS
+            currRoot.lastCheckTS = System.currentTimeMillis() / 1000L
+
             offlineDao.update(currRoot)
-            // TODO add more info on the corresponding root RTreeNode ? ?
+            // TODO add more info on the corresponding root RTreeNode ??
             persistUpdated(rTreeNode)
         } catch (se: SDKException) {
             Log.e(TAG, "could update offline sync status for " + stateID.id)
             se.printStackTrace()
             return@withContext
-        } catch (ioe: IOException) {
-            Log.e(TAG, "could update offline sync status for ${stateID}: ${ioe.message}")
-            ioe.printStackTrace()
-            return@withContext
+//           } catch (ioe: IOException) {
+//            Log.e(TAG, "could update offline sync status for ${stateID}: ${ioe.message}")
+//            ioe.printStackTrace()
+//            return@withContext
         }
     }
 
-    suspend private fun resyncAt(
+    private suspend fun syncFileAt(
+        rTreeNode: RTreeNode,
+        client: Client,
+        dao: TreeNodeDao,
+        fileDL: FileDownloader,
+        thumbDL: ThumbDownloader
+    ): Int {
+        return 0
+    }
+
+    private suspend fun syncFolderAt(
         rTreeNode: RTreeNode,
         client: Client,
         dao: TreeNodeDao,
@@ -248,74 +273,71 @@ class NodeService(
 
         val stateID = rTreeNode.getStateID()
 
-        if (rTreeNode.isFile()){
-
-
-        }
-
-        // First resync current level
+        // First re-sync current level
         val folderDiff = FolderDiff(client, fileService, dao, fileDL, thumbDL, stateID)
         var changeNb = folderDiff.compareWithRemote()
 
-        // Then retrieve child folders and call this on each ones:
+        // Then retrieve child folders and call re-sync on each one
         val children = nodeDB(stateID).treeNodeDao()
             .listWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
         for (child in children) {
-            changeNb += resyncAt(child, client, dao, fileDL, thumbDL)
+            changeNb += syncFolderAt(child, client, dao, fileDL, thumbDL)
         }
 
         return changeNb
     }
 
-
-    suspend fun createFolder(parentId: StateID, folderName: String) = withContext(Dispatchers.IO) {
-        try {
-            getClient(parentId).mkdir(parentId.workspace, parentId.file, folderName)
-        } catch (e: SDKException) {
-            val msg = "could not create folder at ${parentId.path}"
-            handleSdkException(parentId, msg, e)
-            return@withContext msg
-        }
-        return@withContext null
-    }
-
-    suspend fun copy(sources: List<StateID>, targetParent: StateID) = withContext(Dispatchers.IO) {
-        try {
-            val srcFiles = mutableListOf<String>()
-            for (source in sources) {
-                srcFiles.add(source.file)
+    suspend fun createFolder(parentId: StateID, folderName: String) =
+        withContext(Dispatchers.IO) {
+            try {
+                getClient(parentId).mkdir(parentId.workspace, parentId.file, folderName)
+            } catch (e: SDKException) {
+                val msg = "could not create folder at ${parentId.path}"
+                handleSdkException(parentId, msg, e)
+                return@withContext msg
             }
-            getClient(targetParent).copy(
-                targetParent.workspace,
-                srcFiles.toTypedArray(),
-                targetParent.file
-            )
-        } catch (e: SDKException) {
-            val msg = "could not copy to $targetParent"
-            handleSdkException(targetParent, msg, e)
-            return@withContext msg
+            return@withContext null
         }
-        return@withContext null
-    }
 
-    suspend fun move(sources: List<StateID>, targetParent: StateID) = withContext(Dispatchers.IO) {
-        try {
-            val srcFiles = mutableListOf<String>()
-            for (source in sources) {
-                srcFiles.add(source.file)
+    suspend fun copy(sources: List<StateID>, targetParent: StateID) =
+        withContext(Dispatchers.IO) {
+            try {
+                val srcFiles = mutableListOf<String>()
+                for (source in sources) {
+                    srcFiles.add(source.file)
+                }
+                getClient(targetParent).copy(
+                    targetParent.workspace,
+                    srcFiles.toTypedArray(),
+                    targetParent.file
+                )
+            } catch (e: SDKException) {
+                val msg = "could not copy to $targetParent"
+                handleSdkException(targetParent, msg, e)
+                return@withContext msg
             }
-            getClient(targetParent).move(
-                targetParent.workspace,
-                srcFiles.toTypedArray(),
-                targetParent.file
-            )
-        } catch (e: SDKException) {
-            val msg = "could not move to $targetParent"
-            handleSdkException(targetParent, msg, e)
-            return@withContext msg
+            return@withContext null
         }
-        return@withContext null
-    }
+
+    suspend fun move(sources: List<StateID>, targetParent: StateID) =
+        withContext(Dispatchers.IO) {
+            try {
+                val srcFiles = mutableListOf<String>()
+                for (source in sources) {
+                    srcFiles.add(source.file)
+                }
+                getClient(targetParent).move(
+                    targetParent.workspace,
+                    srcFiles.toTypedArray(),
+                    targetParent.file
+                )
+            } catch (e: SDKException) {
+                val msg = "could not move to $targetParent"
+                handleSdkException(targetParent, msg, e)
+                return@withContext msg
+            }
+            return@withContext null
+        }
 
     /* Handle communication with the remote server to refresh locally stored data */
 
@@ -357,7 +379,7 @@ class NodeService(
         return@withContext null
     }
 
-    /** Retrieve the meta of all readable nodes that are at the passed stateID */
+    /** Retrieve the meta (and thumbs) of all readable nodes that are at the passed stateID */
     suspend fun pull(stateID: StateID): Pair<Int, String?> = withContext(Dispatchers.IO) {
         var result: Pair<Int, String?>
 
@@ -370,7 +392,6 @@ class NodeService(
             // beware of the WS root corner case
 //            val node = client.getNodeMeta(stateID.workspace, stateID.file)
 //            Log.e(TAG, "Retrieved parent node: ${node.path}")
-
 
             // Then retrieves and compare children
             // WARNING: this browse **all** files that are in the folder
@@ -515,7 +536,8 @@ class NodeService(
     private suspend fun saveToSharedStorage(stateID: StateID, uri: Uri) =
         withContext(Dispatchers.IO) {
 
-            val rTreeNode = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+            val rTreeNode =
+                nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
             val resolver = CellsApp.instance.contentResolver
             var out: OutputStream? = null
             try {
@@ -553,7 +575,6 @@ class NodeService(
             }
         }
 
-
     suspend fun restoreNode(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
@@ -580,18 +601,19 @@ class NodeService(
         return@withContext null
     }
 
-    suspend fun rename(stateID: StateID, newName: String): String? = withContext(Dispatchers.IO) {
-        try {
-            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
-                ?: return@withContext "No node found at $stateID, could not rename"
-            remoteRename(stateID, newName)
-            persistLocallyModified(node, AppNames.LOCAL_MODIF_RENAME)
-        } catch (se: SDKException) {
-            se.printStackTrace()
-            return@withContext "Could not delete $stateID: ${se.message}"
+    suspend fun rename(stateID: StateID, newName: String): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+                    ?: return@withContext "No node found at $stateID, could not rename"
+                remoteRename(stateID, newName)
+                persistLocallyModified(node, AppNames.LOCAL_MODIF_RENAME)
+            } catch (se: SDKException) {
+                se.printStackTrace()
+                return@withContext "Could not delete $stateID: ${se.message}"
+            }
+            return@withContext null
         }
-        return@withContext null
-    }
 
     suspend fun delete(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
@@ -618,8 +640,7 @@ class NodeService(
             }
         }
 
-
-    suspend fun remoteRestore(stateID: StateID): String? = withContext(Dispatchers.IO) {
+    private suspend fun remoteRestore(stateID: StateID): String? = withContext(Dispatchers.IO) {
         try {
             val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
                 ?: return@withContext "No node found at $stateID, could not restore"
@@ -679,29 +700,16 @@ class NodeService(
     companion object {
         private const val TAG = "NodeService"
 
-        fun getLocalFile(item: RTreeNode, type: String): File? {
-
+        fun getLocalFile(item: RTreeNode, type: String): File {
+            val fs = CellsApp.instance.fileService
             // Trick so that we do not store offline files also in the cache... double check
-            if (type == AppNames.LOCAL_FILE_TYPE_CACHE && item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
-                || type == AppNames.LOCAL_FILE_TYPE_OFFLINE
+            if (type == AppNames.LOCAL_FILE_TYPE_OFFLINE ||
+                type == AppNames.LOCAL_FILE_TYPE_CACHE &&
+                item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
             ) {
-                val p = CellsApp.instance.fileService.getLocalPath(
-                    item,
-                    AppNames.LOCAL_FILE_TYPE_OFFLINE
-                )
-                return if (p != null) {
-                    File(p)
-                } else {
-                    null
-                }
+                return File(fs.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE))
             }
-
-            val p = CellsApp.instance.fileService.getLocalPath(item, type)
-            return if (p != null) {
-                File(p)
-            } else {
-                null
-            }
+            return File(fs.getLocalPath(item, type))
         }
     }
 }

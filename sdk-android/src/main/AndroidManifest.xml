@@ -36,12 +36,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="false">
-            <!--            <meta-data-->
-            <!--                android:name="android.app.default_searchable"-->
-            <!--                android:theme="@style/Theme.CellsApp.AppBarOverlay"-->
-            <!--                android:value=".SearchActivity" />-->
-        </activity>
+            android:exported="false" />
 
         <activity
             android:name=".ChooseTargetActivity"

@@ -108,14 +108,6 @@ class CarouselActivity : AppCompatActivity() {
                     if (Str.notEmpty(lf) && File(lf!!).exists()) {
                         Glide.with(this@CarouselActivity)
                             .load(File(lf))
-                            .transform(
-                                MultiTransformation(
-                                    CenterCrop(),
-                                    // TODO Directly getting  the radius with R fails => image is a circle
-                                    // RoundedCorners(R.dimen.glide_thumb_radius)
-                                    RoundedCorners(16)
-                                )
-                            )
                             .into(view)
                     } else {
                         Log.w("SetNodeThumb", "no thumb found for ${index}")

@@ -7,26 +7,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.databinding.MoreMenuSortBinding
+import org.sinou.android.pydia.databinding.MoreMenuManageConnectionBinding
 
-
+/**
+ * Menu that can be opened when  current session connection is broken to explain status
+ * and suggest options to the end user.
+ */
 class ConnectionMenuFragment : BottomSheetDialogFragment() {
 
     private val fTag = ConnectionMenuFragment::class.java.simpleName
 
-    val oldOrder = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
-    val oldDirection = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
-
-    private lateinit var sortBinding: MoreMenuSortBinding
+    private lateinit var connectionBinding: MoreMenuManageConnectionBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(fTag, "onCreate")
-
-        val application = requireActivity().application
     }
 
     override fun onCreateView(
@@ -35,13 +31,14 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        sortBinding = DataBindingUtil.inflate(
-            inflater, R.layout.more_menu_sort, container, false
+        connectionBinding = DataBindingUtil.inflate(
+            inflater, R.layout.more_menu_manage_connection, container, false
         )
-        sortBinding.byNameAsc.setOnClickListener {  }
-        sortBinding.executePendingBindings()
+        connectionBinding.launchAuth.setOnClickListener {}
 
-        return sortBinding.root
+        connectionBinding.executePendingBindings()
+
+        return connectionBinding.root
     }
 
     override fun onResume() {
@@ -58,17 +55,4 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
         super.onStop()
         Log.i(fTag, "onStop")
     }
-
-
-    private fun bind(binding: MoreMenuSortBinding) {
-        // binding.node = node
-//         binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
-
-    }
-
-    private fun onClicked(order: String, direction: String) {
-        // val moreMenu = this
-        CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
-    }
-
 }

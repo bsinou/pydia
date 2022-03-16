@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="session"
+            type="org.sinou.android.pydia.db.accounts.RLiveSession" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/more_menu_manage_connection"
+        style="?attr/bottomSheetStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <TextView
+            style="@style/TextAppearance.Material3.HeadlineMedium"
+            android:id="@+id/title"
+            app:account_secondary_text="@{session}"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical|start"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/sort_by" />
+
+        <!-- Status -->
+        <TextView
+            android:id="@+id/session_status"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            app:session_status_desc="@{session}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/text_padding_medium"
+            android:text="@string/order_by_canon" />
+
+        <TextView
+            android:id="@+id/launch_auth"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="@dimen/text_padding_medium"
+            android:text="@string/launch_auth" />
+
+        <LinearLayout
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin"
+            android:orientation="horizontal" />
+    </LinearLayout>
+</layout>

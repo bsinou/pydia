@@ -150,7 +150,6 @@ class MainActivity : AppCompatActivity() {
 //                    val action = MainNavDirections.openWorkspaces(it.id)
 //                    navController.navigate(action)
 //                }
-
             }
         }
     }
@@ -264,7 +263,6 @@ class MainActivity : AppCompatActivity() {
                 binding.navView.invalidate()
             }
         }
-
     }
 
     override fun onStart() {
@@ -329,15 +327,17 @@ class MainActivity : AppCompatActivity() {
                 val isConnected = liveSession.authStatus != AppNames.AUTH_STATUS_CONNECTED
                 connexionAlarmBtn.isVisible = isConnected
                 if (!isConnected) {
-                    connexionAlarmBtn.setOnMenuItemClickListener {
-                        // TODO more menu to reconnect
-                        Log.e(tag, "..... connection button clicked")
-                        val action = MainNavDirections.openManageConnection(liveSession.accountID)
-                        navController.navigate(action)
-                        return@setOnMenuItemClickListener true
-                    }
+
                 }
             }
+        }
+
+        connexionAlarmBtn.setOnMenuItemClickListener {
+            activeSessionVM.liveSession.value?.let{
+                val action = MainNavDirections.openManageConnection(it.accountID)
+                navController.navigate(action)
+            }
+            return@setOnMenuItemClickListener true
         }
     }
 

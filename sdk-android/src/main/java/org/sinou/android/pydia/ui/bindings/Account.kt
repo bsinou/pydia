@@ -20,6 +20,7 @@ fun ImageView.setAccountImage(item: RLiveSession?) {
                 //AUTH_STATUS_NEW -> R.drawable.icon_folder
                 AUTH_STATUS_NO_CREDS -> R.drawable.ic_outline_running_with_errors_24
                 AUTH_STATUS_EXPIRED -> R.drawable.ic_outline_running_with_errors_24
+                AUTH_STATUS_UNAUTHORIZED -> R.drawable.ic_outline_running_with_errors_24
                 AUTH_STATUS_REFRESHING -> R.drawable.ic_baseline_wifi_protected_setup_24
                 AUTH_STATUS_CONNECTED -> R.drawable.ic_baseline_check_24
                 else -> R.drawable.empty
@@ -29,9 +30,9 @@ fun ImageView.setAccountImage(item: RLiveSession?) {
         imageTintList = ContextCompat.getColorStateList(
             this.context,
             when (item.authStatus) {
-                //AUTH_STATUS_NEW -> R.drawable.icon_folder
                 AUTH_STATUS_NO_CREDS -> R.color.danger
                 AUTH_STATUS_EXPIRED -> R.color.danger
+                AUTH_STATUS_UNAUTHORIZED -> R.color.danger
                 AUTH_STATUS_REFRESHING -> R.color.warning
                 AUTH_STATUS_CONNECTED -> R.color.ok
                 else -> R.color.transparent
@@ -49,6 +50,7 @@ fun ImageView.setAuthAction(item: RLiveSession?) {
                 //AUTH_STATUS_NEW -> R.drawable.icon_folder
                 AUTH_STATUS_NO_CREDS -> R.drawable.ic_baseline_login_24
                 AUTH_STATUS_EXPIRED -> R.drawable.ic_baseline_login_24
+                AUTH_STATUS_UNAUTHORIZED -> R.drawable.ic_baseline_login_24
                 AUTH_STATUS_REFRESHING -> R.drawable.ic_baseline_login_24
                 AUTH_STATUS_CONNECTED -> R.drawable.ic_baseline_logout_24
                 else -> R.drawable.empty
@@ -74,6 +76,19 @@ fun TextView.setAccountPrimaryText(item: RLiveSession?) {
 fun TextView.setAccountSecondaryText(item: RLiveSession?) {
     item?.let {
         text = "${item.username}@${item.url}"
+    }
+}
+
+@SuppressLint("SetTextI18n")
+@BindingAdapter("session_status_desc")
+fun TextView.setSessionStatusDesc(item: RLiveSession?) {
+    item?.let {
+        val errorMsg = this.resources.getString(when(item.authStatus){
+            AUTH_STATUS_EXPIRED -> R.string.auth_err_expired
+            AUTH_STATUS_CONNECTED -> R.string.auth_ok
+            else -> R.string.auth_err_no_token
+        })
+        text = "[${item.authStatus}] $errorMsg"
     }
 }
 

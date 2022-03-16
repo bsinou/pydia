@@ -142,6 +142,11 @@
     <string name="order_by_mime_desc">Type (Z to A)</string>
     <string name="order_by_size_asc">Size (largest first)</string>
     <string name="order_by_size_desc">Size (smallest)</string>
+    <!-- Manage connection -->
+    <string name="launch_auth">Re-authenticate</string>
+    <string name="auth_ok">Account is connected</string>
+    <string name="auth_err_expired">Credentials are expired</string>
+    <string name="auth_err_no_token">No or invalid credentials</string>
 
     <!-- Local modification status -->
     <string name="in_progress_deleting">Deleting…</string>

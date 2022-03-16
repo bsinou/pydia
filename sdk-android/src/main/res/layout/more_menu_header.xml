@@ -36,7 +36,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="@dimen/margin_small"
-
                 android:padding="@dimen/menu_label_padding"
                 app:nodeTitle="@{node}"
                 tools:text="Current File" />

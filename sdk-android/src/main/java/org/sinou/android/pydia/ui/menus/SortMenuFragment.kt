@@ -14,6 +14,10 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.MoreMenuSortBinding
 
+/**
+ * Simple bottom menu to manage the application wide sort order for various node lists.
+ * Corresponding values (sort name and direction) are stored in the preferences.
+ */
 class SortMenuFragment : BottomSheetDialogFragment() {
 
     private val fTag = SortMenuFragment::class.java.simpleName

@@ -13,7 +13,6 @@
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-
         <TextView
             style="@style/TextAppearance.Material3.HeadlineMedium"
             android:layout_width="match_parent"
@@ -22,9 +21,10 @@
             android:padding="@dimen/menu_label_padding"
             android:text="@string/sort_by" />
 
+        <!-- NAME -->
         <TextView
-            style="@style/TextAppearance.Material3.BodyLarge"
             android:id="@+id/by_name_asc"
+            style="@style/TextAppearance.Material3.BodyLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
@@ -32,12 +32,69 @@
             android:text="@string/order_by_name_asc" />
 
         <TextView
-            style="@style/TextAppearance.Material3.BodyLarge"
             android:id="@+id/by_name_desc"
+            style="@style/TextAppearance.Material3.BodyLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:padding="@dimen/menu_label_padding"
             android:text="@string/order_by_name_desc" />
+
+        <!-- LAST REMOTE MOD TIME -->
+        <TextView
+            android:id="@+id/by_remote_ts_desc"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/menu_label_padding"
+            android:text="@string/order_by_remote_ts_desc" />
+
+        <TextView
+            android:id="@+id/by_remote_ts_asc"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/menu_label_padding"
+            android:text="@string/order_by_remote_ts_asc" />
+
+        <!-- By TYPE -->
+        <TextView
+            android:id="@+id/by_mime_asc"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/menu_label_padding"
+            android:text="@string/order_by_mime_asc" />
+
+        <TextView
+            android:id="@+id/by_mime_desc"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/menu_label_padding"
+            android:text="@string/order_by_mime_desc" />
+
+        <!-- SIZE -->
+        <TextView
+            android:id="@+id/by_size_asc"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/menu_label_padding"
+            android:text="@string/order_by_size_asc" />
+
+        <TextView
+            android:id="@+id/by_size_desc"
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/menu_label_padding"
+            android:text="@string/order_by_size_desc" />
     </LinearLayout>
 </layout>

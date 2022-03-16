@@ -14,7 +14,7 @@ import org.sinou.android.pydia.databinding.MoreMenuSortBinding
 
 const val SORT_BY_ORDER = "sort_by_order"
 const val SORT_BY_ASC = "ASC"
-const val SORT_BY_DEC = "DESC"
+const val SORT_BY_DESC = "DESC"
 
 const val SORT_BY_NAME = "name"
 const val SORT_BY_MIME = "mime"
@@ -32,10 +32,8 @@ class SortMenuFragment : BottomSheetDialogFragment() {
     private lateinit var sortBinding: MoreMenuSortBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         Log.i(fTag, "onCreate")
-
-        val application = requireActivity().application
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
@@ -49,7 +47,23 @@ class SortMenuFragment : BottomSheetDialogFragment() {
         )
 
         sortBinding.byNameAsc.setOnClickListener { onClicked(SORT_BY_NAME, SORT_BY_ASC) }
-
+        sortBinding.byNameDesc.setOnClickListener { onClicked(SORT_BY_NAME, SORT_BY_DESC) }
+        sortBinding.byRemoteTsDesc.setOnClickListener {
+            onClicked(
+                SORT_BY_LAST_REMOTE_MODIFICATION,
+                SORT_BY_DESC
+            )
+        }
+        sortBinding.byRemoteTsAsc.setOnClickListener {
+            onClicked(
+                SORT_BY_LAST_REMOTE_MODIFICATION,
+                SORT_BY_ASC
+            )
+        }
+        sortBinding.byMimeAsc.setOnClickListener { onClicked(SORT_BY_MIME, SORT_BY_ASC) }
+        sortBinding.byMimeDesc.setOnClickListener { onClicked(SORT_BY_MIME, SORT_BY_DESC) }
+        sortBinding.bySizeAsc.setOnClickListener { onClicked(SORT_BY_SIZE, SORT_BY_ASC) }
+        sortBinding.bySizeDesc.setOnClickListener { onClicked(SORT_BY_SIZE, SORT_BY_DESC) }
 
         sortBinding.executePendingBindings()
 
@@ -71,16 +85,15 @@ class SortMenuFragment : BottomSheetDialogFragment() {
         Log.i(fTag, "onStop")
     }
 
-
-    private fun bind(binding: MoreMenuSortBinding) {
-        // binding.node = node
-//         binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
-
-    }
-
     private fun onClicked(order: String, direction: String) {
-        // val moreMenu = this
-        CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
+        Log.i(tag, "Item clicked: ORDER BY $order $direction")
+        if (oldOrder != order || oldDirection != direction) {
+            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
+            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR, direction)
+            dismiss()
+            requireActivity().recreate()
+        } else {
+            dismiss()
+        }
     }
-
 }

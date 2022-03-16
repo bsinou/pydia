@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.marginStart
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
@@ -93,7 +94,7 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
 @BindingAdapter("cardThumb")
 fun ImageView.setCardThumb(item: RTreeNode?) {
     if (item == null) {
-        setImageResource(R.drawable.icon_file)
+        setImageResource(R.drawable.icon_grid_file)
         return
     }
 
@@ -110,7 +111,7 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
             .into(this)
     } else {
         Log.w("SetCardThumb", "no thumb found for ${item.name}")
-        setImageResource(getDrawableFromMime(item.mime, item.sortName))
+        setImageResource(getGridDrawableFromMime(item.mime, item.sortName))
     }
 }
 
@@ -181,6 +182,24 @@ fun getDrawableFromMime(mime: String, sortName: String?): Int {
             }
         }
         else -> R.drawable.icon_file
+    }
+}
+
+fun getGridDrawableFromMime(mime: String, sortName: String?): Int {
+
+    return when (mime) {
+        SdkNames.NODE_MIME_FOLDER -> R.drawable.icon_grid_folder
+        SdkNames.NODE_MIME_RECYCLE -> R.drawable.icon_grid_recycle
+        SdkNames.NODE_MIME_WS_ROOT -> {
+            // Tweak: we deduce type of ws root from the sort name. Not very clean
+            val prefix = sortName ?: ""
+            when {
+                prefix.startsWith("1_2") -> R.drawable.icon_grid_personal
+                prefix.startsWith("1_8") -> R.drawable.icon_grid_cell
+                else -> R.drawable.icon_grid_folder
+            }
+        }
+        else -> R.drawable.icon_grid_file
     }
 }
 

@@ -20,9 +20,8 @@
                     android:id="@+id/main_toolbar"
                     style="@style/Cells.AppBar"
                     android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:popupTheme="@style/ThemeOverlay.Cells.Popup" />
-
+                    android:layout_height="?attr/actionBarSize" />
+                <!--                app:popupTheme="@style/ThemeOverlay.Cells.Popup"-->
             </com.google.android.material.appbar.AppBarLayout>
 
             <fragment

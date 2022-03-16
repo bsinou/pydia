@@ -32,10 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            android:backgroundTint="@color/cells_main_accent"
             android:contentDescription="@string/create_account"
             android:padding="2dp"
-            android:tint="@color/cells_on_main"
             app:maxImageSize="32dp"
             app:srcCompat="@drawable/ic_baseline_person_add_24" />
 

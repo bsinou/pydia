@@ -41,6 +41,14 @@
         app:destination="@id/settings_destination" />
 
     <action
+        android:id="@+id/open_sort_by"
+        app:destination="@id/sort_by_more_menu" />
+
+    <action
+        android:id="@+id/open_manage_connection"
+        app:destination="@id/manage_connection_more_menu" />
+
+    <action
         android:id="@+id/open_about"
         app:destination="@id/about_destination" />
 
@@ -123,6 +131,20 @@
             app:argType="string" />
         <argument
             android:name="contextType"
+            app:argType="string" />
+    </dialog>
+
+    <dialog
+        android:id="@+id/sort_by_more_menu"
+        android:name="org.sinou.android.pydia.ui.menus.SortMenuFragment"
+        android:label="Sort By" />
+
+    <dialog
+        android:id="@+id/manage_connection_more_menu"
+        android:name="org.sinou.android.pydia.ui.menus.ConnectionMenuFragment"
+        android:label="Manage connection">
+        <argument
+            android:name="state"
             app:argType="string" />
     </dialog>
 

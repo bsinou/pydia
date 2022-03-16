@@ -3,7 +3,9 @@ package org.sinou.android.pydia.ui.upload
 import android.app.Application
 import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
+import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
+import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.BackOffTicker
 import java.util.concurrent.TimeUnit
@@ -14,6 +16,7 @@ import java.util.concurrent.TimeUnit
  */
 class PickFolderViewModel(
     val stateID: StateID,
+    private val accountService: AccountService,
     private val nodeService: NodeService,
     application: Application
 ) : AndroidViewModel(application) {
@@ -50,15 +53,28 @@ class PickFolderViewModel(
     }
 
     private suspend fun doPull() {
-        val result = nodeService.pull(stateID)
-        withContext(Dispatchers.Main) {
-            if (result.second != null) {
-                _errorMessage.value = result.second
-                pause()
-            } else if (result.first > 0) {
-                backOffTicker.resetIndex()
+
+        if (Str.empty(stateID.file)) {
+            val err = accountService.refreshWorkspaceList(stateID.accountId)
+            withContext(Dispatchers.Main) {
+                if (Str.notEmpty(err)) {
+                    _errorMessage.value = err
+                    pause()
+                }
+                // TODO also detect when something has changed to reset backoff ticker
+                _isLoading.value = false
             }
-            _isLoading.value = false
+        } else {
+            val result = nodeService.pull(stateID)
+            withContext(Dispatchers.Main) {
+                if (result.second != null) {
+                    _errorMessage.value = result.second
+                    pause()
+                } else if (result.first > 0) {
+                    backOffTicker.resetIndex()
+                }
+                _isLoading.value = false
+            }
         }
     }
 
@@ -88,13 +104,14 @@ class PickFolderViewModel(
 
     class PickFolderViewModelFactory(
         private val stateID: StateID,
+        private val accountService: AccountService,
         private val nodeService: NodeService,
         private val application: Application
     ) : ViewModelProvider.Factory {
         @Suppress("unchecked_cast")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(PickFolderViewModel::class.java)) {
-                return PickFolderViewModel(stateID, nodeService, application) as T
+                return PickFolderViewModel(stateID, accountService, nodeService, application) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

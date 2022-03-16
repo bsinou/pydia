@@ -5,19 +5,45 @@
 
     <item
         android:id="@+id/search_edit_view"
-        android:iconTint="@color/cells_on_main"
         android:icon="@drawable/ic_sharp_search_24"
         android:title="@string/search_hint"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="collapseActionView|ifRoom" />
 
-<!-- TODO make title dynamic -->
+    <item
+        android:id="@+id/open_connexion_dialog"
+        android:icon="@drawable/ic_baseline_signal_wifi_statusbar_connected_no_internet_4_24"
+        android:title="@string/button_open_connexion_center"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/switch_recycler_layout"
         android:icon="@drawable/ic_sharp_grid_view_24"
-        android:title="@string/button_switch_to_grid_layout"
-        app:showAsAction="ifRoom" />
-<!--    android:iconTint="@color/colorOnPrimary"-->
-<!--    android:iconTintMode="src_atop"-->
+        android:title="@string/button_switch_to_grid_layout" />
+
+    <item
+        android:id="@+id/open_sort_by"
+        android:icon="@drawable/ic_baseline_sort_24"
+        android:title="@string/button_open_sort_by" />
+
+<!--    <item-->
+<!--        android:id="@+id/display_type_holder"-->
+<!--        android:title="Display"-->
+<!--        app:showAsAction="never">-->
+<!--        <menu android:id="@+id/display_type">-->
+<!--            <item-->
+<!--                android:id="@+id/display_as_list"-->
+<!--                android:icon="@android:drawable/stat_sys_download_done"-->
+<!--                android:title="List" />-->
+<!--            <item-->
+<!--                android:id="@+id/display_as_thumb"-->
+<!--                android:icon="@android:drawable/star_on"-->
+<!--                android:title="Thumb" />-->
+<!--            <item-->
+<!--                android:id="@+id/display_as_galery"-->
+<!--                android:icon="@android:drawable/star_on"-->
+<!--                android:title="Galery" />-->
+<!--        </menu>-->
+<!--    </item>-->
 
 </menu>

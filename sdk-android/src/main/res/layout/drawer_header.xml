@@ -12,8 +12,8 @@
     android:padding="@dimen/margin_small"
     android:theme="@style/ThemeOverlay.Cells.NavHeader">
 
-<!--    android:background="?attr/colorPrimaryDark"-->
-<!--    android:theme="@style/ThemeOverlay.AppCompat.Dark"-->
+    <!--    android:background="?attr/colorPrimaryDark"-->
+    <!--    android:theme="@style/ThemeOverlay.AppCompat.Dark"-->
     <ImageView
         android:id="@+id/nav_header_logo"
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
 
     <TextView
         android:id="@+id/nav_header_primary_text"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/margin_xsmall"
         android:paddingTop="@dimen/margin_xsmall"
@@ -62,29 +62,26 @@
         android:layout_width="@dimen/menu_header_icon"
         android:layout_height="@dimen/menu_header_icon"
         android:backgroundTint="?attr/colorPrimary"
-        android:foregroundTint="?attr/colorOnPrimary"
         android:clickable="true"
         android:contentDescription="@string/switch_account_description"
         android:focusable="true"
-        android:paddingStart="@dimen/margin_small"
-        android:paddingEnd="@dimen/margin_small"
-        android:src="@drawable/ic_baseline_switch_account_24"
-        app:layout_constraintBottom_toBottomOf="@+id/nav_header_secondary_text"
-        app:layout_constraintEnd_toStartOf="@+id/nav_header_exit" />
-
-    <ImageButton
-        android:id="@+id/nav_header_exit"
-        android:layout_width="@dimen/menu_header_icon"
-        android:layout_height="@dimen/menu_header_icon"
-        android:backgroundTint="?attr/colorPrimary"
-        android:clickable="true"
-        android:contentDescription="@string/exit_description"
-        android:focusable="true"
-        android:paddingStart="@dimen/margin_small"
-        android:paddingEnd="@dimen/margin_small"
-        android:src="@drawable/ic_baseline_power_settings_new_24"
+        android:src="@drawable/ic_baseline_switch_account_36"
         app:layout_constraintBottom_toBottomOf="@+id/nav_header_secondary_text"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <!--    <ImageButton-->
+    <!--        android:id="@+id/nav_header_exit"-->
+    <!--        android:layout_width="@dimen/menu_header_icon"-->
+    <!--        android:layout_height="@dimen/menu_header_icon"-->
+    <!--        android:backgroundTint="?attr/colorPrimary"-->
+    <!--        android:clickable="true"-->
+    <!--        android:contentDescription="@string/exit_description"-->
+    <!--        android:focusable="true"-->
+    <!--        android:paddingStart="@dimen/margin_small"-->
+    <!--        android:paddingEnd="@dimen/margin_small"-->
+    <!--        android:src="@drawable/ic_baseline_power_settings_new_24"-->
+    <!--        app:layout_constraintBottom_toBottomOf="@+id/nav_header_secondary_text"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

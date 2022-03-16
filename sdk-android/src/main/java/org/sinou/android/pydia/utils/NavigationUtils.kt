@@ -104,7 +104,7 @@ fun resetToHomeStateIfNecessary(manager: FragmentManager, currentState: StateID)
     }
 }
 
-fun dumpBackStack(caller: String, manager: FragmentManager) {
+fun dumpBackStack(caller: String?, manager: FragmentManager) {
     val count = manager.backStackEntryCount
     val entry = if (count > 0) manager.getBackStackEntryAt(count - 1) else null
     Log.i(caller, "Back stack entry count: $count")

@@ -1,10 +1,12 @@
 package org.sinou.android.pydia
 
 import android.app.ActivityManager
+import android.graphics.drawable.Drawable
 import android.net.TrafficStats
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -29,7 +31,6 @@ import org.sinou.android.pydia.ui.search.SearchFragment
 import org.sinou.android.pydia.utils.dumpBackStack
 import org.sinou.android.pydia.utils.showMessage
 import java.util.*
-import kotlin.system.exitProcess
 
 /**
  * Central activity for browsing, managing accounts and settings. Various
@@ -37,18 +38,16 @@ import kotlin.system.exitProcess
  * */
 class MainActivity : AppCompatActivity() {
 
-    companion object {
-        private const val tag = "MainActivity"
-    }
+    private val tag = MainActivity::class.simpleName
 
-    private lateinit var activeSessionVM: ActiveSessionViewModel
     private lateinit var binding: ActivityMainBinding
-
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
+    private lateinit var activeSessionVM: ActiveSessionViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(CellsApp.instance.currentTheme)
+//        setTheme(CellsApp.instance.currentTheme)
         super.onCreate(savedInstanceState)
 
         var encodedState = savedInstanceState?.getString(AppNames.KEY_STATE)
@@ -206,12 +205,12 @@ class MainActivity : AppCompatActivity() {
             navController.navigate(MainNavDirections.openAccountList())
             closeDrawer()
         }
-        val exitBtn = header.findViewById<ImageButton>(R.id.nav_header_exit)
-        exitBtn?.setOnClickListener {
-            closeDrawer()
-            finish()
-            exitProcess(0)
-        }
+//        val exitBtn = header.findViewById<ImageButton>(R.id.nav_header_exit)
+//        exitBtn?.setOnClickListener {
+//            closeDrawer()
+//            finish()
+//            exitProcess(0)
+//        }
 
         if (activeSessionVM.accountId == null) {
             return
@@ -223,14 +222,14 @@ class MainActivity : AppCompatActivity() {
             it?.let { liveSession ->
 
                 // Change base them based on current session status
-                val newTheme = when (it.authStatus) {
-                    AppNames.AUTH_STATUS_CONNECTED -> R.style.Theme_Cells
-                    else ->  R.style.Theme_Cells_Offline
-                }
-                if (newTheme != CellsApp.instance.currentTheme) {
-                    CellsApp.instance.currentTheme = newTheme
-                    recreate()
-                }
+//                val newTheme = when (it.authStatus) {
+//                    AppNames.AUTH_STATUS_CONNECTED -> R.style.Theme_Cells
+//                    else ->  R.style.Theme_Cells_Offline
+//                }
+//                if (newTheme != CellsApp.instance.currentTheme) {
+//                    CellsApp.instance.currentTheme = newTheme
+//                    recreate()
+//                }
 
                 // Set current session info in the Navigation view header
                 val headerView = binding.navView.getHeaderView(0)
@@ -292,7 +291,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.main_fragment_host)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
@@ -315,15 +313,50 @@ class MainActivity : AppCompatActivity() {
             searchView.setOnQueryTextListener(SearchListener())
         }
 
+        configureConnexionAlarm(menu)
         configureLayoutSwitcher(menu)
+        configureSort(menu)
 
         return true
     }
 
-    private fun configureLayoutSwitcher(menu: Menu) {
-        val layoutSwitcher = menu.findItem(R.id.switch_recycler_layout)
+    private fun configureConnexionAlarm(menu: Menu) {
+        val connexionAlarmBtn = menu.findItem(R.id.open_connexion_dialog)
+        connexionAlarmBtn.isVisible = false
 
-        val showSwitch = navController.currentDestination?.let {
+        activeSessionVM.liveSession.observe(this) {
+            it?.let { liveSession ->
+                val isConnected = liveSession.authStatus != AppNames.AUTH_STATUS_CONNECTED
+                connexionAlarmBtn.isVisible = isConnected
+                if (!isConnected) {
+                    connexionAlarmBtn.setOnMenuItemClickListener {
+                        // TODO more menu to reconnect
+                        Log.e(tag, "..... connection button clicked")
+                        val action = MainNavDirections.openManageConnection(liveSession.accountID)
+                        navController.navigate(action)
+                        return@setOnMenuItemClickListener true
+                    }
+                }
+            }
+        }
+    }
+
+    private fun configureSort(menu: Menu) {
+        Log.e(tag, "About to configure sort button")
+        val openSortButton = menu.findItem(R.id.open_sort_by)
+        openSortButton.isVisible = needListOptions()
+        if (!openSortButton.isVisible) {
+            return
+        }
+        openSortButton.setOnMenuItemClickListener {
+            val action = MainNavDirections.openSortBy()
+            navController.navigate(action)
+            return@setOnMenuItemClickListener true
+        }
+    }
+
+    private fun needListOptions(): Boolean {
+        return navController.currentDestination?.let {
             when (it.id) {
                 R.id.search_destination -> true
                 R.id.bookmark_list_destination -> true
@@ -332,6 +365,20 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         } ?: false
+    }
+
+    private fun configureLayoutSwitcher(menu: Menu) {
+        val layoutSwitcher = menu.findItem(R.id.switch_recycler_layout)
+        val showSwitch = needListOptions()
+//        navController.currentDestination?.let {
+//            when (it.id) {
+//                R.id.search_destination -> true
+//                R.id.bookmark_list_destination -> true
+//                R.id.browse_folder_destination -> true
+//                R.id.offline_root_list_destination -> true
+//                else -> false
+//            }
+//        } ?: false
 
         layoutSwitcher.isVisible = showSwitch
         if (!showSwitch) {
@@ -340,16 +387,15 @@ class MainActivity : AppCompatActivity() {
 
         val oldValue = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val storedLayout = oldValue ?: AppNames.RECYCLER_LAYOUT_LIST
-
-        layoutSwitcher.icon = when (storedLayout) {
-            AppNames.RECYCLER_LAYOUT_GRID ->
-                ResourcesCompat.getDrawable(
-                    resources,
-                    R.drawable.ic_baseline_view_list_24,
-                    theme
-                )
-            else ->
-                ResourcesCompat.getDrawable(resources, R.drawable.ic_sharp_grid_view_24, theme)
+        when (storedLayout) {
+            AppNames.RECYCLER_LAYOUT_GRID -> {
+                layoutSwitcher.icon = getIcon(R.drawable.ic_baseline_view_list_24)
+                layoutSwitcher.title = getText(R.string.button_switch_to_list_layout)
+            }
+            else -> {
+                layoutSwitcher.icon = getIcon(R.drawable.ic_sharp_grid_view_24)
+                layoutSwitcher.title = getText(R.string.button_switch_to_grid_layout)
+            }
         }
 
         layoutSwitcher.setOnMenuItemClickListener {
@@ -366,6 +412,11 @@ class MainActivity : AppCompatActivity() {
             return@setOnMenuItemClickListener true
         }
     }
+
+    private fun getIcon(id: Int): Drawable? {
+        return ResourcesCompat.getDrawable(resources, id, theme)
+    }
+
 
     private inner class SearchListener : OnQueryTextListener {
 

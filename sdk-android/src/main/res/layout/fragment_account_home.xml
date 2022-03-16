@@ -23,7 +23,6 @@
 
             <TextView
                 android:id="@+id/account_title"
-                style="@style/text_header"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
@@ -32,10 +31,10 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Ivanka" />
+            <!--            style="@style/text_header"-->
 
             <TextView
                 android:id="@+id/account_description"
-                style="@style/text_body"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:accountHomeSecondary="@{session}"
@@ -47,8 +46,8 @@
                 android:id="@+id/switch_account_button"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:padding="@dimen/margin_small"
                 android:layout_margin="@dimen/margin_xsmall"
+                android:padding="@dimen/margin_small"
                 android:src="@drawable/button_switch_account"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

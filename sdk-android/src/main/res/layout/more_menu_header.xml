@@ -19,9 +19,9 @@
             android:layout_marginTop="@dimen/margin_xsmall"
             android:layout_marginStart="@dimen/margin_xsmall"
             android:background="?android:attr/selectableItemBackground"
-            android:backgroundTint="@color/background"
             android:orientation="horizontal"
             android:padding="@dimen/menu_padding">
+            <!--            android:backgroundTint="@color/iconBackground"-->
 
             <ImageView
                 android:layout_width="@dimen/menu_header_icon"

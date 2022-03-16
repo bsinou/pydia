@@ -37,6 +37,7 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(tag, "onCreate: launching target choice process")
+//        setTheme(CellsApp.instance.currentTheme)
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_choose_target)
@@ -86,7 +87,6 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         Log.i(tag, "onResume, intent: $intent")
         super.onResume()
         handleIntent(intent)
-        // supportActionBar?.title = "My Title From on resume"
     }
 
     override fun onPause() {

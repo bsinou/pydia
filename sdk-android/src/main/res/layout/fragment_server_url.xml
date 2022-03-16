@@ -19,8 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="@dimen/default_layout_margin"
-            android:padding="@dimen/margin"
-            android:theme="@style/Theme.Cells">
+            android:padding="@dimen/margin">
 
             <TextView
                 android:id="@+id/form_title"

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <item>
         <shape
             android:width="@dimen/list_icon_size"
@@ -11,10 +12,12 @@
     </item>
     <item
         android:bottom="@dimen/margin_small"
+        android:drawable="@drawable/ic_baseline_delete_24"
+        android:end="@dimen/margin_medium"
         android:gravity="center"
-        android:top="@dimen/margin_small">
-        <bitmap
-            android:src="@drawable/cells"
-            android:tint="@color/cells_primary" />
-    </item>
+        android:left="@dimen/margin_medium"
+        android:right="@dimen/margin_medium"
+        android:start="@dimen/margin_medium"
+        android:top="@dimen/margin"
+        tools:ignore="UnusedAttribute" />
 </layer-list>

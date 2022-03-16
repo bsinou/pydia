@@ -17,9 +17,9 @@ import java.util.concurrent.TimeUnit
  * and the remote server.
  * This expects that the accountService has already been initialized.
  */
+
 class ActiveSessionViewModel(
     private val accountService: AccountService,
-//     private val nodeService: NodeService,
     val accountId: String?,
     application: Application
 ) : AndroidViewModel(application) {

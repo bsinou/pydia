@@ -18,9 +18,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="@dimen/margin"
-        android:backgroundTint="@color/cells_main_surface_light"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+<!--        android:backgroundTint="@color/cells_main_surface_light"-->
 
         <!-- Header -->
         <include

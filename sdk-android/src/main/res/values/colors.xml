@@ -3,30 +3,48 @@
 <resources>
 
     <!-- Main Colors -->
+    <color name="cells_primary">#0062A0</color>
+    <color name="cells_on_primary">#FFFFFF</color>
+    <color name="cells_primary_container">#CEE5FF</color>
+    <color name="cells_on_primary_container">#001D35</color>
+    <color name="cells_primary_inverse">#CFDBE1</color>
+
+    <color name="cells_secondary">#FB725C</color>
+    <color name="cells_on_secondary">#FFFFFF</color>
+    <color name="cells_secondary_container">#FDB8AD</color>
+    <color name="cells_on_secondary_container">#E16652</color>
+
+    <color name="cells_tertiary">#9D4142</color>
+    <color name="cells_on_tertiary">#FFFFFF</color>
+    <color name="cells_tertiary_container">#FFDAD7</color>
+    <color name="cells_on_tertiary_container">#400006</color>
+
+    <color name="cells_error">#BA1B1B</color>
+
+
     <color name="cells_text">#000000</color>
     <color name="cells_text_accent">#0F3E56</color>
-    <color name="cells_main">#134E6C</color>
-    <color name="cells_on_main">@android:color/white</color>
     <color name="cells_main_accent">#0F3E56</color>
     <color name="cells_main_light">#598398</color>
-    <color name="cells_main_surface">#CFDBE1</color>
-    <color name="cells_main_surface_light">#EDF0F2</color>
-    <color name="cells_secondary">#FB725C</color>
-    <color name="cells_on_secondary">@android:color/white</color>
+    <color name="cells_main_surface_light">#F6F7F8</color>
+    <color name="cells_main_surface_extra_light">#F9FAFB</color>
     <color name="cells_secondary_light">#FDB8AD</color>
     <color name="cells_secondary_dark">#E16652</color>
+
+
+    <color name="cells_divider_light">#EDF0F2</color>
 
     <color name="cells_xlight_status_bar">@android:color/white</color>
 
 
-    <color name="flag_bookmark">#FFFF9800</color>
-    <color name="flag_offline">#FF03DAC5</color>
+    <color name="flag_bookmark">#FF9800</color>
+    <color name="flag_offline">#03DAC5</color>
     <color name="flag_share">#219600</color>
 
-    <color name="colorAccent">#FFFF9800</color>
+    <color name="colorAccent">#FF9800</color>
     <color name="ok">#219600</color>
-    <color name="warning">#FFFF9800</color>
-    <color name="danger">#BA000D</color>
+    <color name="warning">#FF9800</color>
+    <color name="danger">#BA1B1B</color>
     <color name="transparent">#00000000</color>
 
     <!-- First try for dynamic status bar color -->
@@ -41,25 +59,26 @@
 <!--    <color name="colorPrimaryDark">@color/colorMainAccent</color>-->
 
 
+
     <color name="colorTextPrimary">@color/cells_text</color>
     <color name="colorTextAccent">@color/cells_text_accent</color>
-    <color name="colorAvatarDefault">@color/cells_main</color>
+    <color name="colorAvatarDefault">@color/cells_on_primary_container</color>
 
     <!-- Icons -->
-    <color name="iconTint">@color/cells_main</color>
-    <color name="iconBackground">@color/cells_main_surface_light</color>
+    <color name="iconTint">@color/cells_on_primary_container</color>
+    <color name="iconBackground">@color/cells_main_surface_extra_light</color>
 
     <!-- Various -->
-    <!-- TODO this is not a standard color -->
+    <!-- TODO this is not a standard color -->colorControlNormal
     <color name="background">@android:color/white</color>
     <!-- TODO Rather handle this with a style...-->
-    <color name="selected_background">@color/cells_main_surface</color>
-    <color name="decoratorBackground">#33EDF0F2</color>
+    <color name="selected_background">@color/cells_primary_inverse</color>
+    <color name="decoratorBackground">#EDF0F2</color>
 
     <!-- Custom circular spinner -->
-    <color name="spinner_center_color">@color/cells_main</color>
-    <color name="spinner_start_color">@color/cells_main_accent</color>
-    <color name="spinner_end_color">@color/cells_main_light</color>
+    <color name="spinner_center_color">@color/cells_primary</color>
+    <color name="spinner_start_color">@color/cells_primary_container</color>
+    <color name="spinner_end_color">@color/cells_primary_inverse</color>
 
 <!--    <color name="skip_red_color">#f44336</color>-->
 <!--    <color name="selected_red_color">#ba000d</color>-->
@@ -75,3 +94,19 @@
 <!--    <color name="white">#FFFFFFFF</color>-->
 
 </resources>
+
+
+    <!-- Percent to hex conversion table -->
+    <!-- Kept here for easy later reference -->
+
+    <!--%  0  1  2  3  4  5  6  7  8  9-->
+    <!--0 00 03 05 08 0A 0D 0F 12 14 17-->
+    <!--1 19 1C 1F 21 24 26 29 2B 2E 30-->
+    <!--2 33 36 38 3B 3D 40 42 45 47 4A-->
+    <!--3 4D 4F 52 54 57 59 5C 5E 61 63-->
+    <!--4 66 69 6B 6E 70 73 75 78 7A 7D-->
+    <!--5 80 82 85 87 8A 8C 8F 91 94 96-->
+    <!--6 99 9C 9E A1 A3 A6 A8 AB AD B0-->
+    <!--7 B3 B5 B8 BA BD BF C2 C4 C7 C9-->
+    <!--8 CC CF D1 D4 D6 D9 DB DE E0 E3-->
+    <!--9 E6 E8 EB ED F0 F2 F5 F7 FA FC-->

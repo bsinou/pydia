@@ -15,14 +15,15 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/node_card"
+        style="?attr/materialCardViewElevatedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/grid_layout_card_margin"
-        android:background="@drawable/item_background"
+        android:checkable="true"
         app:cardCornerRadius="@dimen/card_corner_radius"
-        app:cardElevation="@dimen/card_elevation"
-        app:cardMaxElevation="@dimen/card_max_elevation">
-<!--        app:cardBackgroundColor="@color/iconBackground"-->
+        app:cardElevation="@dimen/grid_ws_card_elevation"
+        app:cardMaxElevation="@dimen/grid_ws_card_max_elevation"
+        app:cardBackgroundColor="?attr/colorOnPrimary">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,55 +38,54 @@
                 android:contentDescription="@string/content_description_media"
                 android:scaleType="centerCrop"
                 app:cardThumb="@{node}"
-                tools:srcCompat="@drawable/ic_baseline_folder_24" />
+                tools:srcCompat="@drawable/icon_grid_folder" />
+
+            <View style="@style/Divider.Horizontal.List"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                />
 
             <LinearLayout
                 android:id="@+id/node_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/item_background"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:padding="@dimen/card_padding">
 
-                <!-- Title, secondary and supporting text -->
                 <TextView
+                    style="@style/text_list_secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_gravity="start"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:textColor="?android:attr/textColorSecondary"
                     app:nodeTitle="@{node}"
-                    tools:text="My Image.jpg" />
+                    tools:text="My Image.jpg" />2
             </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/flags_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
             android:layout_marginStart="@dimen/margin_xsmall"
             android:layout_marginTop="@dimen/margin_xsmall"
-            android:gravity="start|top">
-
-            <ImageView
-                android:id="@+id/flag_offline"
-                android:layout_width="@dimen/list_item_flag_decorator"
-                android:layout_height="@dimen/list_item_flag_decorator"
-                android:contentDescription="@string/keep_offline"
-                android:src="@drawable/ic_baseline_offline_pin_24"
-                android:visibility="gone"
-                app:offline="@{node}" />
+            android:animateLayoutChanges="true"
+            android:gravity="start|top"
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/flag_bookmark"
                 android:layout_width="@dimen/list_item_flag_decorator"
                 android:layout_height="@dimen/list_item_flag_decorator"
                 android:contentDescription="@string/bookmark"
-                android:src="@drawable/ic_baseline_star_24"
+                android:src="@drawable/ic_baseline_star_border_24"
                 android:visibility="gone"
-                app:bookmark="@{node}" />
+                app:bookmark="@{node}"
+                app:tint="@color/flag_bookmark" />
 
             <ImageView
                 android:id="@+id/flag_shared"
@@ -94,7 +94,18 @@
                 android:contentDescription="@string/public_link"
                 android:src="@drawable/ic_baseline_link_24"
                 android:visibility="gone"
-                app:shared="@{node}" />
+                app:shared="@{node}"
+                app:tint="@color/flag_share" />
+
+            <ImageView
+                android:id="@+id/flag_offline"
+                android:layout_width="@dimen/list_item_flag_decorator"
+                android:layout_height="@dimen/list_item_flag_decorator"
+                android:contentDescription="@string/keep_offline"
+                android:src="@drawable/outline_offline_pin_24"
+                android:visibility="gone"
+                app:offline="@{node}"
+                app:tint="@color/flag_offline" />
 
         </LinearLayout>
 

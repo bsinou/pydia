@@ -3,7 +3,6 @@
 
     <style name="text_body">
         <item name="android:fontFamily">@font/roboto</item>
-        <item name="android:textColor">@color/colorTextPrimary</item>
         <item name="android:textSize">@dimen/text_body_size</item>
     </style>
 
@@ -12,7 +11,6 @@
     </style>
 
     <style name="text_title" parent="text_body">
-        <item name="android:textColor">@color/colorTextAccent</item>
         <!--        <item name="android:textFontWeight">600</item>-->
         <item name="android:textSize">@dimen/text_title_size</item>
     </style>
@@ -21,7 +19,7 @@
         <item name="android:textSize">@dimen/text_accent_size</item>
     </style>
 
-    <style name="text_list_secondary" parent="text_body"></style>
+    <style name="text_list_secondary" parent="text_body" />
 
     <style name="text_list_error" parent="text_list_secondary">
         <item name="android:textColor">@color/danger</item>
@@ -34,8 +32,8 @@
     </style>
 
     <style name="Cells.AppBar" parent="Widget.Material3.Light.ActionBar.Solid">
-        <item name="titleTextColor">@color/colorTextAccent</item>
-        <item name="background">@color/colorAccent</item>
+        <item name="titleTextColor">@color/cells_primary</item>
+<!--        <item name="background">@color/colorAccent</item>-->
     </style>
 
     <style name="avatar_icon">
@@ -46,35 +44,35 @@
         <item name="android:layout_marginBottom">@dimen/text_padding_x_small</item>
     </style>
 
-    <style name="text_view_style">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAppearance">
-            @android:style/TextAppearance.Large
-        </item>
-        <item name="android:background">@color/cells_main_light</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:padding">16dp</item>
-        <item name="android:textColor">@color/cells_on_main</item>
-    </style>
+<!--    <style name="text_view_style">-->
+<!--        <item name="android:layout_width">match_parent</item>-->
+<!--        <item name="android:layout_height">wrap_content</item>-->
+<!--        <item name="android:textAppearance">-->
+<!--            @android:style/TextAppearance.Large-->
+<!--        </item>-->
+<!--        <item name="android:background">@color/cells_main_light</item>-->
+<!--        <item name="android:layout_marginTop">8dp</item>-->
+<!--        <item name="android:layout_gravity">center</item>-->
+<!--        <item name="android:padding">16dp</item>-->
+<!--        <item name="android:textColor">@color/cells_on_main</item>-->
+<!--    </style>-->
 
-    <style name="button_style" parent="android:style/Widget.Material.Button">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@color/cells_main_accent</item>
-        <item name="android:textAppearance">@android:style/TextAppearance.Large</item>
-        <item name="android:layout_marginTop">16dp</item>
-        <item name="android:textColor">@color/cells_on_main</item>
-    </style>
+<!--    <style name="button_style" parent="android:style/Widget.Material.Button">-->
+<!--        <item name="android:layout_width">match_parent</item>-->
+<!--        <item name="android:layout_height">wrap_content</item>-->
+<!--        <item name="android:background">@color/cells_main_accent</item>-->
+<!--        <item name="android:textAppearance">@android:style/TextAppearance.Large</item>-->
+<!--        <item name="android:layout_marginTop">16dp</item>-->
+<!--        <item name="android:textColor">@color/cells_on_main</item>-->
+<!--    </style>-->
 
     <!-- Button Styles -->
-    <style name="GoButton" parent="Widget.AppCompat.Button.Colored">
-        <item name="colorButtonNormal">@color/cells_main_light</item>
-        <item name="colorControlHighlight">@color/cells_main_accent</item>
-        <item name="android:textColor">@color/cells_on_main</item>
-        <item name="colorAccent">@color/colorAccent</item>
-    </style>
+<!--    <style name="GoButton" parent="Widget.AppCompat.Button.Colored">-->
+<!--        <item name="colorButtonNormal">@color/cells_main_light</item>-->
+<!--        <item name="colorControlHighlight">@color/cells_main_accent</item>-->
+<!--        <item name="android:textColor">@color/cells_on_main</item>-->
+<!--        <item name="colorAccent">@color/colorAccent</item>-->
+<!--    </style>-->
 
     <!--    <style name="SkipButton" parent="Widget.AppCompat.Button.Colored">-->
     <!--        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>-->
@@ -83,20 +81,20 @@
     <!--    </style>-->
 
     <!-- Widgets -->
-    <style name="Widget.Cells.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+    <style name="Widget.Cells.Toolbar" parent="Widget.Material3.Toolbar">
         <item name="materialThemeOverlay">@style/ThemeOverlay.Cells.Appbar</item>
         <item name="titleTextAppearance">@style/TextAppearance.Cells.H5</item>
     </style>
 
-    <style name="Widget.Cells.NavigationView" parent="Widget.MaterialComponents.NavigationView">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.Cells.NavigationView</item>
-        <item name="itemIconTint">@color/cells_main</item>
-        <item name="itemTextColor">@color/cells_main</item>
-        <item name="itemShapeFillColor">@color/transparent</item>
-    </style>
+<!--    <style name="Widget.Cells.NavigationView" parent="Widget.Material3.NavigationView">-->
+<!--        <item name="materialThemeOverlay">@style/ThemeOverlay.Cells.NavigationView</item>-->
+<!--        <item name="itemIconTint">@color/cells_main</item>-->
+<!--        <item name="itemTextColor">@color/cells_main</item>-->
+<!--        <item name="itemShapeFillColor">@color/transparent</item>-->
+<!--    </style>-->
 
 
-    <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.OutlinedButton">
+    <style name="Widget.Cells.Button.OutlinedButton.IconOnly" parent="Widget.Material3.Button.OutlinedButton">
         <item name="iconPadding">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
@@ -107,7 +105,7 @@
     </style>
 
     <style name="Divider">
-        <item name="android:background">@color/cells_main_surface_light</item>
+        <item name="android:background">@color/cells_divider_light</item>
     </style>
 
     <style name="Divider.Horizontal">
@@ -131,6 +129,5 @@
         <item name="android:layout_marginTop">0dp</item>
         <item name="android:layout_marginBottom">0dp</item>
     </style>
-
 
 </resources>

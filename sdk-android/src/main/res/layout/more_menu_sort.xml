@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:id="@+id/more_menu_sort"
+        style="?attr/bottomSheetStyle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/margin"
+        android:backgroundTint="@color/iconBackground"
+        android:orientation="vertical"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+
+        <TextView
+            style="@style/TextAppearance.Material3.HeadlineMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/menu_label_padding"
+            android:text="@string/sort_by" />
+
+        <TextView
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:id="@+id/by_name_asc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/menu_label_padding"
+            android:text="@string/order_by_name_asc" />
+
+        <TextView
+            style="@style/TextAppearance.Material3.BodyLarge"
+            android:id="@+id/by_name_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:padding="@dimen/menu_label_padding"
+            android:text="@string/order_by_name_desc" />
+    </LinearLayout>
+</layout>

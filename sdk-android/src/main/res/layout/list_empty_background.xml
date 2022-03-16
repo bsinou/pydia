@@ -14,8 +14,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:singleLine="true"
-        android:text="@string/empty_content_message"
-        android:textAppearance="?attr/textAppearanceHeadline5" />
+        android:text="@string/empty_content_message"/>
 
     <ImageView
         android:id="@+id/empty_content_icon"

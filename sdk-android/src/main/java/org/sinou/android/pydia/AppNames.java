@@ -9,6 +9,8 @@ public interface AppNames {
     /* SHARED PREFERENCE KEYS */
     String PREF_KEY_CURRENT_STATE = "current_state";
     String PREF_KEY_CURR_RECYCLER_LAYOUT = "current_recycler_layout";
+    String PREF_KEY_CURR_RECYCLER_ORDER = "current_recycler_order";
+    String PREF_KEY_CURR_RECYCLER_ORDER_DIR = "current_recycler_order_dir";
     String KEY_DESTINATION = KEY_PREFIX_ + "destination";
 
     /* SHARED PREFERENCE WELL KNOWN VALUES */

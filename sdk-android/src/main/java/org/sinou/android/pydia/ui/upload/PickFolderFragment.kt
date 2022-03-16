@@ -49,6 +49,7 @@ class PickFolderFragment : Fragment() {
 
         val viewModelFactory = PickFolderViewModel.PickFolderViewModelFactory(
             stateID,
+            CellsApp.instance.accountService,
             CellsApp.instance.nodeService,
             requireActivity().application,
         )

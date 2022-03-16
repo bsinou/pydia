@@ -28,6 +28,7 @@
     <dimen name="recycler_bottom_fab_padding">64dp</dimen>
     <!-- List Items -->
     <dimen name="list_icon_size">24dp</dimen>
+    <dimen name="grid_icon_size">48dp</dimen>
     <dimen name="list_icon_inner_size">16dp</dimen>
     <dimen name="list_icon_corner_radius">6dp</dimen>
     <dimen name="list_icon_margin">8dp</dimen>
@@ -37,11 +38,11 @@
     <dimen name="glide_thumb_radius">6</dimen>
     <!-- Grid Layout with card view-->
     <integer name="grid_default_column_number">3</integer>
-    <dimen name="grid_layout_card_margin">4dp</dimen>
+    <dimen name="grid_layout_card_margin">8dp</dimen>
     <dimen name="card_padding">4dp</dimen>
-    <dimen name="card_corner_radius">6dp</dimen>
+    <dimen name="card_corner_radius">2dp</dimen>
     <dimen name="card_elevation">10dp</dimen>
-    <dimen name="card_max_elevation">12dp</dimen>
+    <dimen name="card_max_elevation">16dp</dimen>
     <dimen name="grid_layout_card_icon_size">96dp</dimen>
     <!-- Grid layout for the account home-->
     <integer name="grid_ws_column_number">2</integer>
@@ -58,7 +59,7 @@
     <dimen name="account_status_decorator">20dp</dimen>
 
     <!-- Menus -->
-    <dimen name="menu_header_icon">32dp</dimen>
+    <dimen name="menu_header_icon">48dp</dimen>
     <dimen name="menu_icon">24dp</dimen>
     <dimen name="menu_margin">8dp</dimen>
     <dimen name="menu_padding">4dp</dimen>

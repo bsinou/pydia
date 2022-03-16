@@ -7,8 +7,7 @@
         android:id="@+id/more_menu_sort"
         style="?attr/bottomSheetStyle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/margin_large"
+        android:layout_height="wrap_content"
         android:backgroundTint="@color/iconBackground"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -16,9 +15,9 @@
         <TextView
             style="@style/TextAppearance.Material3.HeadlineMedium"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical|start"
-            android:padding="@dimen/menu_label_padding"
+            android:layout_margin="@dimen/margin_small"
             android:text="@string/sort_by" />
 
         <!-- Default -->
@@ -29,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/menu_label_padding"
+            android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_canon" />
 
         <!-- NAME -->
@@ -40,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/menu_label_padding"
+            android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_name_asc" />
 
         <TextView
@@ -50,7 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/menu_label_padding"
+            android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_name_desc" />
 
         <!-- LAST REMOTE MOD TIME -->
@@ -61,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/menu_label_padding"
+            android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_remote_ts_desc" />
 
         <TextView
@@ -71,7 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/menu_label_padding"
+            android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_remote_ts_asc" />
 
         <!-- By TYPE -->
@@ -82,7 +81,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/menu_label_padding"
+            android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_mime_asc" />
 
         <TextView
@@ -92,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/menu_label_padding"
+            android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_mime_desc" />
 
         <!-- SIZE -->
@@ -103,7 +102,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/menu_label_padding"
+            android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_size_asc" />
 
         <TextView
@@ -113,7 +112,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="@dimen/menu_label_padding"
+            android:padding="@dimen/text_padding_medium"
             android:text="@string/order_by_size_desc" />
+
+        <LinearLayout
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin"
+            android:orientation="horizontal" />
     </LinearLayout>
 </layout>

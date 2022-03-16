@@ -23,6 +23,8 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentOffineRootListBinding
 import org.sinou.android.pydia.db.nodes.RLiveOfflineRoot
+import org.sinou.android.pydia.ui.ActiveSessionViewModel
+import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 
 class OfflineRootsFragment : Fragment() {
 

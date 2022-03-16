@@ -124,7 +124,7 @@
 
     <dialog
         android:id="@+id/tree_node_more_menu"
-        android:name="org.sinou.android.pydia.ui.browse.TreeNodeMenuFragment"
+        android:name="org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment"
         android:label="TreeNodeMoreMenu">
         <argument
             android:name="state"

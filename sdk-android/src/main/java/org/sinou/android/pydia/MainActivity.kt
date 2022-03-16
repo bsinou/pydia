@@ -6,7 +6,6 @@ import android.net.TrafficStats
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -25,7 +24,7 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.databinding.ActivityMainBinding
 import org.sinou.android.pydia.ui.bindings.getWsIconForMenu
-import org.sinou.android.pydia.ui.browse.ActiveSessionViewModel
+import org.sinou.android.pydia.ui.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.home.clearCache
 import org.sinou.android.pydia.ui.search.SearchFragment
 import org.sinou.android.pydia.utils.dumpBackStack

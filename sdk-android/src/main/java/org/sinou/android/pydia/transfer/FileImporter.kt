@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.services.TransferService
-import org.sinou.android.pydia.ui.browse.TreeNodeMenuViewModel
+import org.sinou.android.pydia.ui.menus.TreeNodeMenuViewModel
 import org.sinou.android.pydia.utils.DEFAULT_FILE_PROVIDER_ID
 import java.io.File
 import java.io.IOException

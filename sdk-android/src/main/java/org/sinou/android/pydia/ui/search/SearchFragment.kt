@@ -22,7 +22,7 @@ import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentSearchBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.ui.browse.NodeListAdapter
-import org.sinou.android.pydia.ui.browse.TreeNodeMenuFragment
+import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 import org.sinou.android.pydia.utils.externallyView
 
 class SearchFragment : Fragment() {

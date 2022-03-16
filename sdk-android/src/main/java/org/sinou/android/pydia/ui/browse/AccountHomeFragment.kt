@@ -17,6 +17,7 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentAccountHomeBinding
+import org.sinou.android.pydia.ui.ActiveSessionViewModel
 
 /**
  * Displays the landing page for a given account, mainly the workspace list.

@@ -72,7 +72,7 @@ fun hasAtLeastMeteredNetwork(context: Context): Boolean {
     }
 }
 
-fun logException(caller: String, msg: String, e: Exception) {
+fun logException(caller: String?, msg: String, e: Exception) {
     Log.e(caller, "$msg ${if (e is SDKException) "(Code #${e.code} )" else ""}")
     e.printStackTrace()
 }

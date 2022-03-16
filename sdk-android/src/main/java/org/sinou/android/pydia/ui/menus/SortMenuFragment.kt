@@ -1,10 +1,12 @@
 package org.sinou.android.pydia.ui.menus
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.sinou.android.pydia.AppNames
@@ -12,22 +14,12 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.MoreMenuSortBinding
 
-const val SORT_BY_ORDER = "sort_by_order"
-const val SORT_BY_ASC = "ASC"
-const val SORT_BY_DESC = "DESC"
-
-const val SORT_BY_NAME = "name"
-const val SORT_BY_MIME = "mime"
-const val SORT_BY_SIZE = "size"
-const val SORT_BY_LAST_REMOTE_MODIFICATION = "remote_mod_ts"
-const val SORT_BY_LAST_CHECK = "last_check_ts"
-
 class SortMenuFragment : BottomSheetDialogFragment() {
 
     private val fTag = SortMenuFragment::class.java.simpleName
 
-    val oldOrder = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
-    val oldDirection = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
+    private val oldOrder = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
+    private val oldDirection = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
 
     private lateinit var sortBinding: MoreMenuSortBinding
 
@@ -40,34 +32,46 @@ class SortMenuFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
+    ): View {
         sortBinding = DataBindingUtil.inflate(
             inflater, R.layout.more_menu_sort, container, false
         )
-
-        sortBinding.byNameAsc.setOnClickListener { onClicked(SORT_BY_NAME, SORT_BY_ASC) }
-        sortBinding.byNameDesc.setOnClickListener { onClicked(SORT_BY_NAME, SORT_BY_DESC) }
-        sortBinding.byRemoteTsDesc.setOnClickListener {
-            onClicked(
-                SORT_BY_LAST_REMOTE_MODIFICATION,
-                SORT_BY_DESC
-            )
-        }
-        sortBinding.byRemoteTsAsc.setOnClickListener {
-            onClicked(
-                SORT_BY_LAST_REMOTE_MODIFICATION,
-                SORT_BY_ASC
-            )
-        }
-        sortBinding.byMimeAsc.setOnClickListener { onClicked(SORT_BY_MIME, SORT_BY_ASC) }
-        sortBinding.byMimeDesc.setOnClickListener { onClicked(SORT_BY_MIME, SORT_BY_DESC) }
-        sortBinding.bySizeAsc.setOnClickListener { onClicked(SORT_BY_SIZE, SORT_BY_ASC) }
-        sortBinding.bySizeDesc.setOnClickListener { onClicked(SORT_BY_SIZE, SORT_BY_DESC) }
-
+        configItem(sortBinding.byDefault, AppNames.SORT_BY_CANON, AppNames.SORT_BY_ASC)
+        configItem(sortBinding.byNameAsc, AppNames.SORT_BY_NAME, AppNames.SORT_BY_ASC)
+        configItem(sortBinding.byNameDesc, AppNames.SORT_BY_NAME, AppNames.SORT_BY_DESC)
+        configItem(sortBinding.byRemoteTsDesc, AppNames.SORT_BY_REMOTE_TS, AppNames.SORT_BY_DESC)
+        configItem(sortBinding.byRemoteTsAsc, AppNames.SORT_BY_REMOTE_TS, AppNames.SORT_BY_ASC)
+        configItem(sortBinding.byMimeAsc, AppNames.SORT_BY_MIME, AppNames.SORT_BY_ASC)
+        configItem(sortBinding.byMimeDesc, AppNames.SORT_BY_MIME, AppNames.SORT_BY_DESC)
+        configItem(sortBinding.bySizeAsc, AppNames.SORT_BY_SIZE, AppNames.SORT_BY_ASC)
+        configItem(sortBinding.bySizeDesc, AppNames.SORT_BY_SIZE, AppNames.SORT_BY_DESC)
         sortBinding.executePendingBindings()
-
         return sortBinding.root
+    }
+
+    private fun configItem(view: TextView, order: String, direction: String) {
+        view.isActivated = oldOrder == order && oldDirection == direction
+        requireActivity().theme
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (view.isActivated) {
+                view.setBackgroundColor(requireActivity().getColor(R.color.cells_main_light))
+            } else {
+                view.setBackgroundColor(requireActivity().getColor(R.color.transparent))
+            }
+        }
+        view.setOnClickListener { onClicked(order, direction) }
+    }
+
+    private fun onClicked(order: String, direction: String) {
+        Log.i(tag, "Item clicked: ORDER BY $order $direction")
+        if (oldOrder != order || oldDirection != direction) {
+            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
+            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR, direction)
+            dismiss()
+            requireActivity().recreate()
+        } else {
+            dismiss()
+        }
     }
 
     override fun onResume() {
@@ -83,17 +87,5 @@ class SortMenuFragment : BottomSheetDialogFragment() {
     override fun onStop() {
         super.onStop()
         Log.i(fTag, "onStop")
-    }
-
-    private fun onClicked(order: String, direction: String) {
-        Log.i(tag, "Item clicked: ORDER BY $order $direction")
-        if (oldOrder != order || oldDirection != direction) {
-            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
-            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR, direction)
-            dismiss()
-            requireActivity().recreate()
-        } else {
-            dismiss()
-        }
     }
 }

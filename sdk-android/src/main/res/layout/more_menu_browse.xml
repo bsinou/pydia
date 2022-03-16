@@ -35,36 +35,6 @@
 
         <View style="@style/Divider.Horizontal" />
 
-<!--        <View-->
-<!--            android:id="@+id/border"-->
-<!--            android:layout_width="fill_parent"-->
-<!--            android:layout_height="0.2dp"-->
-<!--            android:background="@color/cells_main_surface_light" />-->
-        <!-- Files only -->
-        <!--        <LinearLayout-->
-        <!--            android:id="@+id/open_with"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:background="?android:attr/selectableItemBackground"-->
-        <!--            android:orientation="horizontal"-->
-        <!--            android:padding="@dimen/menu_row_padding"-->
-        <!--            app:showForFileOnly="@{node}">-->
-
-        <!--            <ImageView-->
-        <!--                android:layout_width="@dimen/menu_icon"-->
-        <!--                android:layout_height="@dimen/menu_icon"-->
-        <!--                android:layout_margin="@dimen/menu_margin"-->
-        <!--                android:contentDescription="@string/open_with"-->
-        <!--                android:src="@drawable/ic_baseline_open_in_new_24" />-->
-
-        <!--            <TextView-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_gravity="center_vertical"-->
-        <!--                android:padding="@dimen/menu_label_padding"-->
-        <!--                android:text="@string/open_with" />-->
-        <!--        </LinearLayout>-->
-
         <LinearLayout
             android:id="@+id/download"
             android:layout_width="match_parent"

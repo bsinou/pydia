@@ -33,12 +33,12 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         sortBinding = DataBindingUtil.inflate(
             inflater, R.layout.more_menu_sort, container, false
         )
-        sortBinding.byNameAsc.setOnClickListener { onClicked(SORT_BY_NAME, SORT_BY_ASC) }
+        sortBinding.byNameAsc.setOnClickListener {  }
         sortBinding.executePendingBindings()
 
         return sortBinding.root

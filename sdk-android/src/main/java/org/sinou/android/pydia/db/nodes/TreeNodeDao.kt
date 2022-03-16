@@ -2,6 +2,7 @@ package org.sinou.android.pydia.db.nodes
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import org.sinou.android.pydia.db.Converters
 
 @Dao
@@ -29,8 +30,11 @@ interface TreeNodeDao {
     @Query("SELECT * FROM tree_nodes WHERE encoded_state = :encodedState LIMIT 1")
     fun getNode(encodedState: String): RTreeNode?
 
-    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY sort_name")
-    fun ls(encodedParentStateID: String, parentPath: String): LiveData<List<RTreeNode>>
+    @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY :order ")
+    fun ls(encodedParentStateID: String, parentPath: String, order: String): LiveData<List<RTreeNode>>
+
+    @RawQuery(observedEntities = [RTreeNode::class])
+    fun orderedLs(query: SupportSQLiteQuery): LiveData<List<RTreeNode>>
 
     @Query("SELECT * FROM tree_nodes WHERE encoded_state like :encodedParentStateID || '%' AND parent_path = :parentPath ORDER BY name")
     fun getNodesForDiff(encodedParentStateID: String, parentPath: String): List<RTreeNode>

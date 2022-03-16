@@ -3,6 +3,7 @@ package org.sinou.android.pydia.services
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
@@ -27,6 +28,9 @@ class NodeService(
     private val accountService: AccountService,
     private val fileService: FileService,
 ) {
+
+    private val tag = NodeService::class.simpleName
+
     private val nodeServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + nodeServiceJob)
 
@@ -44,7 +48,19 @@ class NodeService(
     /* Expose DB content as LiveData for the ViewModels */
 
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
-        return nodeDB(stateID).treeNodeDao().ls(stateID.id, stateID.file)
+        var order = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
+        if (Str.empty(order)) order = AppNames.SORT_BY_NAME
+        var direction = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
+        if (Str.empty(direction)) direction = AppNames.SORT_BY_ASC
+
+        Log.i(tag, "Listing nodes for $stateID ORDER BY $order $direction")
+
+        val lsQuery = SimpleSQLiteQuery(
+            "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
+                    "AND parent_path = '${stateID.file}' " +
+                    "ORDER BY $order $direction "
+        )
+        return nodeDB(stateID).treeNodeDao().orderedLs(lsQuery)
     }
 
     fun listChildFolders(stateID: StateID): LiveData<List<RTreeNode>> {
@@ -57,13 +73,13 @@ class NodeService(
         } else if (parPath == "/") {
 
         }
-        Log.i(TAG, "Listing children of $stateID: parPath: $parPath, mime: $mime")
+        Log.i(tag, "Listing children of $stateID: parPath: $parPath, mime: $mime")
         return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, parPath, mime)
     }
 
     fun listViewable(stateID: StateID, mimeFilter: String): LiveData<List<RTreeNode>> {
         var parPath = stateID.file
-        Log.i(TAG, "Listing children of $stateID: parPath: $parPath, mime: $mimeFilter")
+        Log.i(tag, "Listing children of $stateID: parPath: $parPath, mime: $mimeFilter")
         return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, parPath, mimeFilter)
     }
 
@@ -78,7 +94,7 @@ class NodeService(
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
         val liveData = nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
         if (liveData.value == null) {
-            Log.e(TAG, "no node found for ${stateID.id}")
+            Log.e(tag, "no node found for ${stateID.id}")
         }
         return liveData
     }
@@ -134,7 +150,7 @@ class NodeService(
             handleSdkException(stateID, "could not perform DL for $stateID", se)
             return@withContext null
         } catch (ioe: IOException) {
-            Log.e(TAG, "cannot toggle bookmark for ${stateID}: ${ioe.message}")
+            Log.e(tag, "cannot toggle bookmark for ${stateID}: ${ioe.message}")
             ioe.printStackTrace()
             return@withContext null
         }
@@ -160,11 +176,11 @@ class NodeService(
             rTreeNode.isShared = !rTreeNode.isShared
             persistUpdated(rTreeNode)
         } catch (se: SDKException) {
-            Log.e(TAG, "could update share link for " + stateID.id)
+            Log.e(tag, "could update share link for " + stateID.id)
             se.printStackTrace()
             return@withContext null
         } catch (ioe: IOException) {
-            Log.e(TAG, "could update share link for ${stateID}: ${ioe.message}")
+            Log.e(tag, "could update share link for ${stateID}: ${ioe.message}")
             ioe.printStackTrace()
             return@withContext null
         }
@@ -187,11 +203,11 @@ class NodeService(
             rTreeNode.isOfflineRoot = !rTreeNode.isOfflineRoot
             persistUpdated(rTreeNode)
         } catch (se: SDKException) {
-            Log.e(TAG, "could update offline sync status for " + stateID.id)
+            Log.e(tag, "could update offline sync status for " + stateID.id)
             se.printStackTrace()
             return@withContext null
         } catch (ioe: IOException) {
-            Log.e(TAG, "could update offline sync status for ${stateID}: ${ioe.message}")
+            Log.e(tag, "could update offline sync status for ${stateID}: ${ioe.message}")
             ioe.printStackTrace()
             return@withContext null
         }
@@ -227,11 +243,12 @@ class NodeService(
             val thumbs = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
             val thumbDL = ThumbDownloader(client, nodeDB(stateID), thumbs)
 
-            val results = preSyncCheck(currRoot, rTreeNode, client, treeNodeDao, offlineDao, fileDL, thumbDL)
+            val results =
+                preSyncCheck(currRoot, rTreeNode, client, treeNodeDao, offlineDao, fileDL, thumbDL)
 
             var changeNb = 0
 
-            if (results.first){ // needs sync
+            if (results.first) { // needs sync
                 changeNb = syncFolderAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
             }
 //            if (rTreeNode.isFolder()) {
@@ -253,7 +270,7 @@ class NodeService(
             // TODO add more info on the corresponding root RTreeNode ??
             persistUpdated(rTreeNode)
         } catch (se: SDKException) {
-            Log.e(TAG, "could update offline sync status for " + stateID.id)
+            Log.e(tag, "could update offline sync status for " + stateID.id)
             se.printStackTrace()
             return@withContext
 //           } catch (ioe: IOException) {
@@ -378,13 +395,13 @@ class NodeService(
             val nodes = mutableListOf<FileNode>()
             getClient(stateID).getBookmarks { node: Node? ->
                 if (node !is FileNode) {
-                    Log.w(TAG, "could not store node: $node")
+                    Log.w(tag, "could not store node: $node")
                 } else {
                     nodes.add(node)
                 }
             }
             // Manage results
-            Log.w(TAG, "Got a bookmark list of ${nodes.size}, about to process")
+            Log.w(tag, "Got a bookmark list of ${nodes.size}, about to process")
             val dao = nodeDB(stateID).treeNodeDao()
             for (node in nodes) {
                 val currNode = RTreeNode.fromFileNode(stateID, node)
@@ -467,7 +484,7 @@ class NodeService(
             return@withContext null
         } catch (e: Exception) {
             val msg = "Could not delete account $account"
-            logException(TAG, msg, e)
+            logException(tag, msg, e)
             return@withContext msg
         }
     }
@@ -502,7 +519,7 @@ class NodeService(
 
         withContext(Dispatchers.IO) {
 
-            Log.e(TAG, "In getOrDownloadFileToCache for ${rTreeNode.name}")
+            Log.e(tag, "In getOrDownloadFileToCache for ${rTreeNode.name}")
 
             // FIXME this smells
             val isOK = isCacheVersionUpToDate(rTreeNode)
@@ -522,7 +539,7 @@ class NodeService(
                 )
             }
 
-            Log.e(TAG, "... Launching download for ${rTreeNode.name}")
+            Log.e(tag, "... Launching download for ${rTreeNode.name}")
 
             val stateID = rTreeNode.getStateID()
             val baseDir = fileService.dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_CACHE)
@@ -541,7 +558,7 @@ class NodeService(
                 rTreeNode.localModificationTS = rTreeNode.remoteModificationTS
                 // rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
                 nodeDB(stateID).treeNodeDao().update(rTreeNode)
-                Log.e(TAG, "... download done for ${rTreeNode.name}")
+                Log.e(tag, "... download done for ${rTreeNode.name}")
             } catch (se: SDKException) {
                 // Could not retrieve thumb, failing silently for the end user
                 val msg = "could not perform DL for " + stateID.id
@@ -549,7 +566,7 @@ class NodeService(
                 return@withContext null
             } catch (ioe: IOException) {
                 // TODO handle this: what should we do ?
-                Log.e(TAG, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
+                Log.e(tag, "cannot write at ${targetFile.absolutePath}: ${ioe.message}")
                 ioe.printStackTrace()
                 return@withContext null
             } finally {
@@ -586,14 +603,14 @@ class NodeService(
                     // TODO handle progress
                     getClient(stateID).download(stateID.workspace, stateID.file, out, null)
                 }
-                Log.i(TAG, "... File has been copied to ${uri.path}")
+                Log.i(tag, "... File has been copied to ${uri.path}")
 
             } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-                Log.e(TAG, "could not perform DL for " + stateID.id)
+                Log.e(tag, "could not perform DL for " + stateID.id)
                 se.printStackTrace()
             } catch (ioe: IOException) {
                 // TODO handle this: what should we do ?
-                Log.e(TAG, "cannot write at ${uri.path}: ${ioe.message}")
+                Log.e(tag, "cannot write at ${uri.path}: ${ioe.message}")
                 ioe.printStackTrace()
             } finally {
                 IoHelpers.closeQuietly(out)
@@ -715,15 +732,14 @@ class NodeService(
 
     //    private fun handleSdkException(msg: String, se: SDKException): SDKException {
     private suspend fun handleSdkException(stateID: StateID, msg: String, se: SDKException) {
-        Log.e(TAG, msg)
-        Log.e(TAG, "Error code: ${se.code}")
+        Log.e(tag, msg)
+        Log.e(tag, "Error code: ${se.code}")
         accountService.notifyError(stateID, se.code)
 
         se.printStackTrace()
     }
 
     companion object {
-        private const val TAG = "NodeService"
 
         fun getLocalFile(item: RTreeNode, type: String): File {
             val fs = CellsApp.instance.fileService

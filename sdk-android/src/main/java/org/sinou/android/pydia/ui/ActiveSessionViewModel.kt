@@ -44,7 +44,6 @@ class ActiveSessionViewModel(
         } else {
             Log.e(tag, "Initialising model with no account ID.")
         }
-
     }
 
     // TODO handle network status
@@ -69,10 +68,8 @@ class ActiveSessionViewModel(
     }
 
     fun resume() {
-        // active session is generally set after resume is called for the first time..
-//         if (activeSession.value == null) {
-//             return
-//         }
+        // TODO check: active session is generally set after resume is called for the first time.
+        //  How do we handle the null case
         _isRunning = true
         watchSession()
     }

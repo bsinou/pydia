@@ -15,13 +15,14 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/node_card"
+        style="?attr/materialCardViewElevatedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/grid_layout_card_margin"
-        app:cardBackgroundColor="@color/cells_main_surface_light"
+        app:cardBackgroundColor="?attr/colorOnPrimary"
         app:cardCornerRadius="@dimen/card_corner_radius"
-        app:cardElevation="@dimen/card_elevation"
-        app:cardMaxElevation="@dimen/card_max_elevation">
+        app:cardElevation="@dimen/grid_ws_card_elevation"
+        app:cardMaxElevation="@dimen/grid_ws_card_max_elevation">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -38,24 +39,24 @@
                 app:offlineRootThumb="@{offlineRoot}"
                 tools:srcCompat="@drawable/ic_baseline_folder_24" />
 
-            <View style="@style/Divider.Horizontal.List"
+            <View
+                style="@style/Divider.Horizontal.List"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                />
+                android:layout_height="1dp" />
 
             <LinearLayout
                 android:id="@+id/node_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/item_background"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:orientation="vertical"
                 android:padding="@dimen/card_padding">
 
-                <!-- Title, secondary and supporting text -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_gravity="start"
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:textColor="?android:attr/textColorSecondary"

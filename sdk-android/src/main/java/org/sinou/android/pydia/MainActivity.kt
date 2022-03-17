@@ -307,8 +307,11 @@ class MainActivity : AppCompatActivity() {
     private fun configureSearch(menu: Menu) {
         val searchItem = menu.findItem(R.id.search_edit_view)
         if (searchItem != null) {
-            val searchView = searchItem.actionView as SearchView
-            searchView.setOnQueryTextListener(SearchListener())
+            searchItem.isVisible = needSearch()
+            if (searchItem.isVisible) {
+                val searchView = searchItem.actionView as SearchView
+                searchView.setOnQueryTextListener(SearchListener())
+            }
         }
     }
 
@@ -394,6 +397,18 @@ class MainActivity : AppCompatActivity() {
             return@setOnMenuItemClickListener true
         }
     }
+
+    private fun needSearch(): Boolean {
+        return navController.currentDestination?.let {
+            when (it.id) {
+                R.id.account_home_destination -> true
+                R.id.search_destination -> true
+                R.id.browse_folder_destination -> true
+                else -> false
+            }
+        } ?: false
+    }
+
 
     private fun needListOptions(): Boolean {
         return navController.currentDestination?.let {

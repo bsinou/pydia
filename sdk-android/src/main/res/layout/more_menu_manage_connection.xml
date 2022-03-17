@@ -19,16 +19,14 @@
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <TextView
-            style="@style/TextAppearance.Material3.HeadlineMedium"
+            style="@style/TextAppearance.Material3.BodyLarge"
             android:id="@+id/title"
             app:account_secondary_text="@{session}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical|start"
-            android:layout_margin="@dimen/margin_small"
-            android:text="@string/sort_by" />
+            android:layout_margin="@dimen/margin_small"/>
 
-        <!-- Status -->
         <TextView
             android:id="@+id/session_status"
             style="@style/TextAppearance.Material3.BodyLarge"
@@ -36,8 +34,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
-            android:padding="@dimen/text_padding_medium"
-            android:text="@string/order_by_canon" />
+            android:layout_margin="@dimen/margin_small" />
+
+
+        <View style="@style/Divider.Horizontal.List"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            />
 
         <TextView
             android:id="@+id/launch_auth"

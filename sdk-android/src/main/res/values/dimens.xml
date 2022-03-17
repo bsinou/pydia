@@ -13,6 +13,10 @@
     <dimen name="margin_large">32dp</dimen>
     <dimen name="triple_margin">48dp</dimen>
 
+    <dimen name="elevation_small">2dp</dimen>
+    <dimen name="elevation_medium">4dp</dimen>
+    <dimen name="elevation">8dp</dimen>
+
     <dimen name="text_body_size">14sp</dimen>
     <dimen name="text_header_size">16sp</dimen>
     <dimen name="text_title_size">24sp</dimen>

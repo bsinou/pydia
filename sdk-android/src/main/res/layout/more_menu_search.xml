@@ -17,8 +17,6 @@
         style="?attr/bottomSheetStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/margin"
-        android:backgroundTint="@color/iconBackground"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
@@ -75,5 +73,11 @@
                 android:padding="@dimen/menu_label_padding"
                 android:text="@string/open_in_workspaces" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin"
+            android:orientation="horizontal" />
     </LinearLayout>
 </layout>

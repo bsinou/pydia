@@ -49,6 +49,7 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
                     accService,
                     it
                 )
+                dismiss()
             }
         }
         connectionBinding.executePendingBindings()

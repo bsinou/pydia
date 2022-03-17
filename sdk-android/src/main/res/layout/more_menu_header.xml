@@ -28,6 +28,7 @@
                 android:layout_height="@dimen/menu_header_icon"
                 android:contentDescription="@string/thumb_description"
                 app:nodeThumb="@{node}"
+                android:elevation="@dimen/elevation_medium"
                 tools:srcCompat="@drawable/ic_baseline_insert_drive_file_24" />
 
             <TextView

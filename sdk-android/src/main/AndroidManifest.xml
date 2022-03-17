@@ -22,8 +22,10 @@
         android:icon="@android:drawable/star_on"
         android:label="@string/application_title"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Cells">
+        android:theme="@style/Theme.md3">
 
+<!--
+        android:theme="@style/Theme.Cells"-->
         <activity
             android:name=".LandActivity"
             android:exported="true"

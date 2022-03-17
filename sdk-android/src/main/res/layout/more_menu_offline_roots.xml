@@ -17,11 +17,10 @@
         style="?attr/bottomSheetStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/margin"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-<!--        android:backgroundTint="@color/cells_main_surface_light"-->
+        <!-- TODO add open with (for files only) and open in ws -->
 
         <!-- Header -->
         <include
@@ -146,7 +145,10 @@
                 android:text="@string/download_to_device" />
         </LinearLayout>
 
-        <!-- TODO add open with (for files only) and open in ws -->
-
+        <LinearLayout
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin"
+            android:orientation="horizontal" />
     </LinearLayout>
 </layout>

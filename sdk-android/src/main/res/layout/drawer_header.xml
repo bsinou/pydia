@@ -5,16 +5,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:id="@+id/nav_header"
+    style="@style/Widget.Material3.Toolbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/margin_small"
-    android:theme="@style/ThemeOverlay.Cells.NavHeader">
+    android:padding="@dimen/margin_small">
 
+    <!--    android:theme="@style/ThemeOverlay.Cells.NavHeader"-->
     <!--    android:background="?attr/colorPrimaryDark"-->
     <!--    android:theme="@style/ThemeOverlay.AppCompat.Dark"-->
-    <ImageView
+    <!--<ImageView
         android:id="@+id/nav_header_logo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,11 +28,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/pydio_logo" />
-
+-->
     <TextView
         android:id="@+id/nav_header_primary_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_medium"
         android:paddingStart="@dimen/margin_xsmall"
         android:paddingTop="@dimen/margin_xsmall"
         android:paddingEnd="@dimen/margin_xsmall"
@@ -40,13 +41,16 @@
         android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
         app:layout_constraintEnd_toStartOf="@+id/nav_header_switch_account"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nav_header_logo"
-        tools:text="John" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="alice" />
+    <!--    app:layout_constraintTop_toBottomOf="@+id/nav_header_logo"-->
+
 
     <TextView
         android:id="@+id/nav_header_secondary_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_medium"
         android:paddingStart="@dimen/margin_xsmall"
         android:paddingTop="0dp"
         android:paddingEnd="@dimen/margin_xsmall"
@@ -61,13 +65,18 @@
         android:id="@+id/nav_header_switch_account"
         android:layout_width="@dimen/menu_header_icon"
         android:layout_height="@dimen/menu_header_icon"
-        android:backgroundTint="?attr/colorPrimary"
+        android:padding="@dimen/margin_xsmall"
+        android:layout_marginEnd="@dimen/margin_medium"
         android:clickable="true"
         android:contentDescription="@string/switch_account_description"
         android:focusable="true"
         android:src="@drawable/ic_baseline_switch_account_36"
         app:layout_constraintBottom_toBottomOf="@+id/nav_header_secondary_text"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <!--
+        android:backgroundTint="?attr/colorPrimary"
+    -->
 
     <!--    <ImageButton-->
     <!--        android:id="@+id/nav_header_exit"-->

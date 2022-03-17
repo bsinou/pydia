@@ -4,7 +4,7 @@
         <shape android:shape="rectangle"
             android:height="@dimen/list_icon_size"
             android:width="@dimen/list_icon_size">
-            <solid android:color="@color/iconBackground" />
+            <solid android:color="?attr/colorSurface" />
             <corners android:radius="@dimen/list_icon_corner_radius" />
         </shape>
     </item>

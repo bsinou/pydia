@@ -17,11 +17,8 @@
         style="?attr/bottomSheetStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/margin"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
-<!--        android:backgroundTint="@color/iconBackground"-->
 
         <!-- Header -->
         <include
@@ -130,5 +127,10 @@
                 android:text="@string/permanently_remove" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/margin"
+            android:orientation="horizontal" />
     </LinearLayout>
 </layout>

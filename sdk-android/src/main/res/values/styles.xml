@@ -32,7 +32,7 @@
     </style>
 
     <style name="Cells.AppBar" parent="Widget.Material3.Light.ActionBar.Solid">
-        <item name="titleTextColor">@color/cells_primary</item>
+<!--        <item name="titleTextColor">@color/cells_primary</item>-->
 <!--        <item name="background">@color/colorAccent</item>-->
     </style>
 

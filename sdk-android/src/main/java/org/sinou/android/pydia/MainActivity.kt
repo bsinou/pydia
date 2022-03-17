@@ -23,8 +23,8 @@ import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.databinding.ActivityMainBinding
-import org.sinou.android.pydia.ui.bindings.getWsIconForMenu
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
+import org.sinou.android.pydia.ui.bindings.getWsIconForMenu
 import org.sinou.android.pydia.ui.home.clearCache
 import org.sinou.android.pydia.ui.search.SearchFragment
 import org.sinou.android.pydia.utils.dumpBackStack
@@ -32,9 +32,9 @@ import org.sinou.android.pydia.utils.showMessage
 import java.util.*
 
 /**
- * Central activity for browsing, managing accounts and settings. Various
- * screens are implemented via fragments that are gathered in the ui package.
- * */
+ * Central activity for browsing, managing accounts and settings.
+ * The various screens are implemented via fragments. See in the ui package.
+ */
 class MainActivity : AppCompatActivity() {
 
     private val tag = MainActivity::class.simpleName
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         // Add custom listeners
         binding.navView.setNavigationItemSelectedListener(onMenuItemSelected)
 
-        configureObservers()
+        configureNavigationDrawer()
 
 // TODO back navigation is still clumsy, the "onBackPress() method from activity
         //   and thus the custom adapters are not called when back is triggered by clicking
@@ -97,7 +97,17 @@ class MainActivity : AppCompatActivity() {
 //            )
 //        })
         handleStateOrIntent(savedInstanceState)
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        Log.d(tag, "onCreateOptionsMenu: ${activeSessionVM.liveSession.value?.getStateID()}")
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.main_options, menu)
+        configureSearch(menu)
+        configureConnexionAlarm(menu)
+        configureLayoutSwitcher(menu)
+        configureSort(menu)
+        return true
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -108,24 +118,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun networkUsage() {
-        // Get running processes
-        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        val runningApps = manager.runningAppProcesses
-        for (runningApp in runningApps) {
-            val received = TrafficStats.getUidRxBytes(runningApp.uid)
-            val sent = TrafficStats.getUidTxBytes(runningApp.uid)
-            Log.d(
-                tag, java.lang.String.format(
-                    Locale.getDefault(),
-                    "uid: %1d - name: %s: Sent = %1d, Received = %1d",
-                    runningApp.uid,
-                    runningApp.processName,
-                    sent,
-                    received
-                )
-            )
-        }
+    override fun onResume() {
+        Log.d(tag, "onResume, intent: $intent")
+        Log.d(tag, "#### Calling network usage for: ${activeSessionVM.accountId}")
+        networkUsage()
+        super.onResume()
+        dumpBackStack(tag, supportFragmentManager)
     }
 
     private fun handleStateOrIntent(savedInstanceState: Bundle?) {
@@ -153,62 +151,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun closeDrawer() {
-        binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
+    private fun networkUsage() {
+        // Get running processes
+        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val runningApps = manager.runningAppProcesses
+        for (runningApp in runningApps) {
+            val received = TrafficStats.getUidRxBytes(runningApp.uid)
+            val sent = TrafficStats.getUidTxBytes(runningApp.uid)
+            Log.d(
+                tag, java.lang.String.format(
+                    Locale.getDefault(),
+                    "uid: %1d - name: %s: Sent = %1d, Received = %1d",
+                    runningApp.uid,
+                    runningApp.processName,
+                    sent,
+                    received
+                )
+            )
+        }
     }
 
-    private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
-        Log.i(tag, "... Item selected: #${it.itemId}")
-        var done = false
-        when (it.itemId) {
-            R.id.offline_root_list_destination -> {
-                Log.i(tag, "... OPEN Offline Root: #${it.itemId}")
-                activeSessionVM.liveSession.value?.let { session ->
-//                    val target = StateID.fromId(session.accountID)
-//                        .withPath(AppNames.CUSTOM_PATH_OFFLINE)
-//                    CellsApp.instance.setCurrentState(target)
-                    navController.navigate(MainNavDirections.openOfflineRoots())
-                    done = true
-                }
-            }
-            R.id.bookmark_list_destination -> {
-                activeSessionVM.liveSession.value?.let { session ->
-//                    val target = StateID.fromId(session.accountID)
-//                        .withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
-//                    CellsApp.instance.setCurrentState(target)
-                    navController.navigate(MainNavDirections.openBookmarks())
-                    done = true
-                }
-            }
-            R.id.clear_cache -> {
-                activeSessionVM.liveSession.value?.let { session ->
-                    clearCache(binding.root.context, session.accountID)
-                    done = true
-                }
-            }
-            else -> done = NavigationUI.onNavDestinationSelected(it, navController)
-        }
-        if (done) {
-            binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
-        }
-        done
-    }
-
-    private fun configureObservers() {
+    private fun configureNavigationDrawer() {
 
         // Configure navigation View header buttons
         val header = binding.navView.getHeaderView(0)
-        val switchBtn = header.findViewById<ImageButton>(R.id.nav_header_switch_account)
-        switchBtn?.setOnClickListener {
+        val switchAccountBtn = header.findViewById<ImageButton>(R.id.nav_header_switch_account)
+        switchAccountBtn?.setOnClickListener {
             navController.navigate(MainNavDirections.openAccountList())
             closeDrawer()
         }
-//        val exitBtn = header.findViewById<ImageButton>(R.id.nav_header_exit)
-//        exitBtn?.setOnClickListener {
-//            closeDrawer()
-//            finish()
-//            exitProcess(0)
-//        }
 
         if (activeSessionVM.accountId == null) {
             return
@@ -264,6 +235,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
+        Log.i(tag, "... Item selected: #${it.itemId}")
+        var done = false
+        when (it.itemId) {
+            R.id.offline_root_list_destination -> {
+                Log.i(tag, "... OPEN Offline Root: #${it.itemId}")
+                activeSessionVM.liveSession.value?.let { session ->
+//                    val target = StateID.fromId(session.accountID)
+//                        .withPath(AppNames.CUSTOM_PATH_OFFLINE)
+//                    CellsApp.instance.setCurrentState(target)
+                    navController.navigate(MainNavDirections.openOfflineRoots())
+                    done = true
+                }
+            }
+            R.id.bookmark_list_destination -> {
+                activeSessionVM.liveSession.value?.let { session ->
+//                    val target = StateID.fromId(session.accountID)
+//                        .withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
+//                    CellsApp.instance.setCurrentState(target)
+                    navController.navigate(MainNavDirections.openBookmarks())
+                    done = true
+                }
+            }
+            R.id.clear_cache -> {
+                activeSessionVM.liveSession.value?.let { session ->
+                    clearCache(binding.root.context, session.accountID)
+                    done = true
+                }
+            }
+            else -> done = NavigationUI.onNavDestinationSelected(it, navController)
+        }
+        if (done) {
+            binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
+        }
+        done
+    }
+
+    private fun closeDrawer() {
+        binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
+    }
+
     override fun onStart() {
         Log.d(tag, "onStart, intent: $intent")
         super.onStart()
@@ -272,14 +284,6 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         Log.d(tag, "onStop, intent: $intent")
         super.onStop()
-    }
-
-    override fun onResume() {
-        Log.d(tag, "onResume, intent: $intent")
-        Log.d(tag, "#### Calling network usage for: ${activeSessionVM.accountId}")
-        networkUsage()
-        super.onResume()
-        dumpBackStack(tag, supportFragmentManager)
     }
 
     override fun onPause() {
@@ -300,21 +304,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.main_options, menu)
-
+    private fun configureSearch(menu: Menu) {
         val searchItem = menu.findItem(R.id.search_edit_view)
         if (searchItem != null) {
             val searchView = searchItem.actionView as SearchView
             searchView.setOnQueryTextListener(SearchListener())
         }
-
-        configureConnexionAlarm(menu)
-        configureLayoutSwitcher(menu)
-        configureSort(menu)
-
-        return true
     }
 
     private fun configureConnexionAlarm(menu: Menu) {
@@ -332,7 +327,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         connexionAlarmBtn.setOnMenuItemClickListener {
-            activeSessionVM.liveSession.value?.let{
+            activeSessionVM.liveSession.value?.let {
                 val action = MainNavDirections.openManageConnection(it.accountID)
                 navController.navigate(action)
             }
@@ -352,18 +347,6 @@ class MainActivity : AppCompatActivity() {
             navController.navigate(action)
             return@setOnMenuItemClickListener true
         }
-    }
-
-    private fun needListOptions(): Boolean {
-        return navController.currentDestination?.let {
-            when (it.id) {
-                R.id.search_destination -> true
-                R.id.bookmark_list_destination -> true
-                R.id.browse_folder_destination -> true
-                R.id.offline_root_list_destination -> true
-                else -> false
-            }
-        } ?: false
     }
 
     private fun configureLayoutSwitcher(menu: Menu) {
@@ -410,6 +393,18 @@ class MainActivity : AppCompatActivity() {
 
             return@setOnMenuItemClickListener true
         }
+    }
+
+    private fun needListOptions(): Boolean {
+        return navController.currentDestination?.let {
+            when (it.id) {
+                R.id.search_destination -> true
+                R.id.bookmark_list_destination -> true
+                R.id.browse_folder_destination -> true
+                R.id.offline_root_list_destination -> true
+                else -> false
+            }
+        } ?: false
     }
 
     private fun getIcon(id: Int): Drawable? {

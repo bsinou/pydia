@@ -5,7 +5,7 @@
             android:width="@dimen/list_icon_size"
             android:height="@dimen/list_icon_size"
             android:shape="rectangle">
-            <solid android:color="@color/iconBackground" />
+            <solid android:color="?attr/background" />
             <corners android:radius="@dimen/list_icon_corner_radius" />
         </shape>
     </item>
@@ -15,6 +15,6 @@
         android:top="@dimen/margin_small">
         <bitmap
             android:src="@drawable/cells"
-            android:tint="@color/cells_primary" />
+            android:tint="?attr/colorControlNormal" />
     </item>
 </layer-list>

@@ -103,10 +103,22 @@ class MainActivity : AppCompatActivity() {
         Log.d(tag, "onCreateOptionsMenu: ${activeSessionVM.liveSession.value?.getStateID()}")
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main_options, menu)
-        configureSearch(menu)
-        configureConnexionAlarm(menu)
-        configureLayoutSwitcher(menu)
-        configureSort(menu)
+//        configureSearch(menu)
+//        configureConnexionAlarm(menu)
+//        configureLayoutSwitcher(menu)
+//        configureSort(menu)
+        return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        Log.d(tag, "onPrepareOptionsMenu: ${activeSessionVM.liveSession.value?.getStateID()}")
+        super.onPrepareOptionsMenu(menu)
+        menu?.let{
+            configureSearch(it)
+            configureConnexionAlarm(it)
+            configureLayoutSwitcher(it)
+            configureSort(it)
+        }
         return true
     }
 

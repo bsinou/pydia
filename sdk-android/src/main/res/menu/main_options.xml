@@ -17,6 +17,13 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/clear_transfer_table"
+        android:icon="@drawable/ic_outline_delete_sweep_24"
+        android:title="@string/button_clear_transfer_list"
+        android:visible="false"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/switch_recycler_layout"
         android:icon="@drawable/ic_sharp_grid_view_24"
         android:title="@string/button_switch_to_grid_layout" />

@@ -41,6 +41,7 @@ class OfflineRootsFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_offine_root_list, container, false
         )
+        setHasOptionsMenu(true)
 
         return binding.root
     }

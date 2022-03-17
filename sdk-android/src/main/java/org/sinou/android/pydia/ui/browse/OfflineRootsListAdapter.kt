@@ -38,7 +38,7 @@ class OfflineRootsListAdapter(
                 binding.offlineRoot?.let { onItemClicked(it, AppNames.ACTION_OPEN) }
             }
 
-            binding.listItemMoreButton.setOnClickListener {
+            binding.moreButton.setOnClickListener {
                 binding.offlineRoot?.let { onItemClicked(it, AppNames.ACTION_MORE) }
             }
 

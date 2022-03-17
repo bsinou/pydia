@@ -49,6 +49,8 @@ class BookmarksFragment : Fragment() {
             inflater, R.layout.fragment_bookmark_list, container, false
         )
         findNavController().addOnDestinationChangedListener(ChangeListener())
+        // Insure the option menu (and toolbar icons) get refreshed
+        setHasOptionsMenu(true)
 
         return binding.root
     }

@@ -14,6 +14,7 @@
     <string name="button_switch_to_list_layout">Show as list</string>
     <string name="button_open_sort_by">Sort by…</string>
     <string name="button_open_connexion_center">Manage connexion</string>
+    <string name="button_clear_transfer_list">Clear transfer list</string>
 
     <!-- Navigation labels -->
     <string name="action_home">Home</string>

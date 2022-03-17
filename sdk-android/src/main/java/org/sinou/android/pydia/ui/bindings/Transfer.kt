@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import android.util.Log
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -20,6 +21,17 @@ fun TextView.setTransferText(item: RUpload?) {
         val state = item.getStateId()
         text = "${state.fileName} -> ${state.username}@${state.serverHost}"
     }
+}
+
+@BindingAdapter("transferIcon")
+fun ImageView.setTransferIcon(item: RUpload?) {
+    // TODO finalise this
+    //    also add a status flag ?
+    if (item == null) {
+        setImageResource(R.drawable.ic_baseline_cloud_upload_24)
+        return
+    }
+    setImageResource(R.drawable.ic_baseline_cloud_upload_24)
 }
 
 @BindingAdapter("transferStatus")

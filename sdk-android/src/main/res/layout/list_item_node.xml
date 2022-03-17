@@ -61,7 +61,7 @@
             android:layout_marginStart="@dimen/margin"
             android:layout_marginTop="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/list_item_more_button"
+            app:layout_constraintEnd_toStartOf="@id/more_button"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@+id/node_thumb"
             app:layout_constraintTop_toBottomOf="@id/node_label"
@@ -77,7 +77,7 @@
             android:animateLayoutChanges="true"
             android:padding="@dimen/margin_small"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/list_item_more_button"
+            app:layout_constraintEnd_toStartOf="@+id/more_button"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintVertical_bias="0.4"
             app:layout_constraintStart_toEndOf="@+id/node_label"
@@ -125,7 +125,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/list_item_more_button"
+            android:id="@+id/more_button"
             android:layout_width="@dimen/list_icon_size"
             android:layout_height="@dimen/list_icon_size"
             android:layout_margin="@dimen/list_icon_margin"

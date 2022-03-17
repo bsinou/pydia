@@ -3,6 +3,7 @@ package org.sinou.android.pydia.ui.upload
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
@@ -52,15 +54,25 @@ class TransferListFragment : Fragment() {
 //            }
 //        }
 
-        binding.clearList.setOnClickListener {
-            showMessage(requireContext(), "to do: clear out the list")
-        }
-
+        setHasOptionsMenu(true)
         return binding.root
     }
 
     private fun onClicked(node: RUpload, command: String) {
         Log.i(fTag, "Clicked on ${node.encodedState} -> $command")
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+
+        val connexionAlarmBtn = menu.findItem(R.id.clear_transfer_table)
+        connexionAlarmBtn.isVisible = true
+
+        connexionAlarmBtn.setOnMenuItemClickListener {
+            showMessage(requireContext(), "to do: clear out the list")
+            return@setOnMenuItemClickListener true
+        }
+
     }
 
     override fun onResume() {

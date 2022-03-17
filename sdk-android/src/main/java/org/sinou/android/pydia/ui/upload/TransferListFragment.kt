@@ -13,10 +13,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentTransferListBinding
-import org.sinou.android.pydia.db.runtime.RUpload
+import org.sinou.android.pydia.db.runtime.RTransfer
+import org.sinou.android.pydia.ui.browse.OfflineRootsFragmentDirections
+import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 import org.sinou.android.pydia.utils.dumpBackStack
 import org.sinou.android.pydia.utils.showMessage
 
@@ -32,10 +33,6 @@ class TransferListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        binding = DataBindingUtil.inflate(
-            inflater, R.layout.fragment_transfer_list, container, false
-        )
-
         val viewModelFactory = TransferViewModel.TransferViewModelFactory(
             CellsApp.instance.transferService,
             requireActivity().application,
@@ -43,23 +40,30 @@ class TransferListFragment : Fragment() {
         val tmpVM: TransferViewModel by viewModels { viewModelFactory }
         transferVM = tmpVM
 
+        setHasOptionsMenu(true)
+        binding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_transfer_list, container, false
+        )
+
+
         binding.transferList.layoutManager = LinearLayoutManager(activity)
         val adapter = TransferListAdapter(this::onClicked)
         binding.transferList.adapter = adapter
         transferVM.transfers.observe(viewLifecycleOwner) { adapter.submitList(it) }
 
-//        binding.forceLaunch.setOnClickListener {
-//            lifecycleScope.launch {
-//                CellsApp.instance.nodeService.uploadAllNew()
-//            }
-//        }
-
-        setHasOptionsMenu(true)
         return binding.root
     }
 
-    private fun onClicked(node: RUpload, command: String) {
+    private fun onClicked(node: RTransfer, command: String) {
         Log.i(fTag, "Clicked on ${node.encodedState} -> $command")
+        when (command) {
+            // AppNames.ACTION_OPEN -> navigateTo(node)
+            AppNames.ACTION_MORE -> {
+                val action = TransferListFragmentDirections.openTransferMenu(node.transferId)
+                findNavController().navigate(action)
+            }
+            else -> return // do nothing
+        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -69,7 +73,7 @@ class TransferListFragment : Fragment() {
         connexionAlarmBtn.isVisible = true
 
         connexionAlarmBtn.setOnMenuItemClickListener {
-            showMessage(requireContext(), "to do: clear out the list")
+            transferVM.transferService.clearTerminated()
             return@setOnMenuItemClickListener true
         }
 

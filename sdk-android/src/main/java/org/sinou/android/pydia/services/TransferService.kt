@@ -16,9 +16,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.runtime.RUpload
+import org.sinou.android.pydia.db.runtime.RTransfer
 import org.sinou.android.pydia.db.runtime.RuntimeDB
-import org.sinou.android.pydia.db.runtime.UploadDao
+import org.sinou.android.pydia.db.runtime.TransferDao
 import java.io.*
 import java.util.*
 
@@ -34,7 +34,7 @@ class TransferService(
     private val transferServiceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + transferServiceJob)
 
-    val activeTransfers: LiveData<List<RUpload>?> = runtimeDB.uploadDao().getActiveTransfers()
+    val activeTransfers: LiveData<List<RTransfer>?> = runtimeDB.transferDao().getActiveTransfers()
 
     fun enqueueUpload(parentID: StateID, uri: Uri) {
         val cr = CellsApp.instance.contentResolver
@@ -47,48 +47,55 @@ class TransferService(
         }
     }
 
+    fun clearTerminated() {
+        serviceScope.launch {
+            runtimeDB.transferDao().clearTerminatedTransfers()
+        }
+    }
+
+
     private fun uploadOne(id: String) {
         val uploadRecord = getUploadDao().get(id)
             ?: throw java.lang.IllegalStateException("No upload record found for $id")
         doUpload(uploadRecord)
     }
 
-    private fun doUpload(uploadRecord: RUpload) {
+    private fun doUpload(transferRecord: RTransfer) {
         // Real upload in single part
         var inputStream: InputStream? = null
         try {
             // Mark the upload as started
-            uploadRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            getUploadDao().update(uploadRecord)
+            transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            getUploadDao().update(transferRecord)
             val fs = CellsApp.instance.fileService
-            val state = uploadRecord.getStateId()
+            val state = transferRecord.getStateId()
             var srcPath = fs.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
             var srcFile = File(srcPath)
             inputStream = FileInputStream(srcFile)
 
             val parent = state.parentFolder()
             accountService.getClient(state).upload(
-                inputStream, uploadRecord.byteSize,
-                uploadRecord.mime, parent.workspace, parent.file, state.fileName,
+                inputStream, transferRecord.byteSize,
+                transferRecord.mime, parent.workspace, parent.file, state.fileName,
                 true
             ) { progressL ->
-                uploadRecord.progress = progressL
-                getUploadDao().update(uploadRecord)
+                transferRecord.progress = progressL
+                getUploadDao().update(transferRecord)
                 true
             }
 
-            uploadRecord.error = null
-            uploadRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            transferRecord.error = null
+            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
             // uploadRecord.progress = 100
 
         } catch (e: Exception) {
             // TODO manage errors correctly
-            uploadRecord.error = e.message
+            transferRecord.error = e.message
             e.printStackTrace()
         } finally {
             IoHelpers.closeQuietly(inputStream)
-            uploadRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            getUploadDao().update(uploadRecord)
+            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            getUploadDao().update(transferRecord)
         }
     }
 
@@ -104,8 +111,8 @@ class TransferService(
         }
     }
 
-    fun getUploadDao(): UploadDao {
-        return runtimeDB.uploadDao()
+    fun getUploadDao(): TransferDao {
+        return runtimeDB.transferDao()
     }
 
     /**
@@ -146,8 +153,8 @@ class TransferService(
         //   in Cells app storage
         val fs = fileService
         val targetStateID = createLocalState(parentID, name as String)
-        val localFile =
-            File(fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_CACHE))
+        val localPath = fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_CACHE)
+        val localFile = File(localPath)
         localFile.parentFile!!.mkdirs()
         //val localFile = createTargetFile(parentID, name as String)
 
@@ -172,9 +179,14 @@ class TransferService(
             IoHelpers.closeQuietly(outputStream)
         }
 
-        val rec = RUpload.fromState(targetStateID.id, "device", size, mime)
-        val dao = RuntimeDB.getDatabase(CellsApp.instance.applicationContext).uploadDao()
-        dao.insert(rec)
+        val rec = RTransfer.fromState(
+            targetStateID.id,
+            AppNames.TRANSFER_TYPE_UPLOAD,
+            localPath,
+            size,
+            mime
+        )
+        runtimeDB.transferDao().insert(rec)
         return targetStateID
     }
 

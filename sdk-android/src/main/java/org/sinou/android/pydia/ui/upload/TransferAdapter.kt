@@ -6,44 +6,31 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.databinding.ListItemTransferBinding
-import org.sinou.android.pydia.db.runtime.RUpload
+import org.sinou.android.pydia.db.runtime.RTransfer
 
 class TransferListAdapter(
-    private val onItemClicked: (node: RUpload, command: String) -> Unit
-) : ListAdapter<RUpload, TransferListAdapter.ViewHolder>(TransferDiffCallback()) {
+    private val onItemClicked: (node: RTransfer, command: String) -> Unit
+) : ListAdapter<RTransfer, TransferListAdapter.ViewHolder>(TransferDiffCallback()) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item)
+        holder.bind(item, onItemClicked)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent).with(onItemClicked)
+        return ViewHolder.from(parent)
     }
 
     class ViewHolder private constructor(val binding: ListItemTransferBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: RUpload) {
+        fun bind(item: RTransfer, onItemClicked: (node: RTransfer, command: String) -> Unit) {
             binding.transfer = item
-            binding.executePendingBindings()
-        }
-
-        fun with(
-            onItemClicked: (node: RUpload, command: String) -> Unit
-        ): ViewHolder {
-
-            /*binding.restart.setOnClickListener {
-                binding.transfer?.let { onItemClicked(it, AppNames.ACTION_RESTART) }
+            binding.moreButton.setOnClickListener {
+                onItemClicked(item, AppNames.ACTION_MORE)
             }
-
-            binding.listItemMore.setOnClickListener {
-                binding.transfer?.let { onItemClicked(it, AppNames.ACTION_CANCEL) }
-            }*/
-
-            return this
+            binding.executePendingBindings()
         }
 
         companion object {
@@ -56,13 +43,13 @@ class TransferListAdapter(
     }
 }
 
-class TransferDiffCallback : DiffUtil.ItemCallback<RUpload>() {
+class TransferDiffCallback : DiffUtil.ItemCallback<RTransfer>() {
 
-    override fun areItemsTheSame(oldItem: RUpload, newItem: RUpload): Boolean {
+    override fun areItemsTheSame(oldItem: RTransfer, newItem: RTransfer): Boolean {
         return oldItem.encodedState == newItem.encodedState
     }
 
-    override fun areContentsTheSame(oldItem: RUpload, newItem: RUpload): Boolean {
+    override fun areContentsTheSame(oldItem: RTransfer, newItem: RTransfer): Boolean {
         return  oldItem.doneTimestamp == newItem.doneTimestamp
                 && oldItem.error == newItem.error
                 && oldItem.progress == newItem.progress

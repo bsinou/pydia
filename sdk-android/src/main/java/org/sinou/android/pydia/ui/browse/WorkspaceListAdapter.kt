@@ -88,12 +88,12 @@ class WorkspaceListAdapter(
 
         fun bind(item: RWorkspace, onItemClicked: (slug: String, command: String) -> Unit) {
             binding.workspace = item
-            binding.executePendingBindings()
             binding.root.setOnClickListener {
                 binding.workspace?.let {
                     onItemClicked(it.slug, AppNames.ACTION_OPEN)
                 }
             }
+            binding.executePendingBindings()
         }
 
         companion object {

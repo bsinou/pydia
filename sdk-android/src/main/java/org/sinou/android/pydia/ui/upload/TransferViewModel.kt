@@ -1,22 +1,25 @@
 package org.sinou.android.pydia.ui.upload
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import org.sinou.android.pydia.services.TransferService
 
 /**
  * Hold a list of current transfers
  */
 class TransferViewModel(
-    private val transferService: TransferService,
+    val transferService: TransferService,
     application: Application
 ) : AndroidViewModel(application) {
 
     private val tag = TransferViewModel::class.java.simpleName
 
     val transfers = transferService.activeTransfers
+
+//    // Manage UI
+//    private val _isLoading = MutableLiveData<Boolean>()
+//    val isLoading: LiveData<Boolean>
+//        get() = _isLoading
 
     class TransferViewModelFactory(
         private val transferService: TransferService,

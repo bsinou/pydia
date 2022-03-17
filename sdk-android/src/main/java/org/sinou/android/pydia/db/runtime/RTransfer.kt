@@ -5,18 +5,26 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.pydio.cells.transport.StateID
 
-@Entity(tableName = "uploads")
-data class RUpload(
+@Entity(tableName = "transfers")
+data class RTransfer(
     @PrimaryKey(autoGenerate = true)
-    var uploadId: Long = 0L,
+    var transferId: Long = 0L,
 
     @ColumnInfo(name = "encoded_state") val encodedState: String,
 
-    @ColumnInfo(name = "source") val source: String,
+    // TODO use an enum
+    // download, upload
+    @ColumnInfo(name = "type") val type: String,
+
+    @ColumnInfo(name = "path") val path: String,
 
     @ColumnInfo(name = "byte_size") val byteSize: Long,
 
     @ColumnInfo(name = "mime") val mime: String,
+
+    @ColumnInfo(name = "md5") var md5: String? = null,
+
+    @ColumnInfo(name = "multipart") val multipart: Boolean = false,
 
     @ColumnInfo(name = "start_ts") var startTimestamp: Long = -1L,
 
@@ -27,20 +35,22 @@ data class RUpload(
     @ColumnInfo(name = "progress") var progress: Long = 0,
 ) {
 
-    fun getStateId(): StateID{
+    fun getStateId(): StateID {
         return StateID.fromId(encodedState)
     }
 
     companion object {
         fun fromState(
             encodedState: String,
-            source: String,
+            type: String,
+            path: String,
             byteSize: Long,
             mime: String
-        ): RUpload {
-            return RUpload(
+        ): RTransfer {
+            return RTransfer(
                 encodedState = encodedState,
-                source = source,
+                path = path,
+                type = type,
                 byteSize = byteSize,
                 mime = mime,
             )

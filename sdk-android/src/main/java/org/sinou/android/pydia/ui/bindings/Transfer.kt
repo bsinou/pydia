@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -12,11 +13,11 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.db.runtime.RUpload
+import org.sinou.android.pydia.db.runtime.RTransfer
 
 @SuppressLint("SetTextI18n")
 @BindingAdapter("transferText")
-fun TextView.setTransferText(item: RUpload?) {
+fun TextView.setTransferText(item: RTransfer?) {
     item?.let {
         val state = item.getStateId()
         text = "${state.fileName} -> ${state.username}@${state.serverHost}"
@@ -24,26 +25,25 @@ fun TextView.setTransferText(item: RUpload?) {
 }
 
 @BindingAdapter("transferIcon")
-fun ImageView.setTransferIcon(item: RUpload?) {
-    // TODO finalise this
-    //    also add a status flag ?
+fun ImageView.setTransferIcon(item: RTransfer?) {
     if (item == null) {
-        setImageResource(R.drawable.ic_baseline_cloud_upload_24)
         return
     }
-    setImageResource(R.drawable.ic_baseline_cloud_upload_24)
+    setImageResource(
+        when (item.type) {
+            AppNames.TRANSFER_TYPE_DOWNLOAD -> R.drawable.ic_baseline_cloud_download_24
+            else -> R.drawable.ic_baseline_cloud_upload_24
+        }
+    )
 }
 
 @BindingAdapter("transferStatus")
-fun TextView.setTransferStatus(item: RUpload?) {
+fun TextView.setTransferStatus(item: RTransfer?) {
     item?.let {
 
         val sizeValue = Formatter.formatShortFileSize(this.context, item.byteSize)
         var desc = "$sizeValue,"
-
         // TODO handle error
-
-
         if (item.doneTimestamp > 0) {
 
             val mTimeValue = DateUtils.formatDateTime(
@@ -72,11 +72,33 @@ fun TextView.setTransferStatus(item: RUpload?) {
 }
 
 @BindingAdapter("updateProgress")
-fun ProgressBar.setUpdateProgress(item: RUpload?) {
+fun ProgressBar.setUpdateProgress(item: RTransfer?) {
     item?.let {
         val percentage = (it.progress * 100) / it.byteSize
         Log.e("Progress", "${it.progress} - ${it.byteSize} - $percentage")
         progress = percentage.toInt()
+    }
+}
+
+@BindingAdapter("showForFailedOnly")
+fun View.showForFailedOnly(item: RTransfer?) {
+    item?.let {
+        visibility = if (Str.notEmpty(item.error)) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+}
+
+@BindingAdapter("showForDoneOnly")
+fun View.showForDoneOnly(item: RTransfer?) {
+    item?.let {
+        visibility = if (it.doneTimestamp > 0) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
     }
 }
 

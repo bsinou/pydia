@@ -14,6 +14,7 @@ public interface AppNames {
     String KEY_DESTINATION = KEY_PREFIX_ + "destination";
 
     /* SHARED PREFERENCE WELL KNOWN VALUES */
+
     String RECYCLER_LAYOUT_LIST = "list";
     String RECYCLER_LAYOUT_GRID = "grid";
     int ITEM_TYPE_HEADER = 0;
@@ -29,7 +30,7 @@ public interface AppNames {
     String SORT_BY_ASC = "ASC";
     String SORT_BY_DESC = "DESC";
 
-    /* GENERIC ACTIONS */
+    /* Generic actions */
     String ACTION_MORE = KEY_PREFIX_ + "more";
     String ACTION_OPEN = KEY_PREFIX_ + "open";
     String ACTION_CANCEL = KEY_PREFIX_ + "cancel";
@@ -43,13 +44,17 @@ public interface AppNames {
     String ACTION_LOGOUT = "logout";
     String ACTION_FORGET = "forget";
 
-    /* SUPPORTED MODIFICATION STATUS */
+    /* Supported modification status */
     String LOCAL_MODIF_DELETE = "deleting";
     String LOCAL_MODIF_RENAME = "renaming";
     String LOCAL_MODIF_MOVE = "moving";
     String LOCAL_MODIF_RESTORE = "restore";
 
-    /* INTENTS */
+    /* Known transfer types */
+    String TRANSFER_TYPE_DOWNLOAD = "download";
+    String TRANSFER_TYPE_UPLOAD = "upload";
+
+    /* Intents extra keys */
     String EXTRA_STATE = KEY_PREFIX_ + "state";
     String EXTRA_SERVER_URL = KEY_PREFIX_ + "server.url";
     String EXTRA_SERVER_IS_LEGACY = KEY_PREFIX_ + "server.islegacy";

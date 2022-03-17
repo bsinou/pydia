@@ -49,11 +49,9 @@ class NodeService(
 
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
         var order = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
-        if (Str.empty(order)) order = AppNames.SORT_BY_NAME
+        if (Str.empty(order)) order = AppNames.SORT_BY_CANON
         var direction = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
         if (Str.empty(direction)) direction = AppNames.SORT_BY_ASC
-
-        Log.i(tag, "Listing nodes for $stateID ORDER BY $order $direction")
 
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +

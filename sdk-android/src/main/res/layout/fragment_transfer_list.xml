@@ -9,54 +9,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+        <!--        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
+        <!--            android:id="@+id/force_refresh"-->
         <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content">-->
+        <!--            android:layout_height="match_parent">-->
 
-        <!--            <TextView-->
-        <!--                android:id="@+id/account_title"-->
-        <!--                style="@style/text_header"-->
-        <!--                android:layout_width="0dp"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_margin="@dimen/margin"-->
-        <!--                app:layout_constraintEnd_toEndOf="parent"-->
-        <!--                app:layout_constraintStart_toStartOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent"-->
-        <!--                tools:text="Server: https://files.example.com" />-->
-
-        <!--            <TextView-->
-        <!--                android:id="@+id/account_description"-->
-        <!--                style="@style/text_body"-->
-        <!--                android:layout_width="0dp"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                app:layout_constraintStart_toStartOf="@id/account_title"-->
-        <!--                app:layout_constraintTop_toBottomOf="@id/account_title"-->
-        <!--                tools:text="Logged in as volodomir" />-->
-
-        <!--            <ImageView-->
-        <!--                android:id="@+id/clear_list"-->
-        <!--                android:layout_width="@dimen/icon_size"-->
-        <!--                android:layout_height="@dimen/icon_size"-->
-        <!--                android:layout_margin="@dimen/margin_medium"-->
-        <!--                android:src="@drawable/ic_baseline_check_24"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintEnd_toEndOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="parent"-->
-        <!--                app:tint="@color/ok" />-->
-
-        <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/force_refresh"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/transfer_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/transfer_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        <!--        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
 
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

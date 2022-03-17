@@ -148,6 +148,9 @@
     <string name="auth_ok">Account is connected</string>
     <string name="auth_err_expired">Credentials are expired</string>
     <string name="auth_err_no_token">No or invalid credentials</string>
+    <!--Transfers -->
+    <string name="relaunch_transfer">Re-launch transfer</string>
+    <string name="delete_record">Delete record</string>
 
     <!-- Local modification status -->
     <string name="in_progress_deleting">Deleting…</string>

@@ -5,10 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = arrayOf(RUpload::class), version = 1, exportSchema = false)
+@Database(entities = arrayOf(RTransfer::class), version = 1, exportSchema = false)
 abstract class RuntimeDB : RoomDatabase() {
 
-    abstract fun uploadDao(): UploadDao
+    abstract fun transferDao(): TransferDao
 
     companion object {
         @Volatile

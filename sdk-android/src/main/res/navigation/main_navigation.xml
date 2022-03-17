@@ -122,6 +122,52 @@
             app:destination="@id/tree_node_more_menu" />
     </fragment>
 
+    <!-- ACCOUNT MANAGEMENT -->
+
+    <fragment
+        android:id="@+id/account_list_destination"
+        android:name="org.sinou.android.pydia.ui.account.AccountListFragment"
+        android:label="@string/account_list_title"
+        tools:layout="@layout/fragment_account_list" />
+
+    <!-- VARIOUS -->
+
+    <fragment
+        android:id="@+id/home_destination"
+        android:name="org.sinou.android.pydia.ui.home.LandingFragment"
+        android:label="@string/welcome_title"
+        tools:layout="@layout/fragment_landing" />
+
+    <fragment
+        android:id="@+id/transfer_list_destination"
+        android:name="org.sinou.android.pydia.ui.upload.TransferListFragment"
+        android:label="@string/transfer_list_title"
+        tools:layout="@layout/fragment_transfer_list" >
+        <action
+            android:id="@+id/open_transfer_menu"
+            app:destination="@id/transfer_more_menu" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/about_destination"
+        android:name="org.sinou.android.pydia.ui.home.AboutFragment"
+        android:label="@string/action_open_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/sample_destination"
+        android:name="org.sinou.android.pydia.ui.home.SampleFragment"
+        android:label="@string/action_open_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/settings_destination"
+        android:name="org.sinou.android.pydia.ui.home.SettingsFragment"
+        android:label="@string/action_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <!-- MENUS -->
+
     <dialog
         android:id="@+id/tree_node_more_menu"
         android:name="org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment"
@@ -148,44 +194,12 @@
             app:argType="string" />
     </dialog>
 
-    <!-- ACCOUNT MANAGEMENT -->
-
-    <fragment
-        android:id="@+id/account_list_destination"
-        android:name="org.sinou.android.pydia.ui.account.AccountListFragment"
-        android:label="@string/account_list_title"
-        tools:layout="@layout/fragment_account_list" />
-
-    <!-- VARIOUS -->
-
-    <fragment
-        android:id="@+id/home_destination"
-        android:name="org.sinou.android.pydia.ui.home.LandingFragment"
-        android:label="@string/welcome_title"
-        tools:layout="@layout/fragment_landing" />
-
-    <fragment
-        android:id="@+id/transfer_list_destination"
-        android:name="org.sinou.android.pydia.ui.upload.TransferListFragment"
-        android:label="@string/transfer_list_title"
-        tools:layout="@layout/fragment_transfer_list" />
-
-    <fragment
-        android:id="@+id/about_destination"
-        android:name="org.sinou.android.pydia.ui.home.AboutFragment"
-        android:label="@string/action_open_about"
-        tools:layout="@layout/fragment_about" />
-
-    <fragment
-        android:id="@+id/sample_destination"
-        android:name="org.sinou.android.pydia.ui.home.SampleFragment"
-        android:label="@string/action_open_about"
-        tools:layout="@layout/fragment_about" />
-
-    <fragment
-        android:id="@+id/settings_destination"
-        android:name="org.sinou.android.pydia.ui.home.SettingsFragment"
-        android:label="@string/action_settings"
-        tools:layout="@layout/fragment_settings" />
+    <dialog
+        android:id="@+id/transfer_more_menu"
+        android:name="org.sinou.android.pydia.ui.menus.TransferMenuFragment">
+        <argument
+            android:name="transferUid"
+            app:argType="long" />
+    </dialog>
 
 </navigation>

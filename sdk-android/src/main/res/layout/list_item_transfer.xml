@@ -10,7 +10,7 @@
 
         <variable
             name="transfer"
-            type="org.sinou.android.pydia.db.runtime.RUpload" />
+            type="org.sinou.android.pydia.db.runtime.RTransfer" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

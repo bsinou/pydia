@@ -15,7 +15,7 @@ import org.sinou.android.pydia.tasks.loginAccount
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
 
 /**
- * Menu that can be opened when  current session connection is broken to explain status
+ * Menu that can be opened when current session connection is broken to explain status
  * and suggest options to the end user.
  */
 class ConnectionMenuFragment : BottomSheetDialogFragment() {

@@ -17,12 +17,20 @@ class CarouselViewModel(
     accountService: AccountService,
     nodeService: NodeService,
     parentFolder: StateID,
-    val startElement: StateID,
+    startElement: StateID,
     application: Application
 ) : AndroidViewModel(application) {
 
     private val tag = CarouselViewModel::class.simpleName
     val elements = nodeService.listViewable(parentFolder, "image/")
+
+    private var _currActive = startElement
+    val currActive: StateID
+        get() = _currActive
+
+    fun setActive(stateID: StateID){
+        _currActive = stateID
+    }
 
     init {
         Log.i(tag, "init, startElement: $startElement")

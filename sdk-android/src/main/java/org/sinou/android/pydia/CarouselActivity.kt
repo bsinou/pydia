@@ -16,15 +16,11 @@ import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.MultiTransformation
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.databinding.ActivityCarouselBinding
-import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.ui.viewer.CarouselViewModel
 import java.io.File
 
@@ -101,7 +97,6 @@ class CarouselActivity : AppCompatActivity() {
             }
 
             override fun populate(view: View, index: Int) {
-                Log.w(tag, "populating view at ${index}")
                 if (view is ImageView) {
                     val currItem = carouselVM.elements.value!![index]
                     val lf = fs.getThumbPath(currItem)
@@ -118,8 +113,11 @@ class CarouselActivity : AppCompatActivity() {
 
             override fun onNewItem(index: Int) {
                 // Retrieve the encoded state of the current item and store it in the view model
-                // to stay at the same place upon restart.
-                Log.i(tag, "onNewItem, index: $index")
+                // to stay at the same index upon restart / configuration change.
+                carouselVM.elements.value?.let {
+                    val currItem = it[index]
+                    carouselVM.setActive(currItem.getStateID())
+                }
             }
         })
     }
@@ -137,29 +135,23 @@ class CarouselActivity : AppCompatActivity() {
         jumpToIndex()
     }
 
-    private fun jumpToIndex(){
-        if (binding.carousel != null) {
-            val currItems = carouselVM.elements.value!!
-            var startItem: RTreeNode? = null
-            var index: Int = -1
-            var i = 0
-            for (currNode in currItems) {
-                if (currNode.encodedState == carouselVM.startElement.id) {
-                    startItem = currNode
-                    index = i
-                    break
-                }
-                i++
+    private fun jumpToIndex() {
+        val currItems = carouselVM.elements.value!!
+        var index: Int = -1
+        var i = 0
+        for (currNode in currItems) {
+            if (currNode.encodedState == carouselVM.currActive.id) {
+                index = i
+                break
             }
-            Log.w(tag, "... Got a carousel, start index: $index")
+            i++
+        }
+        Log.w(tag, "... Got a carousel, start index: $index")
 
-            if (index > 0) {
-                binding.carousel.jumpToIndex(index)
-            } else {
-                binding.carousel.refresh()
-            }
+        if (index > 0) {
+            binding.carousel.jumpToIndex(index)
         } else {
-            Log.w(tag, "...**NO** carousel")
+            binding.carousel.refresh()
         }
     }
 
@@ -177,33 +169,6 @@ class CarouselActivity : AppCompatActivity() {
         Log.i(tag, "onStop, intent: $intent")
         super.onStop()
     }
-
-
-//    add or remove elements dynamically
-
-    //    private void setupCarouselDemo50(Carousel carousel) {
-    //        TextView text = findViewById(R.id.text);
-    //        Button buttonAdd = findViewById(R.id.add);
-    //        if (buttonAdd != null) {
-    //            buttonAdd.setOnClickListener(view -> {
-    //                numImages++;
-    //                if (text != null) {
-    //                    text.setText("" + numImages + " images");
-    //                }
-    //                carousel.refresh();
-    //            });
-    //        }
-    //        Button buttonRemove = findViewById(R.id.remove);
-    //        if (buttonRemove != null) {
-    //            buttonRemove.setOnClickListener(view -> {
-    //                numImages = 0;
-    //                if (text != null) {
-    //                    text.setText("" + numImages + " images");
-    //                }
-    //                carousel.refresh();
-    //            });
-    //        }
-    //    }
 }
 
 /**

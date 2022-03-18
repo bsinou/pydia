@@ -22,14 +22,14 @@
         android:icon="@android:drawable/star_on"
         android:label="@string/application_title"
         android:supportsRtl="true"
-        android:theme="@style/Theme.md3">
+        android:theme="@style/Theme.Md3">
 
 <!--
         android:theme="@style/Theme.Cells"-->
         <activity
             android:name=".LandActivity"
             android:exported="true"
-            android:theme="@style/Theme.Cells.SplashScreen">
+            android:theme="@style/Theme.Md3.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

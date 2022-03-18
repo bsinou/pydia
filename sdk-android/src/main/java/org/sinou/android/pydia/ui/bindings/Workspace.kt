@@ -6,15 +6,18 @@ import androidx.databinding.BindingAdapter
 import com.pydio.cells.api.SdkNames
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.accounts.RWorkspace
+import java.util.*
 
 @BindingAdapter("wsHeaderLabel")
 fun TextView.setWsHeaderLabel(type: String?) {
     type?.let {
-        text =
+        val type =
             when (it) {
-                SdkNames.WS_TYPE_CELL -> "Cells"
-                else -> "Workspaces"
+                SdkNames.WS_TYPE_CELL -> this.resources.getString(R.string.category_cells)
+                else -> this.resources.getString(R.string.category_workspaces)
             }
+        text = type.uppercase(Locale.getDefault())
+        // text = type
     }
 }
 

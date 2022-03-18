@@ -79,30 +79,41 @@ fun TextView.setAccountSecondaryText(item: RLiveSession?) {
     }
 }
 
-@SuppressLint("SetTextI18n")
 @BindingAdapter("session_status_desc")
 fun TextView.setSessionStatusDesc(item: RLiveSession?) {
     item?.let {
-        val errorMsg = this.resources.getString(when(item.authStatus){
-            AUTH_STATUS_EXPIRED -> R.string.auth_err_expired
-            AUTH_STATUS_CONNECTED -> R.string.auth_ok
-            else -> R.string.auth_err_no_token
-        })
-        text = "[${item.authStatus}] $errorMsg"
+        val errorMsg = this.resources.getString(
+            when (item.authStatus) {
+                AUTH_STATUS_EXPIRED -> R.string.auth_err_expired
+                AUTH_STATUS_CONNECTED -> R.string.auth_ok
+                else -> R.string.auth_err_no_token
+            }
+        )
+
+        text = this.resources.getString(
+            R.string.no_connection_status,
+            item.url,
+            item.username,
+            errorMsg
+        )
+        "[${item.authStatus}] $errorMsg"
     }
 }
 
 @BindingAdapter("accountHomePrimary")
 fun TextView.setAccountHomePrimary(item: RLiveSession?) {
     item?.let {
-        text = this.resources.getString(R.string.account_server_label, item.url)
+        // text = this.resources.getString(R.string.account_server_label, item.url)
+        //text = it.username.uppercase(Locale.getDefault())
+        text = it.username
     }
 }
 
 @BindingAdapter("accountHomeSecondary")
 fun TextView.setAccountHomeSecondary(item: RLiveSession?) {
     item?.let {
-        text = this.resources.getString(R.string.account_logged_in_as_label, item.username)
+//        text = this.resources.getString(R.string.account_logged_in_as_label, item.username)
+        text = it.url
     }
 }
 

@@ -19,32 +19,37 @@
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <TextView
-            style="@style/TextAppearance.Material3.BodyLarge"
             android:id="@+id/title"
-            app:account_secondary_text="@{session}"
+            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical|start"
-            android:layout_margin="@dimen/margin_small"/>
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
+            android:text="@string/no_connection_title" />
 
         <TextView
             android:id="@+id/session_status"
-            style="@style/TextAppearance.Material3.BodyLarge"
-            app:session_status_desc="@{session}"
+            style="@style/TextAppearance.Material3.LabelMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
-            android:layout_margin="@dimen/margin_small" />
+            android:layout_marginBottom="@dimen/margin_small"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
+            app:session_status_desc="@{session}" />
 
+        <View style="@style/Divider.Horizontal" />
 
-        <View style="@style/Divider.Horizontal.List"
+        <View
+            style="@style/Divider.Horizontal.List"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            />
+            android:layout_height="1dp" />
 
         <TextView
             android:id="@+id/launch_auth"
-            style="@style/TextAppearance.Material3.BodyLarge"
+            style="@style/TextAppearance.Material3.BodyMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"

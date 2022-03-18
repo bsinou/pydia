@@ -64,6 +64,7 @@
 
     <!-- Menus -->
     <dimen name="menu_header_icon">48dp</dimen>
+    <dimen name="header_icon">32dp</dimen>
     <dimen name="menu_icon">24dp</dimen>
     <dimen name="menu_margin">8dp</dimen>
     <dimen name="menu_padding">4dp</dimen>

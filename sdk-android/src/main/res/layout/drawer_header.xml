@@ -61,18 +61,31 @@
         app:layout_constraintTop_toBottomOf="@+id/nav_header_primary_text"
         tools:text="https://files.example.com" />
 
-    <ImageButton
+<!--    <ImageButton-->
+<!--        android:id="@+id/nav_header_switch_account"-->
+<!--        android:layout_width="@dimen/header_icon"-->
+<!--        android:layout_height="@dimen/header_icon"-->
+<!--        android:layout_marginEnd="@dimen/margin_medium"-->
+<!--        android:clickable="true"-->
+<!--        android:contentDescription="@string/switch_account_description"-->
+<!--        android:focusable="true"-->
+<!--        android:padding="@dimen/margin_xsmall"-->
+<!--        android:src="@drawable/ic_baseline_switch_account_24"-->
+<!--        app:layout_constraintBottom_toBottomOf="@+id/nav_header_secondary_text"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+
+    <ImageView
         android:id="@+id/nav_header_switch_account"
-        android:layout_width="@dimen/menu_header_icon"
-        android:layout_height="@dimen/menu_header_icon"
-        android:padding="@dimen/margin_xsmall"
-        android:layout_marginEnd="@dimen/margin_medium"
-        android:clickable="true"
-        android:contentDescription="@string/switch_account_description"
-        android:focusable="true"
-        android:src="@drawable/ic_baseline_switch_account_36"
-        app:layout_constraintBottom_toBottomOf="@+id/nav_header_secondary_text"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_width="@dimen/header_icon"
+        android:layout_height="@dimen/header_icon"
+        android:layout_margin="@dimen/margin"
+        android:alpha="0.8"
+        android:src="@drawable/ic_baseline_switch_account_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
 
     <!--
         android:backgroundTint="?attr/colorPrimary"

@@ -17,20 +17,20 @@
         android:orientation="vertical">
 
         <TextView
-            style="@style/text_title"
+            style="@style/TextAppearance.Material3.TitleSmall"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start|center_vertical"
             android:layout_marginStart="@dimen/margin_xsmall"
             android:layout_marginTop="@dimen/margin"
             android:layout_marginEnd="@dimen/margin_xsmall"
-            android:layout_marginBottom="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:alpha="0.6"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="Header"
             app:wsHeaderLabel="@{type}"
             tools:text="Workspaces" />
-
+        <!--        android:textColor="?attr/colorPrimary"-->
     </LinearLayout>
 
 </layout>

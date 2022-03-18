@@ -23,6 +23,7 @@
 
             <TextView
                 android:id="@+id/account_title"
+                style="@style/TextAppearance.Material3.TitleMedium"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin"
@@ -44,15 +45,16 @@
 
             <ImageView
                 android:id="@+id/switch_account_button"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="@dimen/margin_xsmall"
-                android:padding="@dimen/margin_small"
-                android:src="@drawable/button_switch_account"
+                android:layout_width="@dimen/header_icon"
+                android:layout_height="@dimen/header_icon"
+                android:layout_margin="@dimen/margin"
+                android:alpha="0.8"
+                android:src="@drawable/ic_baseline_switch_account_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                app:layout_constraintTop_toTopOf="parent"
+                />
+<!--            app:tint="?attr/colorPrimary"-->
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

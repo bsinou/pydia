@@ -6,7 +6,7 @@ import android.net.TrafficStats
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         Log.d(tag, "onPrepareOptionsMenu: ${activeSessionVM.liveSession.value?.getStateID()}")
         super.onPrepareOptionsMenu(menu)
-        menu?.let{
+        menu?.let {
             configureSearch(it)
             configureConnexionAlarm(it)
             configureLayoutSwitcher(it)
@@ -187,7 +187,7 @@ class MainActivity : AppCompatActivity() {
 
         // Configure navigation View header buttons
         val header = binding.navView.getHeaderView(0)
-        val switchAccountBtn = header.findViewById<ImageButton>(R.id.nav_header_switch_account)
+        val switchAccountBtn = header.findViewById<ImageView>(R.id.nav_header_switch_account)
         switchAccountBtn?.setOnClickListener {
             navController.navigate(MainNavDirections.openAccountList())
             closeDrawer()
@@ -333,11 +333,8 @@ class MainActivity : AppCompatActivity() {
 
         activeSessionVM.liveSession.observe(this) {
             it?.let { liveSession ->
-                val isConnected = liveSession.authStatus != AppNames.AUTH_STATUS_CONNECTED
-                connexionAlarmBtn.isVisible = isConnected
-                if (!isConnected) {
-
-                }
+                val isDisconnected = liveSession.authStatus != AppNames.AUTH_STATUS_CONNECTED
+                connexionAlarmBtn.isVisible = isDisconnected
             }
         }
 

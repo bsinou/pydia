@@ -23,8 +23,8 @@ fun ImageView.setTransferIcon(item: RTransfer?) {
     }
     setImageResource(
         when (item.type) {
-            AppNames.TRANSFER_TYPE_DOWNLOAD -> R.drawable.ic_baseline_cloud_download_24
-            else -> R.drawable.ic_baseline_cloud_upload_24
+            AppNames.TRANSFER_TYPE_DOWNLOAD -> R.drawable.ic_outline_file_download_24
+            else -> R.drawable.ic_outline_file_upload_24
         }
     )
 }

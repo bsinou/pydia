@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <item>
-        <shape android:shape="rectangle"
+        <shape
+            android:width="@dimen/grid_icon_size"
             android:height="@dimen/grid_icon_size"
-            android:width="@dimen/grid_icon_size">
+            android:shape="rectangle">
             <solid android:color="@color/iconBackground" />
             <corners android:radius="@dimen/list_icon_corner_radius" />
         </shape>
     </item>
     <item
+        android:bottom="@dimen/grid_icon_inner_margin"
         android:drawable="@drawable/ic_baseline_folder_24"
+        android:end="@dimen/grid_icon_inner_margin"
         android:gravity="center"
-        android:top="@dimen/margin"
-        android:bottom="@dimen/margin_small"
-        android:start="@dimen/margin_medium"
-        android:end="@dimen/margin_medium"
-        android:right="@dimen/margin_medium"
-        android:left="@dimen/margin_medium"
+        android:left="@dimen/grid_icon_inner_margin"
+        android:right="@dimen/grid_icon_inner_margin"
+        android:start="@dimen/grid_icon_inner_margin"
+        android:top="@dimen/grid_icon_inner_margin"
         tools:ignore="UnusedAttribute" />
 </layer-list>

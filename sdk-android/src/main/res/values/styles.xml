@@ -16,18 +16,23 @@
 
     <style name="text_header" parent="text_body">
         <item name="android:textSize">@dimen/text_header_size</item>
+        <item name="android:alpha">@dimen/alpha_list_primary</item>
+    </style>
+
+    <style name="text_list_primary" parent="text_body">
+        <item name="android:textSize">@dimen/text_list_primary_size</item>
+        <item name="android:alpha">@dimen/alpha_list_primary</item>
+    </style>
+
+    <style name="text_list_secondary" parent="text_body">
+        <item name="android:textSize">@dimen/text_list_secondary_size</item>
+        <item name="android:alpha">@dimen/alpha_list_secondary</item>
     </style>
 
     <style name="text_title" parent="text_body">
         <!--        <item name="android:textFontWeight">600</item>-->
         <item name="android:textSize">@dimen/text_title_size</item>
     </style>
-
-    <style name="text_list_primary" parent="text_body">
-        <item name="android:textSize">@dimen/text_accent_size</item>
-    </style>
-
-    <style name="text_list_secondary" parent="text_body" />
 
     <style name="text_list_error" parent="text_list_secondary">
         <item name="android:textColor">@color/danger</item>

@@ -15,7 +15,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_medium">
 
         <ImageView
             android:id="@+id/thumb"
@@ -28,36 +29,37 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:transferIcon="@{transfer}"
-            tools:srcCompat="@drawable/ic_baseline_file_upload_24" />
+            tools:srcCompat="@drawable/ic_outline_file_upload_24" />
 
         <!-- TODO  Add an overlay with a check when the transfer has been done -->
 
         <TextView
             android:id="@+id/primaryText"
-            style="@style/text_header"
+            style="@style/text_list_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_xsmall"
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            app:layout_constraintEnd_toEndOf="@id/progress"
             app:layout_constraintBottom_toTopOf="@id/secondaryText"
+            app:layout_constraintEnd_toEndOf="@id/progress"
             app:layout_constraintStart_toStartOf="@id/progress"
             app:transferText="@{transfer}"
             tools:text="my-image-88639.jpg -> eva@files.example.com" />
 
         <TextView
             android:id="@+id/secondaryText"
-            style="@style/text_body"
+            style="@style/text_list_secondary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_small"
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
-            app:layout_constraintEnd_toEndOf="@id/progress"
             app:layout_constraintBottom_toTopOf="@id/progress"
+            app:layout_constraintEnd_toEndOf="@id/progress"
             app:layout_constraintStart_toStartOf="@id/progress"
-            android:layout_marginBottom="@dimen/margin_xsmall"
             app:transferStatus="@{transfer}"
             tools:text="2 years ago... Maybe the server is unreachable?" />
 
@@ -65,13 +67,13 @@
             android:id="@+id/progress"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/more_button"
             app:layout_constraintStart_toEndOf="@id/thumb"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.85"
-            android:layout_marginStart="@dimen/margin"
             app:updateProgress="@{transfer}" />
 
         <ImageView

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <item>
         <shape
             android:width="@dimen/list_icon_size"
@@ -14,7 +15,9 @@
         android:drawable="@drawable/ic_baseline_insert_drive_file_24"
         android:end="@dimen/margin_small"
         android:gravity="center"
+        android:left="@dimen/margin_small"
+        android:right="@dimen/margin_small"
         android:start="@dimen/margin_small"
-        android:tint="@color/iconTint"
-        android:top="@dimen/margin_small" />
+        android:top="@dimen/margin_small"
+        tools:ignore="UnusedAttribute" />
 </layer-list>

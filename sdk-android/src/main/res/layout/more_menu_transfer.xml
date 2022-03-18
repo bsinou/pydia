@@ -47,8 +47,10 @@
                 android:layout_marginStart="@dimen/margin_small"
                 android:padding="@dimen/menu_label_padding"
                 app:transferText="@{rTransfer}"
-                tools:text="Current File ->  aöice@files.example.com" />
+                tools:text="CurrentFile.jpg -> alice@files.example.com" />
         </LinearLayout>
+
+        <View style="@style/Divider.Horizontal" />
 
         <!-- Open Parent in app -->
         <LinearLayout
@@ -115,7 +117,7 @@
                 android:layout_height="@dimen/menu_icon"
                 android:layout_margin="@dimen/menu_margin"
                 android:contentDescription="@string/delete_record"
-                android:src="@drawable/ic_baseline_open_in_new_24" />
+                android:src="@drawable/ic_outline_delete_outline_24" />
 
             <TextView
                 android:layout_width="wrap_content"

@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.ui.upload
+package org.sinou.android.pydia.ui.transfer
 
 import android.os.Bundle
 import android.util.Log
@@ -18,10 +18,6 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentTransferListBinding
 import org.sinou.android.pydia.db.runtime.RTransfer
-import org.sinou.android.pydia.ui.browse.OfflineRootsFragmentDirections
-import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
-import org.sinou.android.pydia.utils.dumpBackStack
-import org.sinou.android.pydia.utils.showMessage
 
 class TransferListFragment : Fragment() {
 

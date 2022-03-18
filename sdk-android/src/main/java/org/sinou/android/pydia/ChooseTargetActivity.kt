@@ -19,7 +19,7 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import org.sinou.android.pydia.databinding.ActivityChooseTargetBinding
-import org.sinou.android.pydia.ui.upload.ChooseTargetViewModel
+import org.sinou.android.pydia.ui.transfer.ChooseTargetViewModel
 import org.sinou.android.pydia.utils.showMessage
 
 /**

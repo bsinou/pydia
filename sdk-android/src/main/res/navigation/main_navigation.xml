@@ -140,7 +140,7 @@
 
     <fragment
         android:id="@+id/transfer_list_destination"
-        android:name="org.sinou.android.pydia.ui.upload.TransferListFragment"
+        android:name="org.sinou.android.pydia.ui.transfer.TransferListFragment"
         android:label="@string/transfer_list_title"
         tools:layout="@layout/fragment_transfer_list" >
         <action

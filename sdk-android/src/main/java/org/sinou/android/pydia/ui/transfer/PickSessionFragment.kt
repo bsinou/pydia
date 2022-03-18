@@ -1,4 +1,4 @@
-package org.sinou.android.pydia.ui.upload
+package org.sinou.android.pydia.ui.transfer
 
 import android.os.Bundle
 import android.view.LayoutInflater

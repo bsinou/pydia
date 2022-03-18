@@ -24,6 +24,7 @@ class AboutFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
 
+        setHasOptionsMenu(true)
         val binding: FragmentAboutBinding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_about, container, false
         )

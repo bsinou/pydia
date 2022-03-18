@@ -21,13 +21,13 @@
     <!-- Destinations -->
     <fragment
         android:id="@+id/choose_session_destination"
-        android:name="org.sinou.android.pydia.ui.upload.PickSessionFragment"
+        android:name="org.sinou.android.pydia.ui.transfer.PickSessionFragment"
         tools:layout="@layout/fragment_pick_session" />
     <!--     android:label="@string/pick_up_session"-->
 
     <fragment
         android:id="@+id/choose_folder_destination"
-        android:name="org.sinou.android.pydia.ui.upload.PickFolderFragment"
+        android:name="org.sinou.android.pydia.ui.transfer.PickFolderFragment"
         tools:layout="@layout/fragment_pick_folder">
         <argument
             android:name="state"

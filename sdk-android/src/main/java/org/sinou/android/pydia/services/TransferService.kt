@@ -13,7 +13,6 @@ import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.db.runtime.RTransfer
 import org.sinou.android.pydia.db.runtime.RuntimeDB
 import org.sinou.android.pydia.db.runtime.TransferDao
@@ -45,33 +44,37 @@ class TransferService(
         }
     }
 
-    fun clearTerminated() {
-        serviceScope.launch {
-            runtimeDB.transferDao().clearTerminatedTransfers()
-        }
+    fun getLiveRecord(transferUid: Long): LiveData<RTransfer?> {
+        return getTransferDao().getLiveById(transferUid)
+    }
+
+    suspend fun clearTerminated() = withContext(Dispatchers.IO) {
+        runtimeDB.transferDao().clearTerminatedTransfers()
     }
 
     suspend fun deleteRecord(transferUid: Long) = withContext(Dispatchers.IO) {
-            runtimeDB.transferDao().deleteTransfer(transferUid)
+        runtimeDB.transferDao().deleteTransfer(transferUid)
     }
 
-    private fun uploadOne(id: String) {
-        val uploadRecord = getUploadDao().get(id)
-            ?: throw java.lang.IllegalStateException("No upload record found for $id")
-        doUpload(uploadRecord)
+    /** DOWNLOADS **/
+
+    private fun downloadOne(encodedState: String) {
+        val transferRecord = getTransferDao().getByState(encodedState)
+            ?: throw IllegalStateException("No record found for $encodedState, cannot download")
+        doDownload(transferRecord)
     }
 
-    private fun doUpload(transferRecord: RTransfer) {
-        // Real upload in single part
+    private fun doDownload(transferRecord: RTransfer) {
+        // Real download in single part
         var inputStream: InputStream? = null
         try {
             // Mark the upload as started
             transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            getUploadDao().update(transferRecord)
+            getTransferDao().update(transferRecord)
             val fs = CellsApp.instance.fileService
             val state = transferRecord.getStateId()
-            var srcPath = fs.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
-            var srcFile = File(srcPath)
+            val srcPath = fs.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
+            val srcFile = File(srcPath)
             inputStream = FileInputStream(srcFile)
 
             val parent = state.parentFolder()
@@ -81,7 +84,7 @@ class TransferService(
                 true
             ) { progressL ->
                 transferRecord.progress = progressL
-                getUploadDao().update(transferRecord)
+                getTransferDao().update(transferRecord)
                 true
             }
 
@@ -96,24 +99,66 @@ class TransferService(
         } finally {
             IoHelpers.closeQuietly(inputStream)
             transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            getUploadDao().update(transferRecord)
+            getTransferDao().update(transferRecord)
         }
     }
 
+    /** UPLOADS **/
+
+    private fun uploadOne(id: String) {
+        val uploadRecord = getTransferDao().getByState(id)
+            ?: throw IllegalStateException("No transfer record found for $id, cannot upload")
+        doUpload(uploadRecord)
+    }
+
+    private fun doUpload(transferRecord: RTransfer) {
+        // Real upload in single part
+        var inputStream: InputStream? = null
+        try {
+            // Mark the upload as started
+            transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            getTransferDao().update(transferRecord)
+            val fs = CellsApp.instance.fileService
+            val state = transferRecord.getStateId()
+            val srcPath = fs.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
+            val srcFile = File(srcPath)
+            inputStream = FileInputStream(srcFile)
+
+            val parent = state.parentFolder()
+            accountService.getClient(state).upload(
+                inputStream, transferRecord.byteSize,
+                transferRecord.mime, parent.workspace, parent.file, state.fileName,
+                true
+            ) { progressL ->
+                transferRecord.progress = progressL
+                getTransferDao().update(transferRecord)
+                true
+            }
+
+            transferRecord.error = null
+            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            // uploadRecord.progress = 100
+
+        } catch (e: Exception) {
+            // TODO manage errors correctly
+            transferRecord.error = e.message
+            e.printStackTrace()
+        } finally {
+            IoHelpers.closeQuietly(inputStream)
+            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            getTransferDao().update(transferRecord)
+        }
+    }
 
     suspend fun uploadAllNew() {
         serviceScope.launch {
-            val uploads = getUploadDao().getAllNew()
+            val uploads = getTransferDao().getAllNew()
             for (one in uploads) {
                 serviceScope.launch {
                     doUpload(one)
                 }
             }
         }
-    }
-
-    fun getUploadDao(): TransferDao {
-        return runtimeDB.transferDao()
     }
 
     /**
@@ -191,7 +236,6 @@ class TransferService(
         return targetStateID
     }
 
-
     private fun createTargetFile(parentID: StateID, name: String): File {
         val fs = CellsApp.instance.fileService
         val targetStateID = createLocalState(parentID, name)
@@ -246,4 +290,7 @@ class TransferService(
         }
     }
 
+    private fun getTransferDao(): TransferDao {
+        return runtimeDB.transferDao()
+    }
 }

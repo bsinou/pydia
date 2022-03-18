@@ -22,11 +22,11 @@ class TransferMenuViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val tag = TransferMenuViewModel::class.simpleName
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+//    private val tag = TransferMenuViewModel::class.simpleName
+//    private var viewModelJob = Job()
+//    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    val rTransfer = transferService.getUploadDao().getLiveById(transferUID)
+    val rTransfer = transferService.getLiveRecord(transferUID)
 
     class TransferMenuViewModelFactory(
         private val transferUID: Long,

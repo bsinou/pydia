@@ -9,8 +9,10 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
@@ -45,7 +47,6 @@ class TransferListFragment : Fragment() {
             inflater, R.layout.fragment_transfer_list, container, false
         )
 
-
         binding.transferList.layoutManager = LinearLayoutManager(activity)
         val adapter = TransferListAdapter(this::onClicked)
         binding.transferList.adapter = adapter
@@ -73,20 +74,11 @@ class TransferListFragment : Fragment() {
         connexionAlarmBtn.isVisible = true
 
         connexionAlarmBtn.setOnMenuItemClickListener {
-            transferVM.transferService.clearTerminated()
+            lifecycleScope.launch {
+                transferVM.transferService.clearTerminated()
+            }
             return@setOnMenuItemClickListener true
         }
 
     }
-
-    override fun onResume() {
-        super.onResume()
-        dumpBackStack(fTag, parentFragmentManager)
-        // transferVM.resume()
-    }
-
-//    override fun onPause() {
-//        super.onPause()
-//        // transferVM.pause()
-//    }
 }

@@ -223,7 +223,6 @@ class NodeService(
                 launchSync(it)
             }
         }
-
     }
 
     suspend fun launchSync(rTreeNode: RTreeNode) = withContext(Dispatchers.IO) {
@@ -728,7 +727,6 @@ class NodeService(
         nodeDB(rTreeNode.getStateID()).treeNodeDao().update(rTreeNode)
     }
 
-    //    private fun handleSdkException(msg: String, se: SDKException): SDKException {
     private suspend fun handleSdkException(stateID: StateID, msg: String, se: SDKException) {
         Log.e(tag, msg)
         Log.e(tag, "Error code: ${se.code}")

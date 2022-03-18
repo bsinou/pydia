@@ -15,14 +15,13 @@ import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentAboutBinding
 import java.util.*
 
-
 class AboutFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
 
         setHasOptionsMenu(true)
         val binding: FragmentAboutBinding = DataBindingUtil.inflate(
@@ -34,7 +33,7 @@ class AboutFragment : Fragment() {
         binding.aboutVersionCode.text =
             resources.getString(R.string.version_code_display, BuildConfig.VERSION_CODE.toString())
 
-        var dateString = getTimestampAsString(ClientData.getInstance().buildTimestamp)
+        val dateString = getTimestampAsString(ClientData.getInstance().buildTimestamp)
         binding.aboutVersionDate.text =
             resources.getString(R.string.version_date_display, dateString)
 

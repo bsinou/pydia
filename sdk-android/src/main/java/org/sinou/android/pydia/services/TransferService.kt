@@ -6,6 +6,7 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
+import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
@@ -21,6 +22,7 @@ import java.util.*
 
 class TransferService(
     private val accountService: AccountService,
+    private val nodeService: NodeService,
     private val fileService: FileService,
     private val runtimeDB: RuntimeDB
 ) {
@@ -58,49 +60,104 @@ class TransferService(
 
     /** DOWNLOADS **/
 
-    private fun downloadOne(encodedState: String) {
-        val transferRecord = getTransferDao().getByState(encodedState)
-            ?: throw IllegalStateException("No record found for $encodedState, cannot download")
-        doDownload(transferRecord)
-    }
+    /**
+     * Centralize client specific actions that should be done **before** launching
+     * the real download.
+     */
+    suspend fun prepareDownload(state: StateID, type: String): Pair<Long?, String?> =
+        withContext(Dispatchers.IO) {
 
-    private fun doDownload(transferRecord: RTransfer) {
-        // Real download in single part
-        var inputStream: InputStream? = null
-        try {
-            // Mark the upload as started
-            transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            getTransferDao().update(transferRecord)
-            val fs = CellsApp.instance.fileService
-            val state = transferRecord.getStateId()
-            val srcPath = fs.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
-            val srcFile = File(srcPath)
-            inputStream = FileInputStream(srcFile)
-
-            val parent = state.parentFolder()
-            accountService.getClient(state).upload(
-                inputStream, transferRecord.byteSize,
-                transferRecord.mime, parent.workspace, parent.file, state.fileName,
-                true
-            ) { progressL ->
-                transferRecord.progress = progressL
-                getTransferDao().update(transferRecord)
-                true
+            // Retrieve data and sanity check
+            var errorMessage: String? = null
+            val rNode = nodeService.getNode(state)
+            if (rNode == null) {
+                // No node found, aborting
+                errorMessage = "No node found for $state, aborting file DL"
+                Log.w(tag, errorMessage)
+                return@withContext Pair(-1, errorMessage)
             }
 
-            transferRecord.error = null
-            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            // uploadRecord.progress = 100
-
-        } catch (e: Exception) {
-            // TODO manage errors correctly
-            transferRecord.error = e.message
-            e.printStackTrace()
-        } finally {
-            IoHelpers.closeQuietly(inputStream)
-            transferRecord.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
-            getTransferDao().update(transferRecord)
+            val localPath = fileService.getLocalPathFromState(state, type)
+            val rec = RTransfer.fromState(
+                state.id,
+                AppNames.TRANSFER_TYPE_DOWNLOAD,
+                localPath,
+                rNode.size,
+                rNode.mime,
+            )
+            return@withContext Pair(getTransferDao().insert(rec), null)
         }
+
+    /**
+     * Performs the real download for the pre-registered transfer record and update
+     * both the RTreeNode and RTransfer records depending on the output status.
+     */
+    suspend fun downloadFile(transferUid: Long): String? = withContext(Dispatchers.IO) {
+
+        var errorMessage: String? = null
+
+        // Retrieve data and sanity check
+        val rTransfer = getTransferDao().getById(transferUid) ?: run {
+            val msg = "No record found for $transferUid, aborting file DL"
+            Log.w(tag, msg)
+            return@withContext msg
+        }
+
+        val state = StateID.fromId(rTransfer.encodedState)
+        val rNode = nodeService.getNode(state)
+        if (rNode == null) {
+            // No node found, aborting
+            errorMessage = "No node found for $state, aborting file DL"
+            Log.w(tag, errorMessage)
+            return@withContext errorMessage
+        }
+
+        var out: FileOutputStream? = null
+        try {
+            // Prepare target file
+            val targetFile = File(rTransfer.localPath)
+            targetFile.parentFile!!.mkdirs()
+            out = FileOutputStream(targetFile)
+
+            // Mark the upload as started
+            rTransfer.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            getTransferDao().update(rTransfer)
+
+            // Real transfer
+            accountService.getClient(state)
+                .download(state.workspace, state.file, out) { progressL ->
+                    rTransfer.progress = progressL
+                    getTransferDao().update(rTransfer)
+                    true
+                }
+
+            // Mark the upload as done
+            rTransfer.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            rTransfer.error = null
+            getTransferDao().update(rTransfer)
+
+            // Also stores the target path in the parent node
+            // TODO handle the case where the download duration is long enough to enable
+            //   end-user to modify (or delete) the corresponding node before it is downloaded
+            rNode.localFilePath = rTransfer.localPath
+            nodeService.nodeDB(state).treeNodeDao().update(rNode)
+
+        } catch (se: SDKException) { // Could not retrieve file, failing silently for the end user
+            errorMessage = "Could not download file for " + state + ": " + se.message
+        } catch (ioe: IOException) {
+            // TODO Could not write the file in the local fs, we should notify the user
+            errorMessage =
+                "Could not write file for DL of $state to the local device: ${ioe.message}"
+        } finally {
+            IoHelpers.closeQuietly(out)
+        }
+        if (Str.notEmpty(errorMessage)) {
+            rTransfer.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
+            rTransfer.error = errorMessage
+            getTransferDao().update(rTransfer)
+        }
+
+        return@withContext errorMessage
     }
 
     /** UPLOADS **/
@@ -118,11 +175,9 @@ class TransferService(
             // Mark the upload as started
             transferRecord.startTimestamp = Calendar.getInstance().timeInMillis / 1000L
             getTransferDao().update(transferRecord)
-            val fs = CellsApp.instance.fileService
             val state = transferRecord.getStateId()
-            val srcPath = fs.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
-            val srcFile = File(srcPath)
-            inputStream = FileInputStream(srcFile)
+            val srcPath = fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
+            inputStream = FileInputStream(File(srcPath))
 
             val parent = state.parentFolder()
             accountService.getClient(state).upload(
@@ -237,16 +292,16 @@ class TransferService(
     }
 
     private fun createTargetFile(parentID: StateID, name: String): File {
-        val fs = CellsApp.instance.fileService
         val targetStateID = createLocalState(parentID, name)
-        val tf = File(fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_CACHE))
+        val localPath =
+            fileService.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_CACHE)
+        val tf = File(localPath)
         tf.parentFile!!.mkdirs()
         return tf
     }
 
     private fun createLocalState(parentID: StateID, name: String): StateID {
-        val fs = CellsApp.instance.fileService
-        var parentPath = fs.getLocalPathFromState(parentID, AppNames.LOCAL_FILE_TYPE_CACHE)
+        var parentPath = fileService.getLocalPathFromState(parentID, AppNames.LOCAL_FILE_TYPE_CACHE)
         var targetFile = File(File(parentPath), name)
         while (targetFile.exists()) {
             val newName = bumpFileVersion(targetFile.name)
@@ -261,7 +316,7 @@ class TransferService(
             handleWOExt(name)
         } else {
             val newPrefix = handleWOExt(name.substring(0, index))
-            newPrefix + name.substring(index + 1, name.length)
+            newPrefix + name.substring(index, name.length)
         }
     }
 
@@ -272,7 +327,7 @@ class TransferService(
         } else {
             val suffix = name.substring(index + 1, name.length)
             if (isInt(suffix)) {
-                val newPrefix = handleWOExt(name.substring(0, index))
+                val newPrefix = name.substring(0, index)
                 val newSuffix = suffix.toInt() + 1
                 "${newPrefix}-${newSuffix}"
             } else {

@@ -236,7 +236,10 @@ class NodeService(
             val currRoot = offlineDao.get(rTreeNode.encodedState)
                 ?: return@withContext // should never happen
 
-            val fileDL = FileDownloader(client, nodeDB(stateID))
+            // FIXME should be injected
+            val transferService = CellsApp.instance.transferService
+
+            val fileDL = FileDownloader(client, fileService, transferService, nodeDB(stateID))
             val thumbs = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
             val thumbDL = ThumbDownloader(client, nodeDB(stateID), thumbs)
 

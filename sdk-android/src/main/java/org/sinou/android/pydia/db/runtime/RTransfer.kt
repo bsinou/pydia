@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.pydio.cells.transport.StateID
+import java.util.*
 
 @Entity(tableName = "transfers")
 data class RTransfer(
@@ -16,7 +17,7 @@ data class RTransfer(
     // download, upload
     @ColumnInfo(name = "type") val type: String,
 
-    @ColumnInfo(name = "path") val path: String,
+    @ColumnInfo(name = "local_path") val localPath: String,
 
     @ColumnInfo(name = "byte_size") val byteSize: Long,
 
@@ -25,6 +26,8 @@ data class RTransfer(
     @ColumnInfo(name = "md5") var md5: String? = null,
 
     @ColumnInfo(name = "multipart") val multipart: Boolean = false,
+
+    @ColumnInfo(name = "creation_ts") val creationTimestamp: Long,
 
     @ColumnInfo(name = "start_ts") var startTimestamp: Long = -1L,
 
@@ -49,10 +52,11 @@ data class RTransfer(
         ): RTransfer {
             return RTransfer(
                 encodedState = encodedState,
-                path = path,
                 type = type,
+                localPath = path,
                 byteSize = byteSize,
                 mime = mime,
+                creationTimestamp = Calendar.getInstance().timeInMillis / 1000L,
             )
         }
     }

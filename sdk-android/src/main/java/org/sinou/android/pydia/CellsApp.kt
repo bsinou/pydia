@@ -103,6 +103,7 @@ class CellsApp : Application() {
 
         transferService = TransferService(
             accountService,
+            nodeService,
             fileService,
             RuntimeDB.getDatabase(applicationContext),
         )

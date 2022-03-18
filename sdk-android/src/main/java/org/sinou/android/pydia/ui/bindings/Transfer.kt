@@ -1,6 +1,7 @@
 package org.sinou.android.pydia.ui.bindings
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import android.util.Log
@@ -15,15 +16,6 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.runtime.RTransfer
 
-@SuppressLint("SetTextI18n")
-@BindingAdapter("transferText")
-fun TextView.setTransferText(item: RTransfer?) {
-    item?.let {
-        val state = item.getStateId()
-        text = "${state.fileName} -> ${state.username}@${state.serverHost}"
-    }
-}
-
 @BindingAdapter("transferIcon")
 fun ImageView.setTransferIcon(item: RTransfer?) {
     if (item == null) {
@@ -37,37 +29,59 @@ fun ImageView.setTransferIcon(item: RTransfer?) {
     )
 }
 
+@SuppressLint("SetTextI18n")
+@BindingAdapter("transferText")
+fun TextView.setTransferText(item: RTransfer?) {
+    item?.let {
+        val state = item.getStateId()
+        val arrow = if (item.type == AppNames.TRANSFER_TYPE_UPLOAD) "->" else "<-"
+        text = "${state.fileName} $arrow ${state.username}@${state.serverHost}"
+    }
+}
+
 @BindingAdapter("transferStatus")
 fun TextView.setTransferStatus(item: RTransfer?) {
     item?.let {
 
         val sizeValue = Formatter.formatShortFileSize(this.context, item.byteSize)
         var desc = "$sizeValue,"
-        // TODO handle error
-        if (item.doneTimestamp > 0) {
 
-            val mTimeValue = DateUtils.formatDateTime(
-                this.context,
-                item.doneTimestamp * 1000L,
-                DateUtils.FORMAT_ABBREV_RELATIVE
-            )
-            desc += " uploaded on $mTimeValue"
-        } else {
-
-            var ts = item.startTimestamp
-            if (ts < 0) {
-                ts = 0
+        when {
+            Str.notEmpty(item.error) -> {
+                desc += " ${item.error}"
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    this.setTextColor(resources.getColor(R.color.danger, context.theme))
+                }
             }
-
-            val mTimeValue = DateUtils.formatDateTime(
-                this.context,
-                ts * 1000L,
-                DateUtils.FORMAT_ABBREV_RELATIVE
-            )
-            desc += " started on $mTimeValue"
+            item.doneTimestamp > 0 -> {
+                val mTimeValue = DateUtils.formatDateTime(
+                    this.context,
+                    item.doneTimestamp * 1000L,
+                    DateUtils.FORMAT_ABBREV_RELATIVE
+                )
+                // TODO i18n
+                val verb =
+                    if (item.type == AppNames.TRANSFER_TYPE_UPLOAD) "uploaded" else "downloaded"
+                desc += " $verb on $mTimeValue"
+            }
+            item.startTimestamp > 0 -> {
+                val mTimeValue = DateUtils.formatDateTime(
+                    this.context,
+                    item.startTimestamp * 1000L,
+                    DateUtils.FORMAT_ABBREV_RELATIVE
+                )
+                desc += " started on $mTimeValue"
+            }
+            else -> {
+                val mTimeValue = DateUtils.formatDateTime(
+                    this.context,
+                    item.creationTimestamp * 1000L,
+                    DateUtils.FORMAT_ABBREV_RELATIVE
+                )
+                desc += " waiting since $mTimeValue"
+            }
         }
         text = desc
-
     }
 }
 

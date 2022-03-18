@@ -17,8 +17,8 @@ import org.sinou.android.pydia.services.TransferService
  * Holds a Transfer record for the dedicated context menu.
  */
 class TransferMenuViewModel(
-    val transferUID: Long,
-    private val transferService: TransferService,
+    transferUID: Long,
+    val transferService: TransferService,
     application: Application
 ) : AndroidViewModel(application) {
 

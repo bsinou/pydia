@@ -7,11 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.pydio.cells.transport.StateID
+import kotlinx.coroutines.launch
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.MoreMenuTransferBinding
+import org.sinou.android.pydia.db.runtime.RTransfer
 
 /**
  * Menu that presents the end user with some further actions on the current clicked transfer
@@ -21,6 +27,9 @@ class TransferMenuFragment : BottomSheetDialogFragment() {
     private val fTag = TransferMenuFragment::class.java.simpleName
     private lateinit var transferMenuVM: TransferMenuViewModel
     private lateinit var binding: MoreMenuTransferBinding
+
+    val ACTION_OPEN_PARENT_IN_WORKSPACES = "open_parent_in_workspaces"
+    val ACTION_DELETE_RECORD = "delete_record"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +60,38 @@ class TransferMenuFragment : BottomSheetDialogFragment() {
                 binding.executePendingBindings()
             }
         }
+
+        binding.deleteRecord.setOnClickListener {
+            binding.rTransfer?.let {
+                onClicked(it, ACTION_DELETE_RECORD)
+            }
+        }
+        binding.openParentInWorkspace.setOnClickListener {
+            binding.rTransfer?.let {
+                onClicked(it, ACTION_OPEN_PARENT_IN_WORKSPACES)
+            }
+        }
         return binding.root
+    }
+
+    private fun onClicked(rTransfer: RTransfer, action: String) {
+        Log.i("MoreMenu", "${rTransfer.getStateId()} -> $action")
+        val moreMenu = this
+        lifecycleScope.launch {
+            when (action) {
+                // Impact remote server
+                ACTION_DELETE_RECORD -> {
+                    transferMenuVM.transferService.deleteRecord(rTransfer.transferId)
+                    moreMenu.dismiss()
+                }
+                // In-app navigation
+                ACTION_OPEN_PARENT_IN_WORKSPACES -> {
+                    val parentState = StateID.fromId(rTransfer.encodedState).parentFolder()
+                    CellsApp.instance.setCurrentState(parentState)
+                    findNavController().navigate(MainNavDirections.openFolder(parentState.id))
+                }
+            }
+        }
     }
 
     override fun onResume() {

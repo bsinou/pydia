@@ -34,4 +34,8 @@ interface TransferDao {
 
     @Query("DELETE FROM transfers WHERE done_ts > 0")
     fun  clearTerminatedTransfers()
+
+    @Query("DELETE FROM transfers WHERE transferId = :transferUID")
+    fun  deleteTransfer(transferUID: Long)
+
 }

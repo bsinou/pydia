@@ -10,12 +10,10 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.db.runtime.RTransfer
 import org.sinou.android.pydia.db.runtime.RuntimeDB
 import org.sinou.android.pydia.db.runtime.TransferDao
@@ -53,6 +51,9 @@ class TransferService(
         }
     }
 
+    suspend fun deleteRecord(transferUid: Long) = withContext(Dispatchers.IO) {
+            runtimeDB.transferDao().deleteTransfer(transferUid)
+    }
 
     private fun uploadOne(id: String) {
         val uploadRecord = getUploadDao().get(id)

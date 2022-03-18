@@ -222,12 +222,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         binding.forceResync.setOnClickListener { onClicked(node, ACTION_FORCE_RESYNC) }
         binding.download.setOnClickListener { onClicked(node, ACTION_DOWNLOAD_TO_DEVICE) }
         binding.offlineSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_OFFLINE) }
-
         binding.openParentInWorkspace.setOnClickListener {
             onClicked(node, ACTION_OPEN_PARENT_IN_WORKSPACES)
         }
         // TODO
-        // binding.openInWorkspaces.setOnClickListener { onClicked(node, ACTION_OPEN_IN_WORKSPACES) }
         // binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
         binding.executePendingBindings()
     }

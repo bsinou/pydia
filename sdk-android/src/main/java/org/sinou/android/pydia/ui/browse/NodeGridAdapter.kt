@@ -2,6 +2,7 @@ package org.sinou.android.pydia.ui.browse
 
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
@@ -28,7 +29,7 @@ class NodeGridAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent).with(onItemClicked)
+        return from(parent).with(onItemClicked)
     }
 
     fun doGetKey(position: Int): String {
@@ -46,13 +47,20 @@ class NodeGridAdapter(
         return -1
     }
 
-    class ViewHolder private constructor(val binding: GridItemNodeBinding) :
+    inner class ViewHolder(val binding: GridItemNodeBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: RTreeNode, activated: Boolean = false) {
+        fun bind(item: RTreeNode, isSelected: Boolean = false) {
             binding.node = item
-            binding.nodeCard.isActivated = activated
-            binding.nodeDetails.isActivated = activated
+            binding.nodeCard.isActivated = isSelected
+            binding.nodeCard.isChecked = isSelected
+            if (this@NodeGridAdapter.tracker?.hasSelection() ?: false) {
+                binding.moreBtnLayout.visibility = View.GONE
+            } else {
+                binding.moreBtnLayout.visibility = View.VISIBLE
+            }
+//            binding.rowLayout.isActivated = isSelected
+            //   binding.nodeDetails.isActivated = isSelected
             binding.executePendingBindings()
         }
 
@@ -76,13 +84,12 @@ class NodeGridAdapter(
                 override fun getSelectionKey(): String = binding.node!!.encodedState
             }
 
-        companion object {
-            fun from(parent: ViewGroup): ViewHolder {
-                val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = GridItemNodeBinding.inflate(layoutInflater, parent, false)
-                return ViewHolder(binding)
-            }
-        }
+    }
+
+    fun from(parent: ViewGroup): ViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val binding = GridItemNodeBinding.inflate(layoutInflater, parent, false)
+        return this.ViewHolder(binding)
     }
 }
 

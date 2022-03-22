@@ -19,11 +19,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/grid_layout_card_margin"
+        android:background="@drawable/item_selectable"
         android:checkable="true"
-        app:cardBackgroundColor="?attr/colorOnPrimary"
         app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="@dimen/grid_ws_card_elevation"
         app:cardMaxElevation="@dimen/grid_ws_card_max_elevation">
+        <!--        app:cardBackgroundColor="?attr/colorOnPrimary"-->
 
         <LinearLayout
             android:layout_width="match_parent"

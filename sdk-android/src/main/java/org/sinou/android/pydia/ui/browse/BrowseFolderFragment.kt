@@ -4,11 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.widget.Toast
+import androidx.annotation.MenuRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -53,6 +51,10 @@ class BrowseFolderFragment : Fragment() {
 
     // FIXME: the flag is set at the end of create view method
     private var isCreated = false
+
+    private var mode: ActionMode? = null
+    private var actionModeCallback: PrimaryActionModeCallback? = null
+    private var tracker: SelectionTracker<String>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -150,6 +152,7 @@ class BrowseFolderFragment : Fragment() {
         browseFolderVM.children.observe(viewLifecycleOwner) {
             if (it.isEmpty()) {
                 binding.emptyContent.visibility = View.VISIBLE
+                adapter.submitList(listOf())
             } else {
                 binding.emptyContent.visibility = View.GONE
                 adapter.submitList(it)
@@ -158,22 +161,53 @@ class BrowseFolderFragment : Fragment() {
 
         // Manage multi selection
         trackerBuilder.let {
-            val tracker = it.withSelectionPredicate(
+            val tmpTracker = it.withSelectionPredicate(
                 SelectionPredicates.createSelectAnything()
             ).build()
             if (adapter is NodeListAdapter) {
-                adapter.tracker = tracker
+                adapter.tracker = tmpTracker
             } else if (adapter is NodeGridAdapter) {
-                adapter.tracker = tracker
+                adapter.tracker = tmpTracker
             }
-            tracker.addObserver(
+            tmpTracker.addObserver(
                 object : SelectionTracker.SelectionObserver<String>() {
+
+                    override fun onItemStateChanged(key: String, selected: Boolean) {
+                        super.onItemStateChanged(key, selected)
+                        Log.e(fTag, "onItemStateChanged for $key, selected: $selected")
+                    }
+
                     override fun onSelectionChanged() {
                         super.onSelectionChanged()
-                        val itemNb = tracker.selection.size()
-                        Log.w(fTag, "Selection changed, size: $itemNb")
+                        val itemNb = tracker?.selection?.size() ?: 0
+                        if (mode == null && itemNb > 0 && tracker != null) {
+                            // browseFolderVM.setSelection(tracker!!.selection)
+                            actionModeCallback = PrimaryActionModeCallback()
+                            actionModeCallback!!.startActionMode(
+                                requireView(),
+                                R.menu.main_multi_select_menu,
+                                object : OnActionItemClickListener {
+                                    override fun onActionItemClick(item: MenuItem): Boolean {
+                                        Log.e(fTag, "onActionItemClick for: ${item.title}")
+
+                                        return true
+                                    }
+                                })
+                        } else if (itemNb > 0) {
+                            mode?.title = String.format(
+                                resources.getQuantityString(
+                                    R.plurals.selected_count,
+                                    itemNb
+                                ), itemNb
+                            )
+                        } else {
+                            actionModeCallback?.finishActionMode()
+                            actionModeCallback = null
+                            mode = null
+                        }
                     }
                 })
+            tracker = tmpTracker
         }
     }
 
@@ -194,24 +228,7 @@ class BrowseFolderFragment : Fragment() {
 
         (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
             bar.setDisplayHomeAsUpEnabled(true)
-//            bar.title = when {
-//                "/recycle_bin" == browseFolderVM.stateID.file
-//                -> resources.getString(R.string.recycle_bin_label)
-//
-//                browseFolderVM.currentFolder.value != null
-//                -> browseFolderVM.currentFolder.value!!.name
-//
-//                else
-//                -> browseFolderVM.stateID.fileName
-//            }
             browseFolderVM.currentFolder.observe(viewLifecycleOwner) {
-//                Log.w(fTag, "Got an event on current folder: ${it?.getStateID()}")
-//                Log.w(fTag, "Yet: ${browseFolderVM.stateID}")
-
-                lifecycleScope.launch {
-                    val tmp = CellsApp.instance.nodeService.getNode(browseFolderVM.stateID)
-//                    Log.w(fTag, "And: ${tmp?.getStateID()}")
-                }
 
                 it?.let {
                     bar.title = when {
@@ -339,4 +356,68 @@ class BrowseFolderFragment : Fragment() {
         Log.i(fTag, "onAttach")
         super.onAttach(context)
     }
+
+    inner class PrimaryActionModeCallback : ActionMode.Callback {
+
+        var onActionItemClickListener: OnActionItemClickListener? = null
+
+
+        @MenuRes
+        private var menuResId: Int = 0
+
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            this@BrowseFolderFragment.mode = mode
+            mode.menuInflater.inflate(menuResId, menu)
+            // TODO optimistic: we rely on the fact that the action mode is always opened with a single selected element.
+            mode.title = String.format(resources.getQuantityString(R.plurals.selected_count, 1), 1)
+            binding.addNodeFab.visibility = View.GONE
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            return false
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode) {
+            this@BrowseFolderFragment.mode?.finish()
+            this@BrowseFolderFragment.mode = null
+//
+//            browseFolderVM.clearSelection()
+
+            val inRecycle = browseFolderVM.currentFolder.value?.let {
+                it.isRecycle() || it.isInRecycle()
+            } ?: false
+
+            if (!inRecycle) {
+                binding.addNodeFab.visibility = View.VISIBLE
+            }
+            actionModeCallback = null
+            Log.i(tag, "onDestroyActionMode")
+        }
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            onActionItemClickListener?.onActionItemClick(item)
+            mode.finish()
+            return true
+        }
+
+        fun startActionMode(
+            view: View,
+            @MenuRes menuResId: Int,
+            listener: OnActionItemClickListener
+        ) {
+            this.menuResId = menuResId
+            view.startActionMode(this)
+            this.onActionItemClickListener = listener
+        }
+
+        fun finishActionMode() {
+            Log.i(tag, "finishActionMode")
+            mode?.finish()
+        }
+    }
+}
+
+interface OnActionItemClickListener {
+    fun onActionItemClick(item: MenuItem): Boolean
 }

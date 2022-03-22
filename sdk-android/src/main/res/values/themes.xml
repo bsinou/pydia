@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Theme.CellsCompat" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_light_primary</item>
@@ -35,12 +35,14 @@
         <!-- Fonts -->
         <item name="textAppearanceTitleSmall">@style/TextAppearance.Cells.TitleSmall</item>
 
+        <!-- In action mode, we want to hide the default app bar -->
+        <item name="windowActionModeOverlay">true</item>
+
     </style>
 
-    <style name="Theme.Md3" parent="Theme.CellsCompat">
-    </style>
+    <style name="Theme.Md3" parent="Theme.CellsCompat"></style>
 
-    <style name="Theme.Md3.SplashScreen" >
+    <style name="Theme.Md3.SplashScreen">
         <item name="colorPrimaryDark">@color/cells_primary</item>
         <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="android:statusBarColor">?attr/colorPrimary</item>
@@ -71,29 +73,26 @@
         <!-- Top Android Status bar color -->
         <item name="android:statusBarColor">@color/cells_on_primary</item>
         <item name="colorControlNormal">@color/cells_primary</item>
-<!--        <item name="android:windowLightStatusBar">true</item>-->
-<!--        <item name="android:statusBarColor">@color/defaultStatusBarColor</item>-->
-<!--        <item name="android:actionBarStyle">@style/Cells.AppBar</item>-->
+        <!--        <item name="android:windowLightStatusBar">true</item>-->
+        <!--        <item name="android:statusBarColor">@color/defaultStatusBarColor</item>-->
+        <!--        <item name="android:actionBarStyle">@style/Cells.AppBar</item>-->
 
     </style>
 
 
-
-
-
     <!--    <style name="Theme.Cells.Upload">-->
-<!--        <item name="colorPrimary">@color/cells_secondary</item>-->
-<!--        <item name="colorPrimaryDark">@color/cells_secondary_container</item>-->
-<!--        <item name="colorControlNormal">@color/cells_secondary</item>-->
-<!--    </style>-->
+    <!--        <item name="colorPrimary">@color/cells_secondary</item>-->
+    <!--        <item name="colorPrimaryDark">@color/cells_secondary_container</item>-->
+    <!--        <item name="colorControlNormal">@color/cells_secondary</item>-->
+    <!--    </style>-->
 
-<!--    <style name="Theme.Cells.Offline">-->
-<!--        <item name="colorOnPrimary">@color/cells_main_accent</item>-->
-<!--        <item name="colorPrimary">@color/cells_main_surface</item>-->
-<!--        <item name="android:colorPrimary">@color/cells_main_surface</item>-->
-<!--        <item name="colorPrimaryDark">@color/cells_main_light</item>-->
-<!--        <item name="android:statusBarColor">@color/cells_main_light</item>-->
-<!--    </style>-->
+    <!--    <style name="Theme.Cells.Offline">-->
+    <!--        <item name="colorOnPrimary">@color/cells_main_accent</item>-->
+    <!--        <item name="colorPrimary">@color/cells_main_surface</item>-->
+    <!--        <item name="android:colorPrimary">@color/cells_main_surface</item>-->
+    <!--        <item name="colorPrimaryDark">@color/cells_main_light</item>-->
+    <!--        <item name="android:statusBarColor">@color/cells_main_light</item>-->
+    <!--    </style>-->
 
 
     <!-- Overlays -->
@@ -107,9 +106,9 @@
     </style>
 
     <style name="ThemeOverlay.Cells.NavigationView" parent="ThemeOverlay.Material3.NavigationView">
-<!--        <item name="colorPrimary">@color/cells_main</item>-->
-<!--        <item name="colorSurface">@color/cells_main_surface_light</item>-->
-<!--        <item name="colorOnSurface">@color/cells_main_accent</item>-->
+        <!--        <item name="colorPrimary">@color/cells_main</item>-->
+        <!--        <item name="colorSurface">@color/cells_main_surface_light</item>-->
+        <!--        <item name="colorOnSurface">@color/cells_main_accent</item>-->
     </style>
 
     <style name="ThemeOverlay.Cells.NavHeader" parent="ThemeOverlay.Material3.Dark">
@@ -117,14 +116,14 @@
         <item name="android:textColor">@color/cells_primary_inverse</item>
     </style>
 
-<!--    <style name="ThemeOverlay.Cells.Popup" parent="ThemeOverlay.Material3.Light">-->
-<!--        <item name="colorPrimary">@color/colorAccent</item>-->
-<!--    </style>-->
+    <!--    <style name="ThemeOverlay.Cells.Popup" parent="ThemeOverlay.Material3.Light">-->
+    <!--        <item name="colorPrimary">@color/colorAccent</item>-->
+    <!--    </style>-->
 
     <style name="ThemeOverlay.Cells.Upload.AppBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="colorOnPrimary">@color/cells_on_primary</item>
     </style>
 
-<!--    <style name="ThemeOverlay.Cells.Upload.Popup" parent="ThemeOverlay.AppCompat.Light" />-->
+    <!--    <style name="ThemeOverlay.Cells.Upload.Popup" parent="ThemeOverlay.AppCompat.Light" />-->
 
 </resources>

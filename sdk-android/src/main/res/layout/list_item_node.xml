@@ -16,7 +16,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/row_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/item_selectable">
 
         <!--        android:layout_marginTop="@dimen/text_padding_x_small"-->
 
@@ -42,6 +43,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:singleLine="true"
+            android:background="@drawable/item_selectable"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/flags_layout"
             app:layout_constraintHorizontal_bias="0"
@@ -49,7 +51,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.35"
             app:nodeTitle="@{node}"
-            tools:text="Folder 1 avec un texte vraimnet  " />
+            tools:text="Folder 1 avec un texte vraiment  " />
 
         <!--        app:layout_constraintHorizontal_chainStyle="packed"-->
 

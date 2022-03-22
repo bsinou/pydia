@@ -3,6 +3,7 @@ package org.sinou.android.pydia.ui.browse
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import androidx.recyclerview.selection.Selection
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.db.nodes.RTreeNode
@@ -24,6 +25,10 @@ class BrowseFolderViewModel(
         get() = _currentFolder
 
     val children = nodeService.ls(stateID)
+
+//    private var _selected : Selection<String>? = null
+//    val selected : Selection<String>?
+//         get() = _selected
 
     private val tag = BrowseFolderViewModel::class.simpleName
     private var viewModelJob = Job()
@@ -99,6 +104,14 @@ class BrowseFolderViewModel(
         _isLoading.value = loading
     }
 
+
+//    fun clearSelection(){
+//        _selected = null
+//    }
+//
+//    fun setSelection(selected: Selection<String>){
+//        _selected = selected
+//    }
 
     // To observe liveData from with the view model (even not recommended)
     // See: https://stackoverflow.com/questions/47515997/observing-livedata-from-viewmodel

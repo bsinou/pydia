@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.utils.Log
 import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
 
@@ -22,6 +23,8 @@ import org.sinou.android.pydia.db.nodes.RTreeNode
 class NodeListAdapter(
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit
 ) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()) {
+
+    private val tag = NodeListAdapter::class.simpleName
 
     var tracker: SelectionTracker<String>? = null
 
@@ -56,9 +59,11 @@ class NodeListAdapter(
     class ViewHolder private constructor(val binding: ListItemNodeBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: RTreeNode, activated: Boolean = false) {
+        private val tag = ViewHolder::class.simpleName
+
+        fun bind(item: RTreeNode, isSelected: Boolean = false) {
             binding.node = item
-            binding.rowLayout.isActivated = activated
+            binding.rowLayout.isActivated = isSelected
             binding.executePendingBindings()
         }
 
@@ -66,6 +71,7 @@ class NodeListAdapter(
             onItemClicked: (node: RTreeNode, command: String) -> Unit
         ): ViewHolder {
 
+            Log.i(tag, "onItemClicked")
             binding.root.setOnClickListener {
                 binding.node?.let { onItemClicked(it, AppNames.ACTION_OPEN) }
             }

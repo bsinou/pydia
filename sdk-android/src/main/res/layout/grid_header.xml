@@ -24,7 +24,7 @@
             android:layout_marginStart="@dimen/margin_xsmall"
             android:layout_marginTop="@dimen/margin"
             android:layout_marginEnd="@dimen/margin_xsmall"
-            android:layout_marginBottom="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_medium"
             android:alpha="0.6"
             android:ellipsize="end"
             android:singleLine="true"

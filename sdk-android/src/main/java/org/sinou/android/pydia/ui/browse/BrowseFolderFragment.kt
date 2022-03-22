@@ -366,6 +366,7 @@ class BrowseFolderFragment : Fragment() {
         private var menuResId: Int = 0
 
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            Log.i(tag, "onCreateActionMode")
             this@BrowseFolderFragment.mode = mode
             mode.menuInflater.inflate(menuResId, menu)
             // TODO optimistic: we rely on the fact that the action mode is always opened with a single selected element.
@@ -375,23 +376,28 @@ class BrowseFolderFragment : Fragment() {
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            Log.i(tag, "onPrepareActionMode")
+            // TODO we must probably redraw the list at this point to show
+            //   a more explicit "selection" layout.
             return false
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
-            this@BrowseFolderFragment.mode?.finish()
-            this@BrowseFolderFragment.mode = null
-//
-//            browseFolderVM.clearSelection()
+            // Clear selection
+            tracker?.clearSelection()
 
+            // Re-show the FAB if necessary
             val inRecycle = browseFolderVM.currentFolder.value?.let {
                 it.isRecycle() || it.isInRecycle()
             } ?: false
-
             if (!inRecycle) {
                 binding.addNodeFab.visibility = View.VISIBLE
             }
+
+            this@BrowseFolderFragment.mode?.finish()
+            this@BrowseFolderFragment.mode = null
             actionModeCallback = null
+
             Log.i(tag, "onDestroyActionMode")
         }
 

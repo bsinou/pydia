@@ -61,6 +61,7 @@ class SearchFragment : Fragment() {
         }
 
         val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
+        adapter.showPath()
         binding.hits.adapter = adapter
         searchVM.hits.observe(viewLifecycleOwner, { adapter.submitList(it) })
 

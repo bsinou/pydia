@@ -2,6 +2,7 @@ package org.sinou.android.pydia.ui.browse
 
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
@@ -11,7 +12,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.utils.Log
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
 
@@ -25,7 +25,7 @@ class NodeListAdapter(
 ) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()) {
 
     private val tag = NodeListAdapter::class.simpleName
-
+    private var showPath = false
     var tracker: SelectionTracker<String>? = null
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -38,7 +38,7 @@ class NodeListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent).with(onItemClicked)
+        return ViewHolder.from(parent, showPath).with(onItemClicked)
     }
 
     fun doGetKey(position: Int): String {
@@ -56,14 +56,25 @@ class NodeListAdapter(
         return -1
     }
 
-    class ViewHolder private constructor(val binding: ListItemNodeBinding) :
+    fun showPath() {
+        showPath = true
+    }
+
+    class ViewHolder private constructor(
+        val binding: ListItemNodeBinding,
+        private val showPath: Boolean
+    ) :
         RecyclerView.ViewHolder(binding.root) {
 
         private val tag = ViewHolder::class.simpleName
 
+
         fun bind(item: RTreeNode, isSelected: Boolean = false) {
             binding.node = item
             binding.rowLayout.isActivated = isSelected
+            if (showPath) {
+                binding.nodePath.visibility = View.VISIBLE
+            }
             binding.executePendingBindings()
         }
 
@@ -97,10 +108,10 @@ class NodeListAdapter(
             }
 
         companion object {
-            fun from(parent: ViewGroup): ViewHolder {
+            fun from(parent: ViewGroup, showPath: Boolean): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = ListItemNodeBinding.inflate(layoutInflater, parent, false)
-                return ViewHolder(binding)
+                return ViewHolder(binding, showPath)
             }
         }
     }

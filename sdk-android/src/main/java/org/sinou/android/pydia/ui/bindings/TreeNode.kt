@@ -16,6 +16,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.pydio.cells.api.SdkNames
+import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
@@ -56,6 +57,13 @@ fun TextView.setNodeDesc(item: RTreeNode?) {
     )
     val sizeValue = formatShortFileSize(this.context, item.size)
     text = "$mTimeValue • $sizeValue"
+}
+
+@BindingAdapter("nodePath")
+fun TextView.setNodePath(item: RTreeNode?) {
+    item?.let {
+        text = StateID.fromId(item.encodedState).toString()
+    }
 }
 
 @BindingAdapter("nodeThumb")

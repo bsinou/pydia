@@ -100,13 +100,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        Log.d(tag, "onCreateOptionsMenu: ${activeSessionVM.liveSession.value?.getStateID()}")
-        // Inflate the menu; this adds items to the action bar if it is present.
+        Log.d(tag, "onCreateOptionsMenu")
         menuInflater.inflate(R.menu.main_options, menu)
-//        configureSearch(menu)
-//        configureConnexionAlarm(menu)
-//        configureLayoutSwitcher(menu)
-//        configureSort(menu)
         return true
     }
 
@@ -348,7 +343,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun configureSort(menu: Menu) {
-        Log.e(tag, "About to configure sort button")
         val openSortButton = menu.findItem(R.id.open_sort_by)
         openSortButton.isVisible = needListOptions()
         if (!openSortButton.isVisible) {

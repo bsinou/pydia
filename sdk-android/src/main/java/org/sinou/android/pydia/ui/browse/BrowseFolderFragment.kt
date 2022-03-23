@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -55,6 +56,11 @@ class BrowseFolderFragment : Fragment() {
     private var mode: ActionMode? = null
     private var actionModeCallback: PrimaryActionModeCallback? = null
     private var tracker: SelectionTracker<String>? = null
+
+    private lateinit var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
+    // private lateinit var observer: ChildObserver
+    private val observer = ChildObserver()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -121,7 +127,6 @@ class BrowseFolderFragment : Fragment() {
         // Manage grid or linear layouts
         val prefLayout = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
         val asGrid = AppNames.RECYCLER_LAYOUT_GRID == prefLayout
-        val adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
         val trackerBuilder: SelectionTracker.Builder<String>?
         if (asGrid) {
             val columns = resources.getInteger(R.integer.grid_default_column_number)
@@ -131,7 +136,7 @@ class BrowseFolderFragment : Fragment() {
             trackerBuilder = SelectionTracker.Builder(
                 "grid_multi_selection",
                 binding.nodes,
-                NodeGridItemKeyProvider(adapter),
+                NodeGridItemKeyProvider(adapter as NodeGridAdapter),
                 NodeGridItemDetailsLookup(binding.nodes),
                 StorageStrategy.createStringStorage()
             )
@@ -142,21 +147,10 @@ class BrowseFolderFragment : Fragment() {
             trackerBuilder = SelectionTracker.Builder(
                 "list_multi_selection",
                 binding.nodes,
-                NodeListItemKeyProvider(adapter),
+                NodeListItemKeyProvider(adapter as NodeListAdapter),
                 NodeListItemDetailsLookup(binding.nodes),
                 StorageStrategy.createStringStorage()
             )
-        }
-
-        // Set the content by observing the view Model
-        browseFolderVM.children.observe(viewLifecycleOwner) {
-            if (it.isEmpty()) {
-                binding.emptyContent.visibility = View.VISIBLE
-                adapter.submitList(listOf())
-            } else {
-                binding.emptyContent.visibility = View.GONE
-                adapter.submitList(it)
-            }
         }
 
         // Manage multi selection
@@ -165,9 +159,9 @@ class BrowseFolderFragment : Fragment() {
                 SelectionPredicates.createSelectAnything()
             ).build()
             if (adapter is NodeListAdapter) {
-                adapter.tracker = tmpTracker
+                (adapter as NodeListAdapter).tracker = tmpTracker
             } else if (adapter is NodeGridAdapter) {
-                adapter.tracker = tmpTracker
+                (adapter as NodeGridAdapter).tracker = tmpTracker
             }
             tmpTracker.addObserver(
                 object : SelectionTracker.SelectionObserver<String>() {
@@ -232,7 +226,13 @@ class BrowseFolderFragment : Fragment() {
         super.onResume()
         dumpBackStack(fTag, parentFragmentManager)
 
+        // We must insure the Observed LiveData has been correctly updated
+        // Otherwise we won't see sort order changes directly0
         browseFolderVM.resume()
+        observer?.let{
+            browseFolderVM.children.removeObserver(it)
+        }
+        browseFolderVM.children.observe(viewLifecycleOwner, observer)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.let { bar ->
             bar.setDisplayHomeAsUpEnabled(true)
@@ -428,6 +428,20 @@ class BrowseFolderFragment : Fragment() {
         fun finishActionMode() {
             Log.i(tag, "finishActionMode")
             mode?.finish()
+        }
+    }
+
+    inner class ChildObserver : Observer<List<RTreeNode>> {
+        override fun onChanged(it: List<RTreeNode>?) {
+            it?.let {
+                if (it.isEmpty()) {
+                    binding.emptyContent.visibility = View.VISIBLE
+                    adapter.submitList(listOf())
+                } else {
+                    binding.emptyContent.visibility = View.GONE
+                    adapter.submitList(it)
+                }
+            }
         }
     }
 }

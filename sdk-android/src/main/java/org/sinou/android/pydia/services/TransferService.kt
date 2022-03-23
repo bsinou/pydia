@@ -148,6 +148,7 @@ class TransferService(
             // TODO Could not write the file in the local fs, we should notify the user
             errorMessage =
                 "Could not write file for DL of $state to the local device: ${ioe.message}"
+            ioe.printStackTrace()
         } finally {
             IoHelpers.closeQuietly(out)
         }
@@ -155,6 +156,7 @@ class TransferService(
             rTransfer.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
             rTransfer.error = errorMessage
             getTransferDao().update(rTransfer)
+            Log.e(tag, errorMessage!!)
         }
 
         return@withContext errorMessage

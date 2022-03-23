@@ -3,7 +3,6 @@ package org.sinou.android.pydia.ui.browse
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.recyclerview.selection.Selection
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.db.nodes.RTreeNode
@@ -24,7 +23,10 @@ class BrowseFolderViewModel(
     val currentFolder: LiveData<RTreeNode>
         get() = _currentFolder
 
-    val children = nodeService.ls(stateID)
+    private var _children = nodeService.ls(stateID)
+    val children: LiveData<List<RTreeNode>>
+        get() = _children
+
 
 //    private var _selected : Selection<String>? = null
 //    val selected : Selection<String>?
@@ -77,6 +79,8 @@ class BrowseFolderViewModel(
     }
 
     fun resume() {
+        Log.i(tag, "resumed")
+        resetLiveChildren()
         if (!_isActive) {
             _isActive = true
             currWatcher = watchFolder()
@@ -85,6 +89,7 @@ class BrowseFolderViewModel(
     }
 
     fun pause() {
+        Log.i(tag, "paused")
         _isActive = false
     }
 
@@ -93,6 +98,11 @@ class BrowseFolderViewModel(
         pause()
         currWatcher?.cancel()
         resume()
+    }
+
+    /** Force recreation of the liveData object, typically after sort order modification */
+    fun resetLiveChildren() {
+        _children = nodeService.ls(stateID)
     }
 
     override fun onCleared() {
@@ -128,7 +138,6 @@ class BrowseFolderViewModel(
 //    viewModel.start(id)?.observe(this, Observer {
 //        // blank observe here
 //    })
-
 
 
     class BrowseFolderViewModelFactory(

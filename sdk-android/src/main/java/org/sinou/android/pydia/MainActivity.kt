@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        Log.d(tag, "onPrepareOptionsMenu: ${activeSessionVM.liveSession.value?.getStateID()}")
+        Log.d(tag, "onPrepareOptionsMenu: ${StateID.fromId(activeSessionVM.accountId)}")
         super.onPrepareOptionsMenu(menu)
         menu?.let {
             configureSearch(it)

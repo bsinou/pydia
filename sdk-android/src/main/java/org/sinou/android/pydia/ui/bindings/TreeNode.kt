@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.marginStart
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
@@ -113,6 +112,11 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
         Log.w("SetCardThumb", "no thumb found for ${item.name}")
         setImageResource(getGridDrawableFromMime(item.mime, item.sortName))
     }
+}
+
+@BindingAdapter("multiSelectTitle")
+fun TextView.setMultiSelectTitle(size: Int) {
+    text = String.format(resources.getQuantityString(R.plurals.selected_count, size), size)
 }
 
 @BindingAdapter("offline")

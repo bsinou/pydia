@@ -27,6 +27,9 @@ interface TreeNodeDao {
     @Query("SELECT * FROM tree_nodes WHERE encoded_state = :encodedState LIMIT 1")
     fun getLiveNode(encodedState: String): LiveData<RTreeNode>
 
+    @Query("SELECT * FROM tree_nodes WHERE encoded_state IN (:encodedIds) ")
+    fun getLiveNodes(vararg encodedIds: String): LiveData<List<RTreeNode>>
+
     @Query("SELECT * FROM tree_nodes WHERE encoded_state = :encodedState LIMIT 1")
     fun getNode(encodedState: String): RTreeNode?
 

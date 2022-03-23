@@ -100,6 +100,9 @@
         <action
             android:id="@+id/open_more_menu"
             app:destination="@id/tree_node_more_menu" />
+<!--        <action-->
+<!--            android:id="@+id/open_multi_more_menu"-->
+<!--            app:destination="@id/multi_node_more_menu" />-->
     </fragment>
 
     <fragment
@@ -173,12 +176,23 @@
         android:name="org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment"
         android:label="TreeNodeMoreMenu">
         <argument
-            android:name="state"
-            app:argType="string" />
+            android:name="selected"
+            app:argType="string[]" />
         <argument
             android:name="contextType"
             app:argType="string" />
     </dialog>
+
+<!--    <dialog-->
+<!--        android:id="@+id/multi_node_more_menu"-->
+<!--        android:name="org.sinou.android.pydia.ui.menus.MultiNodeMenuFragment">-->
+<!--        <argument-->
+<!--            android:name="state"-->
+<!--            app:argType="com.pydio.cells.api.ui.Message" />-->
+<!--        <argument-->
+<!--            android:name="contextType"-->
+<!--            app:argType="string" />-->
+<!--    </dialog>-->
 
     <dialog
         android:id="@+id/sort_by_more_menu"

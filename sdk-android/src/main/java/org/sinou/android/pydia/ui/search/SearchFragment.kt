@@ -109,7 +109,7 @@ class SearchFragment : Fragment() {
             AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {
                 val action = SearchFragmentDirections.openMoreMenu(
-                    node.encodedState, TreeNodeMenuFragment.CONTEXT_SEARCH
+                    arrayOf(node.encodedState), TreeNodeMenuFragment.CONTEXT_SEARCH
                 )
                 findNavController().navigate(action)
             }

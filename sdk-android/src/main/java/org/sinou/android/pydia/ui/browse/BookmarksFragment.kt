@@ -60,7 +60,7 @@ class BookmarksFragment : Fragment() {
             AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {
                 val action = BookmarksFragmentDirections.openMoreMenu(
-                    node.encodedState,
+                    arrayOf(node.encodedState),
                     TreeNodeMenuFragment.CONTEXT_BOOKMARKS
                 )
                 findNavController().navigate(action)

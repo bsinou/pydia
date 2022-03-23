@@ -129,7 +129,7 @@ class BrowseFolderFragment : Fragment() {
             adapter = NodeGridAdapter { node, action -> onClicked(node, action) }
             binding.nodes.adapter = adapter
             trackerBuilder = SelectionTracker.Builder(
-                "folder_multi_selection",
+                "grid_multi_selection",
                 binding.nodes,
                 NodeGridItemKeyProvider(adapter),
                 NodeGridItemDetailsLookup(binding.nodes),
@@ -140,7 +140,7 @@ class BrowseFolderFragment : Fragment() {
             adapter = NodeListAdapter { node, action -> onClicked(node, action) }
             binding.nodes.adapter = adapter
             trackerBuilder = SelectionTracker.Builder(
-                "folder_multi_selection",
+                "list_multi_selection",
                 binding.nodes,
                 NodeListItemKeyProvider(adapter),
                 NodeListItemDetailsLookup(binding.nodes),
@@ -174,7 +174,7 @@ class BrowseFolderFragment : Fragment() {
 
                     override fun onItemStateChanged(key: String, selected: Boolean) {
                         super.onItemStateChanged(key, selected)
-                        Log.e(fTag, "onItemStateChanged for $key, selected: $selected")
+                        Log.d(fTag, "onItemStateChanged for $key, selected: $selected")
                     }
 
                     override fun onSelectionChanged() {
@@ -190,6 +190,14 @@ class BrowseFolderFragment : Fragment() {
                                     override fun onActionItemClick(item: MenuItem): Boolean {
                                         Log.e(fTag, "onActionItemClick for: ${item.title}")
 
+                                        val selected = tracker?.selection?.map { it } ?: return true
+
+                                        val action = BrowseFolderFragmentDirections
+                                            .openMoreMenu(
+                                                selected.toTypedArray(),
+                                                TreeNodeMenuFragment.CONTEXT_BROWSE
+                                            )
+                                        findNavController().navigate(action)
                                         return true
                                     }
                                 })
@@ -266,7 +274,7 @@ class BrowseFolderFragment : Fragment() {
             AppNames.ACTION_MORE -> {
                 val action = BrowseFolderFragmentDirections
                     .openMoreMenu(
-                        node.encodedState,
+                        arrayOf(node.encodedState),
                         if (node.isInRecycle() || node.isRecycle()) {
                             TreeNodeMenuFragment.CONTEXT_RECYCLE
                         } else {
@@ -281,7 +289,7 @@ class BrowseFolderFragment : Fragment() {
 
     private fun onFabClicked() {
         val action = BrowseFolderFragmentDirections.openMoreMenu(
-            browseFolderVM.stateID.id,
+            arrayOf(browseFolderVM.stateID.id),
             TreeNodeMenuFragment.CONTEXT_ADD
         )
         findNavController().navigate(action)
@@ -361,7 +369,6 @@ class BrowseFolderFragment : Fragment() {
 
         var onActionItemClickListener: OnActionItemClickListener? = null
 
-
         @MenuRes
         private var menuResId: Int = 0
 
@@ -403,6 +410,7 @@ class BrowseFolderFragment : Fragment() {
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             onActionItemClickListener?.onActionItemClick(item)
+            Log.i(tag, "onActionItemClicked")
             mode.finish()
             return true
         }

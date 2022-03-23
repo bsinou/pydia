@@ -90,11 +90,23 @@ class NodeService(
     }
 
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
+        // Log.i(tag, "Retrieving node for $stateID")
         val liveData = nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
         if (liveData.value == null) {
             Log.e(tag, "no node found for ${stateID.id}")
         }
         return liveData
+    }
+
+    fun getLiveNodes(stateIDs: List<StateID>): LiveData<List<RTreeNode>> {
+        if (stateIDs.isEmpty()) {
+            throw java.lang.IllegalStateException("Cannot retrieve live nodes without at least one ID")
+        }
+        val encodedIds = stateIDs.map { it.id }.toTypedArray()
+        // Log.i(tag, "Retrieving node for $encodedIds")
+        val liveResults = nodeDB(stateIDs[0]).treeNodeDao().getLiveNodes(*encodedIds)
+        // Log.i(tag, "Found ${liveResults.value?.size}")
+        return liveResults
     }
 
     /* Retrieve Objects directly with suspend functions */
@@ -503,7 +515,7 @@ class NodeService(
         if (rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
             && rTreeNode.localModificationTS >= remoteStats.getmTime()
         ) {
-            fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)?.let {
+            fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE).let {
                 val file = File(it)
                 // TODO at this point we are not 100% sure the local file
                 //  is in-line with remote, typically if update is in process
@@ -526,7 +538,7 @@ class NodeService(
             when {
                 isOK == null && rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE
                 -> fileService.getLocalPath(rTreeNode, AppNames.LOCAL_FILE_TYPE_CACHE)
-                    ?.let { return@withContext File(it) }
+                    .let { return@withContext File(it) }
                 isOK == null && rTreeNode.localFileType == AppNames.LOCAL_FILE_TYPE_NONE
                 -> {
                 }
@@ -535,7 +547,7 @@ class NodeService(
                     fileService.getLocalPath(
                         rTreeNode,
                         AppNames.LOCAL_FILE_TYPE_CACHE
-                    )!!
+                    )
                 )
             }
 
@@ -591,7 +603,7 @@ class NodeService(
                             getLocalFile(
                                 rTreeNode,
                                 AppNames.LOCAL_FILE_TYPE_CACHE
-                            )!!
+                            )
                         )
                         IoHelpers.pipeRead(input, out)
                     } finally {

@@ -8,14 +8,14 @@ import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.utils.showMessage
 
-fun copyNode(
-    context: Context,
-    source: StateID,
-    target: StateID,
-): Boolean {
-    doCopyNodes(context, listOf(source), target)
-    return true
-}
+//fun copyNodes(
+//    context: Context,
+//    source: StateID,
+//    target: StateID,
+//): Boolean {
+//    doCopyNodes(context, listOf(source), target)
+//    return true
+//}
 
 fun copyNodes(
     context: Context,

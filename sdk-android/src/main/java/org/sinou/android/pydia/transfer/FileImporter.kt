@@ -46,7 +46,7 @@ class FileImporter(
         )
         { uris ->
             for (uri in uris) {
-                transferService.enqueueUpload(nodeMenuVM.stateID, uri)
+                transferService.enqueueUpload(nodeMenuVM.stateIDs[0], uri)
             }
             callingFragment.dismiss()
         }
@@ -54,13 +54,10 @@ class FileImporter(
         takePicture = registry.register(takePictureKey, owner, TakePictureToInternalStorage())
         { pictureTaken ->
             if (!pictureTaken) {
-                // Does not work...
-                // Toast.makeText(callingFragment.requireContext(), "blah", Toast.LENGTH_LONG).show()
-                // showLongMessage(callingFragment.requireActivity().baseContext, "Operation aborted by user")
                 callingFragment.dismiss()
             } else {
                 nodeMenuVM.targetUri?.let {
-                    transferService.enqueueUpload(nodeMenuVM.stateID, it)
+                    transferService.enqueueUpload(nodeMenuVM.stateIDs[0], it)
                     callingFragment.dismiss()
                 }
             }

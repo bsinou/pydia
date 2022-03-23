@@ -179,6 +179,10 @@
     <string name="dialog_create_folder_positive_btn">Create</string>
     <string name="confirm_move_to_recycle_title">Confirm deletion</string>
     <string name="confirm_move_to_recycle_desc">%s will be moved to the recycle bin</string>
+    <plurals name="confirm_multi_move_to_recycle_desc">
+        <item quantity="one">The selected item will be moved to the recycle bin</item>
+        <item quantity="other">The %d selected items will be moved to the recycle bin</item>
+    </plurals>
     <string name="confirm_permanent_deletion_title">Confirm permanent deletion</string>
     <string name="confirm_permanent_deletion_desc">%s will be definitively deleted</string>
     <string name="confirm_empty_recycle_message">This will empty the recycle bin for %s, all trashed content will be definitively deleted</string>

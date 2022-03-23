@@ -32,10 +32,9 @@ import org.sinou.android.pydia.utils.showLongMessage
  */
 class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
-    private val fTag = TreeNodeMenuFragment::class.java.simpleName
+    private val logTag = TreeNodeMenuFragment::class.java.simpleName
 
     companion object {
-
         const val CONTEXT_BROWSE = "browse"
         const val CONTEXT_ADD = "add"
         const val CONTEXT_RECYCLE = "from_recycle"
@@ -60,12 +59,11 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val ACTION_IMPORT_FILES = "import_files"
         const val ACTION_IMPORT_FROM_CAMERA = "import_from_camera"
         const val ACTION_FORCE_RESYNC = "force_resync"
-
     }
 
     private val args: TreeNodeMenuFragmentArgs by navArgs()
 
-    private lateinit var stateID: StateID
+    private lateinit var stateIDs: List<StateID>
     private lateinit var contextType: String
     private lateinit var treeNodeMenuVM: TreeNodeMenuViewModel
 
@@ -76,6 +74,8 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private var searchBinding: MoreMenuSearchBinding? = null
     private var bookmarkBinding: MoreMenuBookmarksBinding? = null
     private var recycleBinding: MoreMenuRecycleBinding? = null
+    private var multiBinding: MoreMenuMultiBinding? = null
+
 
     // Contracts for file transfers to and from the device
     private lateinit var fileImporter: FileImporter
@@ -84,27 +84,36 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private var launchCopy = registerForActivityResult(ChooseTargetContract()) {
         it?.let {
             dismiss() // close the "more" menu
-            copyNode(requireContext(), stateID, it)
+            copyNodes(requireContext(), stateIDs, it)
         }
     }
 
     private var launchMove = registerForActivityResult(ChooseTargetContract()) {
         it?.let {
             dismiss()
-            moveNode(requireContext(), stateID, it)
+            moveNodes(requireContext(), stateIDs, it)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(fTag, "onCreate")
+        Log.i(logTag, "onCreate")
 
-        stateID = StateID.fromId(args.state)
         contextType = args.contextType
+        val tmp = mutableListOf<StateID>()
+        for (encoded in args.selected) {
+            tmp.add(StateID.fromId(encoded))
+        }
+        stateIDs = tmp
+
+        if (stateIDs.isEmpty()) {
+            Log.e(logTag, "cannot generate \"More Menu\" without at least one node")
+            return
+        }
 
         val application = requireActivity().application
         val factory = TreeNodeMenuViewModel.NodeMenuViewModelFactory(
-            stateID,
+            stateIDs,
             contextType,
             CellsApp.instance.nodeService,
             application,
@@ -117,8 +126,8 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
             requireActivity().activityResultRegistry,
             CellsApp.instance.fileService,
             CellsApp.instance.transferService,
-            treeNodeMenuVM,
-            fTag,
+            tmpVM,
+            logTag,
             this,
         )
         lifecycle.addObserver(fileImporter)
@@ -126,11 +135,12 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         fileExporter = FileExporter(
             requireActivity().activityResultRegistry,
             CellsApp.instance.nodeService,
-            stateID,
-            fTag,
+            stateIDs[0],
+            logTag,
             this,
         )
         lifecycle.addObserver(fileExporter)
+
     }
 
     override fun onCreateView(
@@ -139,6 +149,26 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+        // treeNodeMenuVM.node.observe(viewLifecycleOwner) {
+        //     it?.let {
+        //         Log.e(logTag, "Got a node: ${it.getStateID()}")
+        //     }
+        // }
+
+        // treeNodeMenuVM.nodes.observe(viewLifecycleOwner) {
+        //     it?.let {
+        //         Log.e(logTag, "Got ${it.size} nodes")
+        //     }
+        // }
+
+        // Handle specific corner cases: no or more than one node
+        if (stateIDs.isEmpty()) {
+            return null
+        } else if (stateIDs.size > 1) {
+            return inflateMultiSelectedLayout(inflater, container)
+        }
+
+        // Provide correct UI for a single node depending on the context
         return when (contextType) {
             CONTEXT_BROWSE -> inflateBrowseLayout(inflater, container)
             CONTEXT_ADD -> inflateAddLayout(inflater, container)
@@ -152,17 +182,17 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        Log.i(fTag, "onResume")
+        Log.i(logTag, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.i(fTag, "onPause")
+        Log.i(logTag, "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.i(fTag, "onStop")
+        Log.i(logTag, "onStop")
     }
 
     /* BROWSE CONTEXT */
@@ -188,14 +218,14 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         binding.node = node
 
 //         binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
-        binding.download.setOnClickListener { onClicked(node, ACTION_DOWNLOAD_TO_DEVICE) }
-        binding.rename.setOnClickListener { onClicked(node, ACTION_RENAME) }
-        binding.copyTo.setOnClickListener { onClicked(node, ACTION_COPY) }
-        binding.moveTo.setOnClickListener { onClicked(node, ACTION_MOVE) }
-        binding.delete.setOnClickListener { onClicked(node, ACTION_DELETE) }
-        binding.bookmarkSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_BOOKMARK) }
-        binding.sharedSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_SHARED) }
-        binding.offlineSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_OFFLINE) }
+        binding.download.setOnClickListener { onClicked(ACTION_DOWNLOAD_TO_DEVICE) }
+        binding.rename.setOnClickListener { onClicked(ACTION_RENAME) }
+        binding.copyTo.setOnClickListener { onClicked(ACTION_COPY) }
+        binding.moveTo.setOnClickListener { onClicked(ACTION_MOVE) }
+        binding.delete.setOnClickListener { onClicked(ACTION_DELETE) }
+        binding.bookmarkSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_BOOKMARK) }
+        binding.sharedSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_SHARED) }
+        binding.offlineSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_OFFLINE) }
 
         binding.executePendingBindings()
     }
@@ -219,11 +249,11 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private fun bind(binding: MoreMenuOfflineRootsBinding, node: RTreeNode) {
 
         binding.node = node
-        binding.forceResync.setOnClickListener { onClicked(node, ACTION_FORCE_RESYNC) }
-        binding.download.setOnClickListener { onClicked(node, ACTION_DOWNLOAD_TO_DEVICE) }
-        binding.offlineSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_OFFLINE) }
+        binding.forceResync.setOnClickListener { onClicked(ACTION_FORCE_RESYNC) }
+        binding.download.setOnClickListener { onClicked(ACTION_DOWNLOAD_TO_DEVICE) }
+        binding.offlineSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_OFFLINE) }
         binding.openParentInWorkspace.setOnClickListener {
-            onClicked(node, ACTION_OPEN_PARENT_IN_WORKSPACES)
+            onClicked(ACTION_OPEN_PARENT_IN_WORKSPACES)
         }
         // TODO
         // binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
@@ -249,15 +279,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private fun bind(binding: MoreMenuAddBinding, node: RTreeNode) {
         binding.node = node
 
-        binding.createFolder.setOnClickListener { onClicked(node, ACTION_CREATE_FOLDER) }
-        binding.importFiles.setOnClickListener { onClicked(node, ACTION_IMPORT_FILES) }
+        binding.createFolder.setOnClickListener { onClicked(ACTION_CREATE_FOLDER) }
+        binding.importFiles.setOnClickListener { onClicked(ACTION_IMPORT_FILES) }
         if (requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-            binding.importFromCamera.setOnClickListener {
-                onClicked(
-                    node,
-                    ACTION_IMPORT_FROM_CAMERA
-                )
-            }
+            binding.importFromCamera.setOnClickListener { onClicked(ACTION_IMPORT_FROM_CAMERA) }
         } else {
             binding.importFromCamera.visibility = View.GONE
         }
@@ -284,9 +309,9 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private fun bind(binding: MoreMenuSearchBinding, node: RTreeNode) {
         binding.node = node
 
-        binding.openInWorkspace.setOnClickListener { onClicked(node, ACTION_OPEN_IN_WORKSPACES) }
+        binding.openInWorkspace.setOnClickListener { onClicked(ACTION_OPEN_IN_WORKSPACES) }
         binding.openParentInWorkspace.setOnClickListener {
-            onClicked(node, ACTION_OPEN_PARENT_IN_WORKSPACES)
+            onClicked(ACTION_OPEN_PARENT_IN_WORKSPACES)
         }
 
         binding.executePendingBindings()
@@ -310,11 +335,11 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     private fun bind(binding: MoreMenuRecycleBinding, node: RTreeNode) {
         binding.node = node
-        binding.emptyRecycle.setOnClickListener { onClicked(node, ACTION_EMPTY_RECYCLE) }
+        binding.emptyRecycle.setOnClickListener { onClicked(ACTION_EMPTY_RECYCLE) }
         binding.restoreFromRecycle.setOnClickListener {
-            onClicked(node, ACTION_RESTORE_FROM_RECYCLE)
+            onClicked(ACTION_RESTORE_FROM_RECYCLE)
         }
-        binding.deletePermanently.setOnClickListener { onClicked(node, ACTION_DELETE_PERMANENTLY) }
+        binding.deletePermanently.setOnClickListener { onClicked(ACTION_DELETE_PERMANENTLY) }
 //         binding.openWith.setOnClickListener { onClicked(node, ACTION_OPEN_WITH) }
         binding.executePendingBindings()
     }
@@ -333,16 +358,87 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     private fun bind(binding: MoreMenuBookmarksBinding, node: RTreeNode) {
         binding.node = node
-        binding.bookmarkSwitch.setOnClickListener { onClicked(node, ACTION_TOGGLE_BOOKMARK) }
-        binding.download.setOnClickListener { onClicked(node, ACTION_DOWNLOAD_TO_DEVICE) }
-        binding.openInWorkspaces.setOnClickListener { onClicked(node, ACTION_OPEN_IN_WORKSPACES) }
+        binding.bookmarkSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_BOOKMARK) }
+        binding.download.setOnClickListener { onClicked(ACTION_DOWNLOAD_TO_DEVICE) }
+        binding.openInWorkspaces.setOnClickListener { onClicked(ACTION_OPEN_IN_WORKSPACES) }
         binding.openParentInWorkspace.setOnClickListener {
-            onClicked(node, ACTION_OPEN_PARENT_IN_WORKSPACES)
+            onClicked(ACTION_OPEN_PARENT_IN_WORKSPACES)
         }
         binding.executePendingBindings()
     }
 
-    private fun onClicked(node: RTreeNode, actionOpenWith: String) {
+    /* MULTI SELECTION CONTEXT */
+
+    private fun inflateMultiSelectedLayout(inflater: LayoutInflater, container: ViewGroup?): View {
+        multiBinding = DataBindingUtil.inflate(
+            inflater, R.layout.more_menu_multi, container, false
+        )
+        val binding = multiBinding as MoreMenuMultiBinding
+        bind(binding, stateIDs.size)
+        binding.executePendingBindings()
+        return binding.root
+    }
+
+    private fun bind(binding: MoreMenuMultiBinding, selectionSize: Int) {
+        binding.selectionSize = selectionSize
+        binding.copyTo.setOnClickListener { onClicked(ACTION_COPY) }
+        binding.moveTo.setOnClickListener { onClicked(ACTION_MOVE) }
+        binding.delete.setOnClickListener { onClicked(ACTION_DELETE) }
+        binding.executePendingBindings()
+    }
+
+    /* GENERIC METHODS */
+
+    private fun onClicked(actionId: String) {
+        if (stateIDs.size == 1) {
+            return onSingleClicked(actionId)
+        }
+
+        // TODO add sanity checks in the various called commands to inure we do not launch a
+        //   forbidden action (typically moving or copying a node inside itself).
+        val node = treeNodeMenuVM.node.value ?: return
+        val parent = StateID.fromId(node.encodedState).parentFolder()
+
+        val moreMenu = this
+        lifecycleScope.launch {
+            when (actionId) {
+                ACTION_COPY -> {
+                    launchCopy.launch(Pair(parent, AppNames.ACTION_COPY))
+                }
+                ACTION_MOVE -> {
+                    launchMove.launch(Pair(parent, AppNames.ACTION_MOVE))
+                }
+                ACTION_DELETE -> {
+                    moveNodesToRecycle(requireContext(), stateIDs)
+                    moreMenu.dismiss()
+                }
+                // TODO handle case when we are in the recycle ?
+//                ACTION_DELETE_PERMANENTLY -> {
+//                    deleteFromRecycle(requireContext(), node)
+//                    moreMenu.dismiss()
+//                }
+//                ACTION_RESTORE_FROM_RECYCLE -> {
+//                    CellsApp.instance.nodeService.restoreNode(node.getStateID())?.let {
+//                        showLongMessage(requireContext(), it)
+//                    }
+//                    moreMenu.dismiss()
+//                }
+
+                // TODO Also add this ?
+//                ACTION_DOWNLOAD_TO_DEVICE -> {
+//                    fileExporter.pickTargetLocation(node)
+//                }
+            }
+        }
+    }
+
+    private fun onSingleClicked(actionOpenWith: String) {
+
+        Log.i(logTag, "in onSingleClicked; one node: ${treeNodeMenuVM.node.value}")
+
+
+        val node = treeNodeMenuVM.node.value ?: return
+
         Log.i("MoreMenu", "${node.name} -> $actionOpenWith")
         val moreMenu = this
         lifecycleScope.launch {
@@ -358,16 +454,20 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     moreMenu.dismiss()
                 }
                 ACTION_COPY -> {
-                    launchCopy.launch(Pair(
-                        StateID.fromId(node.encodedState).parentFolder(),
-                        AppNames.ACTION_COPY
-                    ))
+                    launchCopy.launch(
+                        Pair(
+                            StateID.fromId(node.encodedState).parentFolder(),
+                            AppNames.ACTION_COPY
+                        )
+                    )
                 }
                 ACTION_MOVE -> {
-                    launchMove.launch(Pair(
-                        StateID.fromId(node.encodedState).parentFolder(),
-                        AppNames.ACTION_MOVE
-                    ))
+                    launchMove.launch(
+                        Pair(
+                            StateID.fromId(node.encodedState).parentFolder(),
+                            AppNames.ACTION_MOVE
+                        )
+                    )
                 }
                 ACTION_DELETE -> {
                     moveToRecycle(requireContext(), node)

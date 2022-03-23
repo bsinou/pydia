@@ -51,7 +51,7 @@ class OfflineRootsFragment : Fragment() {
             AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {
                 val action = OfflineRootsFragmentDirections.openMoreMenu(
-                    node.encodedState,
+                    arrayOf(node.encodedState),
                     TreeNodeMenuFragment.CONTEXT_OFFLINE
                 )
                 findNavController().navigate(action)

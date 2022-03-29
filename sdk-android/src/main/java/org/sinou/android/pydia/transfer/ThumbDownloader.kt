@@ -27,7 +27,7 @@ class ThumbDownloader(
 
     private val tag = ThumbDownloader::class.java.simpleName
 
-    protected val doneChannel = Channel<Boolean>()
+    private val doneChannel = Channel<Boolean>()
     private val queue = Channel<String>()
 
     private var dlJob = Job()

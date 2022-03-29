@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 //        setTheme(CellsApp.instance.currentTheme)
         super.onCreate(savedInstanceState)
 
-        var encodedState = savedInstanceState?.getString(AppNames.KEY_STATE)
+        var encodedState = savedInstanceState?.getString(AppNames.EXTRA_STATE)
         if (Str.empty(encodedState)) {
             encodedState = intent.getStringExtra(AppNames.EXTRA_STATE)
         }
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         activeSessionVM.accountId?.let {
             Log.e(tag, "onSaveInstanceState for: ${StateID.fromId(it)}")
-            outState.putString(AppNames.KEY_STATE, it)
+            outState.putString(AppNames.EXTRA_STATE, it)
         }
     }
 
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleStateOrIntent(savedInstanceState: Bundle?) {
 
-        var stateId = savedInstanceState?.getString(AppNames.KEY_STATE)
+        var stateId = savedInstanceState?.getString(AppNames.EXTRA_STATE)
         if (Str.empty(stateId)) {
             stateId = intent.getStringExtra(AppNames.EXTRA_STATE)
         }
@@ -325,6 +325,11 @@ class MainActivity : AppCompatActivity() {
     private fun configureConnexionAlarm(menu: Menu) {
         val connexionAlarmBtn = menu.findItem(R.id.open_connexion_dialog)
         connexionAlarmBtn.isVisible = false
+
+        if (activeSessionVM.accountId == null) {
+            // no accountID => we are on the account page and the relog button is not shown
+            return
+        }
 
         activeSessionVM.liveSession.observe(this) {
             it?.let { liveSession ->

@@ -19,7 +19,7 @@ import org.sinou.android.pydia.db.nodes.RTreeNode
 
 private const val NODE_UTILS = "NodeUtils"
 
-fun areNodeContentEquals(remote: FileNode, local: RTreeNode): Boolean {
+fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): Boolean {
     // TODO rather use this when debugging is over.
 //        return remote.eTag != null
 //                && remote.eTag == local.etag
@@ -27,17 +27,21 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode): Boolean {
 //                // Also compare meta hash: timestamp is not updated when a meta changes
 //                && remote.metaHashCode == local.metaHash
 
-    var isEqual = remote.eTag != null
-    if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: no remote eTag")
-        return false
-    }
-    isEqual = remote.eTag == local.etag
-    if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: eTag are different")
-        return false
-    }
+    var isEqual: Boolean
+    if (!legacy) { // eTAG is not set on P8 servers
+        isEqual = remote.eTag != null
+        if (!isEqual) {
+            Log.d(NODE_UTILS, "Differ: no remote eTag")
+            return false
+        }
 
+        isEqual = remote.eTag == local.etag
+        if (!isEqual) {
+            Log.d(NODE_UTILS, "Differ: eTag are different")
+            return false
+        }
+    }
+  
     isEqual = local.remoteModificationTS == remote.getLastModified()
     if (!isEqual) {
         Log.d(NODE_UTILS, "Differ: Modif time are not equals")

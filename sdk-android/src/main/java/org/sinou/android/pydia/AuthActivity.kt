@@ -37,8 +37,8 @@ class AuthActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private fun handleIntent(inIntent: Intent) {
         if (Intent.ACTION_VIEW == intent.action) {
             val uri = inIntent.data ?: return
-            val code = uri.getQueryParameter(AppNames.KEY_CODE)
-            val state = uri.getQueryParameter(AppNames.KEY_STATE)
+            val code = uri.getQueryParameter(AppNames.QUERY_KEY_CODE)
+            val state = uri.getQueryParameter(AppNames.QUERY_KEY_STATE)
 
             if (code != null && state != null) {
                 val action = ServerUrlFragmentDirections.actionServerUrlToOauthFlow(null)

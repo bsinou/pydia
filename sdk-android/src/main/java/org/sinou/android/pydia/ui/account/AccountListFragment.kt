@@ -34,7 +34,7 @@ class AccountListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.e(fTag, "onCreateView ${savedInstanceState?.getString(AppNames.KEY_STATE)}")
+        Log.e(fTag, "onCreateView ${savedInstanceState?.getString(AppNames.EXTRA_STATE)}")
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_list, container, false
         )

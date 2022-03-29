@@ -76,7 +76,7 @@ class FolderDiff(
                     // last local is smaller than next remote, no more matches for any next remote
                     local = null
                 } else if (order == 0) {
-                    if (areNodeContentEquals(remote, local!!)) {
+                    if (areNodeContentEquals(remote, local!!, client.isLegacy)) {
                         // Found a match with no detected change,
                         // we yet insure necessary files (offline & thumbs for viewable) are present
                         alsoCheckFile(local)

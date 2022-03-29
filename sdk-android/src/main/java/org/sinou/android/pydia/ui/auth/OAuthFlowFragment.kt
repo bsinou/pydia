@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
@@ -82,8 +81,8 @@ class OAuthFlowFragment : Fragment() {
         Log.i(fTag, "onResume")
         super.onResume()
         val uri = requireActivity().intent.data ?: return
-        val state = uri.getQueryParameter(AppNames.KEY_STATE)
-        val code = uri.getQueryParameter(AppNames.KEY_CODE)
+        val state = uri.getQueryParameter(AppNames.QUERY_KEY_STATE)
+        val code = uri.getQueryParameter(AppNames.QUERY_KEY_CODE)
         if (code != null && state != null) {
             viewModel.handleResponse(state, code)
         }

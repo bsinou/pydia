@@ -64,8 +64,8 @@ public interface AppNames {
     String EXTRA_ACTION_CONTEXT = KEY_PREFIX_ + "context.action";
     String EXTRA_SESSION_UID = KEY_PREFIX_ + "session.uid";
 
-    String KEY_CODE = "code";
-    String KEY_STATE = "state";
+    String QUERY_KEY_CODE = "code";
+    String QUERY_KEY_STATE = "state";
 
     String CELLS_ROOT_ENCODED_STATE = "cells%3A%2F%2Froot";
 

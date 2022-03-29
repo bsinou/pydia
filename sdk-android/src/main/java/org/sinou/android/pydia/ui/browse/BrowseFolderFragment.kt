@@ -217,7 +217,7 @@ class BrowseFolderFragment : Fragment() {
         super.onSaveInstanceState(outState)
         if (isCreated) {
             Log.e(fTag, "onSaveInstanceState for: ${browseFolderVM.stateID}")
-            outState.putString(AppNames.KEY_STATE, browseFolderVM.stateID.id)
+            outState.putString(AppNames.EXTRA_STATE, browseFolderVM.stateID.id)
         }
     }
 

@@ -74,12 +74,12 @@ fun areWsNodeContentEquals(remote: WorkspaceNode, local: RWorkspace): Boolean {
     }
     isEqual = remote.label == local.label
     if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: names are different")
+        Log.d(NODE_UTILS, "Differ: labels are different")
         return false
     }
     isEqual = remote.description == local.description
     if (!isEqual) {
-        Log.d(NODE_UTILS, "Differ: desc are different")
+        Log.d(NODE_UTILS, "Differ: descriptions are different")
         return false
     }
 

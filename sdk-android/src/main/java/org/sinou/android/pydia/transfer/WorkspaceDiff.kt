@@ -85,7 +85,7 @@ class WorkspaceDiff(
     }
 
     private fun putAddChange(remote: WorkspaceNode) {
-        Log.d(logTag, "add for ${remote.label}")
+        Log.d(logTag, "add for ${remote.name}")
         changeNumber++
         // We add this both on the ws and on the node table
         val rNode = RWorkspace.createChild(accountId, remote)
@@ -95,7 +95,7 @@ class WorkspaceDiff(
     }
 
     private fun putUpdateChange(remote: WorkspaceNode) {
-        Log.d(logTag, "update for ${remote.label}")
+        Log.d(logTag, "update for ${remote.name}")
         changeNumber++
         val childStateID = accountId.child(remote.slug)
         val rNode = RTreeNode.fromWorkspaceNode(childStateID, remote)

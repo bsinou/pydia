@@ -89,7 +89,7 @@ data class RTreeNode(
     fun toFileNode(): FileNode {
         // TODO double check we might drop some info that we have missed on first draft implementation
         val fn = FileNode()
-        fn.setProperty(SdkNames.NODE_PROPERTY_UUID, uuid)
+        fn.setProperty(SdkNames.NODE_PROPERTY_UID, uuid)
         fn.setProperty(SdkNames.NODE_PROPERTY_ETAG, etag)
         fn.setProperty(SdkNames.NODE_PROPERTY_MTIME, "$remoteModificationTS")
         fn.setProperty(SdkNames.NODE_PROPERTY_PATH, getStateID().path)
@@ -144,7 +144,7 @@ data class RTreeNode(
             Log.w(TAG, "... fromFileNode $stateID")
             Log.w(TAG, "  - WS: ${fileNode.workspace}")
             Log.w(TAG, "  - Path: ${fileNode.path}")
-            Log.w(TAG, "  - Label: ${fileNode.label}")
+            Log.w(TAG, "  - Label: ${fileNode.name}")
             val childStateID = // Retrieve the account from the passed state
                 StateID.fromId(stateID.accountId)
                     // Construct the path from file node info
@@ -190,20 +190,20 @@ data class RTreeNode(
         fun fromWorkspaceNode(stateID: StateID, node: WorkspaceNode): RTreeNode {
             Log.w(TAG, "... fromWorkspaceNod $stateID")
             Log.w(TAG, "  - Slug: ${node.slug}")
-            Log.w(TAG, "  - Label: ${node.label}")
+            Log.w(TAG, "  - Name: ${node.name}")
             Log.w(TAG, "  - Desc: ${node.description}")
             try {
                 val currSortName = when (node.workspaceType) {
-                    SdkNames.WS_TYPE_PERSONAL -> "1_2_${node.label}"
-                    SdkNames.WS_TYPE_CELL -> "1_8_${node.label}"
-                    else -> "1_5_${node.label}"
+                    SdkNames.WS_TYPE_PERSONAL -> "1_2_${node.name}"
+                    SdkNames.WS_TYPE_CELL -> "1_8_${node.name}"
+                    else -> "1_5_${node.name}"
                 }
 
                 return RTreeNode(
                     encodedState = stateID.id,
                     workspace = node.slug,
                     parentPath = "",
-                    name = node.label,
+                    name = node.name,
                     // TODO rather handle the UUID
                     uuid = node.slug,
                     etag = "",

@@ -65,12 +65,12 @@ class FolderDiff(
                 putAddChange(remote)
                 continue
             } else {
-                var order = remote.label.compareTo(local.name)
+                var order = remote.name.compareTo(local.name)
 
                 while (order > 0 && lit.hasNext()) { // Next local is lexicographically smaller
                     putDeleteChange(local!!)
                     local = lit.next()
-                    order = remote.label.compareTo(local.name)
+                    order = remote.name.compareTo(local.name)
                 }
                 if (order > 0) {
                     // last local is smaller than next remote, no more matches for any next remote
@@ -104,21 +104,21 @@ class FolderDiff(
     }
 
     private fun putAddChange(remote: FileNode) {
-        Log.d(tag, "add for ${remote.label}")
+        Log.d(tag, "add for ${remote.name}")
         changeNumber++
-        val childStateID = parentId.child(remote.label)
+        val childStateID = parentId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
         dao.insert(rNode)
         downloadFilesIfNecessary(remote, childStateID)
     }
 
     private fun putUpdateChange(remote: FileNode, local: RTreeNode) {
-        Log.d(tag, "update for ${remote.label}")
+        Log.d(tag, "update for ${remote.name}")
 
         changeNumber++
 
         // TODO: Insure corner cases are correctly handled, typically on type switch
-        val childStateID = parentId.child(remote.label)
+        val childStateID = parentId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
 
         if (local.isFolder() && remote.isFile) {
@@ -165,7 +165,7 @@ class FolderDiff(
         // FIXME we miss the event when we have a filename but the thumb is not present
         if (remote.isImage && local.thumbFilename == null) {
             diffScope.launch {
-                val childStateID = parentId.child(remote.label)
+                val childStateID = parentId.child(remote.name)
                 thumbDL.orderThumbDL(childStateID.id)
             }
         }

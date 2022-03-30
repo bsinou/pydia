@@ -31,7 +31,7 @@ class FileImporter(
     private val callingFragment: BottomSheetDialogFragment,
 ) : DefaultLifecycleObserver {
 
-    private val tag = "FileImporter"
+    private val logTag = FileImporter::class.simpleName
     private val getContentKey = AppNames.KEY_PREFIX_ + "select.files"
     private val takePictureKey = AppNames.KEY_PREFIX_ + "take.picture"
 
@@ -76,7 +76,7 @@ class FileImporter(
         val photoFile: File? = try {
             fileService.createImageFile(stateID)
         } catch (ex: IOException) {
-            Log.e(tag, "Cannot create photo file")
+            Log.e(logTag, "Cannot create picture file")
             ex.printStackTrace()
             // Error occurred while creating the File
             null

@@ -128,7 +128,7 @@ class TransferService(
                 .download(state.workspace, state.file, out) { progressL ->
                     rTransfer.progress = progressL
                     getTransferDao().update(rTransfer)
-                    true
+                    false
                 }
 
             // Mark the upload as done
@@ -189,7 +189,7 @@ class TransferService(
             ) { progressL ->
                 transferRecord.progress = progressL
                 getTransferDao().update(transferRecord)
-                true
+                false
             }
 
             transferRecord.error = null
@@ -242,7 +242,7 @@ class TransferService(
 
         // Mime Type
         val mime = cr.getType(uri) ?: SdkNames.NODE_MIME_DEFAULT
-        Log.e(tag, "Enqueuing upload for $filename, MIME: [$mime]")
+        Log.d(tag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
         mimeMap.getExtensionFromMimeType(mime)?.let {
             // TODO make a better check
             //   - retrieve file extension

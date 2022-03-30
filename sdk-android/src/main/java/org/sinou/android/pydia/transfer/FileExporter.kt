@@ -20,7 +20,7 @@ class FileExporter(
     private val callingFragment: BottomSheetDialogFragment,
 ) : DefaultLifecycleObserver {
 
-    private val tag = "FileExporter"
+    private val logTag = FileExporter::class.simpleName
     private val createDocumentKey = AppNames.KEY_PREFIX_ + "create.files"
     private val createMediaKey = AppNames.KEY_PREFIX_ + "create.media"
 

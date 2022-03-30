@@ -19,7 +19,7 @@ class P8CredViewModel(
     private val serverURL: ServerURL
 ) : ViewModel() {
 
-    private val TAG = "P8CredViewModel"
+    private val logTag = P8CredViewModel::class.simpleName
 
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
@@ -38,18 +38,18 @@ class P8CredViewModel(
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-    private val _launchCredValidation = MutableLiveData<Boolean>()
-    val launchCredValidation: LiveData<Boolean>
-        get() = _launchCredValidation
-
-    fun launchValidation() {
-        _launchCredValidation.value = true
-    }
-
-    fun validationLaunched() {
-        _accountID.value = null
-        _launchCredValidation.value = false
-    }
+//    private val _launchCredValidation = MutableLiveData<Boolean>()
+//    val launchCredValidation: LiveData<Boolean>
+//        get() = _launchCredValidation
+//
+//    fun launchValidation() {
+//        _launchCredValidation.value = true
+//    }
+//
+//    fun validationLaunched() {
+//        _accountID.value = null
+//        _launchCredValidation.value = false
+//    }
 
     fun logToP8(login: String, password: String, captcha: String?) {
         // TODO validate passed parameters
@@ -60,30 +60,32 @@ class P8CredViewModel(
         }
     }
 
+    private fun switchLoading(newState: Boolean) {
+        _isProcessing.value = newState
+    }
+
     fun cancel() {
         val wasOn = isProcessing.value ?: false
-        if (wasOn){
+        if (wasOn) {
             _isProcessing.value = false
         }
         // TODO also cancel running jobs
     }
 
-    private fun switchLoading(newState: Boolean) {
-        _isProcessing.value = newState
-    }
-
     private suspend fun doP8Auth(login: String, password: String, captcha: String?): String? {
-        val creds = P8Credentials(login, password, captcha)
+
+        val credentials = P8Credentials(login, password, captcha)
         var errorMsg: String? = null
 
         val accountIDStr = withContext(Dispatchers.IO) {
-            Log.i(TAG, "Launch P8 Auth for ${creds.username}@${serverURL.url}")
+            Log.i(
+                logTag,
+                "Launching P8 authentication process for ${credentials.username}@${serverURL.url}"
+            )
             var id: String? = null
             try {
-                id = accountService.registerAccount(serverURL, creds)
-
+                id = accountService.registerAccount(serverURL, credentials)
                 accountService.refreshWorkspaceList(id)
-
             } catch (e: SDKException) {
                 // TODO handle captcha here
                 errorMsg = e.message ?: "Invalid credentials, please try again"
@@ -98,13 +100,13 @@ class P8CredViewModel(
     }
 
     override fun onCleared() {
-        Log.i(TAG, "destroyed")
+        Log.d(logTag, "destroyed")
         super.onCleared()
         viewModelJob.cancel()
     }
 
     init {
-        Log.i(TAG, "created")
+        Log.d(logTag, "created")
     }
 
     class P8CredViewModelFactory(

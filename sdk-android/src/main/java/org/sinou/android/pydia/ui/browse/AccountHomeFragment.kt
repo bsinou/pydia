@@ -33,7 +33,7 @@ class AccountHomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.e(fTag, "onCreateView ${activeSessionVM.accountId}")
+        Log.i(fTag, "onCreateView ${activeSessionVM.accountId}")
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_home, container, false
         )

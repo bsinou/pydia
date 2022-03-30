@@ -107,7 +107,7 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
             if (oldAccount.isLegacy) {
                 accountDB.legacyCredentialsDao().forgetPassword(accountID)
             } else {
-                accountDB.tokenDao().forgetToken(accountID)
+                accountDB.tokenDao().deleteToken(accountID)
             }
 
             // Files
@@ -133,12 +133,15 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
     suspend fun logoutAccount(accountID: String): String? = withContext(Dispatchers.IO) {
         try {
             accountDB.accountDao().getAccount(accountID)?.let {
+                Log.i(tag, "About to logout $accountID")
+                Log.i(tag, "Calling stack:")
+                Thread.dumpStack()
                 // There is also a token that is generated for P8:
                 // In case of legacy server, we have to discard a row in **both** tables
                 if (it.isLegacy) {
                     accountDB.legacyCredentialsDao().forgetPassword(accountID)
                 }
-                accountDB.tokenDao().forgetToken(accountID)
+                accountDB.tokenDao().deleteToken(accountID)
                 it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
                 accountDB.accountDao().update(it)
                 return@withContext null

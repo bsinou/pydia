@@ -143,7 +143,7 @@ class SessionFactory(
 
             throw SDKException(
                 ErrorCodes.authentication_required,
-                "cannot unlock session for $accountID, auth status:" + session.authStatus
+                "cannot unlock session for $accountID, auth status: " + session.authStatus
             )
         }
     }

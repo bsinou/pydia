@@ -18,7 +18,10 @@ interface TokenDao {
     fun getToken(accountID: String): RToken?
 
     @Query("DELETE FROM tokens WHERE account_id = :accountID")
-    fun forgetToken(accountID: String)
+    fun deleteToken(accountID: String)
+
+    @Query("DELETE FROM tokens")
+    fun deleteAllToken()
 
     @Query("SELECT * FROM tokens")
     fun getAll(): List<RToken>

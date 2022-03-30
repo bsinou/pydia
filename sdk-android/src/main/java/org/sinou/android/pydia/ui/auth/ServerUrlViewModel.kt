@@ -169,7 +169,7 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
     }
 
     override fun onCleared() {
-        Log.i(tag, "$tag destroyed!")
+        Log.i(tag, "onCleared")
         super.onCleared()
         viewModelJob.cancel()
     }

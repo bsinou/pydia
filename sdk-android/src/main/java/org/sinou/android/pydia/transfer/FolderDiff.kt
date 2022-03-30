@@ -82,6 +82,7 @@ class FolderDiff(
                         alsoCheckFile(local)
                         alsoCheckThumb(remote, local)
                     } else {
+
                         putUpdateChange(remote, local)
                     }
                     // Move local cursor to next and restart the loop
@@ -251,12 +252,34 @@ class FolderDiff(
 
         private fun getNextPage(page: PageOptions) {
             nodes.clear()
-            nextPage = client.ls(parentId.workspace, parentId.file, page) {
-                if (it !is FileNode) {
-                    Log.w(tag, "could not store node: $it")
-                } else {
-                    nodes.add(it)
+
+            if (client.isLegacy){
+                getAllSorted()
+            } else {
+                nextPage = client.ls(parentId.workspace, parentId.file, page) {
+                    if (it !is FileNode) {
+                        Log.w(tag, "could not store node: $it")
+                    } else {
+                        nodes.add(it)
+                    }
                 }
+            }
+        }
+
+        // P8 specific, we must retrieve all nodes at this point and sort them for our
+        // diff algorithm to work
+        private fun getAllSorted(){
+            val unsorted = mutableListOf<FileNode>()
+            while (nextPage.currentPage != nextPage.totalPages) {
+                nextPage = client.ls(parentId.workspace, parentId.file, nextPage) {
+                    if (it !is FileNode) {
+                        Log.w(tag, "could not store node: $it")
+                    } else {
+                        unsorted.add(it)
+                    }
+                }
+                nodes.addAll(unsorted.sorted())
+                nodeIterator = nodes.iterator()
             }
         }
     }

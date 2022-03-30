@@ -10,14 +10,7 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.accounts.RToken
 import org.sinou.android.pydia.db.accounts.TokenDao
 
-class TokenStore(
-    private val dao: TokenDao
-    // private val accountService: AccountService,
-) : Store<Token> {
-
-    private var tokenStoreJob = Job()
-    private val tokenStoreScope = CoroutineScope(Dispatchers.IO + tokenStoreJob)
-
+class TokenStore(private val dao: TokenDao) : Store<Token> {
 
     override fun put(id: String, token: Token) {
         val rToken = RToken.fromToken(id, token)
@@ -37,14 +30,11 @@ class TokenStore(
     }
 
     override fun remove(id: String) {
-        tokenStoreScope.launch {
-            // TODO("We should avoid to retrieve the service this way: it prevents DI")
-            CellsApp.instance.accountService.logoutAccount(id)
-        }
+        dao.deleteToken(id)
     }
 
     override fun clear() {
-        TODO("Not yet implemented")
+        dao.deleteAllToken()
     }
 
     override fun getAll(): MutableMap<String, Token> {

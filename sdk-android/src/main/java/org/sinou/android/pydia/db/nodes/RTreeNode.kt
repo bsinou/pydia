@@ -141,7 +141,7 @@ data class RTreeNode(
         private const val TAG = "RTreeNode"
 
         fun fromFileNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-            Log.w(TAG, "... toRTreeNodeNew $stateID")
+            Log.w(TAG, "... fromFileNode $stateID")
             Log.w(TAG, "  - WS: ${fileNode.workspace}")
             Log.w(TAG, "  - Path: ${fileNode.path}")
             Log.w(TAG, "  - Label: ${fileNode.label}")

@@ -15,11 +15,13 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.db.nodes.TreeNodeDao
 import org.sinou.android.pydia.services.FileService
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.areNodeContentEquals
 import java.io.File
 
 class FolderDiff(
     private val client: Client,
+    private val nodeService: NodeService,
     private val fileService: FileService,
     private val dao: TreeNodeDao,
     private val fileDL: FileDownloader?,
@@ -61,7 +63,7 @@ class FolderDiff(
         return@withContext changeNumber
     }
 
-    private fun processChanges(rit: Iterator<FileNode>, lit: Iterator<RTreeNode>) {
+    private suspend fun processChanges(rit: Iterator<FileNode>, lit: Iterator<RTreeNode>) {
 
         var local = if (lit.hasNext()) lit.next() else null
         while (rit.hasNext()) {
@@ -108,16 +110,16 @@ class FolderDiff(
         }
     }
 
-    private fun putAddChange(remote: FileNode) {
+    private suspend fun putAddChange(remote: FileNode) {
         Log.d(logTag, "add for ${remote.name}")
         changeNumber++
         val childStateID = parentId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
-        dao.insert(rNode)
+        nodeService.upsertNode(rNode)
         downloadFilesIfNecessary(remote, childStateID)
     }
 
-    private fun putUpdateChange(remote: FileNode, local: RTreeNode) {
+    private suspend fun putUpdateChange(remote: FileNode, local: RTreeNode) {
         Log.d(logTag, "update for ${remote.name}")
 
         changeNumber++
@@ -125,13 +127,10 @@ class FolderDiff(
         // TODO: Insure corner cases are correctly handled, typically on type switch
         val childStateID = parentId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
-
         if (local.isFolder() && remote.isFile) {
             deleteLocalFolder(local)
-            dao.insert(rNode)
-        } else {
-            dao.update(rNode)
         }
+        nodeService.upsertNode(rNode)
         downloadFilesIfNecessary(remote, childStateID)
     }
 

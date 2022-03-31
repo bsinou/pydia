@@ -21,6 +21,9 @@ data class RSession(
     @ColumnInfo(name = "dir_name") val dirName: String,
 
     @ColumnInfo(name = "db_name") val dbName: String,
+
+    // We duplicate this info to ease implementation
+    @ColumnInfo(name = "is_legacy") val isRemoteLegacy: Boolean,
 ) {
 
 
@@ -40,6 +43,7 @@ data class RSession(
                 lifecycleState = AppNames.SESSION_STATE_NEW,
                 dirName = cleanUrl,
                 dbName = cleanDbName,
+                isRemoteLegacy = account.isLegacy
             )
         }
     }

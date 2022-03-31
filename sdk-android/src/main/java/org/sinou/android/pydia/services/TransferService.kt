@@ -11,13 +11,22 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.runtime.RTransfer
 import org.sinou.android.pydia.db.runtime.RuntimeDB
 import org.sinou.android.pydia.db.runtime.TransferDao
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.*
 
 class TransferService(
@@ -39,9 +48,7 @@ class TransferService(
         val cr = CellsApp.instance.contentResolver
         serviceScope.launch {
             copyAndRegister(cr, uri, parentID)?.let {
-                serviceScope.launch {
-                    uploadOne(it.id)
-                }
+                uploadOne(it.id)
             }
         }
     }

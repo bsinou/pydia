@@ -21,7 +21,7 @@ data class RTreeNode(
     @PrimaryKey
     @ColumnInfo(name = "encoded_state") val encodedState: String,
 
-    @ColumnInfo(name = "uuid") val uuid: String? = null,
+    @ColumnInfo(name = "uuid") val uuid: String,
 
     @ColumnInfo(name = "workspace") val workspace: String,
 

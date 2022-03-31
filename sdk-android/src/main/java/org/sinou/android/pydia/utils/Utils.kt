@@ -101,6 +101,14 @@ fun Date.asFormattedString(format: String, locale: Locale = Locale.getDefault())
     return formatter.format(this)
 }
 
+/**
+ * Centralise generation of timestamp to ease potential later refactoring.
+ * We currently rely on number of seconds since 1970.
+ */
+fun currentTimestamp() : Long {
+    return System.currentTimeMillis() / 1000L
+}
+
 fun getCurrentDateTime(): Date {
     return Calendar.getInstance().time
 }

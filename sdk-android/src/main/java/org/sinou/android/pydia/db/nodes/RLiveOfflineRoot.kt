@@ -25,9 +25,10 @@ import org.sinou.android.pydia.db.Converters
 @TypeConverters(Converters::class)
 data class RLiveOfflineRoot(
 
-    @ColumnInfo(name = "encoded_state") val encodedState: String,
 
     @ColumnInfo(name = "uuid") val uuid: String?,
+
+    @ColumnInfo(name = "encoded_state") val encodedState: String,
 
     @ColumnInfo(name = "mime") val mime: String,
 
@@ -64,7 +65,5 @@ data class RLiveOfflineRoot(
         // TODO better check
         return lastCheckTs == newItem.lastCheckTs
                 && localModTs == newItem.localModTs
-
     }
-
 }

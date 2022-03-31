@@ -23,9 +23,6 @@ interface TransferDao {
     @Query("SELECT * FROM transfers WHERE transferId = :transferUID LIMIT 1")
     fun getLiveById(transferUID: Long): LiveData<RTransfer?>
 
-//    @Query("SELECT * FROM transfers WHERE rowid = :rowId")
-//    fun  getByRowId(rowId: Long): RTransfer?
-
     @Query("SELECT * FROM transfers WHERE start_ts = -1")
     fun getAllNew(): List<RTransfer>
 
@@ -37,5 +34,4 @@ interface TransferDao {
 
     @Query("DELETE FROM transfers WHERE transferId = :transferUID")
     fun deleteTransfer(transferUID: Long)
-
 }

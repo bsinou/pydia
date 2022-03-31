@@ -13,15 +13,30 @@ import com.pydio.cells.api.ui.Stats
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.IoHelpers
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.nodes.*
+import org.sinou.android.pydia.db.nodes.OfflineRootDao
+import org.sinou.android.pydia.db.nodes.RLiveOfflineRoot
+import org.sinou.android.pydia.db.nodes.ROfflineRoot
+import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.db.nodes.TreeNodeDB
+import org.sinou.android.pydia.db.nodes.TreeNodeDao
 import org.sinou.android.pydia.transfer.FileDownloader
 import org.sinou.android.pydia.transfer.FolderDiff
 import org.sinou.android.pydia.transfer.ThumbDownloader
+import org.sinou.android.pydia.utils.currentTimestamp
 import org.sinou.android.pydia.utils.logException
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.*
 
 class NodeService(
@@ -43,6 +58,11 @@ class NodeService(
             stateID.accountId,
             accId.dbName,
         )
+    }
+
+    fun transferService(): TransferService {
+        // FIXME should be injected
+        return CellsApp.instance.transferService
     }
 
     /* Expose DB content as LiveData for the ViewModels */
@@ -103,13 +123,36 @@ class NodeService(
             throw java.lang.IllegalStateException("Cannot retrieve live nodes without at least one ID")
         }
         val encodedIds = stateIDs.map { it.id }.toTypedArray()
-        // Log.i(tag, "Retrieving node for $encodedIds")
-        val liveResults = nodeDB(stateIDs[0]).treeNodeDao().getLiveNodes(*encodedIds)
-        // Log.i(tag, "Found ${liveResults.value?.size}")
-        return liveResults
+        return nodeDB(stateIDs[0]).treeNodeDao().getLiveNodes(*encodedIds)
     }
 
-    /* Retrieve Objects directly with suspend functions */
+    /* Communicate with the DB using suspend functions */
+
+    /** Single entry point to insert or update a node */
+    suspend fun upsertNode(newNode: RTreeNode) = withContext(Dispatchers.IO) {
+
+        val currSession = accountService.sessions[newNode.getStateID().accountId]
+            ?: throw java.lang.IllegalStateException("No session found in cache for ${newNode.getStateID().accountId}")
+        val ndb = nodeDB(newNode.getStateID())
+
+        if (!currSession.isRemoteLegacy) {
+            ndb.offlineRootDao().getByUuid(newNode.uuid)?.let {
+                newNode.isOfflineRoot = true
+            }
+        }
+
+        newNode.localModificationTS = newNode.remoteModificationTS
+        newNode.localModificationStatus = null
+        newNode.lastCheckTS = currentTimestamp()
+
+        val old = ndb.treeNodeDao().getNode(newNode.encodedState)
+        if (old == null) {
+            ndb.treeNodeDao().insert(newNode)
+        } else {
+            // FIXME double check that we do not loose any info
+            ndb.treeNodeDao().update(newNode)
+        }
+    }
 
     suspend fun getNode(stateID: StateID): RTreeNode? = withContext(Dispatchers.IO) {
         nodeDB(stateID).treeNodeDao().getNode(stateID.id)
@@ -117,14 +160,8 @@ class NodeService(
 
     suspend fun queryLocally(query: String?, stateID: StateID): List<RTreeNode> =
         withContext(Dispatchers.IO) {
-
             return@withContext if (query == null) {
-//            val emptyResult = LiveData<List<RTreeNode>>().apply {
-//                it.value = listOf<RTreeNode>()
-//            }
-//            return emptyResult
-                // TODO should rather returns an empty list
-                nodeDB(stateID).treeNodeDao().query("")
+                listOf<RTreeNode>()
             } else {
                 nodeDB(stateID).treeNodeDao().query(query)
             }
@@ -134,6 +171,7 @@ class NodeService(
     suspend fun abortLocalChanges(stateID: StateID) = withContext(Dispatchers.IO) {
         val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
         node.localModificationTS = node.remoteModificationTS
+        node.localModificationStatus = null
         nodeDB(stateID).treeNodeDao().update(node)
     }
 
@@ -154,10 +192,10 @@ class NodeService(
         try {
             getClient(stateID).bookmark(stateID.workspace, stateID.file, !rTreeNode.isBookmarked)
             rTreeNode.isBookmarked = !rTreeNode.isBookmarked
-            rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
+            rTreeNode.localModificationTS = currentTimestamp()
             nodeDB(stateID).treeNodeDao().update(rTreeNode)
         } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-            handleSdkException(stateID, "could not perform DL for $stateID", se)
+            handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
             return@withContext null
         } catch (ioe: IOException) {
             Log.e(tag, "cannot toggle bookmark for ${stateID}: ${ioe.message}")
@@ -248,10 +286,7 @@ class NodeService(
             val currRoot = offlineDao.get(rTreeNode.encodedState)
                 ?: return@withContext // should never happen
 
-            // FIXME should be injected
-            val transferService = CellsApp.instance.transferService
-
-            val fileDL = FileDownloader(client, fileService, transferService, nodeDB(stateID))
+            val fileDL = FileDownloader(client, fileService, transferService(), nodeDB(stateID))
             val thumbs = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
             val thumbDL = ThumbDownloader(client, nodeDB(stateID), thumbs)
 
@@ -260,7 +295,7 @@ class NodeService(
 
             var changeNb = 0
 
-            if (results.first) { // needs sync
+            if (results.first) { // Needs sync
                 changeNb = syncFolderAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
             }
 //            if (rTreeNode.isFolder()) {
@@ -292,6 +327,7 @@ class NodeService(
         }
     }
 
+    /* Check if the current offline root need re-sync (first flag) or deletion (second flag) */
     private suspend fun preSyncCheck(
         offlineRoot: ROfflineRoot,
         rTreeNode: RTreeNode,
@@ -328,7 +364,7 @@ class NodeService(
         val stateID = rTreeNode.getStateID()
 
         // First re-sync current level
-        val folderDiff = FolderDiff(client, fileService, dao, fileDL, thumbDL, stateID)
+        val folderDiff = FolderDiff(client, this, fileService, dao, fileDL, thumbDL, stateID)
         var changeNb = folderDiff.compareWithRemote()
 
         // Then retrieve child folders and call re-sync on each one
@@ -413,7 +449,7 @@ class NodeService(
                 }
             }
             // Manage results
-            Log.w(tag, "Got a bookmark list of ${nodes.size}, about to process")
+            Log.d(tag, "Got a bookmark list of ${nodes.size} nodes, about to process")
             val dao = nodeDB(stateID).treeNodeDao()
             for (node in nodes) {
                 val currNode = RTreeNode.fromFileNode(stateID, node)
@@ -455,7 +491,8 @@ class NodeService(
                     nodeDB(stateID),
                     fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
                 )
-            val folderDiff = FolderDiff(client, fileService, dao, null, thumbDL, stateID)
+            val folderDiff =
+                FolderDiff(client, this@NodeService, fileService, dao, null, thumbDL, stateID)
             val changeNb = folderDiff.compareWithRemote()
             result = Pair(changeNb, null)
             /*
@@ -737,7 +774,7 @@ class NodeService(
     }
 
     private fun persistLocallyModified(rTreeNode: RTreeNode, modificationType: String) {
-        rTreeNode.localModificationTS = Calendar.getInstance().timeInMillis / 1000L
+        rTreeNode.localModificationTS = currentTimestamp()
         rTreeNode.localModificationStatus = modificationType
         nodeDB(rTreeNode.getStateID()).treeNodeDao().update(rTreeNode)
     }
@@ -765,4 +802,3 @@ class NodeService(
         }
     }
 }
-

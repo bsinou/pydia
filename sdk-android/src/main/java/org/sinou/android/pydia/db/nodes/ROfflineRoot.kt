@@ -11,9 +11,9 @@ import org.sinou.android.pydia.AppNames
 data class ROfflineRoot(
 
     @PrimaryKey
-    @ColumnInfo(name = "encoded_state") val encodedState: String,
+    @ColumnInfo(name = "uuid") val uuid: String,
 
-    @ColumnInfo(name = "uuid") val uuid: String?,
+    @ColumnInfo(name = "encoded_state") val encodedState: String,
 
     @ColumnInfo(name = "mime") val mime: String,
 

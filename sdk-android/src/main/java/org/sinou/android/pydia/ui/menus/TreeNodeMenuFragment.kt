@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -18,12 +19,26 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
-import org.sinou.android.pydia.databinding.*
+import org.sinou.android.pydia.databinding.MoreMenuAddBinding
+import org.sinou.android.pydia.databinding.MoreMenuBookmarksBinding
+import org.sinou.android.pydia.databinding.MoreMenuBrowseBinding
+import org.sinou.android.pydia.databinding.MoreMenuMultiBinding
+import org.sinou.android.pydia.databinding.MoreMenuOfflineRootsBinding
+import org.sinou.android.pydia.databinding.MoreMenuRecycleBinding
+import org.sinou.android.pydia.databinding.MoreMenuSearchBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
-import org.sinou.android.pydia.tasks.*
+import org.sinou.android.pydia.tasks.copyNodes
+import org.sinou.android.pydia.tasks.createFolder
+import org.sinou.android.pydia.tasks.deleteFromRecycle
+import org.sinou.android.pydia.tasks.emptyRecycle
+import org.sinou.android.pydia.tasks.moveNodes
+import org.sinou.android.pydia.tasks.moveNodesToRecycle
+import org.sinou.android.pydia.tasks.moveToRecycle
+import org.sinou.android.pydia.tasks.rename
 import org.sinou.android.pydia.transfer.ChooseTargetContract
 import org.sinou.android.pydia.transfer.FileExporter
 import org.sinou.android.pydia.transfer.FileImporter
+import org.sinou.android.pydia.ui.ActiveSessionViewModel
 import org.sinou.android.pydia.utils.showLongMessage
 
 /**
@@ -66,6 +81,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private lateinit var stateIDs: List<StateID>
     private lateinit var contextType: String
     private lateinit var treeNodeMenuVM: TreeNodeMenuViewModel
+    private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
 
     // Only *one* of the below bindings is not null, depending on the context
     private var browseBinding: MoreMenuBrowseBinding? = null
@@ -75,7 +91,6 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private var bookmarkBinding: MoreMenuBookmarksBinding? = null
     private var recycleBinding: MoreMenuRecycleBinding? = null
     private var multiBinding: MoreMenuMultiBinding? = null
-
 
     // Contracts for file transfers to and from the device
     private lateinit var fileImporter: FileImporter
@@ -226,6 +241,16 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         binding.bookmarkSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_BOOKMARK) }
         binding.sharedSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_SHARED) }
         binding.offlineSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_OFFLINE) }
+        // Offline is not supported when remote server is P8
+        var legacy = false
+        activeSessionViewModel.liveSession.value?.let {
+            legacy = it.isLegacy
+        }
+        binding.offlineRoot.visibility = if (legacy) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
 
         binding.executePendingBindings()
     }

@@ -22,7 +22,7 @@ class TreeNodeMenuViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val log_tag = "NodeMenuViewModel"
+    private val logTag = TreeNodeMenuViewModel::class.simpleName
 
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)

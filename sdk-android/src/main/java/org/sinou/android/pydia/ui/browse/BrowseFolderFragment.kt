@@ -58,9 +58,7 @@ class BrowseFolderFragment : Fragment() {
     private var tracker: SelectionTracker<String>? = null
 
     private lateinit var adapter: ListAdapter<RTreeNode, out RecyclerView.ViewHolder?>
-    // private lateinit var observer: ChildObserver
     private val observer = ChildObserver()
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

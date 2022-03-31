@@ -44,8 +44,6 @@ data class ROfflineRoot(
     }
 
     companion object {
-        private const val TAG = "ROfflineNode"
-
         fun fromTreeNode(treeNode: RTreeNode): ROfflineRoot {
             return ROfflineRoot(
                 encodedState = treeNode.encodedState,

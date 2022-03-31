@@ -18,7 +18,11 @@ import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.ui.*
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -197,7 +201,7 @@ class MainActivity : AppCompatActivity() {
         activeSessionVM.liveSession.observe(this) {
             it?.let { liveSession ->
 
-                // Change base them based on current session status
+                // Change default theme based on current session status
 //                val newTheme = when (it.authStatus) {
 //                    AppNames.AUTH_STATUS_CONNECTED -> R.style.Theme_Cells
 //                    else ->  R.style.Theme_Cells_Offline
@@ -215,6 +219,11 @@ class MainActivity : AppCompatActivity() {
                 val secondaryText =
                     headerView.findViewById<TextView>(R.id.nav_header_secondary_text)
                 secondaryText.text = liveSession.url
+
+                // Only show offline page when remote is not legacy
+                binding.navView.menu.findItem(R.id.offline_root_list_destination)?.let { item ->
+                    item.setVisible(!liveSession.isLegacy)
+                }
 
                 // Force refresh of the navigation view
                 binding.navView.invalidate()

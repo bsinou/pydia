@@ -6,7 +6,11 @@ import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ui.FileNode
 import com.pydio.cells.api.ui.PageOptions
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.db.nodes.TreeNodeDao
@@ -23,7 +27,7 @@ class FolderDiff(
     private val parentId: StateID,
 ) {
 
-    private val tag = FolderDiff::class.java.simpleName
+    private val logTag = FolderDiff::class.java.simpleName
 
     companion object {
 
@@ -52,7 +56,7 @@ class FolderDiff(
         val locals = dao.getNodesForDiff(parentId.id, parentId.file).iterator()
         processChanges(remotes, locals)
         if (changeNumber > 0) {
-            Log.d(tag, "Synced folder at $parentId with $changeNumber changes")
+            Log.d(logTag, "Synced folder at $parentId with $changeNumber changes")
         }
         return@withContext changeNumber
     }
@@ -105,7 +109,7 @@ class FolderDiff(
     }
 
     private fun putAddChange(remote: FileNode) {
-        Log.d(tag, "add for ${remote.name}")
+        Log.d(logTag, "add for ${remote.name}")
         changeNumber++
         val childStateID = parentId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
@@ -114,7 +118,7 @@ class FolderDiff(
     }
 
     private fun putUpdateChange(remote: FileNode, local: RTreeNode) {
-        Log.d(tag, "update for ${remote.name}")
+        Log.d(logTag, "update for ${remote.name}")
 
         changeNumber++
 
@@ -132,7 +136,7 @@ class FolderDiff(
     }
 
     private fun putDeleteChange(local: RTreeNode) {
-        Log.d(tag, "delete for ${local.name}")
+        Log.d(logTag, "delete for ${local.name}")
         changeNumber++
 
         when {
@@ -153,9 +157,13 @@ class FolderDiff(
                 }
                 var doIt = local.localFilePath == null
                 if (!doIt) { // we might have recorded the name but have a missing file
-                    doIt = File(local.localFilePath!!).exists()
+                    doIt = !File(local.localFilePath!!).exists()
+                    // TODO also check if the file has changed.
                 }
                 if (doIt) {
+//                    Log.e(logTag, "Launching file DL. \n" +
+//                            " - Local path: ${local.localFilePath}\n" +
+//                            " - File Exists: ${local.localFilePath?.let { File(it).exists() }} ")
                     it.orderFileDL(local.encodedState)
                 }
             }
@@ -259,7 +267,7 @@ class FolderDiff(
             } else {
                 nextPage = client.ls(parentId.workspace, parentId.file, page) {
                     if (it !is FileNode) {
-                        Log.w(tag, "could not store node: $it")
+                        Log.w(logTag, "could not store node: $it")
                     } else {
                         nodes.add(it)
                     }
@@ -274,7 +282,7 @@ class FolderDiff(
             while (nextPage.currentPage != nextPage.totalPages) {
                 nextPage = client.ls(parentId.workspace, parentId.file, nextPage) {
                     if (it !is FileNode) {
-                        Log.w(tag, "could not store node: $it")
+                        Log.w(logTag, "could not store node: $it")
                     } else {
                         unsorted.add(it)
                     }

@@ -103,7 +103,7 @@ class BrowseFolderFragment : Fragment() {
             }
         }
         // TODO workspace root is not a RTreeNode => we must handle it explicitly.
-        if (tmpVM.stateID.isWorkspaceRoot) {
+        if (tmpVM.stateId.isWorkspaceRoot) {
             binding.addNodeFab.visibility = View.VISIBLE
         }
         // Put this also in observer when the above has been fixed
@@ -216,8 +216,8 @@ class BrowseFolderFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         if (isCreated) {
-            Log.e(fTag, "onSaveInstanceState for: ${browseFolderVM.stateID}")
-            outState.putString(AppNames.EXTRA_STATE, browseFolderVM.stateID.id)
+            Log.e(fTag, "onSaveInstanceState for: ${browseFolderVM.stateId}")
+            outState.putString(AppNames.EXTRA_STATE, browseFolderVM.stateId.id)
         }
     }
 
@@ -250,15 +250,15 @@ class BrowseFolderFragment : Fragment() {
 
     override fun onPause() {
         Log.i(fTag, "onPause")
-        super.onPause()
         browseFolderVM.pause()
+        super.onPause()
     }
 
     override fun onDetach() {
         Log.i(fTag, "onDetach")
         super.onDetach()
         if (isCreated) {
-            resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateID)
+            resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateId)
         }
     }
 
@@ -268,7 +268,7 @@ class BrowseFolderFragment : Fragment() {
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
-        Log.i(fTag, "Clicked on ${browseFolderVM.stateID} -> $command")
+        Log.i(fTag, "Clicked on ${browseFolderVM.stateId} -> $command")
         when (command) {
             AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {
@@ -289,7 +289,7 @@ class BrowseFolderFragment : Fragment() {
 
     private fun onFabClicked() {
         val action = BrowseFolderFragmentDirections.openMoreMenu(
-            arrayOf(browseFolderVM.stateID.id),
+            arrayOf(browseFolderVM.stateId.id),
             TreeNodeMenuFragment.CONTEXT_ADD
         )
         findNavController().navigate(action)

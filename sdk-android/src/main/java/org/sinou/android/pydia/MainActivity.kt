@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         activeSessionVM.accountId?.let {
-            Log.e(tag, "onSaveInstanceState for: ${StateID.fromId(it)}")
+            Log.i(tag, "onSaveInstanceState for: ${StateID.fromId(it)}")
             outState.putString(AppNames.EXTRA_STATE, it)
         }
     }

@@ -83,6 +83,15 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         return state.id
     }
 
+    fun listLiveSessions(includeLegacy: Boolean): List<RLiveSession>{
+        val dao = accountDB.liveSessionDao()
+            return if (includeLegacy){
+            dao.getSessions()
+        } else {
+            dao.getCellsSessions()
+        }
+    }
+
     private fun safelyCreateSession(account: RAccount) {
         // We only update the dir and db names at account creation
         // FIXME finalize this
@@ -170,7 +179,6 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
             logException(tag, msg, e)
         }
     }
-
 
     suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
         var isConnected = hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)

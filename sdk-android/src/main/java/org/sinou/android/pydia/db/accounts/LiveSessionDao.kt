@@ -13,6 +13,9 @@ interface LiveSessionDao {
     @Query("SELECT * FROM RLiveSession")
     fun getSessions(): List<RLiveSession>
 
+    @Query("SELECT * FROM RLiveSession where is_legacy = 'false'")
+    fun getCellsSessions(): List<RLiveSession>
+
     @Query("SELECT * FROM RLiveSession where account_id = :accountID")
     fun getLiveSession(accountID: String): LiveData<RLiveSession?>
 

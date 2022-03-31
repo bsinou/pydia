@@ -13,20 +13,19 @@ import java.util.concurrent.TimeUnit
 
 /** Holds a folder and all its children */
 class BrowseFolderViewModel(
-    val stateID: StateID,
+    val stateId: StateID,
     private val accountService: AccountService,
     private val nodeService: NodeService,
     application: Application
 ) : AndroidViewModel(application) {
 
-    private var _currentFolder = nodeService.getLiveNode(stateID)
+    private var _currentFolder = nodeService.getLiveNode(stateId)
     val currentFolder: LiveData<RTreeNode>
         get() = _currentFolder
 
-    private var _children = nodeService.ls(stateID)
+    private var _children = nodeService.ls(stateId)
     val children: LiveData<List<RTreeNode>>
         get() = _children
-
 
 //    private var _selected : Selection<String>? = null
 //    val selected : Selection<String>?
@@ -55,13 +54,13 @@ class BrowseFolderViewModel(
         while (_isActive) {
             doPull()
             val nd = backOffTicker.getNextDelay()
+            Log.d(tag, "... Next delay: $nd - $stateId")
             delay(TimeUnit.SECONDS.toMillis(nd))
-            Log.d(tag, "... Next delay: $nd")
         }
     }
 
     private suspend fun doPull() {
-        val result = nodeService.pull(stateID)
+        val result = nodeService.pull(stateId)
         withContext(Dispatchers.Main) {
             if (result.second != null) {
                 if (backOffTicker.getCurrentIndex() > 0) {
@@ -101,8 +100,8 @@ class BrowseFolderViewModel(
     }
 
     /** Force recreation of the liveData object, typically after sort order modification */
-    fun resetLiveChildren() {
-        _children = nodeService.ls(stateID)
+    private fun resetLiveChildren() {
+        _children = nodeService.ls(stateId)
     }
 
     override fun onCleared() {
@@ -113,7 +112,6 @@ class BrowseFolderViewModel(
     fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
-
 
 //    fun clearSelection(){
 //        _selected = null
@@ -138,7 +136,6 @@ class BrowseFolderViewModel(
 //    viewModel.start(id)?.observe(this, Observer {
 //        // blank observe here
 //    })
-
 
     class BrowseFolderViewModelFactory(
         private val accountService: AccountService,

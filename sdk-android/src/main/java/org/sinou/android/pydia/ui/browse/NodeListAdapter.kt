@@ -82,8 +82,8 @@ class NodeListAdapter(
             onItemClicked: (node: RTreeNode, command: String) -> Unit
         ): ViewHolder {
 
-            Log.i(tag, "onItemClicked")
             binding.root.setOnClickListener {
+                Log.i(tag, "onItemClicked")
                 binding.node?.let { onItemClicked(it, AppNames.ACTION_OPEN) }
             }
 

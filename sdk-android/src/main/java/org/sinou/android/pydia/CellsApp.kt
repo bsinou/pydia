@@ -121,33 +121,29 @@ class CellsApp : Application() {
     private fun setupOfflineWorker() {
 
         // TODO make this configurable
-        // Final constraints
-//        val constraints = Constraints.Builder()
-//            .setRequiredNetworkType(NetworkType.UNMETERED)
-//            .setRequiresBatteryNotLow(true)
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.UNMETERED)
+            .setRequiresBatteryNotLow(true)
+// Could be even more defensive:
 //            .setRequiresCharging(true)
 //            .apply {
 //                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //                    setRequiresDeviceIdle(true)
 //                }
-//            }.build()
-//
-//
+//            }
+            .build()
+
+        // Dev constraints. Do **not** use this in production
 //        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
-//            1,
-//            TimeUnit.DAYS
+//            16,
+//            TimeUnit.MINUTES
 //        ).setConstraints(constraints)
 //            .build()
 
-        // Dev constraints. FIXME do **not** use this in production
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .setRequiresBatteryNotLow(true)
-            .build()
-
         val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
-            16,
-            TimeUnit.MINUTES
+            1,
+            TimeUnit.DAYS
         ).setConstraints(constraints)
             .build()
 

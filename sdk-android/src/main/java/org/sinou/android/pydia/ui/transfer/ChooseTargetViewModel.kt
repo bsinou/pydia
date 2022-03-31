@@ -21,7 +21,7 @@ class ChooseTargetViewModel(
 ) : AndroidViewModel(currApp) {
 
     // Internal Helpers
-    private val tag = ChooseTargetViewModel::class.simpleName
+    private val logTag = ChooseTargetViewModel::class.simpleName
     private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -52,8 +52,7 @@ class ChooseTargetViewModel(
     }
 
     fun isTargetValid(): Boolean {
-        val valid = currentLocation.value?.path?.let { it.length > 1 } ?: false
-        return valid
+        return currentLocation.value?.path?.let { it.length > 1 } ?: false
     }
 
     fun launchPost(context: Context) {
@@ -85,7 +84,7 @@ class ChooseTargetViewModel(
                             _postDone.value = true
                         }
                     }
-                    else -> Log.e(tag, "Unexpected action context: $_actionContext")
+                    else -> Log.e(logTag, "Unexpected action context: $_actionContext")
                 }
             }
         }

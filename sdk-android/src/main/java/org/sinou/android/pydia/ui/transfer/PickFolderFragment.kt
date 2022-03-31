@@ -38,6 +38,7 @@ class PickFolderFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_pick_folder, container, false
         )
+        setHasOptionsMenu(true)
 
         val stateID = if (savedInstanceState?.getString(AppNames.EXTRA_STATE) != null) {
             val encodedState = savedInstanceState.getString(AppNames.EXTRA_STATE)
@@ -74,7 +75,7 @@ class PickFolderFragment : Fragment() {
             binding.addNodeFab.setOnClickListener { onFabClicked() }
         }
 
-        // Used for refresh the data
+        // Wire swipe to refresh
         binding.pickFolderForceRefresh.setOnRefreshListener {
             if (Str.empty(stateID.workspace)) { // Does nothing for the time being
                 binding.pickFolderForceRefresh.isRefreshing = false
@@ -142,7 +143,6 @@ class PickFolderFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         pickFolderVM.pause()
-
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {

@@ -27,17 +27,16 @@ import org.sinou.android.pydia.utils.showMessage
  */
 class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
-    private val tag = ChooseTargetActivity::class.simpleName
+    private val logTag = ChooseTargetActivity::class.simpleName
 
     private lateinit var binding: ActivityChooseTargetBinding
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
-    private lateinit var model: ChooseTargetViewModel
+    private lateinit var chooseTargetVM: ChooseTargetViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(tag, "onCreate: launching target choice process")
-//        setTheme(CellsApp.instance.currentTheme)
+        Log.d(logTag, "onCreate: launching target choice process")
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_choose_target)
@@ -52,16 +51,7 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
             application,
         )
         val tmpVM: ChooseTargetViewModel by viewModels { chooseTargetFactory }
-        model = tmpVM
-
-        tmpVM.currentLocation.observe(this) {
-            binding.toolbar.menu.findItem(R.id.launch_upload)?.let {
-                if (it.isVisible != tmpVM.isTargetValid()) {
-                    it.isVisible = !it.isVisible
-                }
-                binding.executePendingBindings()
-            }
-        }
+        chooseTargetVM = tmpVM
 
         tmpVM.postDone.observe(this) {
             if (it) {
@@ -72,25 +62,23 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
 
         tmpVM.postIntent.observe(this) {
             it?.let {
-                Log.d(tag, "Result OK, target state: ${tmpVM.currentLocation.value}")
+                Log.d(logTag, "Result OK, target state: ${tmpVM.currentLocation.value}")
                 setResult(Activity.RESULT_OK, it)
                 finishAndRemoveTask()
             }
         }
 
-        // supportActionBar?.title = "My Title"
-        // Log.e(tag, "Got a **support** action bar: $supportActionBar")
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onResume() {
-        Log.i(tag, "onResume, intent: $intent")
+        Log.i(logTag, "onResume, intent: $intent")
         super.onResume()
         handleIntent(intent)
     }
 
     override fun onPause() {
-        Log.i(tag, "onPause, intent: $intent")
+        Log.i(logTag, "onPause, intent: $intent")
         super.onPause()
     }
 
@@ -100,15 +88,15 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
             AppNames.ACTION_CHOOSE_TARGET -> {
                 val actionContext =
                     intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT) ?: AppNames.ACTION_COPY
-                model.setActionContext(actionContext)
+                chooseTargetVM.setActionContext(actionContext)
                 val stateID = StateID.fromId(intent.getStringExtra(AppNames.EXTRA_STATE))
-                model.setCurrentState(stateID)
+                chooseTargetVM.setCurrentState(stateID)
             }
             Intent.ACTION_SEND -> {
                 val clipData = intent.clipData
                 clipData?.let {
-                    model.setActionContext(AppNames.ACTION_UPLOAD)
-                    model.initUploadAction(listOf(clipData.getItemAt(0).uri))
+                    chooseTargetVM.setActionContext(AppNames.ACTION_UPLOAD)
+                    chooseTargetVM.initUploadAction(listOf(clipData.getItemAt(0).uri))
                 }
                 // TODO retrieve starting state from: ?
                 // CellsApp.instance.getCurrentState()
@@ -117,18 +105,18 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
                 val clipData = intent.clipData
                 clipData?.let {
                     // Here also ?
-                    model.setActionContext(AppNames.ACTION_UPLOAD)
+                    chooseTargetVM.setActionContext(AppNames.ACTION_UPLOAD)
                     val uris = mutableListOf<Uri>()
                     for (i in 0 until it.itemCount) {
                         uris.add(clipData.getItemAt(i).uri)
                     }
-                    model.initUploadAction(uris)
+                    chooseTargetVM.initUploadAction(uris)
                 }
             }
         }
 
         // Directly go inside a target location if defined
-        model.currentLocation.value?.let {
+        chooseTargetVM.currentLocation.value?.let {
             val action = UploadNavigationDirections.actionPickFolder(it.id)
             navController.navigate(action)
             return
@@ -140,8 +128,22 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+
+        val valid = chooseTargetVM.isTargetValid()
+        Log.e(logTag, "On PrepareOptionMenu, target is valid: $valid")
+        super.onPrepareOptionsMenu(menu)
+        menu?.let { currMenu ->
+            currMenu.findItem(R.id.launch_upload)?.let {
+                it.isVisible = valid
+            }
+        }
+        return true
+    }
+
+
     override fun onStop() {
-        Log.d(tag, "onStop: target state: ${model.currentLocation.value}")
+        Log.d(logTag, "onStop: target state: ${chooseTargetVM.currentLocation.value}")
         super.onStop()
     }
 
@@ -152,7 +154,7 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         return when (item.itemId) {
 
             R.id.launch_upload -> {
-                model.launchPost(this)
+                chooseTargetVM.launchPost(this)
                 true
             }
 

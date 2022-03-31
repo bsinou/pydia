@@ -31,6 +31,7 @@ class PickSessionFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_pick_session, container, false
         )
+        setHasOptionsMenu(true)
 
         val viewModelFactory = PickSessionViewModel.TargetAccountViewModelFactory(
             CellsApp.instance.accountService,

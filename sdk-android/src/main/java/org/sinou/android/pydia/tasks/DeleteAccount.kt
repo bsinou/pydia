@@ -18,7 +18,7 @@ fun deleteAccount(
     MaterialAlertDialogBuilder(context)
         .setTitle(context.resources.getString(R.string.confirm_account_deletion_title, account))
         .setMessage(R.string.confirm_account_deletion_desc)
-        .setPositiveButton(R.string.button_ok) { dialog, _ ->
+        .setPositiveButton(R.string.button_ok) { _, _ ->
             doDelete(context, accountId)
         }
         .setNegativeButton(R.string.button_cancel, null)

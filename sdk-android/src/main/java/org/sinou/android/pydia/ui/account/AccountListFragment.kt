@@ -14,6 +14,7 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.*
 import org.sinou.android.pydia.databinding.FragmentAccountListBinding
+import org.sinou.android.pydia.services.AuthService
 import org.sinou.android.pydia.tasks.loginAccount
 import org.sinou.android.pydia.ui.common.deleteAccount
 import org.sinou.android.pydia.ui.common.logoutAccount
@@ -87,7 +88,8 @@ class AccountListFragment : Fragment() {
                     requireContext(),
                     accountListViewModel.accountService.authService,
                     accountListViewModel.accountService,
-                    currSession
+                    currSession,
+                    AuthService.NEXT_ACTION_ACCOUNTS
                 )
             }
             AppNames.ACTION_LOGOUT -> lifecycleScope.launch {

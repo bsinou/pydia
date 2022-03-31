@@ -149,6 +149,8 @@ data class RTreeNode(
                 StateID.fromId(stateID.accountId)
                     // Construct the path from file node info
                     .withPath("/${fileNode.workspace}${fileNode.path}")
+            Log.w(TAG, "  - encodesState: ${childStateID.id}")
+
             try {
                 val node = RTreeNode(
                     encodedState = childStateID.id,

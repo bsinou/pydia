@@ -18,6 +18,7 @@ fun loginAccount(
     authService: AuthService,
     accountService: AccountService,
     session: RLiveSession,
+    next: String,
 ): Boolean {
 
     CellsApp.instance.appScope.launch {
@@ -29,15 +30,12 @@ fun loginAccount(
             val toAuthIntent = Intent(context, AuthActivity::class.java)
             toAuthIntent.putExtra(AppNames.EXTRA_SERVER_URL, serverURL.toJson())
             toAuthIntent.putExtra(AppNames.EXTRA_SERVER_IS_LEGACY, true)
-            toAuthIntent.putExtra(
-                AppNames.EXTRA_AFTER_AUTH_ACTION,
-                AuthService.NEXT_ACTION_ACCOUNTS
-            )
+            toAuthIntent.putExtra(AppNames.EXTRA_AFTER_AUTH_ACTION, next)
             startActivity(context, toAuthIntent, null)
 
         } else {
             authService.createOAuthIntent(
-                accountService, serverURL, AuthService.NEXT_ACTION_ACCOUNTS
+                accountService, serverURL, next
             )?.let {
                 startActivity(context, it, null)
             } ?: run {

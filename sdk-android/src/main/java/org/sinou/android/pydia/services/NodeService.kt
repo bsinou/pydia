@@ -111,11 +111,14 @@ class NodeService(
 
     fun getLiveNode(stateID: StateID): LiveData<RTreeNode> {
         // Log.i(tag, "Retrieving node for $stateID")
-        val liveData = nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
-        if (liveData.value == null) {
-            Log.e(tag, "no node found for ${stateID.id}")
-        }
-        return liveData
+        return nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
+
+        // logging the found liveData is useless, it is usually null when checked first
+    //        val liveData = nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
+//        if (liveData.value == null) {
+//            Log.e(tag, "no node found for ${stateID.id}")
+//        }
+//        return liveData
     }
 
     fun getLiveNodes(stateIDs: List<StateID>): LiveData<List<RTreeNode>> {

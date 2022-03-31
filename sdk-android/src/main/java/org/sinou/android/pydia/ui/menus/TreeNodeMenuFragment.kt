@@ -155,7 +155,6 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
             this,
         )
         lifecycle.addObserver(fileExporter)
-
     }
 
     override fun onCreateView(
@@ -164,17 +163,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        // treeNodeMenuVM.node.observe(viewLifecycleOwner) {
-        //     it?.let {
-        //         Log.e(logTag, "Got a node: ${it.getStateID()}")
-        //     }
-        // }
-
-        // treeNodeMenuVM.nodes.observe(viewLifecycleOwner) {
-        //     it?.let {
-        //         Log.e(logTag, "Got ${it.size} nodes")
-        //     }
-        // }
+        // FIXME we must observe the LiveData or the variables are empty when we want to use them.
+        //    Understand and find a more elegant / standard way to do it.
+        treeNodeMenuVM.node.observe(viewLifecycleOwner) { it?.let {} }
+        treeNodeMenuVM.nodes.observe(viewLifecycleOwner) { it?.let {} }
 
         // Handle specific corner cases: no or more than one node
         if (stateIDs.isEmpty()) {
@@ -418,9 +410,14 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         if (stateIDs.size == 1) {
             return onSingleClicked(actionId)
         }
+        Log.e(logTag, "onClicked for multi selection more menu")
 
-        // TODO add sanity checks in the various called commands to inure we do not launch a
+        // TODO add sanity checks in the various called commands to insure we do not launch a
         //   forbidden action (typically moving or copying a node inside itself).
+
+        // Log.e(logTag, "One node: " + treeNodeMenuVM.node.value?.getStateID())
+        // Log.e(logTag, "All nodes size: " + treeNodeMenuVM.nodes.value?.size)
+
         val node = treeNodeMenuVM.node.value ?: return
         val parent = StateID.fromId(node.encodedState).parentFolder()
 

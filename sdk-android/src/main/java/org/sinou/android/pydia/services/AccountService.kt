@@ -106,34 +106,36 @@ class AccountService(val accountDB: AccountDB, private val baseDir: File) {
         CellsApp.instance.fileService.prepareTree(StateID.fromId(account.accountID))
     }
 
-    suspend fun forgetAccount(accountID: String): String? = withContext(Dispatchers.IO) {
-        val stateID = StateID.fromId(accountID)
+    suspend fun forgetAccount(accountId: String): String? = withContext(Dispatchers.IO) {
+        val stateId = StateID.fromId(accountId)
+        Log.d(tag, "### About to forget $stateId")
         try {
-            val oldAccount = accountDB.accountDao().getAccount(accountID)
+            val oldAccount = accountDB.accountDao().getAccount(accountId)
                 ?: return@withContext null // nothing to forget
 
             // Credentials
             if (oldAccount.isLegacy) {
-                accountDB.legacyCredentialsDao().forgetPassword(accountID)
+                accountDB.legacyCredentialsDao().forgetPassword(accountId)
             } else {
-                accountDB.tokenDao().deleteToken(accountID)
+                accountDB.tokenDao().deleteToken(accountId)
             }
 
             // Files
-            CellsApp.instance.fileService.cleanAllLocalFiles(stateID)
+            CellsApp.instance.fileService.cleanAllLocalFiles(stateId)
             // The account TreeNode DB
-            CellsApp.instance.nodeService.clearIndexFor(stateID)
+            CellsApp.instance.nodeService.clearIndexFor(stateId)
             // Remove rows in the account tables
-            accountDB.sessionDao().forgetSession(accountID)
-            accountDB.workspaceDao().forgetAccount(accountID)
-            accountDB.accountDao().forgetAccount(accountID)
+            accountDB.sessionDao().forgetSession(accountId)
+            accountDB.workspaceDao().forgetAccount(accountId)
+            accountDB.accountDao().forgetAccount(accountId)
 
             // Update local caches
             refreshSessionCache()
 
+            Log.d(tag, "### $stateId has been forgotten")
             return@withContext null
         } catch (e: Exception) {
-            val msg = "Could not delete account ${StateID.fromId(accountID)}"
+            val msg = "Could not delete account ${StateID.fromId(accountId)}"
             logException(tag, msg, e)
             return@withContext msg
         }

@@ -184,6 +184,11 @@ class BrowseFolderFragment : Fragment() {
 
                                         val selected = tracker?.selection?.map { it } ?: return true
 
+                                        // Log.e(fTag, "... Listing selected:")
+                                        // for (curr in selected){
+                                        //     Log.e(fTag, "- $curr")
+                                        // }
+
                                         val action = BrowseFolderFragmentDirections
                                             .openMoreMenu(
                                                 selected.toTypedArray(),

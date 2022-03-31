@@ -11,6 +11,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.MoreMenuManageConnectionBinding
+import org.sinou.android.pydia.services.AuthService
 import org.sinou.android.pydia.tasks.loginAccount
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
 
@@ -26,7 +27,7 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
     private lateinit var connectionBinding: MoreMenuManageConnectionBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i(fTag, "onCreate ${activeSessionVM.accountId}")
+        Log.d(fTag, "onCreate ${activeSessionVM.accountId}")
         super.onCreate(savedInstanceState)
     }
 
@@ -47,7 +48,8 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
                     requireActivity(),
                     accService.authService,
                     accService,
-                    it
+                    it,
+                    AuthService.NEXT_ACTION_TERMINATE,
                 )
                 dismiss()
             }
@@ -56,18 +58,18 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
         return connectionBinding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.i(fTag, "onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.i(fTag, "onPause")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.i(fTag, "onStop")
-    }
+//    override fun onResume() {
+//        super.onResume()
+//        Log.i(fTag, "onResume")
+//    }
+//
+//    override fun onPause() {
+//        super.onPause()
+//        Log.i(fTag, "onPause")
+//    }
+//
+//    override fun onStop() {
+//        super.onStop()
+//        Log.i(fTag, "onStop")
+//    }
 }

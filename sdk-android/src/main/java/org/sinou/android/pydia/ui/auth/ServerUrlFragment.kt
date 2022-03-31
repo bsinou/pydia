@@ -92,7 +92,6 @@ class ServerUrlFragment : Fragment() {
             // Update model?
             // Important: trigger re-paint Really ?
             invalidateAll()
-            // Explicitly refresh UI ?
         }
         hideKeyboard()
     }

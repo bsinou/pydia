@@ -53,8 +53,8 @@
 
     <!-- About Page -->
     <string name="about_page_version_title">Pydio</string>
-    <string name="about_welcome_text">Pydio Cells Client for Android</string>
-    <string name="about_page_troubleshooting_title">Troubleshooting</string>
+    <string name="about_version_title">Pydio Client for Android</string>
+    <string name="about_help_title">Troubleshooting</string>
     <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.\n\nMore info on:</string>
     <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you:</string>
     <string name="version_name_display">Version name: %s</string>

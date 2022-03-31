@@ -16,7 +16,7 @@
             android:id="@+id/intro_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/about_welcome_text"
+            android:text="@string/about_version_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     </LinearLayout>

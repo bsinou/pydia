@@ -50,9 +50,10 @@ class FolderDiff(
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
         val remotes = RemoteNodeIterator(parentId)
         val locals = dao.getNodesForDiff(parentId.id, parentId.file).iterator()
-        // val locals = LocalNodeIterator(dao.getNodesForDiff(parentId.id, parentId.file).iterator())
         processChanges(remotes, locals)
-        Log.d(tag, "Done with $changeNumber changes")
+        if (changeNumber > 0) {
+            Log.d(tag, "Synced folder at $parentId with $changeNumber changes")
+        }
         return@withContext changeNumber
     }
 
@@ -253,7 +254,7 @@ class FolderDiff(
         private fun getNextPage(page: PageOptions) {
             nodes.clear()
 
-            if (client.isLegacy){
+            if (client.isLegacy) {
                 getAllSorted()
             } else {
                 nextPage = client.ls(parentId.workspace, parentId.file, page) {
@@ -268,7 +269,7 @@ class FolderDiff(
 
         // P8 specific, we must retrieve all nodes at this point and sort them for our
         // diff algorithm to work
-        private fun getAllSorted(){
+        private fun getAllSorted() {
             val unsorted = mutableListOf<FileNode>()
             while (nextPage.currentPage != nextPage.totalPages) {
                 nextPage = client.ls(parentId.workspace, parentId.file, nextPage) {

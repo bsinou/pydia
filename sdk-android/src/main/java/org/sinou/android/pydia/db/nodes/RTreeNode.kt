@@ -188,10 +188,10 @@ data class RTreeNode(
         }
 
         fun fromWorkspaceNode(stateID: StateID, node: WorkspaceNode): RTreeNode {
-            Log.w(TAG, "... fromWorkspaceNod $stateID")
-            Log.w(TAG, "  - Slug: ${node.slug}")
-            Log.w(TAG, "  - Name: ${node.name}")
-            Log.w(TAG, "  - Desc: ${node.description}")
+            // Log.d(TAG, "... fromWorkspaceNode: $stateID")
+            // Log.d(TAG, "  - Slug: ${node.slug}")
+            // Log.d(TAG, "  - Name: ${node.name}")
+            // Log.d(TAG, "  - Desc: ${node.description}")
             try {
                 val currSortName = when (node.workspaceType) {
                     SdkNames.WS_TYPE_PERSONAL -> "1_2_${node.name}"

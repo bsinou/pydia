@@ -40,7 +40,9 @@ class WorkspaceDiff(
         remotes.listRemoteWorkspaces()
         val locals = LocalWsIterator(wsDao.getWsForDiff(accountId.id).iterator())
         processChanges(remotes, locals)
-        Log.d(logTag, "Done with $changeNumber changes")
+        if (changeNumber > 0){
+            Log.d(logTag, "Synced workspace list with $changeNumber changes")
+        }
     }
 
     private fun processChanges(rit: Iterator<WorkspaceNode>, lit: Iterator<RWorkspace>) {
@@ -168,10 +170,10 @@ class WorkspaceDiff(
             }
             nodes.sort()
 
-            val it = nodes.iterator()
-            while (it.hasNext()) {
-                Log.d(logTag, it.next().slug)
-            }
+//            val it = nodes.iterator()
+//            while (it.hasNext()) {
+//                Log.d(logTag, it.next().slug)
+//            }
 
             nodeIterator = nodes.iterator()
         }

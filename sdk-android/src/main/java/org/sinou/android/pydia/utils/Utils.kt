@@ -16,6 +16,22 @@ fun Fragment.hideKeyboard() {
     imm.hideSoftInputFromWindow(requireView().windowToken, 0)
 }
 
+/* CURRENT SYSTEM INFORMATION */
+
+fun getOSCurrentVersion(): String {
+    val release = java.lang.Double.parseDouble(java.lang.String(Build.VERSION.RELEASE).replaceAll("(\\d+[.]\\d+)(.*)", "$1"))
+    var codeName = "Unsupported"//below Jelly Bean
+    if (release >= 4.1 && release < 4.4)  codeName = "Jelly Bean"
+    else if (release < 5)   codeName = "Kit Kat"
+    else if (release < 6)   codeName = "Lollipop"
+    else if (release < 7)   codeName = "Marshmallow"
+    else if (release < 8)   codeName = "Nougat"
+    else if (release < 9)   codeName = "Oreo"
+    else if (release < 10)  codeName = "Pie"
+    else if (release >= 10) codeName = "Android "+(release.toInt())//since API 29 no more candy code names
+    return codeName + " v" + release + ", API Level: " + Build.VERSION.SDK_INT
+}
+
 @Suppress("DEPRECATION")
 fun hasUnMeteredNetwork(context: Context): Boolean {
 
@@ -77,7 +93,6 @@ fun logException(caller: String?, msg: String, e: Exception) {
     Log.e(caller, "$msg ${if (e is SDKException) "(Code #${e.code} )" else ""}")
     e.printStackTrace()
 }
-
 
 /* HELPERS TO MANAGE DATES */
 

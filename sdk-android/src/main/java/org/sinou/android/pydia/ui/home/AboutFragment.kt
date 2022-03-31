@@ -13,6 +13,7 @@ import com.pydio.cells.transport.ClientData
 import org.sinou.android.pydia.BuildConfig
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentAboutBinding
+import org.sinou.android.pydia.utils.getOSCurrentVersion
 import org.sinou.android.pydia.utils.getTimestampAsENString
 import org.sinou.android.pydia.utils.getTimestampAsString
 
@@ -58,9 +59,7 @@ class AboutFragment : Fragment() {
                 data.versionCode,
                 data.version,
                 getTimestampAsENString(data.buildTimestamp),
-                BuildConfig.VERSION_NAME,
-                BuildConfig.VERSION_CODE,
-                "My Device"
+                getOSCurrentVersion(),
             )
             val summary = "\n\nPlease describe your problem: \n"
 
@@ -68,7 +67,7 @@ class AboutFragment : Fragment() {
                 .setType("text/plain")
                 .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.support_email_subject))
                 .putExtra(Intent.EXTRA_TEXT, appInfo + summary)
-                .putExtra(Intent.EXTRA_EMAIL, resources.getString(R.string.support_email))
+                .putExtra(Intent.EXTRA_EMAIL, arrayOf(resources.getString(R.string.support_email)))
             if (activity?.packageManager?.resolveActivity(intent, 0) != null) {
                 startActivity(intent)
             } else {

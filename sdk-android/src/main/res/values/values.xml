@@ -5,6 +5,6 @@
     <string name="copyright_string" translatable="false">© 2022 Bruno SINOU</string>
     <string name="main_website" translatable="false">https://sinou.org</string>
     <string name="support_email" translatable="false">bruno@sinou.org</string>
-    <string name="support_email_subject" translatable="false">Pydio In-App Request</string>
-    <string name="app_info" translatable="false">Pydio Version #%1$s: %2$s (built on %3$s)\n Android SDK: %4$s - %5$s \n OS:  %6$s \n</string>
+    <string name="support_email_subject" translatable="false">Pydio In-App Support Request</string>
+    <string name="app_info" translatable="false">App instance details: \n\n\tPydio Version #%1$s: %2$s \n\tBuilt on %3$s \n\tAndroid OS: %4$s \n</string>
 </resources>

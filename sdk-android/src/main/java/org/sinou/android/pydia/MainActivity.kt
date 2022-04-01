@@ -221,9 +221,8 @@ class MainActivity : AppCompatActivity() {
                 secondaryText.text = liveSession.url
 
                 // Only show offline page when remote is not legacy
-                binding.navView.menu.findItem(R.id.offline_root_list_destination)?.let { item ->
-                    item.setVisible(!liveSession.isLegacy)
-                }
+                binding.navView.menu.findItem(R.id.offline_root_list_destination)?.isVisible =
+                    !liveSession.isLegacy
 
                 // Force refresh of the navigation view
                 binding.navView.invalidate()
@@ -256,20 +255,13 @@ class MainActivity : AppCompatActivity() {
         var done = false
         when (it.itemId) {
             R.id.offline_root_list_destination -> {
-                Log.i(tag, "... OPEN Offline Root: #${it.itemId}")
-                activeSessionVM.liveSession.value?.let { session ->
-//                    val target = StateID.fromId(session.accountID)
-//                        .withPath(AppNames.CUSTOM_PATH_OFFLINE)
-//                    CellsApp.instance.setCurrentState(target)
+                activeSessionVM.liveSession.value?.let { _ ->
                     navController.navigate(MainNavDirections.openOfflineRoots())
                     done = true
                 }
             }
             R.id.bookmark_list_destination -> {
-                activeSessionVM.liveSession.value?.let { session ->
-//                    val target = StateID.fromId(session.accountID)
-//                        .withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
-//                    CellsApp.instance.setCurrentState(target)
+                activeSessionVM.liveSession.value?.let { _ ->
                     navController.navigate(MainNavDirections.openBookmarks())
                     done = true
                 }
@@ -372,15 +364,6 @@ class MainActivity : AppCompatActivity() {
     private fun configureLayoutSwitcher(menu: Menu) {
         val layoutSwitcher = menu.findItem(R.id.switch_recycler_layout)
         val showSwitch = needListOptions()
-//        navController.currentDestination?.let {
-//            when (it.id) {
-//                R.id.search_destination -> true
-//                R.id.bookmark_list_destination -> true
-//                R.id.browse_folder_destination -> true
-//                R.id.offline_root_list_destination -> true
-//                else -> false
-//            }
-//        } ?: false
 
         layoutSwitcher.isVisible = showSwitch
         if (!showSwitch) {
@@ -410,7 +393,6 @@ class MainActivity : AppCompatActivity() {
             CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT, newValue)
 
             this.recreate()
-
             return@setOnMenuItemClickListener true
         }
     }
@@ -425,7 +407,6 @@ class MainActivity : AppCompatActivity() {
             }
         } ?: false
     }
-
 
     private fun needListOptions(): Boolean {
         return navController.currentDestination?.let {
@@ -443,13 +424,10 @@ class MainActivity : AppCompatActivity() {
         return ResourcesCompat.getDrawable(resources, id, theme)
     }
 
-
     private inner class SearchListener : OnQueryTextListener {
-
         // FIXME clean this class:
         //   - why local state?
         //   - externalize
-
         private var searchFragment: SearchFragment? = null
         private var stateId: StateID? = null
         private var uiContext: String? = null

@@ -2,9 +2,9 @@
 <resources>
     <string name="package_name" translatable="false">org.sinou.android.pydia</string>
     <string name="app_persistence_key" translatable="false">org.sinou.android.pydia</string>
-    <string name="copyright_string" translatable="false">© 2022 Bruno SINOU</string>
-    <string name="main_website" translatable="false">https://sinou.org</string>
-    <string name="support_email" translatable="false">bruno@sinou.org</string>
+    <string name="copyright_string" translatable="false">© 2022 B. Sinou and Abstrium</string>
+    <string name="main_website" translatable="false">https://pydia.sinou.org</string>
+    <string name="support_email" translatable="false">contact@sinou.org</string>
     <string name="support_email_subject" translatable="false">Pydio In-App Support Request</string>
     <string name="app_info" translatable="false">App instance details: \n\n\tPydio Version #%1$s: %2$s \n\tBuilt on %3$s \n\tAndroid OS: %4$s \n</string>
 </resources>

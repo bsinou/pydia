@@ -55,12 +55,12 @@
     <string name="about_page_version_title">Pydio</string>
     <string name="about_version_title">Pydio Client for Android</string>
     <string name="about_help_title">Troubleshooting</string>
-    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.\n\nMore info on:</string>
-    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you:</string>
+    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.</string>
     <string name="version_name_display">Version name: %s</string>
     <string name="version_code_display">Version code: %s</string>
     <string name="version_date_display">Version date: %s</string>
-    <string name="help_button_support">Pydio Android Support</string>
+    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you.</string>
+    <string name="help_button_support">Contact Pydia! Support</string>
 
     <!-- Ask URL dialog -->
     <string name="ask_url_title">Register a new account</string>
@@ -204,5 +204,6 @@
     <string name="account_logged_in_as_label">Logged in as %s</string>
     <string name="category_cells">Cells</string>
     <string name="category_workspaces">Workspaces</string>
+    <string name="open_website_button">More info on sinou.org</string>
 
 </resources>

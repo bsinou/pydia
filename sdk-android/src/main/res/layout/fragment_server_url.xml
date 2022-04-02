@@ -18,18 +18,15 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="@dimen/default_layout_margin"
-            android:padding="@dimen/margin">
+            android:layout_margin="@dimen/default_layout_margin">
 
             <TextView
                 android:id="@+id/form_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin"
-                android:layout_marginEnd="@dimen/margin"
                 android:layout_marginBottom="@dimen/margin_small"
                 android:text="@string/ask_url_title"
-                android:textAppearance="?attr/textAppearanceHeadline5"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 app:layout_constraintBottom_toTopOf="@+id/server_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -38,22 +35,17 @@
                 android:id="@+id/server_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin"
-                android:layout_marginEnd="@dimen/margin"
                 android:layout_marginBottom="@dimen/margin_large"
-                android:singleLine="true"
                 android:text="@string/ask_url_desc"
-                android:textAppearance="?attr/textAppearanceBody1"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 app:layout_constraintBottom_toTopOf="@+id/url_edit_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/url_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin"
-                android:layout_marginEnd="@dimen/margin"
                 android:inputType="textUri"
                 android:minHeight="48dp"
                 android:text="https://demo.pydio.com"

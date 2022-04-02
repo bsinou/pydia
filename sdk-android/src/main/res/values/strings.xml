@@ -4,8 +4,6 @@
 
     <!-- GENERIC MESSAGES -->
 
-    <string name="application_title" translatable="false">Pydia!</string>
-
     <!-- Button Labels -->
     <string name="button_ok">OK</string>
     <string name="button_confirm">Confirm</string>

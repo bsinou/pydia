@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import androidx.preference.PreferenceManager
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -72,7 +73,8 @@ class CellsApp : Application() {
         launchScope.launch {
 
             val clientID = updateClientData()
-            sharedPreferences = getSharedPreferences(clientID, Context.MODE_PRIVATE)
+            // sharedPreferences = getSharedPreferences(clientID, Context.MODE_PRIVATE)
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
             Log.i(logTag, "... Pre-init done")
 
             initServices()
@@ -165,10 +167,8 @@ class CellsApp : Application() {
 
         val instance = ClientData.getInstance()
         instance.packageID = packageName
-        instance.name = "AndroidClient"
-        // TODO make this more dynamic
-        instance.clientID = "cells-mobile"
-
+        instance.name = resources.getString(R.string.app_name)
+        instance.clientID = resources.getString(R.string.client_id)
         instance.buildTimestamp = packageInfo.lastUpdateTime
         instance.version = packageInfo.versionName
         instance.versionCode = compatVersionCode(packageInfo)

@@ -26,7 +26,10 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import org.koin.android.ext.android.inject
+import org.koin.java.KoinJavaComponent.inject
 import org.sinou.android.pydia.databinding.ActivityMainBinding
+import org.sinou.android.pydia.services.HelloController
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.bindings.getWsIconForMenu
 import org.sinou.android.pydia.ui.home.clearCache
@@ -48,6 +51,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     private lateinit var activeSessionVM: ActiveSessionViewModel
+
+
+    // MyPresenter is resolved from MyActivity's scope
+    // val hc : HelloController by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 //        setTheme(CellsApp.instance.currentTheme)
@@ -101,6 +108,7 @@ class MainActivity : AppCompatActivity() {
 //            )
 //        })
         handleStateOrIntent(savedInstanceState)
+        // hc.hello()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

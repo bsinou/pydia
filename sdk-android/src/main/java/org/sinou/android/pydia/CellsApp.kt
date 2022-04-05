@@ -20,6 +20,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import org.sinou.android.pydia.db.accounts.AccountDB
 import org.sinou.android.pydia.db.runtime.RuntimeDB
 import org.sinou.android.pydia.services.AccountService
@@ -27,6 +31,7 @@ import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.services.OfflineSyncWorker
 import org.sinou.android.pydia.services.TransferService
+import org.sinou.android.pydia.services.myModule
 import java.util.concurrent.TimeUnit
 
 /**
@@ -70,12 +75,23 @@ class CellsApp : Application() {
     }
 
     private fun delayedInit() {
+
         launchScope.launch {
 
             val clientID = updateClientData()
             // sharedPreferences = getSharedPreferences(clientID, Context.MODE_PRIVATE)
             sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
             Log.i(logTag, "... Pre-init done")
+
+            // start Koin!
+//            startKoin {
+//                androidLogger(Level.DEBUG)
+//                // declare used Android context
+//                androidContext(this@CellsApp)
+//                // declare modules
+//                // modules(listOf(myModule))
+//                modules(myModule)
+//            }
 
             initServices()
             ready = true

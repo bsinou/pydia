@@ -13,6 +13,7 @@ import com.pydio.cells.utils.Log;
 
 import java.net.URL;
 
+/* Main entry point to communicate with a S3 store */
 public class S3Client implements com.pydio.cells.api.S3Client {
 
     private final static String DEFAULT_BUCKET_NAME = "io";
@@ -24,16 +25,6 @@ public class S3Client implements com.pydio.cells.api.S3Client {
     public S3Client(CellsTransport transport) {
         this.transport = transport;
     }
-
-//    // This does not work with self-signed certificate
-//    public InputStream getThumb(String file) throws SDKException {
-//        GetObjectRequest request = new GetObjectRequest(defaultBucketName, S3Names.PYDIO_S3_THUMBSTORE_PREFIX + file);
-//        try {
-//            return getS3Client().getObject(request).getObjectContent();
-//        } catch (AmazonS3Exception e) {
-//            throw new SDKException("could not get S3 file at " + file, e);
-//        }
-//    }
 
     public URL getUploadPreSignedURL(String ws, String folder, String name) throws SDKException {
         String filename = getCleanPath(ws, folder, name);
@@ -55,11 +46,30 @@ public class S3Client implements com.pydio.cells.api.S3Client {
     public URL getStreamingPreSignedURL(String slug, String file, String contentType) throws SDKException {
         String filename = getCleanPath(slug, file);
         GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(DEFAULT_BUCKET_NAME, filename);
-        // request.setMethod(HttpMethod.GET);
         request.addRequestParameter(S3Names.S3_TOKEN_KEY, transport.getAccessToken());
         request.addRequestParameter(S3Names.RESPONSE_CONTENT_TYPE, contentType);
+        // request.setMethod(HttpMethod.GET);
         return getS3Client().generatePresignedUrl(request);
     }
+
+    // TODO improve this to enable refresh when necessary
+    private AmazonS3 getS3Client() throws SDKException {
+        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(transport.getAccessToken(), DEFAULT_GATEWAY_SECRET);
+        AmazonS3 s3 = new AmazonS3Client(awsCredentials, Region.getRegion(DEFAULT_S3_REGION));
+        s3.setEndpoint(transport.getServer().url());
+        // return clientBuilder.withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
+        return s3;
+    }
+
+    //    // This does not work with self-signed certificate
+//    public InputStream getThumb(String file) throws SDKException {
+//        GetObjectRequest request = new GetObjectRequest(defaultBucketName, S3Names.PYDIO_S3_THUMBSTORE_PREFIX + file);
+//        try {
+//            return getS3Client().getObject(request).getObjectContent();
+//        } catch (AmazonS3Exception e) {
+//            throw new SDKException("could not get S3 file at " + file, e);
+//        }
+//    }
 
     private String getCleanPath(String slug, String parent, String fileName) {
         if ("/".equals(parent)) {
@@ -81,14 +91,6 @@ public class S3Client implements com.pydio.cells.api.S3Client {
         return path;
     }
 
-    private AmazonS3 getS3Client() throws SDKException {
-        // TODO improve this to enable refresh when necessary
-        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(transport.getAccessToken(), DEFAULT_GATEWAY_SECRET);
-        AmazonS3 s3 = new AmazonS3Client(awsCredentials, Region.getRegion(DEFAULT_S3_REGION));
-        s3.setEndpoint(transport.getServer().url());
-        // return clientBuilder.withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
-        return s3;
-    }
 
 //    // Ugly fork of the com.amazonaws.util.SdkHttpUtils from the Amazon POJO SDK
 //    // that is not available in the base Android SDK.

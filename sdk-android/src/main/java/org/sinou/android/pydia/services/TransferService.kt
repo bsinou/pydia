@@ -36,7 +36,7 @@ class TransferService(
     private val runtimeDB: RuntimeDB
 ) {
 
-    private val tag = TransferService::class.java.simpleName
+    private val logTag = TransferService::class.java.simpleName
     private val mimeMap = MimeTypeMap.getSingleton()
 
     private val transferServiceJob = Job()
@@ -80,7 +80,7 @@ class TransferService(
             if (rNode == null) {
                 // No node found, aborting
                 errorMessage = "No node found for $state, aborting file DL"
-                Log.w(tag, errorMessage)
+                Log.w(logTag, errorMessage)
                 return@withContext Pair(-1, errorMessage)
             }
 
@@ -106,7 +106,7 @@ class TransferService(
         // Retrieve data and sanity check
         val rTransfer = getTransferDao().getById(transferUid) ?: run {
             val msg = "No record found for $transferUid, aborting file DL"
-            Log.w(tag, msg)
+            Log.w(logTag, msg)
             return@withContext msg
         }
 
@@ -115,12 +115,15 @@ class TransferService(
         if (rNode == null) {
             // No node found, aborting
             errorMessage = "No node found for $state, aborting file DL"
-            Log.w(tag, errorMessage)
+            Log.w(logTag, errorMessage)
             return@withContext errorMessage
         }
 
         var out: FileOutputStream? = null
         try {
+
+            Log.d(logTag, "About to download file from $state")
+
             // Prepare target file
             val targetFile = File(rTransfer.localPath)
             targetFile.parentFile!!.mkdirs()
@@ -163,7 +166,7 @@ class TransferService(
             rTransfer.doneTimestamp = Calendar.getInstance().timeInMillis / 1000L
             rTransfer.error = errorMessage
             getTransferDao().update(rTransfer)
-            Log.e(tag, errorMessage!!)
+            Log.e(logTag, errorMessage!!)
         }
 
         return@withContext errorMessage
@@ -187,6 +190,8 @@ class TransferService(
             val state = transferRecord.getStateId()
             val srcPath = fileService.getLocalPathFromState(state, AppNames.LOCAL_FILE_TYPE_CACHE)
             inputStream = FileInputStream(File(srcPath))
+
+            Log.d(logTag, "... About to upload file to $state")
 
             val parent = state.parentFolder()
             accountService.getClient(state).upload(
@@ -249,7 +254,7 @@ class TransferService(
 
         // Mime Type
         val mime = cr.getType(uri) ?: SdkNames.NODE_MIME_DEFAULT
-        Log.d(tag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
+        Log.d(logTag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
         mimeMap.getExtensionFromMimeType(mime)?.let {
             // TODO make a better check
             //   - retrieve file extension

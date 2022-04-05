@@ -34,7 +34,7 @@ class FileExporter(
         )
         { uri ->
             stateID?.let {
-                nodeService.enqueueDownload(it, uri)
+                nodeService.enqueueDownload(it, uri!!)
                 Log.i(caller, "Received download intent to parent path at $uri for $stateID")
                 callingFragment.dismiss()
             // nodeService.enqueueUpload(it, uri)

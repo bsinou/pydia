@@ -149,7 +149,7 @@
     <string name="order_by_size_desc">Size (largest first)</string>
     <!-- Manage connection -->
     <string name="no_connection_title">Connection Down</string>
-    <string name="no_connection_status">Cannot connect to %1s as %2s: %3s</string>
+    <string name="no_connection_status">Cannot connect to %1$s as %2$s: %3$s</string>
     <string name="launch_auth">Re-authenticate</string>
     <string name="auth_ok">Account is connected</string>
     <string name="auth_err_expired">Credentials are expired</string>

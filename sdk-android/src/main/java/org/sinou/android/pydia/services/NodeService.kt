@@ -20,15 +20,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
-import org.sinou.android.pydia.db.nodes.OfflineRootDao
 import org.sinou.android.pydia.db.nodes.RLiveOfflineRoot
 import org.sinou.android.pydia.db.nodes.ROfflineRoot
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.db.nodes.TreeNodeDB
 import org.sinou.android.pydia.db.nodes.TreeNodeDao
 import org.sinou.android.pydia.transfer.FileDownloader
-import org.sinou.android.pydia.transfer.FolderDiff
 import org.sinou.android.pydia.transfer.ThumbDownloader
+import org.sinou.android.pydia.transfer.TreeDiff
 import org.sinou.android.pydia.utils.currentTimestamp
 import org.sinou.android.pydia.utils.logException
 import java.io.File
@@ -114,7 +113,7 @@ class NodeService(
         return nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
 
         // logging the found liveData is useless, it is usually null when checked first
-    //        val liveData = nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
+        //        val liveData = nodeDB(stateID).treeNodeDao().getLiveNode(stateID.id)
 //        if (liveData.value == null) {
 //            Log.e(tag, "no node found for ${stateID.id}")
 //        }
@@ -293,70 +292,44 @@ class NodeService(
             val thumbs = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
             val thumbDL = ThumbDownloader(client, nodeDB(stateID), thumbs)
 
-            val results =
-                preSyncCheck(currRoot, rTreeNode, client, treeNodeDao, offlineDao, fileDL, thumbDL)
+            var changeNb = syncNodeAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
 
-            var changeNb = 0
 
-            if (results.first) { // Needs sync
-                changeNb = syncFolderAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
+            // TODO check corner cases. Typically "needs deletion"
+            if (changeNb > 0) {
+                currRoot.localModificationTS = currentTimestamp()
+                currRoot.message = null // TODO double check
             }
-//            if (rTreeNode.isFolder()) {
-//            } else {
-//                syncFileAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
-//            }
+            currRoot.lastCheckTS = currentTimestamp()
 
-            if (results.second) { // Needs deletion
-
-            } else {
-                if (changeNb > 0) {
-                    currRoot.localModificationTS = System.currentTimeMillis() / 1000L
-                    currRoot.message = null // TODO double check
-                }
-                currRoot.lastCheckTS = System.currentTimeMillis() / 1000L
-
-                offlineDao.update(currRoot)
-            }
+            offlineDao.update(currRoot)
             // TODO add more info on the corresponding root RTreeNode ??
             persistUpdated(rTreeNode)
         } catch (se: SDKException) {
             Log.e(tag, "could update offline sync status for " + stateID.id)
             se.printStackTrace()
             return@withContext
-//           } catch (ioe: IOException) {
-//            Log.e(TAG, "could update offline sync status for ${stateID}: ${ioe.message}")
-//            ioe.printStackTrace()
-//            return@withContext
         }
     }
 
-    /* Check if the current offline root need re-sync (first flag) or deletion (second flag) */
-    private suspend fun preSyncCheck(
-        offlineRoot: ROfflineRoot,
-        rTreeNode: RTreeNode,
-        client: Client,
-        treeNodeDao: TreeNodeDao,
-        offlineDao: OfflineRootDao,
-        fileDL: FileDownloader,
-        thumbDL: ThumbDownloader
-    ): Pair<Boolean, Boolean> {
+//    /* Check if the current offline root need re-sync (first flag) or deletion (second flag) */
+//    private suspend fun preSyncCheck(
+//        offlineRoot: ROfflineRoot,
+//        rTreeNode: RTreeNode,
+//        client: Client,
+//        treeNodeDao: TreeNodeDao,
+//        offlineDao: OfflineRootDao,
+//        fileDL: FileDownloader,
+//        thumbDL: ThumbDownloader
+//    ): Pair<Boolean, Boolean> {
+//
+//        // First check if everything is OK locally
+//
+//        return Pair(first = true, second = false)
+//    }
 
-        // First check if everything is OK locally
 
-        return Pair(first = true, second = false)
-    }
-
-    private suspend fun syncFileAt(
-        rTreeNode: RTreeNode,
-        client: Client,
-        dao: TreeNodeDao,
-        fileDL: FileDownloader,
-        thumbDL: ThumbDownloader
-    ): Int {
-        return 0
-    }
-
-    private suspend fun syncFolderAt(
+    private suspend fun syncNodeAt(
         rTreeNode: RTreeNode,
         client: Client,
         dao: TreeNodeDao,
@@ -367,16 +340,17 @@ class NodeService(
         val stateID = rTreeNode.getStateID()
 
         // First re-sync current level
-        val folderDiff = FolderDiff(client, this, fileService, dao, fileDL, thumbDL, stateID)
-        var changeNb = folderDiff.compareWithRemote()
+        val treeDiff = TreeDiff(stateID, client, this, fileService, dao, fileDL, thumbDL)
+        var changeNb = treeDiff.compareWithRemote()
 
-        // Then retrieve child folders and call re-sync on each one
-        val children = nodeDB(stateID).treeNodeDao()
-            .listWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
-        for (child in children) {
-            changeNb += syncFolderAt(child, client, dao, fileDL, thumbDL)
+        if (rTreeNode.isFolder()) {
+            // Then retrieve child folders and call re-sync on each one
+            val children = nodeDB(stateID).treeNodeDao()
+                .listWithMime(stateID.id, stateID.file, SdkNames.NODE_MIME_FOLDER)
+            for (child in children) {
+                changeNb += syncNodeAt(child, client, dao, fileDL, thumbDL)
+            }
         }
-
         return changeNb
     }
 
@@ -495,7 +469,7 @@ class NodeService(
                     fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
                 )
             val folderDiff =
-                FolderDiff(client, this@NodeService, fileService, dao, null, thumbDL, stateID)
+                TreeDiff(stateID, client, this@NodeService, fileService, dao, null, thumbDL)
             val changeNb = folderDiff.compareWithRemote()
             result = Pair(changeNb, null)
             /*

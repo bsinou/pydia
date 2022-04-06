@@ -19,17 +19,17 @@ import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.areNodeContentEquals
 import java.io.File
 
-class FolderDiff(
+class TreeDiff(
+    private val rootId: StateID,
     private val client: Client,
     private val nodeService: NodeService,
     private val fileService: FileService,
     private val dao: TreeNodeDao,
     private val fileDL: FileDownloader?,
     private val thumbDL: ThumbDownloader,
-    private val parentId: StateID,
 ) {
 
-    private val logTag = FolderDiff::class.java.simpleName
+    private val logTag = TreeDiff::class.java.simpleName
 
     companion object {
 
@@ -54,13 +54,40 @@ class FolderDiff(
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     @Throws(SDKException::class)
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
-        val remotes = RemoteNodeIterator(parentId)
-        val locals = dao.getNodesForDiff(parentId.id, parentId.file).iterator()
-        processChanges(remotes, locals)
-        if (changeNumber > 0) {
-            Log.d(logTag, "Synced folder at $parentId with $changeNumber changes")
+
+        val remote = client.nodeInfo(rootId.workspace, rootId.file)
+
+        if (remote.isFolder) {
+            handleFolder()
+        } else {
+            val local = dao.getNode(rootId.id)
+            when {
+                local == null -> {
+                    putAddChange(remote)
+                }
+                areNodeContentEquals(remote, local, client.isLegacy) -> {
+                    // Found a match with no detected change,
+                    // we yet insure necessary files (offline & thumbs for viewable) are present
+                    alsoCheckFile(local)
+                    alsoCheckThumb(remote, local)
+                }
+                else -> {
+                    putUpdateChange(remote, local)
+                }
+            }
         }
+
+        if (changeNumber > 0) {
+            Log.d(logTag, "Synced node at $rootId with $changeNumber changes")
+        }
+
         return@withContext changeNumber
+    }
+
+    private suspend fun handleFolder() {
+        val remotes = RemoteNodeIterator(rootId)
+        val locals = dao.getNodesForDiff(rootId.id, rootId.file).iterator()
+        processChanges(remotes, locals)
     }
 
     private suspend fun processChanges(rit: Iterator<FileNode>, lit: Iterator<RTreeNode>) {
@@ -89,7 +116,6 @@ class FolderDiff(
                         alsoCheckFile(local)
                         alsoCheckThumb(remote, local)
                     } else {
-
                         putUpdateChange(remote, local)
                     }
                     // Move local cursor to next and restart the loop
@@ -113,7 +139,7 @@ class FolderDiff(
     private suspend fun putAddChange(remote: FileNode) {
         Log.d(logTag, "add for ${remote.name}")
         changeNumber++
-        val childStateID = parentId.child(remote.name)
+        val childStateID = rootId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
         nodeService.upsertNode(rNode)
         downloadFilesIfNecessary(remote, childStateID)
@@ -125,7 +151,7 @@ class FolderDiff(
         changeNumber++
 
         // TODO: Insure corner cases are correctly handled, typically on type switch
-        val childStateID = parentId.child(remote.name)
+        val childStateID = rootId.child(remote.name)
         val rNode = RTreeNode.fromFileNode(childStateID, remote)
         if (local.isFolder() && remote.isFile) {
             deleteLocalFolder(local)
@@ -173,7 +199,7 @@ class FolderDiff(
         // FIXME we miss the event when we have a filename but the thumb is not present
         if (remote.isImage && local.thumbFilename == null) {
             diffScope.launch {
-                val childStateID = parentId.child(remote.name)
+                val childStateID = rootId.child(remote.name)
                 thumbDL.orderThumbDL(childStateID.id)
             }
         }
@@ -185,9 +211,11 @@ class FolderDiff(
                 thumbDL.orderThumbDL(stateID.id)
             }
         }
-        fileDL?.let {
-            diffScope.launch {
-                it.orderFileDL(stateID.id)
+        if (remote.isFile) {
+            fileDL?.let {
+                diffScope.launch {
+                    it.orderFileDL(stateID.id)
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package org.sinou.android.pydia.services;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
@@ -55,7 +56,8 @@ public class S3Client implements com.pydio.cells.api.S3Client {
     // TODO improve this to enable refresh when necessary
     private AmazonS3 getS3Client() throws SDKException {
         BasicAWSCredentials awsCredentials = new BasicAWSCredentials(transport.getAccessToken(), DEFAULT_GATEWAY_SECRET);
-        AmazonS3 s3 = new AmazonS3Client(awsCredentials, Region.getRegion(DEFAULT_S3_REGION));
+        ClientConfiguration conf = new ClientConfiguration().withUserAgent(transport.getUserAgent());
+        AmazonS3 s3 = new AmazonS3Client(awsCredentials, Region.getRegion(DEFAULT_S3_REGION), conf);
         s3.setEndpoint(transport.getServer().url());
         // return clientBuilder.withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
         return s3;

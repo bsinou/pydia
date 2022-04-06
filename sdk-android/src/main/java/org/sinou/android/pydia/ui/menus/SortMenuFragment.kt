@@ -23,7 +23,7 @@ class SortMenuFragment : BottomSheetDialogFragment() {
     private val fTag = SortMenuFragment::class.java.simpleName
 
     private val oldOrder = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
-    private val oldDirection = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
+    //private val oldDirection = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
 
     private lateinit var sortBinding: MoreMenuSortBinding
 
@@ -40,21 +40,30 @@ class SortMenuFragment : BottomSheetDialogFragment() {
         sortBinding = DataBindingUtil.inflate(
             inflater, R.layout.more_menu_sort, container, false
         )
-        configItem(sortBinding.byDefault, AppNames.SORT_BY_CANON, AppNames.SORT_BY_ASC)
-        configItem(sortBinding.byNameAsc, AppNames.SORT_BY_NAME, AppNames.SORT_BY_ASC)
-        configItem(sortBinding.byNameDesc, AppNames.SORT_BY_NAME, AppNames.SORT_BY_DESC)
-        configItem(sortBinding.byRemoteTsDesc, AppNames.SORT_BY_REMOTE_TS, AppNames.SORT_BY_DESC)
-        configItem(sortBinding.byRemoteTsAsc, AppNames.SORT_BY_REMOTE_TS, AppNames.SORT_BY_ASC)
-        configItem(sortBinding.byMimeAsc, AppNames.SORT_BY_MIME, AppNames.SORT_BY_ASC)
-        configItem(sortBinding.byMimeDesc, AppNames.SORT_BY_MIME, AppNames.SORT_BY_DESC)
-        configItem(sortBinding.bySizeAsc, AppNames.SORT_BY_SIZE, AppNames.SORT_BY_ASC)
-        configItem(sortBinding.bySizeDesc, AppNames.SORT_BY_SIZE, AppNames.SORT_BY_DESC)
+
+// TODO make the text views dynamic
+//        val keys = resources.getStringArray(R.array.order_by_values)
+//        for ((i, label) in resources.getStringArray(R.array.order_by_labels).withIndex()){
+//            configItem(sortBinding.byDefault, "${AppNames.SORT_BY_CANON}||${AppNames.SORT_BY_ASC}")
+//
+//        }
+
+        val keys = resources.getStringArray(R.array.order_by_values)
+        configItem(sortBinding.byDefault, keys[0])
+        configItem(sortBinding.byNameAsc, keys[1])
+        configItem(sortBinding.byNameDesc, keys[2])
+        configItem(sortBinding.byRemoteTsDesc, keys[3])
+        configItem(sortBinding.byRemoteTsAsc, keys[4])
+        configItem(sortBinding.byMimeAsc, keys[5])
+        configItem(sortBinding.byMimeDesc, keys[6])
+        configItem(sortBinding.bySizeAsc, keys[7])
+        configItem(sortBinding.bySizeDesc, keys[8])
         sortBinding.executePendingBindings()
         return sortBinding.root
     }
 
-    private fun configItem(view: TextView, order: String, direction: String) {
-        view.isActivated = oldOrder == order && oldDirection == direction
+    private fun configItem(view: TextView, encodedOrder: String) {
+        view.isActivated = oldOrder == encodedOrder // && oldDirection == direction
         requireActivity().theme
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (view.isActivated) {
@@ -63,14 +72,14 @@ class SortMenuFragment : BottomSheetDialogFragment() {
                 view.setBackgroundColor(requireActivity().getColor(R.color.transparent))
             }
         }
-        view.setOnClickListener { onClicked(order, direction) }
+        view.setOnClickListener { onClicked(encodedOrder) }
     }
 
-    private fun onClicked(order: String, direction: String) {
-        Log.i(tag, "Item clicked: ORDER BY $order $direction")
-        if (oldOrder != order || oldDirection != direction) {
+    private fun onClicked(order: String) {
+        Log.i(tag, "Item clicked: ORDER BY $order ")
+        if (oldOrder != order) {
             CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
-            CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR, direction)
+            // CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR, direction)
             dismiss()
             requireActivity().recreate()
         } else {

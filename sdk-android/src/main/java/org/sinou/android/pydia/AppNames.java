@@ -16,6 +16,7 @@ public interface AppNames {
 
     String RECYCLER_LAYOUT_LIST = "list";
     String RECYCLER_LAYOUT_GRID = "grid";
+    String RECYCLER_LAYOUT_GRID_LARGER = "grid_larger";
     int ITEM_TYPE_HEADER = 0;
     int ITEM_TYPE_WS = 1;
     int ITEM_TYPE_NODE = 2;

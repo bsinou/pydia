@@ -7,6 +7,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.utils.Log
+import org.sinou.android.pydia.AppNames
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -92,6 +93,17 @@ fun hasAtLeastMeteredNetwork(context: Context): Boolean {
 fun logException(caller: String?, msg: String, e: Exception) {
     Log.e(caller, "$msg ${if (e is SDKException) "(Code #${e.code} )" else ""}")
     e.printStackTrace()
+}
+
+/* MANAGE PREFERENCES */
+
+fun parseOrder(encoded: String): Pair<String, String> {
+    val tokens = encoded.split("||")
+    if (tokens.size != 2 ){
+        Log.e("parseOrder", "could not parse encoded order $encoded")
+        return Pair(AppNames.SORT_BY_CANON, AppNames.SORT_BY_ASC)
+    }
+    return Pair(tokens[0], tokens[1])
 }
 
 /* HELPERS TO MANAGE DATES */

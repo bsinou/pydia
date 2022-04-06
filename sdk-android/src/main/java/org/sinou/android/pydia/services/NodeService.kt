@@ -30,6 +30,7 @@ import org.sinou.android.pydia.transfer.ThumbDownloader
 import org.sinou.android.pydia.transfer.TreeDiff
 import org.sinou.android.pydia.utils.currentTimestamp
 import org.sinou.android.pydia.utils.logException
+import org.sinou.android.pydia.utils.parseOrder
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -67,15 +68,14 @@ class NodeService(
     /* Expose DB content as LiveData for the ViewModels */
 
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
-        var order = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
-        if (Str.empty(order)) order = AppNames.SORT_BY_CANON
-        var direction = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
-        if (Str.empty(direction)) direction = AppNames.SORT_BY_ASC
+        var encoded = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
+        if (Str.empty(encoded)) encoded = "${AppNames.SORT_BY_CANON}||${AppNames.SORT_BY_ASC}"
+        var orders = parseOrder(encoded!!)
 
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
                     "AND parent_path = '${stateID.file}' " +
-                    "ORDER BY $order $direction "
+                    "ORDER BY ${orders.first} ${orders.second} "
         )
         return nodeDB(stateID).treeNodeDao().orderedLs(lsQuery)
     }

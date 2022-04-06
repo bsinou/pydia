@@ -1,44 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <SwitchPreferenceCompat
-        app:key="notifications"
-        app:title="Enable message notifications" />
+    <PreferenceCategory
+        app:key="recycler_category"
+        app:title="Customise lists (when applicable)">
 
-    <Preference
-        app:key="feedback"
-        app:summary="Report technical issues or suggest new features"
-        app:title="Send feedback" />
+        <DropDownPreference
+            app:entries="@array/list_layout_labels"
+            app:entryValues="@array/list_layout_values"
+            app:key="current_recycler_layout"
+            app:title="Type of layout"
+            app:useSimpleSummaryProvider="true" />
 
-    <!-- <PreferenceCategory app:title="@string/messages_header">
+        <DropDownPreference
+            app:entries="@array/order_by_labels"
+            app:entryValues="@array/order_by_values"
+            app:key="current_recycler_order"
+            app:title="Sort order"
+            app:useSimpleSummaryProvider="true" />
 
-         <EditTextPreference
-             app:key="signature"
-             app:title="@string/signature_title"
-             app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
 
-         <ListPreference
-             app:defaultValue="reply"
-             app:entries="@array/reply_entries"
-             app:entryValues="@array/reply_values"
-             app:key="reply"
-             app:title="@string/reply_title"
-             app:useSimpleSummaryProvider="true" />
 
-     </PreferenceCategory>
+    <PreferenceCategory
+        app:key="metered_category"
+        app:title="Limitations on metered network">
 
-     <PreferenceCategory app:title="@string/sync_header">
+        <SwitchPreferenceCompat
+            app:key="on_metered_dl_thumbs"
+            app:summary="Also retrieve thumbnails when on metered network"
+            app:title="Download thumbs" />
 
-         <SwitchPreferenceCompat
-             app:key="sync"
-             app:title="@string/sync_title" />
+        <SwitchPreferenceCompat
+            app:key="on_metered_prevent_file_dl"
+            app:summary="Prevent file download when on metered network"
+            app:title="No file download" />
 
-         <SwitchPreferenceCompat
-             app:dependency="sync"
-             app:key="attachment"
-             app:summaryOff="@string/attachment_summary_off"
-             app:summaryOn="@string/attachment_summary_on"
-             app:title="@string/attachment_title" />
-     </PreferenceCategory>
- -->
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="offline_category"
+        app:title="Customise offline synchronisation">
+
+        <SwitchPreferenceCompat
+            app:key="sync_on_wifi_only"
+            app:summary="Only launch background synchronisation when on WIFI"
+            app:title="On wifi only" />
+
+        <SwitchPreferenceCompat
+            app:key="sync_on_wifi_charging"
+            app:summary="Only launch sync when the device is charging"
+            app:title="When charging" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="help_category"
+        app:title="Help">
+
+        <Preference
+            app:key="feedback"
+            app:summary="Report technical issues or suggest new features"
+            app:title="Send feedback" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

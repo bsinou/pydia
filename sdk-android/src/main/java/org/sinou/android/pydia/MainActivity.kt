@@ -52,7 +52,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var activeSessionVM: ActiveSessionViewModel
 
-
     // MyPresenter is resolved from MyActivity's scope
     // val hc : HelloController by inject()
 
@@ -336,7 +335,7 @@ class MainActivity : AppCompatActivity() {
         connexionAlarmBtn.isVisible = false
 
         if (activeSessionVM.accountId == null) {
-            // no accountID => we are on the account page and the relog button is not shown
+            // no accountID => we are on the account page and the re-log button is not shown
             return
         }
 

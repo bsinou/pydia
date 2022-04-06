@@ -9,25 +9,24 @@ class BackOffTicker {
         40, 60, 60, 120, 120, 300,
         600, 600, 900, 900, 900, 1800, 3600
     )
-    private val lock = 0
     private var currentBackoffIndex = 0
 
     fun getNextDelay(): Long {
-        synchronized(lock) {
+        synchronized(this) {
             val nextDelay = backoffDuration[currentBackoffIndex]
             currentBackoffIndex = min(currentBackoffIndex + 1, backoffDuration.size - 1)
             return nextDelay
         }
     }
 
-    fun getCurrentIndex():Int {
-        synchronized(lock) {
+    fun getCurrentIndex(): Int {
+        synchronized(this) {
             return currentBackoffIndex
         }
     }
 
     fun resetIndex() {
-        synchronized(lock) {
+        synchronized(this) {
             currentBackoffIndex = 0
         }
     }

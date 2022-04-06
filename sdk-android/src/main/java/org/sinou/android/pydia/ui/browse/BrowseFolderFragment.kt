@@ -232,7 +232,7 @@ class BrowseFolderFragment : Fragment() {
         // We must insure the Observed LiveData has been correctly updated
         // Otherwise we won't see sort order changes directly0
         browseFolderVM.resume()
-        observer?.let{
+        observer.let{
             browseFolderVM.children.removeObserver(it)
         }
         browseFolderVM.children.observe(viewLifecycleOwner, observer)

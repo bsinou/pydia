@@ -18,7 +18,7 @@ fun logoutAccount(
     MaterialAlertDialogBuilder(context)
         .setTitle(context.resources.getString(R.string.confirm_account_logout_title, account))
         .setMessage(R.string.confirm_account_logout_desc)
-        .setPositiveButton(R.string.button_ok) { dialog, _ ->
+        .setPositiveButton(R.string.button_ok) { _, _ ->
             doLogout(context, accountId)
         }
         .setNegativeButton(R.string.button_cancel, null)

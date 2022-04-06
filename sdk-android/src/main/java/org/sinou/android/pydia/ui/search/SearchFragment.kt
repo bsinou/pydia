@@ -1,5 +1,6 @@
 package org.sinou.android.pydia.ui.search
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -63,7 +64,7 @@ class SearchFragment : Fragment() {
         val adapter = NodeListAdapter { node, action -> onClicked(node, action) }
         adapter.showPath()
         binding.hits.adapter = adapter
-        searchVM.hits.observe(viewLifecycleOwner, { adapter.submitList(it) })
+        searchVM.hits.observe(viewLifecycleOwner) { adapter.submitList(it) }
 
         return binding.root
     }
@@ -85,7 +86,10 @@ class SearchFragment : Fragment() {
             bar.setBackgroundDrawable(bg)
             bar.title = "Searching: ${args.query}..."
         }
-        currActivity.window.statusBarColor =  resources.getColor(R.color.searchStatusBarColor)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            currActivity.window.statusBarColor =
+                resources.getColor(R.color.searchStatusBarColor, requireActivity().theme)
+        }
         // Requires API level 23
         // currActivity.window.statusBarColor =  resources.getColor(R.color.danger, requireActivity().theme)
     }
@@ -94,10 +98,11 @@ class SearchFragment : Fragment() {
         super.onPause()
         val currActivity = requireActivity() as AppCompatActivity
         val bg = resources.getDrawable(R.drawable.empty, requireActivity().theme)
-        currActivity.supportActionBar?.let { bar ->
-            bar.setBackgroundDrawable(bg)
+        currActivity.supportActionBar?.setBackgroundDrawable(bg)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            currActivity.window.statusBarColor =
+                resources.getColor(R.color.defaultStatusBarColor, requireActivity().theme)
         }
-        currActivity.window.statusBarColor =  resources.getColor(R.color.defaultStatusBarColor)
     }
 
     fun updateQuery(query: String) {

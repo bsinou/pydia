@@ -20,7 +20,7 @@ fun moveToRecycle(
         .setTitle(R.string.confirm_move_to_recycle_title)
         .setIcon(R.drawable.ic_baseline_delete_24)
         .setMessage(context.resources.getString(R.string.confirm_move_to_recycle_desc, node.name))
-        .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+        .setPositiveButton(R.string.button_confirm) { _, _ ->
             doMoveToRecycle(context, node.encodedState)
         }
         .setNegativeButton(R.string.button_cancel, null)
@@ -48,7 +48,7 @@ fun moveNodesToRecycle(
         .setTitle(R.string.confirm_move_to_recycle_title)
         .setIcon(R.drawable.ic_baseline_delete_24)
         .setMessage(msg)
-        .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+        .setPositiveButton(R.string.button_confirm) { _, _ ->
 
             for (stateId in states) {
                 doMoveToRecycle(context, stateId.id)

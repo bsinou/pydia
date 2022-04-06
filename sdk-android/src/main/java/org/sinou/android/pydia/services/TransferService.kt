@@ -75,7 +75,7 @@ class TransferService(
         withContext(Dispatchers.IO) {
 
             // Retrieve data and sanity check
-            var errorMessage: String? = null
+            var errorMessage: String?
             val rNode = nodeService.getNode(state)
             if (rNode == null) {
                 // No node found, aborting

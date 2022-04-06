@@ -11,13 +11,12 @@ import java.util.*
 @BindingAdapter("wsHeaderLabel")
 fun TextView.setWsHeaderLabel(type: String?) {
     type?.let {
-        val type =
+        val nodeType =
             when (it) {
                 SdkNames.WS_TYPE_CELL -> this.resources.getString(R.string.category_cells)
                 else -> this.resources.getString(R.string.category_workspaces)
             }
-        text = type.uppercase(Locale.getDefault())
-        // text = type
+        text = nodeType.uppercase(Locale.getDefault())
     }
 }
 

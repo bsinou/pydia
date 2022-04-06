@@ -34,8 +34,18 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
+    signingConfigs {
+        release {
+            storeFile file(configs['keystore.path'])
+            storePassword configs['keystore.pwd']
+            keyAlias configs['signkey.alias']
+            keyPassword configs['signkey.pwd']
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             resValue "string", "app_version",
                     "${defaultConfig.versionName}"
             minifyEnabled false
@@ -62,7 +72,6 @@ android {
         // viewBinding = true
     }
 }
-
 
 dependencies {
 

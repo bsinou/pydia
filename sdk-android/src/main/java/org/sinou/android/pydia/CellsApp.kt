@@ -1,7 +1,6 @@
 package org.sinou.android.pydia
 
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -31,6 +30,8 @@ import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.services.OfflineSyncWorker
 import org.sinou.android.pydia.services.TransferService
+import org.sinou.android.pydia.services.allModules
+import org.sinou.android.pydia.services.databaseModule
 import org.sinou.android.pydia.services.myModule
 import java.util.concurrent.TimeUnit
 
@@ -55,10 +56,10 @@ class CellsApp : Application() {
     // TODO Rather use an Application model that raises a flag when everything is setup.
     var ready = false
 
-    lateinit var accountService: AccountService
-    lateinit var nodeService: NodeService
-    lateinit var fileService: FileService
-    lateinit var transferService: TransferService
+//    lateinit var accountService: AccountService
+//    lateinit var nodeService: NodeService
+//    lateinit var fileService: FileService
+//    lateinit var transferService: TransferService
 
     companion object {
         lateinit var instance: CellsApp
@@ -84,16 +85,16 @@ class CellsApp : Application() {
             Log.i(logTag, "... Pre-init done")
 
             // start Koin!
-//            startKoin {
-//                androidLogger(Level.DEBUG)
-//                // declare used Android context
-//                androidContext(this@CellsApp)
-//                // declare modules
-//                // modules(listOf(myModule))
-//                modules(myModule)
-//            }
+            startKoin {
+                androidLogger(Level.DEBUG)
+                // declare used Android context
+                androidContext(this@CellsApp)
+                // declare modules
+                // modules(listOf(myModule))
+                modules(allModules)
+            }
 
-            initServices()
+            // initServices()
             ready = true
             Log.i(logTag, "... Service initialized, configuring workers")
 
@@ -102,39 +103,39 @@ class CellsApp : Application() {
         }
     }
 
-    private fun initServices() {
-
-        // TODO use dependency injection
-        accountService = AccountService(
-            AccountDB.getDatabase(applicationContext),
-            filesDir
-        )
-
-        Log.i(logTag, "... Account service ready")
-
-        fileService = FileService(
-            accountService,
-        )
-
-        Log.i(logTag, "... File service ready")
-
-        nodeService = NodeService(
-            accountService,
-            fileService,
-        )
-
-        Log.i(logTag, "... Node service ready")
-
-        transferService = TransferService(
-            accountService,
-            nodeService,
-            fileService,
-            RuntimeDB.getDatabase(applicationContext),
-        )
-
-        Log.i(logTag, "... Transfer service ready")
-
-    }
+//    private fun initServices() {
+//
+//        // TODO use dependency injection
+//        accountService = AccountService(
+//            AccountDB.getDatabase(applicationContext),
+//            filesDir
+//        )
+//
+//        Log.i(logTag, "... Account service ready")
+//
+//        fileService = FileService(
+//            accountService,
+//        )
+//
+//        Log.i(logTag, "... File service ready")
+//
+//        nodeService = NodeService(
+//            accountService,
+//            fileService,
+//        )
+//
+//        Log.i(logTag, "... Node service ready")
+//
+//        transferService = TransferService(
+//            accountService,
+//            nodeService,
+//            fileService,
+//            RuntimeDB.getDatabase(applicationContext),
+//        )
+//
+//        Log.i(logTag, "... Transfer service ready")
+//
+//    }
 
     private fun setupOfflineWorker() {
 

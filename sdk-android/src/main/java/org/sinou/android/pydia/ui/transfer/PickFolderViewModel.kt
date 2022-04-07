@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.*
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.BackOffTicker
@@ -15,13 +16,18 @@ import java.util.concurrent.TimeUnit
  * for uploads and copy/moves.
  */
 class PickFolderViewModel(
-    val stateID: StateID,
     private val accountService: AccountService,
     private val nodeService: NodeService,
     application: Application
 ) : AndroidViewModel(application) {
 
-    val children = nodeService.listChildFolders(stateID)
+    private lateinit var _stateID : StateID
+    val stateID: StateID
+        get() = _stateID
+
+    private lateinit var _children: LiveData<List<RTreeNode>>
+    val children: LiveData<List<RTreeNode>>
+        get() = _children
 
     // Technical local objects
     // private val tag = PickFolderViewModel::class.simpleName
@@ -41,6 +47,11 @@ class PickFolderViewModel(
 
     init {
         _isLoading.value = true
+    }
+
+    fun afterCreate(stateID : StateID){
+        _stateID = stateID
+        _children = nodeService.listChildFolders(stateID)
     }
 
     private fun watchFolder() = vmScope.launch {
@@ -102,18 +113,18 @@ class PickFolderViewModel(
         viewModelJob.cancel()
     }
 
-    class PickFolderViewModelFactory(
-        private val stateID: StateID,
-        private val accountService: AccountService,
-        private val nodeService: NodeService,
-        private val application: Application
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(PickFolderViewModel::class.java)) {
-                return PickFolderViewModel(stateID, accountService, nodeService, application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
+//    class PickFolderViewModelFactory(
+//        private val stateID: StateID,
+//        private val accountService: AccountService,
+//        private val nodeService: NodeService,
+//        private val application: Application
+//    ) : ViewModelProvider.Factory {
+//        @Suppress("unchecked_cast")
+//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//            if (modelClass.isAssignableFrom(PickFolderViewModel::class.java)) {
+//                return PickFolderViewModel(stateID, accountService, nodeService, application) as T
+//            }
+//            throw IllegalArgumentException("Unknown ViewModel class")
+//        }
+//    }
 }

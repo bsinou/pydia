@@ -8,17 +8,17 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.UploadNavigationDirections
 import org.sinou.android.pydia.databinding.FragmentPickFolderBinding
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.tasks.createFolder
 import org.sinou.android.pydia.utils.showLongMessage
 
@@ -27,8 +27,10 @@ class PickFolderFragment : Fragment() {
     private val fTag = PickFolderFragment::class.java.simpleName
 
     private lateinit var binding: FragmentPickFolderBinding
-    private lateinit var pickFolderVM: PickFolderViewModel
-    private lateinit var chooseTargetVM: ChooseTargetViewModel
+
+    private val nodeService: NodeService by inject()
+    private val pickFolderVM: PickFolderViewModel by viewModel()
+    private val chooseTargetVM: ChooseTargetViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,23 +50,24 @@ class PickFolderFragment : Fragment() {
             StateID.fromId(args.state)
         }
 
-        val viewModelFactory = PickFolderViewModel.PickFolderViewModelFactory(
-            stateID,
-            CellsApp.instance.accountService,
-            CellsApp.instance.nodeService,
-            requireActivity().application,
-        )
-        val tmpVM: PickFolderViewModel by viewModels { viewModelFactory }
-        pickFolderVM = tmpVM
+//        val viewModelFactory = PickFolderViewModel.PickFolderViewModelFactory(
+//            stateID,
+//            CellsApp.instance.accountService,
+//            CellsApp.instance.nodeService,
+//            requireActivity().application,
+//        )
+//        val tmpVM: PickFolderViewModel by viewModels { viewModelFactory }
+//
+        pickFolderVM.afterCreate(stateID)
 
-        val chooseTargetFactory = ChooseTargetViewModel.ChooseTargetViewModelFactory(
-            CellsApp.instance.transferService,
-            requireActivity().application,
-        )
-        val tmpAVM: ChooseTargetViewModel by activityViewModels { chooseTargetFactory }
-        chooseTargetVM = tmpAVM
+//        val chooseTargetFactory = ChooseTargetViewModel.ChooseTargetViewModelFactory(
+//            CellsApp.instance.transferService,
+//            requireActivity().application,
+//        )
+//        val tmpAVM: ChooseTargetViewModel by activityViewModels { chooseTargetFactory }
+//        chooseTargetVM = tmpAVM
 
-        val adapter = FolderListAdapter(stateID, tmpAVM.actionContext) { state, action ->
+        val adapter = FolderListAdapter(stateID, chooseTargetVM.actionContext) { state, action ->
             onClicked(state, action)
         }
 
@@ -80,15 +83,15 @@ class PickFolderFragment : Fragment() {
             if (Str.empty(stateID.workspace)) { // Does nothing for the time being
                 binding.pickFolderForceRefresh.isRefreshing = false
             } else {
-                tmpVM.forceRefresh()
+                pickFolderVM.forceRefresh()
             }
         }
 
-        tmpVM.isLoading.observe(viewLifecycleOwner) {
+        pickFolderVM.isLoading.observe(viewLifecycleOwner) {
             binding.pickFolderForceRefresh.isRefreshing = it
         }
 
-        tmpVM.errorMessage.observe(viewLifecycleOwner) { msg ->
+        pickFolderVM.errorMessage.observe(viewLifecycleOwner) { msg ->
             msg?.let { showLongMessage(requireContext(), msg) }
         }
 
@@ -113,7 +116,7 @@ class PickFolderFragment : Fragment() {
     }
 
     private fun onFabClicked() {
-        createFolder(requireContext(), pickFolderVM.stateID)
+        createFolder(requireContext(), pickFolderVM.stateID, nodeService)
     }
 
     override fun onResume() {

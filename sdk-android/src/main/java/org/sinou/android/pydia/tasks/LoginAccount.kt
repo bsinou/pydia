@@ -12,11 +12,12 @@ import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.accounts.RLiveSession
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.AuthService
+import org.sinou.android.pydia.services.SessionFactory
 
 fun loginAccount(
     context: Context,
     authService: AuthService,
-    accountService: AccountService,
+    sessionFactory: SessionFactory,
     session: RLiveSession,
     next: String,
 ): Boolean {
@@ -35,7 +36,7 @@ fun loginAccount(
 
         } else {
             authService.createOAuthIntent(
-                accountService, serverURL, next
+                sessionFactory, serverURL, next
             )?.let {
                 startActivity(context, it, null)
             } ?: run {

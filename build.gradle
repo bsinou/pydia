@@ -80,6 +80,8 @@ buildscript {
                 // No more koin-android-viewmodel, koin-android-scope, koin-android-fragment
                 // Java Compatibility
                 "io.insert-koin:koin-android-compat:$koin_version",
+                // Architecture components
+                // "io.insert-koin:koin-android-architecture:$koin_version",
                 // Jetpack WorkManager
                 "io.insert-koin:koin-androidx-workmanager:$koin_version",
                 // Navigation Graph

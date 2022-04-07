@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -20,12 +19,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBookmarkListBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 import org.sinou.android.pydia.utils.BackStackAdapter
@@ -36,10 +38,12 @@ class BookmarksFragment : Fragment() {
 
     private val fTag = BookmarksFragment::class.java.simpleName
 
+    private val nodeService: NodeService by inject()
+
     private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
+    private val bookmarksVM: BookmarksViewModel by viewModel()
 
     private lateinit var binding: FragmentBookmarkListBinding
-    private var bookmarksVM: BookmarksViewModel? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,16 +86,18 @@ class BookmarksFragment : Fragment() {
         activeSession?.let { session ->
             val accountID = StateID.fromId(session.accountID)
 
-            val viewModelFactory = BookmarksViewModel.BookmarksViewModelFactory(
-                CellsApp.instance.nodeService,
-                accountID,
-                requireActivity().application,
-            )
-            val tmp: BookmarksViewModel by viewModels { viewModelFactory }
-            bookmarksVM = tmp
-            configureRecyclerAdapter(tmp)
+//            val viewModelFactory = BookmarksViewModel.BookmarksViewModelFactory(
+//                CellsApp.instance.nodeService,
+//                accountID,
+//                requireActivity().application,
+//            )
+//            val tmp: BookmarksViewModel by viewModels { viewModelFactory }
+//            bookmarksVM = tmp
 
-            tmp.triggerRefresh()
+            bookmarksVM.afterCreate(accountID)
+            configureRecyclerAdapter(bookmarksVM)
+
+            bookmarksVM.triggerRefresh()
 
             val currentState = accountID.withPath(AppNames.CUSTOM_PATH_BOOKMARKS)
             CellsApp.instance.setCurrentState(currentState)
@@ -129,10 +135,10 @@ class BookmarksFragment : Fragment() {
     }
 
     override fun onDetach() {
-        bookmarksVM?.let {
+        bookmarksVM.stateID?.let {
             resetToHomeStateIfNecessary(
                 parentFragmentManager,
-                it.stateID.withPath("/${AppNames.CUSTOM_PATH_BOOKMARKS}")
+                it.withPath("/${AppNames.CUSTOM_PATH_BOOKMARKS}")
             )
         }
         super.onDetach()
@@ -144,7 +150,7 @@ class BookmarksFragment : Fragment() {
                 val action = MainNavDirections.openFolder(node.encodedState)
                 findNavController().navigate(action)
             } else {
-                val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
+                val file = nodeService.getOrDownloadFileToCache(node)
                 file?.let {
                     val intent = externallyView(requireContext(), file, node)
                     try {

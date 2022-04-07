@@ -8,10 +8,12 @@ import com.pydio.cells.api.ui.WorkspaceNode
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.db.accounts.RWorkspace
+import org.sinou.android.pydia.db.accounts.WorkspaceDao
 import org.sinou.android.pydia.db.nodes.RTreeNode
-import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.areWsNodeContentEquals
@@ -20,10 +22,10 @@ import java.io.File
 class WorkspaceDiff(
     private val accountId: StateID,
     private val client: Client,
-    private val accountService: AccountService,
-    nodeService: NodeService,
-    private val fileService: FileService,
-) {
+//    private val accountService: AccountService,
+//    nodeService: NodeService,
+//    private val fileService: FileService,
+) : KoinComponent {
 
     private val logTag = WorkspaceDiff::class.simpleName
 
@@ -32,15 +34,19 @@ class WorkspaceDiff(
 
     private var changeNumber = 0
 
+    // private val accountService: AccountService by inject()
+    private val nodeService: NodeService by inject()
+    private val fileService: FileService by inject()
+    private val wsDao: WorkspaceDao by inject()
+
     private val nodeDB = nodeService.nodeDB(accountId)
-    private val wsDao = accountService.accountDB.workspaceDao()
 
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
         val remotes = RemoteWsIterator()
         remotes.listRemoteWorkspaces()
         val locals = LocalWsIterator(wsDao.getWsForDiff(accountId.id).iterator())
         processChanges(remotes, locals)
-        if (changeNumber > 0){
+        if (changeNumber > 0) {
             Log.d(logTag, "Synced workspace list with $changeNumber changes")
         }
     }
@@ -91,7 +97,7 @@ class WorkspaceDiff(
         changeNumber++
         // We add this both on the ws and on the node table
         val rNode = RWorkspace.createChild(accountId, remote)
-        accountService.accountDB.workspaceDao().insert(rNode)
+        wsDao.insert(rNode)
         nodeDB.treeNodeDao()
             .insert(RTreeNode.fromWorkspaceNode(StateID.fromId(rNode.encodedState), remote))
     }
@@ -141,7 +147,7 @@ class WorkspaceDiff(
         nodeDB.treeNodeDao().deleteUnder(local.encodedState)
 
         // delete main workspace in account DB
-        accountService.accountDB.workspaceDao().forgetWorkspace(local.encodedState)
+        wsDao.forgetWorkspace(local.encodedState)
 
         // TODO handle offline when implemented
     }

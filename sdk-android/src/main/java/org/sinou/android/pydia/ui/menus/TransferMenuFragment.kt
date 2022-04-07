@@ -6,13 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
@@ -27,22 +28,13 @@ import org.sinou.android.pydia.db.runtime.RTransfer
 class TransferMenuFragment : BottomSheetDialogFragment() {
 
     private val fTag = TransferMenuFragment::class.java.simpleName
-    private lateinit var transferMenuVM: TransferMenuViewModel
+    private val args: TransferMenuFragmentArgs by navArgs()
+    private val transferMenuVM: TransferMenuViewModel by viewModel { parametersOf(args.transferUid) }
     private lateinit var binding: MoreMenuTransferBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val args: TransferMenuFragmentArgs by navArgs()
-        val factory = TransferMenuViewModel.TransferMenuViewModelFactory(
-            args.transferUid,
-            CellsApp.instance.transferService,
-            requireActivity().application,
-        )
-        val tmpVM: TransferMenuViewModel by viewModels { factory }
-        transferMenuVM = tmpVM
-
-    }
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

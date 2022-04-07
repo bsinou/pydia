@@ -79,23 +79,26 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
         return
     }
 
-    val lf = CellsApp.instance.fileService.getThumbPath(item)
-    if (Str.notEmpty(lf) && File(lf!!).exists()) {
-        Glide.with(context)
-            .load(File(lf))
-            .transform(
-                MultiTransformation(
-                    CenterCrop(),
-                    // TODO Directly getting  the radius with R fails => image is a circle
-                    // RoundedCorners(R.dimen.glide_thumb_radius)
-                    RoundedCorners(16)
-                )
-            )
-            .into(this)
-    } else {
-        // Log.w("SetNodeThumb", "no thumb found for ${item.name}")
-        setImageResource(getDrawableFromMime(item.mime, item.sortName))
-    }
+    setImageResource(getDrawableFromMime(item.mime, item.sortName))
+
+    // FIXME
+//    val lf = CellsApp.instance.fileService.getThumbPath(item)
+//    if (Str.notEmpty(lf) && File(lf!!).exists()) {
+//        Glide.with(context)
+//            .load(File(lf))
+//            .transform(
+//                MultiTransformation(
+//                    CenterCrop(),
+//                    // TODO Directly getting  the radius with R fails => image is a circle
+//                    // RoundedCorners(R.dimen.glide_thumb_radius)
+//                    RoundedCorners(16)
+//                )
+//            )
+//            .into(this)
+//    } else {
+//        // Log.w("SetNodeThumb", "no thumb found for ${item.name}")
+//        setImageResource(getDrawableFromMime(item.mime, item.sortName))
+//    }
 }
 
 @BindingAdapter("cardThumb")
@@ -110,16 +113,20 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
         return
     }
 
-    val lf = CellsApp.instance.fileService.getThumbPath(item)
-    if (Str.notEmpty(lf) && File(lf!!).exists()) {
-        Glide.with(context)
-            .load(File(lf))
-            .transform(CenterCrop())
-            .into(this)
-    } else {
-        Log.w("SetCardThumb", "no thumb found for ${item.name}")
-        setImageResource(getGridDrawableFromMime(item.mime, item.sortName))
-    }
+    // FIXME
+    Log.w("SetCardThumb", "no thumb found for ${item.name}")
+    setImageResource(getGridDrawableFromMime(item.mime, item.sortName))
+
+//    val lf = CellsApp.instance.fileService.getThumbPath(item)
+//    if (Str.notEmpty(lf) && File(lf!!).exists()) {
+//        Glide.with(context)
+//            .load(File(lf))
+//            .transform(CenterCrop())
+//            .into(this)
+//    } else {
+//        Log.w("SetCardThumb", "no thumb found for ${item.name}")
+//        setImageResource(getGridDrawableFromMime(item.mime, item.sortName))
+//    }
 }
 
 @BindingAdapter("multiSelectTitle")

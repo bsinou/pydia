@@ -5,14 +5,18 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.transport.ServerURLImpl
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.AuthService
+import org.sinou.android.pydia.services.SessionFactory
 import java.io.IOException
 import java.net.MalformedURLException
 import javax.net.ssl.SSLException
@@ -23,7 +27,10 @@ import javax.net.ssl.SSLException
  * - validating TLS status
  * - retrieving server type (Cells or P8)
  */
-class ServerUrlViewModel(private val accountService: AccountService) : ViewModel() {
+class ServerUrlViewModel(
+    private val authService: AuthService,
+    private val sessionFactory: SessionFactory
+) : ViewModel() {
 
     private val tag = "ServerUrlViewModel"
 
@@ -137,7 +144,7 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
         Log.i(tag, "About to register the server ${su.id}")
         var newServer: Server? = null
         try {
-            newServer = accountService.sessionFactory.registerServer(su)
+            newServer = sessionFactory.registerServer(su)
         } catch (e: SDKException) {
             updateErrorMsg(
                 e.message
@@ -149,8 +156,8 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
 
     fun launchOAuthProcess(serverURL: ServerURL) {
         vmScope.launch {
-            _nextIntent.value = accountService.authService.createOAuthIntent(
-                accountService,
+            _nextIntent.value = authService.createOAuthIntent(
+                sessionFactory,
                 serverURL,
                 AuthService.NEXT_ACTION_BROWSE
             )
@@ -178,15 +185,15 @@ class ServerUrlViewModel(private val accountService: AccountService) : ViewModel
         Log.i(tag, "Created")
     }
 
-    class ServerUrlViewModelFactory(
-        private val accountService: AccountService
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ServerUrlViewModel::class.java)) {
-                return ServerUrlViewModel(accountService) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
+//    class ServerUrlViewModelFactory(
+//        private val accountService: AccountService
+//    ) : ViewModelProvider.Factory {
+//        @Suppress("unchecked_cast")
+//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//            if (modelClass.isAssignableFrom(ServerUrlViewModel::class.java)) {
+//                return ServerUrlViewModel(accountService) as T
+//            }
+//            throw IllegalArgumentException("Unknown ViewModel class")
+//        }
+//    }
 }

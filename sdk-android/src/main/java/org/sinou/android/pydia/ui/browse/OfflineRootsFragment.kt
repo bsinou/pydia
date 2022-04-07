@@ -17,12 +17,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentOffineRootListBinding
 import org.sinou.android.pydia.db.nodes.RLiveOfflineRoot
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 
@@ -30,8 +33,10 @@ class OfflineRootsFragment : Fragment() {
 
     private val fTag = OfflineRootsFragment::class.java.simpleName
 
+    private val nodeService: NodeService by inject()
+
     private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
-    private lateinit var offlineVM: OfflineRootsViewModel
+    private val offlineVM: OfflineRootsViewModel by viewModel()
     private lateinit var binding: FragmentOffineRootListBinding
 
     override fun onCreateView(
@@ -67,18 +72,18 @@ class OfflineRootsFragment : Fragment() {
         activeSession?.let { session ->
             val accountID = StateID.fromId(session.accountID)
 
-            val viewModelFactory = OfflineRootsViewModel.OfflineRootsViewModelFactory(
-                CellsApp.instance.nodeService,
-                accountID,
-                requireActivity().application,
-            )
-            val tmpVM: OfflineRootsViewModel by viewModels { viewModelFactory }
-            offlineVM = tmpVM
+//            val viewModelFactory = OfflineRootsViewModel.OfflineRootsViewModelFactory(
+//                CellsApp.instance.nodeService,
+//                accountID,
+//                requireActivity().application,
+//            )
+//            val tmpVM: OfflineRootsViewModel by viewModels { viewModelFactory }
+            offlineVM.afterCreate(accountID)
 
             configureRecyclerAdapter()
 
-            binding.forceRefresh.setOnRefreshListener { tmpVM.forceRefresh() }
-            tmpVM.isLoading.observe(viewLifecycleOwner) {
+            binding.forceRefresh.setOnRefreshListener { offlineVM.forceRefresh() }
+            offlineVM.isLoading.observe(viewLifecycleOwner) {
                 binding.forceRefresh.isRefreshing = it
             }
         }

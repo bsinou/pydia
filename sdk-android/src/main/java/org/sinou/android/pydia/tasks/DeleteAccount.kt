@@ -8,27 +8,29 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
+import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.utils.showMessage
 
 fun deleteAccount(
     context: Context,
-    accountId: String
+    accountId: String,
+    accountService: AccountService,
 ): Boolean {
     val account = StateID.fromId(accountId)
     MaterialAlertDialogBuilder(context)
         .setTitle(context.resources.getString(R.string.confirm_account_deletion_title, account))
         .setMessage(R.string.confirm_account_deletion_desc)
         .setPositiveButton(R.string.button_ok) { _, _ ->
-            doDelete(context, accountId)
+            doDelete(context, accountId, accountService)
         }
         .setNegativeButton(R.string.button_cancel, null)
         .show()
     return true
 }
 
-private fun doDelete(context: Context, accountId: String) {
+private fun doDelete(context: Context, accountId: String, accountService: AccountService) {
     CellsApp.instance.appScope.launch {
-        CellsApp.instance.accountService.forgetAccount(accountId)
+        accountService.forgetAccount(accountId)
             ?.let {
                 withContext(Dispatchers.Main) {
                     showMessage(context, it)

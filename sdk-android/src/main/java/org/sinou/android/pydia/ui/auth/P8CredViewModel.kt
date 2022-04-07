@@ -4,11 +4,14 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.ServerURL
 import com.pydio.cells.legacy.P8Credentials
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.services.AccountService
 
 /**
@@ -16,13 +19,14 @@ import org.sinou.android.pydia.services.AccountService
  */
 class P8CredViewModel(
     private val accountService: AccountService,
-    private val serverURL: ServerURL
 ) : ViewModel() {
 
     private val logTag = P8CredViewModel::class.simpleName
 
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+
+    private var serverURL: ServerURL? = null
 
     // Set upon successful authentication against the remote server
     private val _accountID = MutableLiveData<String?>()
@@ -51,6 +55,10 @@ class P8CredViewModel(
 //        _launchCredValidation.value = false
 //    }
 
+    fun setUrl(serverUrl: ServerURL) {
+        this.serverURL = serverUrl
+    }
+
     fun logToP8(login: String, password: String, captcha: String?) {
         // TODO validate passed parameters
         switchLoading(true)
@@ -74,17 +82,19 @@ class P8CredViewModel(
 
     private suspend fun doP8Auth(login: String, password: String, captcha: String?): String? {
 
+        val currURL = serverURL ?: return "No server URL defined, cannot start P8 auth process"
+
         val credentials = P8Credentials(login, password, captcha)
         var errorMsg: String? = null
 
         val accountIDStr = withContext(Dispatchers.IO) {
             Log.i(
                 logTag,
-                "Launching P8 authentication process for ${credentials.username}@${serverURL.url}"
+                "Launching P8 authentication process for ${credentials.username}@${currURL.url}"
             )
             var id: String? = null
             try {
-                id = accountService.registerAccount(serverURL, credentials)
+                id = accountService.registerAccount(currURL, credentials)
                 accountService.refreshWorkspaceList(id)
             } catch (e: SDKException) {
                 // TODO handle captcha here
@@ -109,16 +119,16 @@ class P8CredViewModel(
         Log.d(logTag, "created")
     }
 
-    class P8CredViewModelFactory(
-        private val accountService: AccountService,
-        private val serverURL: ServerURL,
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(P8CredViewModel::class.java)) {
-                return P8CredViewModel(accountService, serverURL) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
+//    class P8CredViewModelFactory(
+//        private val accountService: AccountService,
+//        private val serverURL: ServerURL,
+//    ) : ViewModelProvider.Factory {
+//        @Suppress("unchecked_cast")
+//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//            if (modelClass.isAssignableFrom(P8CredViewModel::class.java)) {
+//                return P8CredViewModel(accountService, serverURL) as T
+//            }
+//            throw IllegalArgumentException("Unknown ViewModel class")
+//        }
+//    }
 }

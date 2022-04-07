@@ -4,14 +4,19 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.ActionMode
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.annotation.MenuRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -25,12 +30,24 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.*
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CarouselActivity
+import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainNavDirections
+import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.services.AccountService
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
-import org.sinou.android.pydia.utils.*
+import org.sinou.android.pydia.utils.BackStackAdapter
+import org.sinou.android.pydia.utils.dumpBackStack
+import org.sinou.android.pydia.utils.externallyView
+import org.sinou.android.pydia.utils.resetToHomeStateIfNecessary
+import org.sinou.android.pydia.utils.showLongMessage
 
 /**
  * Main fragment when browsing a given account. It displays all content of a workspaces or
@@ -43,9 +60,14 @@ import org.sinou.android.pydia.utils.*
 class BrowseFolderFragment : Fragment() {
 
     private val fTag = BrowseFolderFragment::class.java.simpleName
+
+    private val nodeService: NodeService by inject()
+    private val accountService: AccountService by inject()
+
     private val args: BrowseFolderFragmentArgs by navArgs()
+    private val browseFolderVM: BrowseFolderViewModel by viewModel()
+
     private lateinit var binding: FragmentBrowseFolderBinding
-    private lateinit var browseFolderVM: BrowseFolderViewModel
 
     // Temp solution to provide a scrim during long running operations
     private var loadingDialog: LoadingDialogFragment? = null
@@ -67,14 +89,15 @@ class BrowseFolderFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_browse_folder, container, false
         )
-        val viewModelFactory = BrowseFolderViewModel.BrowseFolderViewModelFactory(
-            CellsApp.instance.accountService,
-            CellsApp.instance.nodeService,
-            StateID.fromId(args.state),
-            requireActivity().application,
-        )
-        val tmpVM: BrowseFolderViewModel by viewModels { viewModelFactory }
-        browseFolderVM = tmpVM
+//        val viewModelFactory = BrowseFolderViewModel.BrowseFolderViewModelFactory(
+//            CellsApp.instance.accountService,
+//            CellsApp.instance.nodeService,
+//            ,
+//            requireActivity().application,
+//        )
+//        val tmpVM: BrowseFolderViewModel by viewModels { viewModelFactory }
+
+        browseFolderVM.afterCreate(StateID.fromId(args.state))
 
         configureRecyclerAdapter()
 
@@ -90,7 +113,7 @@ class BrowseFolderFragment : Fragment() {
 
         setHasOptionsMenu(true)
 
-        tmpVM.currentFolder.observe(viewLifecycleOwner) {
+        browseFolderVM.currentFolder.observe(viewLifecycleOwner) {
             it?.let {
                 if (it.isRecycle() || it.isInRecycle()) {
                     binding.addNodeFab.visibility = View.GONE
@@ -101,18 +124,18 @@ class BrowseFolderFragment : Fragment() {
             }
         }
         // TODO workspace root is not a RTreeNode => we must handle it explicitly.
-        if (tmpVM.stateId.isWorkspaceRoot) {
+        if (browseFolderVM.stateId.isWorkspaceRoot) {
             binding.addNodeFab.visibility = View.VISIBLE
         }
         // Put this also in observer when the above has been fixed
         binding.addNodeFab.setOnClickListener { onFabClicked() }
 
-        binding.nodesForceRefresh.setOnRefreshListener { tmpVM.forceRefresh() }
+        binding.nodesForceRefresh.setOnRefreshListener { browseFolderVM.forceRefresh() }
 
-        tmpVM.isLoading.observe(viewLifecycleOwner) {
+        browseFolderVM.isLoading.observe(viewLifecycleOwner) {
             binding.nodesForceRefresh.isRefreshing = it
         }
-        tmpVM.errorMessage.observe(viewLifecycleOwner) { msg ->
+        browseFolderVM.errorMessage.observe(viewLifecycleOwner) { msg ->
             msg?.let { showLongMessage(requireContext(), msg) }
         }
 
@@ -232,7 +255,7 @@ class BrowseFolderFragment : Fragment() {
         // We must insure the Observed LiveData has been correctly updated
         // Otherwise we won't see sort order changes directly0
         browseFolderVM.resume()
-        observer.let{
+        observer.let {
             browseFolderVM.children.removeObserver(it)
         }
         browseFolderVM.children.observe(viewLifecycleOwner, observer)
@@ -334,7 +357,7 @@ class BrowseFolderFragment : Fragment() {
         browseFolderVM.setLoading(true)
         showProgressDialog()
 
-        val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
+        val file = nodeService.getOrDownloadFileToCache(node)
 
         browseFolderVM.setLoading(false)
         requireActivity().window.setFlags(

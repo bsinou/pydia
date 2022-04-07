@@ -9,11 +9,13 @@ import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.showLongMessage
 
 fun moveToRecycle(
     context: Context,
-    node: RTreeNode
+    node: RTreeNode,
+    nodeService: NodeService,
 ): Boolean {
 
     MaterialAlertDialogBuilder(context)
@@ -21,7 +23,7 @@ fun moveToRecycle(
         .setIcon(R.drawable.ic_baseline_delete_24)
         .setMessage(context.resources.getString(R.string.confirm_move_to_recycle_desc, node.name))
         .setPositiveButton(R.string.button_confirm) { _, _ ->
-            doMoveToRecycle(context, node.encodedState)
+            doMoveToRecycle(context, node.encodedState, nodeService)
         }
         .setNegativeButton(R.string.button_cancel, null)
         .show()
@@ -30,7 +32,8 @@ fun moveToRecycle(
 
 fun moveNodesToRecycle(
     context: Context,
-    states: List<StateID>
+    states: List<StateID>,
+    nodeService: NodeService,
 ): Boolean {
 
     val msg = if (states.size == 1) {
@@ -51,7 +54,7 @@ fun moveNodesToRecycle(
         .setPositiveButton(R.string.button_confirm) { _, _ ->
 
             for (stateId in states) {
-                doMoveToRecycle(context, stateId.id)
+                doMoveToRecycle(context, stateId.id, nodeService)
             }
 
         }
@@ -60,9 +63,9 @@ fun moveNodesToRecycle(
     return true
 }
 
-private fun doMoveToRecycle(context: Context, encodedState: String) {
+private fun doMoveToRecycle(context: Context, encodedState: String, nodeService: NodeService) {
     CellsApp.instance.appScope.launch {
-        CellsApp.instance.nodeService.delete(StateID.fromId(encodedState))
+        nodeService.delete(StateID.fromId(encodedState))
             ?.let {
                 withContext(Dispatchers.Main) {
                     showLongMessage(context, it)

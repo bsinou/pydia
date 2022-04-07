@@ -14,6 +14,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.services.TransferService
@@ -24,16 +26,17 @@ import java.io.IOException
 
 class FileImporter(
     private val registry: ActivityResultRegistry,
-    private val fileService: FileService,
-    private val transferService: TransferService,
     private val nodeMenuVM: TreeNodeMenuViewModel,
     private val caller: String,
     private val callingFragment: BottomSheetDialogFragment,
-) : DefaultLifecycleObserver {
+) : DefaultLifecycleObserver, KoinComponent {
 
     private val logTag = FileImporter::class.simpleName
     private val getContentKey = AppNames.KEY_PREFIX_ + "select.files"
     private val takePictureKey = AppNames.KEY_PREFIX_ + "take.picture"
+
+    private val fileService: FileService by inject()
+    private val transferService: TransferService by inject()
 
     private lateinit var getMultipleContents: ActivityResultLauncher<String>
     private lateinit var takePicture: ActivityResultLauncher<Uri>

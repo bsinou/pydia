@@ -9,28 +9,35 @@ import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.showLongMessage
 
 fun deleteFromRecycle(
     context: Context,
-    node: RTreeNode
+    node: RTreeNode,
+    nodeService: NodeService,
 ): Boolean {
 
     MaterialAlertDialogBuilder(context)
         .setTitle(R.string.confirm_permanent_deletion_title)
         .setIcon(R.drawable.ic_baseline_delete_24)
-        .setMessage(context.resources.getString(R.string.confirm_permanent_deletion_desc, node.name))
+        .setMessage(
+            context.resources.getString(
+                R.string.confirm_permanent_deletion_desc,
+                node.name
+            )
+        )
         .setPositiveButton(R.string.button_confirm) { _, _ ->
-            doDeleteFromRecycle(context, node)
+            doDeleteFromRecycle(context, node, nodeService)
         }
         .setNegativeButton(R.string.button_cancel, null)
         .show()
     return true
 }
 
-private fun doDeleteFromRecycle(context: Context, node: RTreeNode) {
+private fun doDeleteFromRecycle(context: Context, node: RTreeNode, nodeService: NodeService) {
     CellsApp.instance.appScope.launch {
-        CellsApp.instance.nodeService.delete(StateID.fromId(node.encodedState))
+        nodeService.delete(StateID.fromId(node.encodedState))
             ?.let {
                 withContext(Dispatchers.Main) {
                     showLongMessage(context, it)

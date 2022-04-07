@@ -29,8 +29,10 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:offlineRootThumb="@{offlineRoot}"
             tools:srcCompat="@drawable/ic_baseline_folder_24" />
+
+        <!-- FIXME rather use a view that also shows the corresponding node app:offlineRootThumb="@{offlineRoot}" -->
+
 
         <TextView
             android:id="@+id/node_label"

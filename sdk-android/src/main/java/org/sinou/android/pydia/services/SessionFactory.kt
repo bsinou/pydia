@@ -27,7 +27,7 @@ import org.sinou.android.pydia.utils.hasUnMeteredNetwork
 class SessionFactory(
     credentialService: CredentialService,
     serverStore: Store<Server>,
-    transportStore: Store<Transport>,
+    val transportStore: Store<Transport>,
     private val liveSessionDao: LiveSessionDao,
 ) : ClientFactory(credentialService, serverStore, transportStore) {
 
@@ -35,40 +35,40 @@ class SessionFactory(
     private var sessionFactoryJob = Job()
     private val sessionFactoryScope = CoroutineScope(Dispatchers.IO + sessionFactoryJob)
 
-    companion object {
-
-        @Volatile
-        private var INSTANCE: SessionFactory? = null
-
-        @Volatile
-        private lateinit var servers: Store<Server>
-
-        @Volatile
-        private lateinit var transports: Store<Transport>
-
-        fun getSessionFactory(
-            credentialService: CredentialService,
-            liveSessionDao: LiveSessionDao,
-        ): SessionFactory {
-            val tempInstance = INSTANCE
-            if (tempInstance != null) {
-                return tempInstance
-            }
-
-            synchronized(this) {
-                servers = MemoryStore()
-                transports = MemoryStore()
-                val instance = SessionFactory(
-                    credentialService,
-                    servers,
-                    transports,
-                    liveSessionDao
-                )
-                INSTANCE = instance
-            }
-            return INSTANCE!!
-        }
-    }
+//    companion object {
+//
+//        @Volatile
+//        private var INSTANCE: SessionFactory? = null
+//
+//        @Volatile
+//        private lateinit var servers: Store<Server>
+//
+//        @Volatile
+//        private lateinit var transports: Store<Transport>
+//
+//        fun getSessionFactory(
+//            credentialService: CredentialService,
+//            liveSessionDao: LiveSessionDao,
+//        ): SessionFactory {
+//            val tempInstance = INSTANCE
+//            if (tempInstance != null) {
+//                return tempInstance
+//            }
+//
+//            synchronized(this) {
+//                servers = MemoryStore()
+//                transports = MemoryStore()
+//                val instance = SessionFactory(
+//                    credentialService,
+//                    servers,
+//                    transports,
+//                    liveSessionDao
+//                )
+//                INSTANCE = instance
+//            }
+//            return INSTANCE!!
+//        }
+//    }
 
     private var ready = false
     fun isReady(): Boolean = ready
@@ -129,7 +129,7 @@ class SessionFactory(
             }
 
         if (session.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-            var currTransport = transports.get(accountID)
+            var currTransport = transportStore.get(accountID)
             if (currTransport == null) {
                 currTransport = prepareTransport(session)
             }

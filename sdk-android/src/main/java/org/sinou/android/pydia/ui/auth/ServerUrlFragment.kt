@@ -12,7 +12,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import org.sinou.android.pydia.CellsApp
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentServerUrlBinding
 import org.sinou.android.pydia.services.AuthService
@@ -27,12 +27,10 @@ import org.sinou.android.pydia.utils.showLongMessage
  */
 class ServerUrlFragment : Fragment() {
 
-    private val fTag = "ServerUrlFragment"
+    private val fTag = ServerUrlFragment::class.simpleName
 
     private lateinit var binding: FragmentServerUrlBinding
-    private val viewModelFactory =
-        ServerUrlViewModel.ServerUrlViewModelFactory(CellsApp.instance.accountService)
-    private val viewModel: ServerUrlViewModel by activityViewModels { viewModelFactory }
+    private val serverUrlVM: ServerUrlViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +43,7 @@ class ServerUrlFragment : Fragment() {
 
         binding.actionButton.setOnClickListener { goForPing() }
 
-        viewModel.server.observe(viewLifecycleOwner) { server ->
+        serverUrlVM.server.observe(viewLifecycleOwner) { server ->
             Log.i(fTag, "... LaunchingAuth")
             server?.let {
                 val urlStr = server.serverURL.toJson()
@@ -55,31 +53,31 @@ class ServerUrlFragment : Fragment() {
                         AuthService.NEXT_ACTION_BROWSE
                     )
                     findNavController().navigate(action)
-                    viewModel.authLaunched()
+                    serverUrlVM.authLaunched()
                 } else { // Launch OAuth Process
-                    viewModel.launchOAuthProcess(it.serverURL)
+                    serverUrlVM.launchOAuthProcess(it.serverURL)
                 }
             }
         }
 
-        viewModel.unvalidTLS.observe(viewLifecycleOwner) { invalidTLS ->
+        serverUrlVM.unvalidTLS.observe(viewLifecycleOwner) { invalidTLS ->
             if (invalidTLS) {
                 findNavController().navigate(ServerUrlFragmentDirections.actionConfirmSkipVerify())
             }
         }
 
-        viewModel.nextIntent.observe(viewLifecycleOwner) { intent ->
+        serverUrlVM.nextIntent.observe(viewLifecycleOwner) { intent ->
             intent?.let {
                 startActivity(intent)
-                viewModel.intentStarted()
+                serverUrlVM.intentStarted()
             }
         }
 
-        viewModel.isLoading.observe(viewLifecycleOwner) {
+        serverUrlVM.isLoading.observe(viewLifecycleOwner) {
             binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
         }
 
-        viewModel.errorMessage.observe(viewLifecycleOwner) { msg ->
+        serverUrlVM.errorMessage.observe(viewLifecycleOwner) { msg ->
             msg?.let { showLongMessage(this@ServerUrlFragment.requireContext(), msg) }
         }
 
@@ -87,7 +85,7 @@ class ServerUrlFragment : Fragment() {
     }
 
     private fun goForPing() {
-        viewModel.pingAddress(binding.urlEditText.text.toString())
+        serverUrlVM.pingAddress(binding.urlEditText.text.toString())
         binding.apply {
             // Update model?
             // Important: trigger re-paint Really ?

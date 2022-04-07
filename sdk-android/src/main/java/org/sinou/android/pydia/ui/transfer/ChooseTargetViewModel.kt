@@ -15,10 +15,7 @@ import org.sinou.android.pydia.services.TransferService
 /**
  * Holds the current location while choosing a target for file uploads or moves.
  */
-class ChooseTargetViewModel(
-    private val transferService: TransferService,
-    currApp: Application,
-) : AndroidViewModel(currApp) {
+class ChooseTargetViewModel(private val transferService: TransferService) : ViewModel() {
 
     // Internal Helpers
     private val logTag = ChooseTargetViewModel::class.simpleName
@@ -99,7 +96,7 @@ class ChooseTargetViewModel(
         uris.addAll(targets)
     }
 
-    class ChooseTargetViewModelFactory(
+/*    class ChooseTargetViewModelFactory(
         private val transferService: TransferService,
         private val application: Application
     ) : ViewModelProvider.Factory {
@@ -110,5 +107,5 @@ class ChooseTargetViewModel(
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
-    }
+    }*/
 }

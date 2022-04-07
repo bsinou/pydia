@@ -9,20 +9,19 @@ import com.pydio.cells.api.ServerURL
 import com.pydio.cells.transport.CellsTransport
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
-import com.pydio.cells.transport.auth.CredentialService
 import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.transport.auth.credentials.JWTCredentials
 import com.pydio.cells.transport.auth.jwt.IdToken
 import com.pydio.cells.transport.auth.jwt.OAuthConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.sinou.android.pydia.db.accounts.AccountDB
+import org.sinou.android.pydia.db.accounts.OAuthStateDao
 import org.sinou.android.pydia.db.accounts.ROAuthState
 import org.sinou.android.pydia.utils.AndroidCustomEncoder
 import java.util.*
 
 class AuthService(
-    val credentialService: CredentialService
+    private val authStateDao: OAuthStateDao
 ) {
 
     private val tag = AuthService::class.java.simpleName
@@ -34,38 +33,38 @@ class AuthService(
         const val NEXT_ACTION_ACCOUNTS = "account_list"
         const val NEXT_ACTION_TERMINATE = "terminate"
 
-        @Volatile
-        private var INSTANCE: AuthService? = null
+        /* @Volatile
+         private var INSTANCE: AuthService? = null
 
-        fun getAuthService(accountDB: AccountDB): AuthService {
-            val tempInstance = INSTANCE
-            if (tempInstance != null) {
-                return tempInstance
-            }
+         fun getAuthService(accountDB: AccountDB): AuthService {
+             val tempInstance = INSTANCE
+             if (tempInstance != null) {
+                 return tempInstance
+             }
 
-            synchronized(this) {
-                val instance = AuthService(
-                    CredentialService(
-                        TokenStore(accountDB.tokenDao()),
-                        PasswordStore(accountDB.legacyCredentialsDao()),
-                    )
-                )
-                INSTANCE = instance
-            }
-            return INSTANCE!!
-        }
+             synchronized(this) {
+                 val instance = AuthService(
+                     CredentialService(
+                         TokenStore(accountDB.tokenDao()),
+                         PasswordStore(accountDB.legacyCredentialsDao()),
+                     )
+                 )
+                 INSTANCE = instance
+             }
+             return INSTANCE!!
+         }*/
     }
 
     /** Cells' Credentials flow management */
 
     suspend fun createOAuthIntent(
-        accountService: AccountService,
+        sessionFactory: SessionFactory,
         url: ServerURL,
         next: String
     ): Intent? =
         withContext(Dispatchers.IO) {
             val serverID = StateID(url.id).id
-            val server = accountService.sessionFactory.getServer(serverID)
+            val server = sessionFactory.getServer(serverID)
 
 // FIXME MAYBE TRY TO RE-REGISTER THE SERVER AT THIS POINT
 
@@ -82,31 +81,32 @@ class AuthService(
                 next = next,
                 startTimestamp = Calendar.getInstance().timeInMillis / 1000L
             )
-            accountService.accountDB.authStateDao().insert(rOAuthState)
+            authStateDao.insert(rOAuthState)
             intent
         }
 
     suspend fun handleOAuthResponse(
         accountService: AccountService,
+        sessionFactory: SessionFactory,
         oauthState: String,
         code: String
     ): Pair<String, String?>? =
         withContext(Dispatchers.IO) {
             var accountID: String? = null
 
-            val rState = accountService.accountDB.authStateDao().get(oauthState)
+            val rState = authStateDao.get(oauthState)
             if (rState == null) {
                 Log.i(tag, "Ignored callback with unknown state: ${oauthState}")
                 return@withContext null
             }
             try {
-                val transport = accountService.sessionFactory
+                val transport = sessionFactory
                     .getAnonymousTransport(rState.serverURL.id) as CellsTransport
                 val token = transport.getTokenFromCode(code, encoder)
                 accountID = manageRetrievedToken(accountService, transport, token)
 
                 // Leave OAuth state cacheDB clean
-                accountService.accountDB.authStateDao().delete(oauthState)
+                authStateDao.delete(oauthState)
 
                 // When creating a new account, we want to put its session on the foreground
                 if (rState.next == NEXT_ACTION_BROWSE) {
@@ -124,7 +124,7 @@ class AuthService(
         }
 
     @Throws(SDKException::class)
-    private fun manageRetrievedToken(
+    private suspend fun manageRetrievedToken(
         accountService: AccountService,
         transport: CellsTransport,
         token: Token

@@ -34,24 +34,24 @@ abstract class AccountDB : RoomDatabase() {
 
     abstract fun workspaceDao(): WorkspaceDao
 
-    companion object {
-        @Volatile
-        private var INSTANCE: AccountDB? = null
-
-        fun getDatabase(context: Context): AccountDB {
-            val tempInstance = INSTANCE
-            if (tempInstance != null) {
-                return tempInstance
-            }
-            synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AccountDB::class.java,
-                    "accountdb"
-                ).build()
-                INSTANCE = instance
-                return instance
-            }
-        }
-    }
+//    companion object {
+//        @Volatile
+//        private var INSTANCE: AccountDB? = null
+//
+//        fun getDatabase(context: Context): AccountDB {
+//            val tempInstance = INSTANCE
+//            if (tempInstance != null) {
+//                return tempInstance
+//            }
+//            synchronized(this) {
+//                val instance = Room.databaseBuilder(
+//                    context.applicationContext,
+//                    AccountDB::class.java,
+//                    "accountdb"
+//                ).build()
+//                INSTANCE = instance
+//                return instance
+//            }
+//        }
+//    }
 }

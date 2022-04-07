@@ -37,9 +37,11 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.RuntimeException
 import java.util.*
 
 class NodeService(
+    private val treeNodeRepository: TreeNodeRepository,
     private val accountService: AccountService,
     private val fileService: FileService,
 ) {
@@ -51,7 +53,7 @@ class NodeService(
 
     fun nodeDB(stateID: StateID): TreeNodeDB {
         // TODO cache this
-        val accId = accountService.sessions[stateID.accountId]
+        val accId = treeNodeRepository.sessions[stateID.accountId]
             ?: throw IllegalStateException("No dir name found for $stateID")
         return TreeNodeDB.getDatabase(
             CellsApp.instance.applicationContext,
@@ -61,8 +63,9 @@ class NodeService(
     }
 
     fun transferService(): TransferService {
+        throw RuntimeException("Implement me")
         // FIXME should be injected
-        return CellsApp.instance.transferService
+        // return CellsApp.instance.transferService
     }
 
     /* Expose DB content as LiveData for the ViewModels */
@@ -133,7 +136,7 @@ class NodeService(
     /** Single entry point to insert or update a node */
     suspend fun upsertNode(newNode: RTreeNode) = withContext(Dispatchers.IO) {
 
-        val currSession = accountService.sessions[newNode.getStateID().accountId]
+        val currSession = treeNodeRepository.sessions[newNode.getStateID().accountId]
             ?: throw java.lang.IllegalStateException("No session found in cache for ${newNode.getStateID().accountId}")
         val ndb = nodeDB(newNode.getStateID())
 
@@ -177,15 +180,15 @@ class NodeService(
         nodeDB(stateID).treeNodeDao().update(node)
     }
 
-    fun clearIndexFor(stateID: StateID) {
-        val accId = accountService.sessions[stateID.accountId]
-            ?: throw IllegalStateException("No dir name found for $stateID")
-        TreeNodeDB.closeDatabase(
-            CellsApp.instance.applicationContext,
-            stateID.accountId,
-            accId.dbName,
-        )
-    }
+//    fun clearIndexFor(stateID: StateID) {
+//        val accId = accountService.sessions[stateID.accountId]
+//            ?: throw IllegalStateException("No dir name found for $stateID")
+//        TreeNodeDB.closeDatabase(
+//            CellsApp.instance.applicationContext,
+//            stateID.accountId,
+//            accId.dbName,
+//        )
+//    }
 
     /* Calls to query both the cache and the remote server */
 
@@ -742,7 +745,7 @@ class NodeService(
 
     /* Constants and helpers */
     private fun getClient(stateId: StateID): Client {
-        return accountService.sessionFactory.getUnlockedClient(stateId.accountId)
+        return accountService.getClient(stateId)
     }
 
     private fun persistUpdated(rTreeNode: RTreeNode) {
@@ -767,15 +770,18 @@ class NodeService(
     companion object {
 
         fun getLocalFile(item: RTreeNode, type: String): File {
-            val fs = CellsApp.instance.fileService
-            // Trick so that we do not store offline files also in the cache... double check
-            if (type == AppNames.LOCAL_FILE_TYPE_OFFLINE ||
-                type == AppNames.LOCAL_FILE_TYPE_CACHE &&
-                item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
-            ) {
-                return File(fs.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE))
-            }
-            return File(fs.getLocalPath(item, type))
+
+            throw RuntimeException("Implement me")
+//
+//            val fs = CellsApp.instance.fileService
+//            // Trick so that we do not store offline files also in the cache... double check
+//            if (type == AppNames.LOCAL_FILE_TYPE_OFFLINE ||
+//                type == AppNames.LOCAL_FILE_TYPE_CACHE &&
+//                item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
+//            ) {
+//                return File(fs.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE))
+//            }
+//            return File(fs.getLocalPath(item, type))
         }
     }
 }

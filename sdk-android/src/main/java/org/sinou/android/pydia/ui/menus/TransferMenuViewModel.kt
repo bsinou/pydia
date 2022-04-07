@@ -18,9 +18,8 @@ import org.sinou.android.pydia.services.TransferService
  */
 class TransferMenuViewModel(
     transferUID: Long,
-    val transferService: TransferService,
-    application: Application
-) : AndroidViewModel(application) {
+    val transferService: TransferService
+) : ViewModel() {
 
 //    private val tag = TransferMenuViewModel::class.simpleName
 //    private var viewModelJob = Job()
@@ -28,17 +27,17 @@ class TransferMenuViewModel(
 
     val rTransfer = transferService.getLiveRecord(transferUID)
 
-    class TransferMenuViewModelFactory(
-        private val transferUID: Long,
-        private val transferService: TransferService,
-        private val application: Application
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(TransferMenuViewModel::class.java)) {
-                return TransferMenuViewModel(transferUID, transferService, application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
+//    class TransferMenuViewModelFactory(
+//        private val transferUID: Long,
+//        private val transferService: TransferService,
+//        private val application: Application
+//    ) : ViewModelProvider.Factory {
+//        @Suppress("unchecked_cast")
+//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//            if (modelClass.isAssignableFrom(TransferMenuViewModel::class.java)) {
+//                return TransferMenuViewModel(transferUID, transferService, application) as T
+//            }
+//            throw IllegalArgumentException("Unknown ViewModel class")
+//        }
+//    }
 }

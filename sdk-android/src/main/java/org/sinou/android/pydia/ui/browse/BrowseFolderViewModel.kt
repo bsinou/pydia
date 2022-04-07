@@ -13,17 +13,18 @@ import java.util.concurrent.TimeUnit
 
 /** Holds a folder and all its children */
 class BrowseFolderViewModel(
-    val stateId: StateID,
-    private val accountService: AccountService,
     private val nodeService: NodeService,
-    application: Application
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
-    private var _currentFolder = nodeService.getLiveNode(stateId)
+    private lateinit var _stateId: StateID
+    val stateId: StateID
+        get() = _stateId
+
+    private lateinit var _currentFolder: LiveData<RTreeNode>
     val currentFolder: LiveData<RTreeNode>
         get() = _currentFolder
 
-    private var _children = nodeService.ls(stateId)
+    private lateinit var _children: LiveData<List<RTreeNode>>
     val children: LiveData<List<RTreeNode>>
         get() = _children
 
@@ -48,6 +49,12 @@ class BrowseFolderViewModel(
 
     init {
         setLoading(true)
+    }
+
+    fun afterCreate(stateId: StateID){
+        _stateId = stateId
+        _currentFolder = nodeService.getLiveNode(stateId)
+        _children = nodeService.ls(stateId)
     }
 
     private fun watchFolder() = vmScope.launch {
@@ -137,18 +144,18 @@ class BrowseFolderViewModel(
 //        // blank observe here
 //    })
 
-    class BrowseFolderViewModelFactory(
-        private val accountService: AccountService,
-        private val nodeService: NodeService,
-        private val stateID: StateID,
-        private val application: Application
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(BrowseFolderViewModel::class.java)) {
-                return BrowseFolderViewModel(stateID, accountService, nodeService, application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
+//    class BrowseFolderViewModelFactory(
+//        private val accountService: AccountService,
+//        private val nodeService: NodeService,
+//        private val stateID: StateID,
+//        private val application: Application
+//    ) : ViewModelProvider.Factory {
+//        @Suppress("unchecked_cast")
+//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//            if (modelClass.isAssignableFrom(BrowseFolderViewModel::class.java)) {
+//                return BrowseFolderViewModel(stateID, accountService, nodeService, application) as T
+//            }
+//            throw IllegalArgumentException("Unknown ViewModel class")
+//        }
+//    }
 }

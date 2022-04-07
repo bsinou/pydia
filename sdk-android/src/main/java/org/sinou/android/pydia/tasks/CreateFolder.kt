@@ -10,11 +10,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.showMessage
 
 fun createFolder(
     context: Context,
     parentId: StateID,
+    nodeService: NodeService,
 ): Boolean {
 
     MaterialAlertDialogBuilder(context)
@@ -22,16 +24,21 @@ fun createFolder(
         .setView(R.layout.dialog_edit_text)
         .setPositiveButton(R.string.dialog_create_folder_positive_btn) { dialog, _ ->
             val input = (dialog as AlertDialog).findViewById<TextView>(android.R.id.text1)
-            doCreateFolder(context, parentId, input!!.text)
+            doCreateFolder(context, parentId, input!!.text, nodeService)
         }
         .setNegativeButton(R.string.button_cancel, null)
         .show()
     return true
 }
 
-private fun doCreateFolder(context: Context, parentId: StateID, name: CharSequence) {
+private fun doCreateFolder(
+    context: Context,
+    parentId: StateID,
+    name: CharSequence,
+    nodeService: NodeService,
+) {
     CellsApp.instance.appScope.launch {
-        CellsApp.instance.nodeService.createFolder(
+        nodeService.createFolder(
             parentId,
             name.toString()
         )

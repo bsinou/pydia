@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.showLongMessage
 
 // TODO extend to add more options
@@ -15,7 +16,8 @@ import org.sinou.android.pydia.utils.showLongMessage
 
 fun clearCache(
     context: Context,
-    encodedState: String
+    encodedState: String,
+    nodeService: NodeService,
 ): Boolean {
 
     MaterialAlertDialogBuilder(context)
@@ -23,17 +25,17 @@ fun clearCache(
         .setIcon(R.drawable.ic_baseline_delete_24)
         .setMessage(context.resources.getString(R.string.confirm_cache_deletion_message))
         .setPositiveButton(R.string.button_confirm) { _, _ ->
-            doClearCache(context, encodedState)
+            doClearCache(context, encodedState, nodeService)
         }
         .setNegativeButton(R.string.button_cancel, null)
         .show()
     return true
 }
 
-private fun doClearCache(context: Context, encodedState: String) {
+private fun doClearCache(context: Context, encodedState: String, nodeService: NodeService) {
     CellsApp.instance.appScope.launch {
         withContext(Dispatchers.IO) {
-            CellsApp.instance.nodeService.clearAccountCache(encodedState)
+            nodeService.clearAccountCache(encodedState)
                 ?.let {
                     withContext(Dispatchers.Main) {
                         showLongMessage(context, it)

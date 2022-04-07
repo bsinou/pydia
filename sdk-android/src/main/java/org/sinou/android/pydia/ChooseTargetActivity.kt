@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
@@ -18,6 +17,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.databinding.ActivityChooseTargetBinding
 import org.sinou.android.pydia.ui.transfer.ChooseTargetViewModel
 import org.sinou.android.pydia.utils.showMessage
@@ -33,7 +33,7 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
-    private lateinit var chooseTargetVM: ChooseTargetViewModel
+    private val chooseTargetVM: ChooseTargetViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(logTag, "onCreate: launching target choice process")
@@ -46,23 +46,23 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        val chooseTargetFactory = ChooseTargetViewModel.ChooseTargetViewModelFactory(
-            CellsApp.instance.transferService,
-            application,
-        )
-        val tmpVM: ChooseTargetViewModel by viewModels { chooseTargetFactory }
-        chooseTargetVM = tmpVM
+//        val chooseTargetFactory = ChooseTargetViewModel.ChooseTargetViewModelFactory(
+//            CellsApp.instance.transferService,
+//            application,
+//        )
+//        val tmpVM: ChooseTargetViewModel by viewModels { chooseTargetFactory }
+//        chooseTargetVM = tmpVM
 
-        tmpVM.postDone.observe(this) {
+        chooseTargetVM.postDone.observe(this) {
             if (it) {
                 showMessage(this, "And returning")
                 finishAndRemoveTask()
             }
         }
 
-        tmpVM.postIntent.observe(this) {
+        chooseTargetVM.postIntent.observe(this) {
             it?.let {
-                Log.d(logTag, "Result OK, target state: ${tmpVM.currentLocation.value}")
+                Log.d(logTag, "Result OK, target state: ${chooseTargetVM.currentLocation.value}")
                 setResult(Activity.RESULT_OK, it)
                 finishAndRemoveTask()
             }

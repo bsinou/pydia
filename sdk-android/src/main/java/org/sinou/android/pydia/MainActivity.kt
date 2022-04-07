@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.Menu
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
@@ -27,9 +26,9 @@ import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.koin.android.ext.android.inject
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.databinding.ActivityMainBinding
-import org.sinou.android.pydia.services.HelloController
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.bindings.getWsIconForMenu
 import org.sinou.android.pydia.ui.home.clearCache
@@ -50,7 +49,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
-    private lateinit var activeSessionVM: ActiveSessionViewModel
+    // FIXME
+    private val activeSessionVM: ActiveSessionViewModel by viewModel()
+    private val nodeService: NodeService by inject()
 
     // MyPresenter is resolved from MyActivity's scope
     // val hc : HelloController by inject()
@@ -68,13 +69,15 @@ class MainActivity : AppCompatActivity() {
 
         Log.d(tag, "onCreate for: ${StateID.fromId(encodedState)}")
 
-        val viewModelFactory = ActiveSessionViewModel.ActiveSessionViewModelFactory(
-            CellsApp.instance.accountService,
-            accountState,
-            application,
-        )
-        val tmpVM: ActiveSessionViewModel by viewModels { viewModelFactory }
-        activeSessionVM = tmpVM
+//        val viewModelFactory = ActiveSessionViewModel.ActiveSessionViewModelFactory(
+//            CellsApp.instance.accountService,
+//            accountState,
+//            application,
+//        )
+//        val tmpVM: ActiveSessionViewModel by viewModels { viewModelFactory }
+//        activeSessionVM = tmpVM
+
+        activeSessionVM.afterCreate(accountState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setSupportActionBar(binding.mainToolbar)
@@ -275,7 +278,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.clear_cache -> {
                 activeSessionVM.liveSession.value?.let { session ->
-                    clearCache(binding.root.context, session.accountID)
+                    clearCache(binding.root.context, session.accountID, nodeService)
                     done = true
                 }
             }

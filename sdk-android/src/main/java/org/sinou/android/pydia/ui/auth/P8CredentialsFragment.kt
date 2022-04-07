@@ -8,10 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.ServerURLImpl
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainActivity
@@ -26,8 +26,7 @@ class P8CredentialsFragment : Fragment() {
         private const val TAG = "P8CredentialsFragment"
     }
 
-    private lateinit var viewModelFactory: P8CredViewModel.P8CredViewModelFactory
-    private lateinit var viewModel: P8CredViewModel
+    private val p8CredVM: P8CredViewModel by viewModel()
 
     private lateinit var binding: FragmentP8CredentialsBinding
 
@@ -39,22 +38,16 @@ class P8CredentialsFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_p8_credentials, container, false
         )
-
         val credArgs by navArgs<P8CredentialsFragmentArgs>()
-        viewModelFactory = P8CredViewModel.P8CredViewModelFactory(
-            CellsApp.instance.accountService,
-            ServerURLImpl.fromJson(credArgs.serverUrlString)
-        )
 
-        val tmp: P8CredViewModel by viewModels { viewModelFactory }
-        viewModel = tmp
-        binding.p8CredViewModel = viewModel
+        p8CredVM.setUrl(ServerURLImpl.fromJson(credArgs.serverUrlString))
+        binding.p8CredViewModel = p8CredVM
         binding.lifecycleOwner = this
 
         binding.actionButton.setOnClickListener { launchAuth() }
-        binding.cancelButton.setOnClickListener { viewModel.cancel() }
+        binding.cancelButton.setOnClickListener { p8CredVM.cancel() }
 
-        tmp.accountID.observe(viewLifecycleOwner) { accountId ->
+        p8CredVM.accountID.observe(viewLifecycleOwner) { accountId ->
             accountId?.let {
                 when (credArgs.nextAction) {
                     AuthService.NEXT_ACTION_TERMINATE -> {} // Do nothing => we return where we launched the auth process
@@ -80,7 +73,7 @@ class P8CredentialsFragment : Fragment() {
                 requireActivity().finish()
             }
         }
-        tmp.isProcessing.observe(viewLifecycleOwner) {
+        p8CredVM.isProcessing.observe(viewLifecycleOwner) {
             binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
 
             binding.actionButton.isEnabled = !it
@@ -97,7 +90,7 @@ class P8CredentialsFragment : Fragment() {
     }
 
     private fun launchAuth() {
-        viewModel.logToP8(
+        p8CredVM.logToP8(
             binding.loginEditText.text.toString(),
             binding.passwordEditText.text.toString(),
             null

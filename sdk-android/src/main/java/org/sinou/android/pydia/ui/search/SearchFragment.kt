@@ -10,18 +10,20 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentSearchBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.ui.browse.NodeListAdapter
 import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 import org.sinou.android.pydia.utils.externallyView
@@ -31,8 +33,10 @@ class SearchFragment : Fragment() {
     private val fTag = SearchFragment::class.simpleName
     private val args: SearchFragmentArgs by navArgs()
 
+    private val nodeService: NodeService by inject()
+    private val searchVM: SearchViewModel by viewModel()
+
     private lateinit var binding: FragmentSearchBinding
-    private lateinit var searchVM: SearchViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,15 +48,15 @@ class SearchFragment : Fragment() {
             inflater, R.layout.fragment_search, container, false
         )
 
-        val viewModelFactory = SearchViewModel.SearchViewModelFactory(
-            CellsApp.instance.nodeService,
-            StateID.fromId(args.state),
-            requireActivity().application,
-        )
-        val tmpVM: SearchViewModel by viewModels { viewModelFactory }
-        searchVM = tmpVM
+//        val viewModelFactory = SearchViewModel.SearchViewModelFactory(
+//            CellsApp.instance.nodeService,
+//            StateID.fromId(args.state),
+//            requireActivity().application,
+//        )
+//        val tmpVM: SearchViewModel by viewModels { viewModelFactory }
+//        searchVM = tmpVM
 
-        tmpVM.isLoading.observe(viewLifecycleOwner) {
+        searchVM.isLoading.observe(viewLifecycleOwner) {
             binding.swipeRefresh.isRefreshing = it
         }
 
@@ -79,7 +83,7 @@ class SearchFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        searchVM.query(args.query)
+        searchVM.query(StateID.fromId(args.state), args.query)
         val currActivity = requireActivity() as AppCompatActivity
         val bg = resources.getDrawable(R.drawable.bar_bg_search, requireActivity().theme)
         currActivity.supportActionBar?.let { bar ->
@@ -106,7 +110,10 @@ class SearchFragment : Fragment() {
     }
 
     fun updateQuery(query: String) {
-        searchVM.query(query)
+
+        throw RuntimeException("FIX ME")
+
+        // searchVM.query(query)
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
@@ -129,7 +136,7 @@ class SearchFragment : Fragment() {
             findNavController().navigate(MainNavDirections.openFolder(node.encodedState))
             return@launch
         }
-        val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
+        val file = nodeService.getOrDownloadFileToCache(node)
         file?.let {
             val intent = externallyView(requireContext(), file, node)
             try {

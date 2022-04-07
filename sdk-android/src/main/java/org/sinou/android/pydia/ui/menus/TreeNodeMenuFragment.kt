@@ -15,6 +15,9 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
@@ -27,6 +30,8 @@ import org.sinou.android.pydia.databinding.MoreMenuOfflineRootsBinding
 import org.sinou.android.pydia.databinding.MoreMenuRecycleBinding
 import org.sinou.android.pydia.databinding.MoreMenuSearchBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.services.AccountService
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.tasks.copyNodes
 import org.sinou.android.pydia.tasks.createFolder
 import org.sinou.android.pydia.tasks.deleteFromRecycle
@@ -48,6 +53,9 @@ import org.sinou.android.pydia.utils.showLongMessage
 class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     private val logTag = TreeNodeMenuFragment::class.java.simpleName
+
+    private val accountService: AccountService by inject()
+    private val nodeService: NodeService by inject()
 
     companion object {
         const val CONTEXT_BROWSE = "browse"
@@ -78,10 +86,18 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     private val args: TreeNodeMenuFragmentArgs by navArgs()
 
-    private lateinit var stateIDs: List<StateID>
     private lateinit var contextType: String
-    private lateinit var treeNodeMenuVM: TreeNodeMenuViewModel
     private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
+
+    private val treeNodeMenuVM: TreeNodeMenuViewModel by viewModel {
+
+        val contextType = args.contextType
+        val stateIds = mutableListOf<StateID>()
+        for (encoded in args.selected) {
+            stateIds.add(StateID.fromId(encoded))
+        }
+        parametersOf(stateIds, args.contextType)
+    }
 
     // Only *one* of the below bindings is not null, depending on the context
     private var browseBinding: MoreMenuBrowseBinding? = null
@@ -99,14 +115,14 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private var launchCopy = registerForActivityResult(ChooseTargetContract()) {
         it?.let {
             dismiss() // close the "more" menu
-            copyNodes(requireContext(), stateIDs, it)
+            copyNodes(requireContext(), treeNodeMenuVM.stateIDs, it, nodeService)
         }
     }
 
     private var launchMove = registerForActivityResult(ChooseTargetContract()) {
         it?.let {
             dismiss()
-            moveNodes(requireContext(), stateIDs, it)
+            moveNodes(requireContext(), treeNodeMenuVM.stateIDs, it, nodeService)
         }
     }
 
@@ -114,34 +130,22 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         super.onCreate(savedInstanceState)
         Log.i(logTag, "onCreate")
 
-        contextType = args.contextType
-        val tmp = mutableListOf<StateID>()
-        for (encoded in args.selected) {
-            tmp.add(StateID.fromId(encoded))
-        }
-        stateIDs = tmp
 
-        if (stateIDs.isEmpty()) {
-            Log.e(logTag, "cannot generate \"More Menu\" without at least one node")
-            return
-        }
-
-        val application = requireActivity().application
-        val factory = TreeNodeMenuViewModel.NodeMenuViewModelFactory(
-            stateIDs,
-            contextType,
-            CellsApp.instance.nodeService,
-            application,
-        )
-        val tmpVM: TreeNodeMenuViewModel by viewModels { factory }
-        treeNodeMenuVM = tmpVM
+//
+//        val application = requireActivity().application
+//        val factory = TreeNodeMenuViewModel.NodeMenuViewModelFactory(
+//            stateIDs,
+//            contextType,
+//            CellsApp.instance.nodeService,
+//            application,
+//        )
+//        val tmpVM: TreeNodeMenuViewModel by viewModels { factory }
+//        treeNodeMenuVM = tmpVM
 
         // Communication with the device to import files / take pictures, video, ...
         fileImporter = FileImporter(
             requireActivity().activityResultRegistry,
-            CellsApp.instance.fileService,
-            CellsApp.instance.transferService,
-            tmpVM,
+            treeNodeMenuVM,
             logTag,
             this,
         )
@@ -149,8 +153,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
         fileExporter = FileExporter(
             requireActivity().activityResultRegistry,
-            CellsApp.instance.nodeService,
-            stateIDs[0],
+            treeNodeMenuVM.stateIDs[0],
             logTag,
             this,
         )
@@ -169,9 +172,9 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         treeNodeMenuVM.nodes.observe(viewLifecycleOwner) { it?.let {} }
 
         // Handle specific corner cases: no or more than one node
-        if (stateIDs.isEmpty()) {
+        if (treeNodeMenuVM.stateIDs.isEmpty()) {
             return null
-        } else if (stateIDs.size > 1) {
+        } else if (treeNodeMenuVM.stateIDs.size > 1) {
             return inflateMultiSelectedLayout(inflater, container)
         }
 
@@ -391,7 +394,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
             inflater, R.layout.more_menu_multi, container, false
         )
         val binding = multiBinding as MoreMenuMultiBinding
-        bind(binding, stateIDs.size)
+        bind(binding, treeNodeMenuVM.stateIDs.size)
         binding.executePendingBindings()
         return binding.root
     }
@@ -407,7 +410,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     /* GENERIC METHODS */
 
     private fun onClicked(actionId: String) {
-        if (stateIDs.size == 1) {
+        if (treeNodeMenuVM.stateIDs.size == 1) {
             return onSingleClicked(actionId)
         }
         Log.e(logTag, "onClicked for multi selection more menu")
@@ -431,7 +434,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     launchMove.launch(Pair(parent, AppNames.ACTION_MOVE))
                 }
                 ACTION_DELETE -> {
-                    moveNodesToRecycle(requireContext(), stateIDs)
+                    moveNodesToRecycle(requireContext(), treeNodeMenuVM.stateIDs, nodeService)
                     moreMenu.dismiss()
                 }
                 // TODO handle case when we are in the recycle ?
@@ -468,11 +471,11 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                 // Impact remote server
                 //  TODO handle a loading state
                 ACTION_CREATE_FOLDER -> {
-                    createFolder(requireContext(), node.getStateID())
+                    createFolder(requireContext(), node.getStateID(), nodeService)
                     moreMenu.dismiss()
                 }
                 ACTION_RENAME -> {
-                    rename(requireContext(), node)
+                    rename(requireContext(), node, nodeService)
                     moreMenu.dismiss()
                 }
                 ACTION_COPY -> {
@@ -492,38 +495,38 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
                     )
                 }
                 ACTION_DELETE -> {
-                    moveToRecycle(requireContext(), node)
+                    moveToRecycle(requireContext(), node, nodeService)
                     moreMenu.dismiss()
                 }
                 ACTION_EMPTY_RECYCLE -> {
-                    emptyRecycle(requireContext(), node)
+                    emptyRecycle(requireContext(), node, nodeService)
                     moreMenu.dismiss()
                 }
                 ACTION_DELETE_PERMANENTLY -> {
-                    deleteFromRecycle(requireContext(), node)
+                    deleteFromRecycle(requireContext(), node, nodeService)
                     moreMenu.dismiss()
                 }
                 ACTION_RESTORE_FROM_RECYCLE -> {
-                    CellsApp.instance.nodeService.restoreNode(node.getStateID())?.let {
+                    nodeService.restoreNode(node.getStateID())?.let {
                         showLongMessage(requireContext(), it)
                     }
                     moreMenu.dismiss()
                 }
                 ACTION_TOGGLE_BOOKMARK -> {
-                    CellsApp.instance.nodeService.toggleBookmark(node)
+                    nodeService.toggleBookmark(node)
                     moreMenu.dismiss()
                 }
                 ACTION_TOGGLE_SHARED -> {
                     // TODO ask confirmation
-                    CellsApp.instance.nodeService.toggleShared(node)
+                    nodeService.toggleShared(node)
                     moreMenu.dismiss()
                 }
                 ACTION_TOGGLE_OFFLINE -> {
-                    CellsApp.instance.nodeService.toggleOffline(node)
+                    nodeService.toggleOffline(node)
                     moreMenu.dismiss()
                 }
                 ACTION_FORCE_RESYNC -> {
-                    CellsApp.instance.nodeService.launchSync(node)
+                    nodeService.launchSync(node)
                     moreMenu.dismiss()
                 }
                 // In-app navigation

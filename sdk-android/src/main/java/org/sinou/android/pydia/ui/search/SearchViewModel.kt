@@ -1,23 +1,23 @@
 package org.sinou.android.pydia.ui.search
 
 
-import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.NodeService
 
 /**
  * Holds data when performing searches on files
  */
-class SearchViewModel (
-    private val nodeService: NodeService,
-    val stateID: StateID,
-    application: Application
-) : AndroidViewModel(application) {
+class SearchViewModel(private val nodeService: NodeService) : ViewModel() {
 
-    private val tag = "SearchViewModel"
+    //    private val tag = "SearchViewModel"
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -41,11 +41,10 @@ class SearchViewModel (
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-
-    fun query(query: String) = vmScope.launch {
+    fun query(stateId: StateID, query: String) = vmScope.launch {
         setLoading(true)
         _queryString = query
-        _hits.value = nodeService.remoteQuery(stateID, query)
+        _hits.value = nodeService.remoteQuery(stateId, query)
 //         _hits.value = nodeService.queryLocally(query, stateID)
         setLoading(false)
     }
@@ -59,18 +58,18 @@ class SearchViewModel (
     fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
-
-    class SearchViewModelFactory(
-        private val nodeService: NodeService,
-        private val stateID: StateID,
-        private val application: Application
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
-                return SearchViewModel(nodeService, stateID, application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
+//
+//    class SearchViewModelFactory(
+//        private val nodeService: NodeService,
+//        private val stateID: StateID,
+//        private val application: Application
+//    ) : ViewModelProvider.Factory {
+//        @Suppress("unchecked_cast")
+//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//            if (modelClass.isAssignableFrom(SearchViewModel::class.java)) {
+//                return SearchViewModel(nodeService, stateID, application) as T
+//            }
+//            throw IllegalArgumentException("Unknown ViewModel class")
+//        }
+//    }
 }

@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainActivity
@@ -25,8 +26,8 @@ class OAuthFlowFragment : Fragment() {
     private val fTag = "OAuthFlowFragment"
 
     private lateinit var binding: FragmentOauthFlowBinding
-    private lateinit var viewModelFactory: OAuthViewModel.OAuthFlowViewModelFactory
-    private lateinit var viewModel: OAuthViewModel
+//    private lateinit var viewModelFactory: OAuthViewModel.OAuthFlowViewModelFactory
+    private val oAuthVM: OAuthViewModel by viewModel()
     private lateinit var navController: NavController
 
     override fun onCreateView(
@@ -38,15 +39,15 @@ class OAuthFlowFragment : Fragment() {
             inflater, R.layout.fragment_oauth_flow, container, false
         )
 
-        viewModelFactory = OAuthViewModel.OAuthFlowViewModelFactory(
-            CellsApp.instance.accountService
-        )
-        val tmp: OAuthViewModel by viewModels { viewModelFactory }
-        viewModel = tmp
-        binding.oAuthViewModel = viewModel
+//        viewModelFactory = OAuthViewModel.OAuthFlowViewModelFactory(
+//            CellsApp.instance.accountService
+//        )
+//        val tmp: OAuthViewModel by viewModels { viewModelFactory }
+//        oAuthVM = tmp
+        binding.oAuthViewModel = oAuthVM
         navController = findNavController()
 
-        viewModel.accountID.observe(viewLifecycleOwner) { pair ->
+        oAuthVM.accountID.observe(viewLifecycleOwner) { pair ->
             pair?.let {
                 val (accountID, next) = pair
                 var nextState = CellsApp.instance.getCurrentState()
@@ -84,7 +85,7 @@ class OAuthFlowFragment : Fragment() {
         val state = uri.getQueryParameter(AppNames.QUERY_KEY_STATE)
         val code = uri.getQueryParameter(AppNames.QUERY_KEY_CODE)
         if (code != null && state != null) {
-            viewModel.handleResponse(state, code)
+            oAuthVM.handleResponse(state, code)
         }
     }
 

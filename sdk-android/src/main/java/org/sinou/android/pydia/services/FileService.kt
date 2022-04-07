@@ -15,7 +15,9 @@ import org.sinou.android.pydia.utils.getCurrentDateTime
 import java.io.File
 
 /** Centralizes management of local files and where to store/find them. */
-class FileService(private val accountService: AccountService) {
+class FileService(
+    private val treeNodeRepository: TreeNodeRepository,
+) {
 
     private val tag = FileService::class.simpleName
 
@@ -38,7 +40,7 @@ class FileService(private val accountService: AccountService) {
     }
 
     fun dataParentPath(stateID: StateID, type: String): String {
-        val dirName = accountService.sessions[stateID.accountId]?.dirName
+        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
         val middle = sep + dirName + sep
         return when (type) {
@@ -88,7 +90,12 @@ class FileService(private val accountService: AccountService) {
         return if (Str.empty(item.thumbFilename)) {
             null
         } else {
-            "${dataParentPath(item.getStateID(), AppNames.LOCAL_FILE_TYPE_THUMB)}${sep}${item.thumbFilename}"
+            "${
+                dataParentPath(
+                    item.getStateID(),
+                    AppNames.LOCAL_FILE_TYPE_THUMB
+                )
+            }${sep}${item.thumbFilename}"
         }
     }
 
@@ -96,12 +103,17 @@ class FileService(private val accountService: AccountService) {
         return if (Str.empty(item.thumbFilename)) {
             null
         } else {
-            "${dataParentPath(item.getStateID(), AppNames.LOCAL_FILE_TYPE_THUMB)}${sep}${item.thumbFilename}"
+            "${
+                dataParentPath(
+                    item.getStateID(),
+                    AppNames.LOCAL_FILE_TYPE_THUMB
+                )
+            }${sep}${item.thumbFilename}"
         }
     }
 
     fun getAccountBasePath(stateID: StateID, type: String): String {
-        val dirName = accountService.sessions[stateID.accountId]?.dirName
+        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
         val middle = sep + dirName
         return when (type) {
@@ -132,7 +144,7 @@ class FileService(private val accountService: AccountService) {
 
 
     fun cleanFileCacheFor(stateID: StateID) = serviceScope.launch {
-        val dirName = accountService.sessions[stateID.accountId]?.dirName
+        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
 
         val cache = File(CellsApp.instance.cacheDir.absolutePath + sep + dirName)
@@ -150,7 +162,7 @@ class FileService(private val accountService: AccountService) {
     fun cleanAllLocalFiles(stateID: StateID) = serviceScope.launch {
         cleanFileCacheFor(stateID)
 
-        val dirName = accountService.sessions[stateID.accountId]?.dirName
+        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
 
         val files = File(CellsApp.instance.filesDir.absolutePath + sep + dirName)

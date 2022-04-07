@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Carousel
 import androidx.constraintlayout.motion.widget.MotionLayout
@@ -20,16 +19,21 @@ import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.databinding.ActivityCarouselBinding
+import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.ui.viewer.CarouselViewModel
 import java.io.File
 
 class CarouselActivity : AppCompatActivity() {
 
     private val tag = CarouselActivity::class.simpleName
-    private lateinit var binding: ActivityCarouselBinding
-    private lateinit var carouselVM: CarouselViewModel
+    private val fileService: FileService by inject()
 
+    private val carouselVM: CarouselViewModel by viewModel()
+
+    private lateinit var binding: ActivityCarouselBinding
     var numImages = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,17 +62,19 @@ class CarouselActivity : AppCompatActivity() {
         if (intent.hasExtra(AppNames.EXTRA_STATE)) {
             val stateStr: String = intent.getStringExtra(AppNames.EXTRA_STATE)!!
             val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
-
             val state = StateID.fromId(stateStr)
-            val viewModelFactory = CarouselViewModel.CarouselViewModelFactory(
-                CellsApp.instance.accountService,
-                CellsApp.instance.nodeService,
-                state.parentFolder(),
-                state,
-                application,
-            )
-            val tmpVM: CarouselViewModel by viewModels { viewModelFactory }
-            carouselVM = tmpVM
+
+//            val viewModelFactory = CarouselViewModel.CarouselViewModelFactory(
+//                CellsApp.instance.accountService,
+//                CellsApp.instance.nodeService,
+//                state.parentFolder(),
+//                state,
+//                application,
+//            )
+//            val tmpVM: CarouselViewModel by viewModels { viewModelFactory }
+//            carouselVM = tmpVM
+
+            carouselVM.afterCreate(state.parentFolder(), state)
         }
         // TODO handle errors
     }
@@ -90,7 +96,6 @@ class CarouselActivity : AppCompatActivity() {
         Log.e(tag, "Motion layout is shown: ${ml.isShown}")
 
         binding.carousel.setAdapter(object : Carousel.Adapter {
-            val fs = CellsApp.instance.fileService
 
             override fun count(): Int {
                 return numImages
@@ -99,7 +104,7 @@ class CarouselActivity : AppCompatActivity() {
             override fun populate(view: View, index: Int) {
                 if (view is ImageView) {
                     val currItem = carouselVM.elements.value!![index]
-                    val lf = fs.getThumbPath(currItem)
+                    val lf = fileService.getThumbPath(currItem)
                     if (Str.notEmpty(lf) && File(lf!!).exists()) {
                         Glide.with(this@CarouselActivity)
                             .load(File(lf))

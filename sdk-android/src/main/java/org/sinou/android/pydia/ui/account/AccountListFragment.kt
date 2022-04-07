@@ -8,13 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
-import org.sinou.android.pydia.*
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.AuthActivity
+import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.MainActivity
+import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentAccountListBinding
+import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.AuthService
+import org.sinou.android.pydia.services.SessionFactory
 import org.sinou.android.pydia.tasks.loginAccount
 import org.sinou.android.pydia.ui.common.deleteAccount
 import org.sinou.android.pydia.ui.common.logoutAccount
@@ -29,7 +36,12 @@ class AccountListFragment : Fragment() {
     private val fTag = AccountListFragment::class.java.simpleName
 
     private lateinit var binding: FragmentAccountListBinding
-    private lateinit var accountListViewModel: AccountListViewModel
+
+    private val authService: AuthService by inject()
+    private val sessionFactory: SessionFactory by inject()
+    private val accountService: AccountService by inject()
+
+    private val accountListViewModel: AccountListViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,13 +52,13 @@ class AccountListFragment : Fragment() {
             inflater, R.layout.fragment_account_list, container, false
         )
 
-        val application = requireNotNull(this.activity).application
-        val viewModelFactory = AccountListViewModel.AccountListViewModelFactory(
-            CellsApp.instance.accountService,
-            application
-        )
-        val tmp: AccountListViewModel by viewModels { viewModelFactory }
-        accountListViewModel = tmp
+//        val application = requireNotNull(this.activity).application
+//        val viewModelFactory = AccountListViewModel.AccountListViewModelFactory(
+//            CellsApp.instance.accountService,
+//            application
+//        )
+//        val tmp: AccountListViewModel by viewModels { viewModelFactory }
+//        accountListViewModel = tmp
 
         val adapter = AccountListAdapter { accountID, action ->
             onAccountClicked(accountID, action)
@@ -86,20 +98,20 @@ class AccountListFragment : Fragment() {
                 }
                 loginAccount(
                     requireContext(),
-                    accountListViewModel.accountService.authService,
-                    accountListViewModel.accountService,
+                    authService,
+                    sessionFactory,
                     currSession,
                     AuthService.NEXT_ACTION_ACCOUNTS
                 )
             }
             AppNames.ACTION_LOGOUT -> lifecycleScope.launch {
-                logoutAccount(requireContext(), accountID)
+                logoutAccount(requireContext(), accountID, accountService)
             }
             AppNames.ACTION_FORGET -> {
-                deleteAccount(requireContext(), accountID)
+                deleteAccount(requireContext(), accountID, accountService)
             }
             AppNames.ACTION_OPEN -> lifecycleScope.launch {
-                CellsApp.instance.accountService.openSession(accountID)
+                accountService.openSession(accountID)
                 CellsApp.instance.setCurrentState(StateID.fromId(accountID))
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 intent.putExtra(AppNames.EXTRA_STATE, accountID)

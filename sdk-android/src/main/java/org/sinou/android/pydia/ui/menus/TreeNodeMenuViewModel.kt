@@ -19,8 +19,7 @@ class TreeNodeMenuViewModel(
     val stateIDs: List<StateID>,
     private val contextType: String,
     private val nodeService: NodeService,
-    application: Application
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     private val logTag = TreeNodeMenuViewModel::class.simpleName
 
@@ -40,18 +39,18 @@ class TreeNodeMenuViewModel(
         }
     }
 
-    class NodeMenuViewModelFactory(
-        private val stateIDs: List<StateID>,
-        private val contextType: String,
-        private val nodeService: NodeService,
-        private val application: Application
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(TreeNodeMenuViewModel::class.java)) {
-                return TreeNodeMenuViewModel(stateIDs, contextType, nodeService, application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
+//    class NodeMenuViewModelFactory(
+//        private val stateIDs: List<StateID>,
+//        private val contextType: String,
+//        private val nodeService: NodeService,
+//        private val application: Application
+//    ) : ViewModelProvider.Factory {
+//        @Suppress("unchecked_cast")
+//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//            if (modelClass.isAssignableFrom(TreeNodeMenuViewModel::class.java)) {
+//                return TreeNodeMenuViewModel(stateIDs, contextType, nodeService, application) as T
+//            }
+//            throw IllegalArgumentException("Unknown ViewModel class")
+//        }
+//    }
 }

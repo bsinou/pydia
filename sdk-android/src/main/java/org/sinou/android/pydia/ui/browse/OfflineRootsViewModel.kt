@@ -5,23 +5,33 @@ import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.CellsApp
+import org.sinou.android.pydia.db.nodes.RLiveOfflineRoot
+import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.NodeService
 
 /**
  * Holds a live list of the offline roots for the current session
  */
 class OfflineRootsViewModel(
-    private val nodeService: NodeService,
-    val stateID: StateID,
-    application: Application
-) : AndroidViewModel(application) {
+    private val nodeService: NodeService
+) : ViewModel() {
 
     private val tag = OfflineRootsViewModel::class.simpleName
-
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    val offlineRoots = CellsApp.instance.nodeService.listOfflineRoots(stateID)
+    private lateinit var _stateId: StateID
+    val stateId: StateID
+        get() = _stateId
+
+    private lateinit var _offlineRoots: LiveData<List<RLiveOfflineRoot>>
+    val offlineRoots: LiveData<List<RLiveOfflineRoot>>
+        get() = _offlineRoots
+
+    fun afterCreate(stateId: StateID){
+        _stateId = stateId
+        _offlineRoots = nodeService.listOfflineRoots(stateId)
+    }
 
     // Manage UI
     private val _isLoading = MutableLiveData<Boolean>()
@@ -36,7 +46,7 @@ class OfflineRootsViewModel(
         vmScope.launch {
             withContext(Dispatchers.Main) {
                 // TODO handle errors
-                nodeService.syncAll(stateID)
+                nodeService.syncAll(stateId)
                 setLoading(false)
             }
         }
@@ -46,17 +56,17 @@ class OfflineRootsViewModel(
         _isLoading.value = loading
     }
 
-    class OfflineRootsViewModelFactory(
-        private val nodeService: NodeService,
-        private val stateID: StateID,
-        private val application: Application
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(OfflineRootsViewModel::class.java)) {
-                return OfflineRootsViewModel(nodeService, stateID, application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
+//    class OfflineRootsViewModelFactory(
+//        private val nodeService: NodeService,
+//        private val stateID: StateID,
+//        private val application: Application
+//    ) : ViewModelProvider.Factory {
+//        @Suppress("unchecked_cast")
+//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//            if (modelClass.isAssignableFrom(OfflineRootsViewModel::class.java)) {
+//                return OfflineRootsViewModel(nodeService, stateID, application) as T
+//            }
+//            throw IllegalArgumentException("Unknown ViewModel class")
+//        }
+//    }
 }

@@ -61,6 +61,10 @@ fun externallyView(context: Context, file: File, node: RTreeNode): Intent {
     }
 
     Log.d("NavUtils", "....Creating an intent with mime: $mime")
+
+    // TODO
+    // FIXME to insure the user can choose the opening app, see: https://developer.android.com/guide/components/intents-filters#ForceChooser
+
     return Intent().setAction(Intent.ACTION_VIEW)
         .setDataAndType(uri, mime)
         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

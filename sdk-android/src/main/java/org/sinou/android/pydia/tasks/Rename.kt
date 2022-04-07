@@ -12,11 +12,13 @@ import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.showLongMessage
 
 fun rename(
     context: Context,
-    node: RTreeNode
+    node: RTreeNode,
+    nodeService: NodeService,
 ): Boolean {
 
     val dialog = MaterialAlertDialogBuilder(context)
@@ -29,7 +31,7 @@ fun rename(
                 if (input.text.isNullOrEmpty()) {
                     showLongMessage(context, "Please enter a valid not-empty name")
                 } else {
-                    doRename(context, node, input.text)
+                    doRename(context, node, input.text, nodeService)
                 }
             }
 
@@ -50,9 +52,14 @@ fun rename(
     return true
 }
 
-private fun doRename(context: Context, node: RTreeNode, name: CharSequence) {
+private fun doRename(
+    context: Context,
+    node: RTreeNode,
+    name: CharSequence,
+    nodeService: NodeService,
+) {
     CellsApp.instance.appScope.launch {
-        CellsApp.instance.nodeService.rename(StateID.fromId(node.encodedState), name.toString())
+        nodeService.rename(StateID.fromId(node.encodedState), name.toString())
             ?.let {
                 withContext(Dispatchers.Main) {
                     showLongMessage(context, it)

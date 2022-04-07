@@ -10,22 +10,21 @@ import org.sinou.android.pydia.services.AccountService
  * Holds a list of connected clients to choose a target destination for uploads and moves.
  */
 class PickSessionViewModel(
-    accountService: AccountService,
-    application: Application
-) : AndroidViewModel(application) {
+    accountService: AccountService
+) : ViewModel() {
 
     val sessions = accountService.liveSessions
 
-    class TargetAccountViewModelFactory(
-        private val accountService: AccountService,
-        private val application: Application
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(PickSessionViewModel::class.java)) {
-                return PickSessionViewModel(accountService, application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
+//    class TargetAccountViewModelFactory(
+//        private val accountService: AccountService,
+//        private val application: Application
+//    ) : ViewModelProvider.Factory {
+//        @Suppress("unchecked_cast")
+//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//            if (modelClass.isAssignableFrom(PickSessionViewModel::class.java)) {
+//                return PickSessionViewModel(accountService, application) as T
+//            }
+//            throw IllegalArgumentException("Unknown ViewModel class")
+//        }
+//    }
 }

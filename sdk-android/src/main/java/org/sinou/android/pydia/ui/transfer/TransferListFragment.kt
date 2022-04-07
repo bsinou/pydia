@@ -8,13 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentTransferListBinding
 import org.sinou.android.pydia.db.runtime.RTransfer
@@ -31,12 +29,12 @@ class TransferListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val viewModelFactory = TransferViewModel.TransferViewModelFactory(
-            CellsApp.instance.transferService,
-            requireActivity().application,
-        )
-        val tmpVM: TransferViewModel by viewModels { viewModelFactory }
-        transferVM = tmpVM
+//        val viewModelFactory = TransferViewModel.TransferViewModelFactory(
+//            CellsApp.instance.transferService,
+//            requireActivity().application,
+//        )
+//        val tmpVM: TransferViewModel by viewModels { viewModelFactory }
+//        transferVM = tmpVM
 
         setHasOptionsMenu(true)
         binding = DataBindingUtil.inflate(
@@ -75,6 +73,5 @@ class TransferListFragment : Fragment() {
             }
             return@setOnMenuItemClickListener true
         }
-
     }
 }

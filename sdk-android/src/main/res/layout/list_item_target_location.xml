@@ -28,7 +28,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:nodeThumb="@{node}"
+            app:folderThumb="@{node}"
             tools:srcCompat="@drawable/ic_baseline_folder_24" />
 
         <TextView

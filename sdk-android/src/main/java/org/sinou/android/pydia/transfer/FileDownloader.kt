@@ -1,24 +1,26 @@
 package org.sinou.android.pydia.transfer
 
-import com.pydio.cells.api.Client
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.db.nodes.TreeNodeDB
 import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.services.TransferService
 import kotlin.coroutines.coroutineContext
 
-class FileDownloader(
-    private val client: Client,
-    private val fileService: FileService,
-    private val transferService: TransferService,
-    private val nodeDB: TreeNodeDB,
-) {
+class FileDownloader : KoinComponent {
 
-    private val tag = FileDownloader::class.java.simpleName
+    // private val tag = FileDownloader::class.java.simpleName
+
+    private val fileService: FileService by inject()
+    private val transferService: TransferService by inject()
 
     private val doneChannel = Channel<Boolean>()
     private val queue = Channel<String>()
@@ -31,7 +33,7 @@ class FileDownloader(
         val state = StateID.fromId(encodedState)
         val result = transferService.prepareDownload(state, AppNames.LOCAL_FILE_TYPE_OFFLINE)
 
-        if ( result.first != null && Str.empty(result.second)){
+        if (result.first != null && Str.empty(result.second)) {
             transferService.downloadFile(result.first!!)
         }
 

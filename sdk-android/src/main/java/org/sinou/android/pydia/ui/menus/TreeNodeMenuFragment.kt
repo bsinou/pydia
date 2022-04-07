@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -90,8 +89,6 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
     private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
 
     private val treeNodeMenuVM: TreeNodeMenuViewModel by viewModel {
-
-        val contextType = args.contextType
         val stateIds = mutableListOf<StateID>()
         for (encoded in args.selected) {
             stateIds.add(StateID.fromId(encoded))
@@ -130,7 +127,6 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         super.onCreate(savedInstanceState)
         Log.i(logTag, "onCreate")
 
-
 //
 //        val application = requireActivity().application
 //        val factory = TreeNodeMenuViewModel.NodeMenuViewModelFactory(
@@ -140,7 +136,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 //            application,
 //        )
 //        val tmpVM: TreeNodeMenuViewModel by viewModels { factory }
-//        treeNodeMenuVM = tmpVM
+//         = tmpVM
 
         // Communication with the device to import files / take pictures, video, ...
         fileImporter = FileImporter(
@@ -179,7 +175,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         }
 
         // Provide correct UI for a single node depending on the context
-        return when (contextType) {
+        return when (treeNodeMenuVM.contextType) {
             CONTEXT_BROWSE -> inflateBrowseLayout(inflater, container)
             CONTEXT_ADD -> inflateAddLayout(inflater, container)
             CONTEXT_RECYCLE -> inflateRecycleLayout(inflater, container)

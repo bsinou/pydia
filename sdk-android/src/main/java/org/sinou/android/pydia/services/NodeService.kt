@@ -37,7 +37,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.lang.RuntimeException
 import java.util.*
 
 class NodeService(
@@ -62,11 +61,11 @@ class NodeService(
         )
     }
 
-    fun transferService(): TransferService {
-        throw RuntimeException("Implement me")
-        // FIXME should be injected
-        // return CellsApp.instance.transferService
-    }
+//    fun transferService(): TransferService {
+//        throw RuntimeException("Implement me")
+//        // FIXME should be injected
+//        // return CellsApp.instance.transferService
+//    }
 
     /* Expose DB content as LiveData for the ViewModels */
 
@@ -291,12 +290,12 @@ class NodeService(
             val currRoot = offlineDao.get(rTreeNode.encodedState)
                 ?: return@withContext // should never happen
 
-            val fileDL = FileDownloader(client, fileService, transferService(), nodeDB(stateID))
+            // TODO Rather use DI via a factory?
+            val fileDL = FileDownloader()
             val thumbs = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
             val thumbDL = ThumbDownloader(client, nodeDB(stateID), thumbs)
 
             var changeNb = syncNodeAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
-
 
             // TODO check corner cases. Typically "needs deletion"
             if (changeNb > 0) {
@@ -571,7 +570,8 @@ class NodeService(
             Log.e(tag, "... Launching download for ${rTreeNode.name}")
 
             val stateID = rTreeNode.getStateID()
-            val baseDir = fileService.dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_CACHE)
+            val baseDir =
+                fileService.dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_CACHE)
             val targetFile = File(baseDir, stateID.path.substring(1))
             targetFile.parentFile!!.mkdirs()
             var out: FileOutputStream? = null
@@ -767,21 +767,15 @@ class NodeService(
         se.printStackTrace()
     }
 
-    companion object {
-
-        fun getLocalFile(item: RTreeNode, type: String): File {
-
-            throw RuntimeException("Implement me")
-//
-//            val fs = CellsApp.instance.fileService
-//            // Trick so that we do not store offline files also in the cache... double check
-//            if (type == AppNames.LOCAL_FILE_TYPE_OFFLINE ||
-//                type == AppNames.LOCAL_FILE_TYPE_CACHE &&
-//                item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
-//            ) {
-//                return File(fs.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE))
-//            }
-//            return File(fs.getLocalPath(item, type))
+    // TODO Trick so that we do not store offline files also in the cache... double check
+    private fun getLocalFile(item: RTreeNode, type: String): File {
+        if (type == AppNames.LOCAL_FILE_TYPE_OFFLINE ||
+            type == AppNames.LOCAL_FILE_TYPE_CACHE &&
+            item.localFileType == AppNames.LOCAL_FILE_TYPE_OFFLINE
+        ) {
+            return File(fileService.getLocalPath(item, AppNames.LOCAL_FILE_TYPE_OFFLINE))
         }
+        return File(fileService.getLocalPath(item, type))
     }
+
 }

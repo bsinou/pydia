@@ -8,6 +8,10 @@
     <data>
 
         <variable
+            name="thumbDirPath"
+            type="java.lang.String" />
+
+        <variable
             name="node"
             type="org.sinou.android.pydia.db.nodes.RTreeNode" />
     </data>
@@ -24,7 +28,8 @@
         <include
             android:id="@+id/included_header"
             layout="@layout/more_menu_header"
-            app:node="@{node}" />
+            app:node="@{node}"
+            app:thumbDirPath="@{thumbDirPath}" />
 
         <LinearLayout
             android:id="@+id/open_parent_in_workspace"

@@ -124,7 +124,7 @@ class WorkspaceDiff(
 
         // delete cached files
         val cacheParPath =
-            fileService.dataParentPath(local.getStateID(), AppNames.LOCAL_FILE_TYPE_CACHE)
+            fileService.dataParentPath(local.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_CACHE)
         val cache = File(cacheParPath + suffix)
         if (cache.exists()) {
             cache.deleteRecursively()
@@ -132,7 +132,7 @@ class WorkspaceDiff(
 
         // delete thumbs
         val thumbParPath =
-            fileService.dataParentPath(local.getStateID(), AppNames.LOCAL_FILE_TYPE_THUMB)
+            fileService.dataParentPath(local.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
         for (node in nodeDB.treeNodeDao().getUnder(local.encodedState)) {
             node.thumbFilename?.let {
                 Log.e(logTag, "Got a file to delete: $it")

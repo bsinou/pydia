@@ -11,6 +11,9 @@
         <variable
             name="node"
             type="org.sinou.android.pydia.db.nodes.RTreeNode" />
+        <variable
+            name="thumbDirPath"
+            type="java.lang.String"/>
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -38,7 +41,8 @@
                 android:layout_height="@dimen/grid_layout_card_icon_size"
                 android:contentDescription="@string/content_description_media"
                 android:scaleType="centerCrop"
-                app:cardThumb="@{node}"
+                app:cardThumbItem="@{node}"
+                app:cardThumbDirPath="@{thumbDirPath}"
                 tools:srcCompat="@drawable/icon_grid_folder" />
 
             <View

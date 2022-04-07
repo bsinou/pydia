@@ -19,7 +19,6 @@ import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.sinou.android.pydia.AppNames
-import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import java.io.File
@@ -66,8 +65,17 @@ fun TextView.setNodePath(item: RTreeNode?) {
     }
 }
 
-@BindingAdapter("nodeThumb")
-fun ImageView.setNodeThumb(item: RTreeNode?) {
+@BindingAdapter("folderThumb")
+fun ImageView.setFolderThumb(item: RTreeNode?) {
+    if (item == null) {
+        return
+    }
+    setImageResource(getDrawableFromMime(item.mime, item.sortName))
+}
+
+
+@BindingAdapter("nodeThumbItem", "nodeThumbDirPath")
+fun ImageView.setNodeThumb(item: RTreeNode?, thumbDirPath: String?) {
 
     if (item == null) {
         setImageResource(R.drawable.icon_file)
@@ -79,30 +87,31 @@ fun ImageView.setNodeThumb(item: RTreeNode?) {
         return
     }
 
-    setImageResource(getDrawableFromMime(item.mime, item.sortName))
-
-    // FIXME
-//    val lf = CellsApp.instance.fileService.getThumbPath(item)
-//    if (Str.notEmpty(lf) && File(lf!!).exists()) {
-//        Glide.with(context)
-//            .load(File(lf))
-//            .transform(
-//                MultiTransformation(
-//                    CenterCrop(),
-//                    // TODO Directly getting  the radius with R fails => image is a circle
-//                    // RoundedCorners(R.dimen.glide_thumb_radius)
-//                    RoundedCorners(16)
-//                )
-//            )
-//            .into(this)
-//    } else {
-//        // Log.w("SetNodeThumb", "no thumb found for ${item.name}")
-//        setImageResource(getDrawableFromMime(item.mime, item.sortName))
-//    }
+    var thumbPath: String? = null
+    if (Str.notEmpty(thumbDirPath) && Str.notEmpty(item.thumbFilename)) {
+        // TODO make this generic
+        thumbPath = "$thumbDirPath/${item.thumbFilename}"
+    }
+    if (thumbPath != null && File(thumbPath).exists()) {
+        Glide.with(context)
+            .load(File(thumbPath))
+            .transform(
+                MultiTransformation(
+                    CenterCrop(),
+                    // TODO Directly getting  the radius with R fails => image is a circle
+                    // RoundedCorners(R.dimen.glide_thumb_radius)
+                    RoundedCorners(16)
+                )
+            )
+            .into(this)
+    } else {
+        // Log.w("SetNodeThumb", "no thumb found for ${item.name}")
+        setImageResource(getDrawableFromMime(item.mime, item.sortName))
+    }
 }
 
-@BindingAdapter("cardThumb")
-fun ImageView.setCardThumb(item: RTreeNode?) {
+@BindingAdapter("cardThumbItem", "cardThumbDirPath")
+fun ImageView.setCardThumb(item: RTreeNode?, thumbDirPath: String?) {
     if (item == null) {
         setImageResource(R.drawable.icon_grid_file)
         return
@@ -113,20 +122,20 @@ fun ImageView.setCardThumb(item: RTreeNode?) {
         return
     }
 
-    // FIXME
-    Log.w("SetCardThumb", "no thumb found for ${item.name}")
-    setImageResource(getGridDrawableFromMime(item.mime, item.sortName))
-
-//    val lf = CellsApp.instance.fileService.getThumbPath(item)
-//    if (Str.notEmpty(lf) && File(lf!!).exists()) {
-//        Glide.with(context)
-//            .load(File(lf))
-//            .transform(CenterCrop())
-//            .into(this)
-//    } else {
-//        Log.w("SetCardThumb", "no thumb found for ${item.name}")
-//        setImageResource(getGridDrawableFromMime(item.mime, item.sortName))
-//    }
+    var thumbPath: String? = null
+    if (Str.notEmpty(thumbDirPath) && Str.notEmpty(item.thumbFilename)) {
+        // TODO make this generic
+        thumbPath = "$thumbDirPath/${item.thumbFilename}"
+    }
+    if (thumbPath != null && File(thumbPath).exists()) {
+        Glide.with(context)
+            .load(File(thumbPath))
+            .transform(CenterCrop())
+            .into(this)
+    } else {
+        Log.w("SetCardThumb", "no thumb found for ${item.name}")
+        setImageResource(getGridDrawableFromMime(item.mime, item.sortName))
+    }
 }
 
 @BindingAdapter("multiSelectTitle")

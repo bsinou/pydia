@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentTransferListBinding
@@ -22,7 +23,7 @@ class TransferListFragment : Fragment() {
     private val fTag = TransferListFragment::class.java.simpleName
 
     private lateinit var binding: FragmentTransferListBinding
-    private lateinit var transferVM: TransferViewModel
+    private val transferVM: TransferViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

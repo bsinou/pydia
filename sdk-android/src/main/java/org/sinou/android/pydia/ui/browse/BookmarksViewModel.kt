@@ -1,8 +1,7 @@
 package org.sinou.android.pydia.ui.browse
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,10 +13,7 @@ import org.sinou.android.pydia.services.NodeService
 /**
  * Holds a live list of the cached bookmarks for the current session
  */
-class BookmarksViewModel(
-    private val nodeService: NodeService,
-    application: Application
-) : AndroidViewModel(application) {
+class BookmarksViewModel(private val nodeService: NodeService) : ViewModel() {
 
     private var _stateID: StateID? = null
     val stateID: StateID?

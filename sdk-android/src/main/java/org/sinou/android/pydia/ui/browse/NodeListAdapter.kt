@@ -11,9 +11,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.utils.Log
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemNodeBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.services.FileService
 
 /**
  * Custom adapter for browsing folders with a recycler view using a list layout.
@@ -22,18 +25,21 @@ import org.sinou.android.pydia.db.nodes.RTreeNode
  */
 class NodeListAdapter(
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit
-) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()) {
+) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()), KoinComponent {
 
     private val tag = NodeListAdapter::class.simpleName
     private var showPath = false
     var tracker: SelectionTracker<String>? = null
 
+    val fileService: FileService by inject()
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
+        val thumbDirPath = fileService.dataParentPath(item.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
         tracker?.let {
-            holder.bind(item, it.isSelected(item.encodedState))
+            holder.bind(item, thumbDirPath, it.isSelected(item.encodedState))
         } ?: run {
-            holder.bind(item)
+            holder.bind(item, thumbDirPath)
         }
     }
 
@@ -69,8 +75,10 @@ class NodeListAdapter(
         private val tag = ViewHolder::class.simpleName
 
 
-        fun bind(item: RTreeNode, isSelected: Boolean = false) {
+        fun bind(item: RTreeNode, thumbDirPath: String?, isSelected: Boolean = false) {
             binding.node = item
+            binding.thumbDirPath = thumbDirPath
+
             binding.rowLayout.isActivated = isSelected
             if (showPath) {
                 binding.nodePath.visibility = View.VISIBLE

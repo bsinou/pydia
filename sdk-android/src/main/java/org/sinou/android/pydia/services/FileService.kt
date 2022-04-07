@@ -29,19 +29,19 @@ class FileService(
     private val appFilesDir = CellsApp.instance.filesDir.absolutePath
 
     fun prepareTree(stateID: StateID) = serviceScope.launch {
-        File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_CACHE)).mkdirs()
-        File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)).mkdirs()
-        File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_TRANSFER)).mkdirs()
-        File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_OFFLINE)).mkdirs()
+        File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_CACHE)).mkdirs()
+        File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_THUMB)).mkdirs()
+        File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_TRANSFER)).mkdirs()
+        File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_OFFLINE)).mkdirs()
     }
 
     fun dataParentFolder(stateID: StateID, type: String): File {
-        return File(dataParentPath(stateID, type))
+        return File(dataParentPath(stateID.accountId, type))
     }
 
-    fun dataParentPath(stateID: StateID, type: String): String {
-        val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
-            ?: throw IllegalStateException("No record found for $stateID")
+    fun dataParentPath(accountId: String, type: String): String {
+        val dirName = treeNodeRepository.sessions[accountId]?.dirName
+            ?: throw IllegalStateException("No record found for $accountId")
         val middle = sep + dirName + sep
         return when (type) {
             AppNames.LOCAL_FILE_TYPE_THUMB ->
@@ -75,13 +75,13 @@ class FileService(
     fun getLocalPathFromState(stat: StateID, type: String): String {
         return when (type) {
             AppNames.LOCAL_FILE_TYPE_CACHE
-            -> "${dataParentPath(stat, type)}${stat.path}"
+            -> "${dataParentPath(stat.accountId, type)}${stat.path}"
             AppNames.LOCAL_FILE_TYPE_TRANSFER
-            -> "${dataParentPath(stat, type)}${stat.path}"
+            -> "${dataParentPath(stat.accountId, type)}${stat.path}"
             AppNames.LOCAL_FILE_TYPE_OFFLINE
-            -> "${dataParentPath(stat, type)}${stat.path}"
+            -> "${dataParentPath(stat.accountId, type)}${stat.path}"
             AppNames.LOCAL_FILE_TYPE_THUMB
-            -> "${dataParentPath(stat, type)}${stat.file}"
+            -> "${dataParentPath(stat.accountId, type)}${stat.file}"
             else -> throw IllegalStateException("Cannot create $type path for $stat")
         }
     }
@@ -92,7 +92,7 @@ class FileService(
         } else {
             "${
                 dataParentPath(
-                    item.getStateID(),
+                    item.getStateID().accountId,
                     AppNames.LOCAL_FILE_TYPE_THUMB
                 )
             }${sep}${item.thumbFilename}"
@@ -105,7 +105,7 @@ class FileService(
         } else {
             "${
                 dataParentPath(
-                    item.getStateID(),
+                    item.getStateID().accountId,
                     AppNames.LOCAL_FILE_TYPE_THUMB
                 )
             }${sep}${item.thumbFilename}"
@@ -128,7 +128,7 @@ class FileService(
 
     fun createImageFile(stateID: StateID): File {
         val timestamp = getCurrentDateTime().asFormattedString("yyMMdd_HHmmss")
-        val imgPath = dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_TRANSFER)
+        val imgPath = dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_TRANSFER)
         // TODO do we really want a lazy creation for this base folder? or rather rely on a tree
         //    initialisation when the account is created
         File(imgPath).mkdirs()
@@ -142,7 +142,6 @@ class FileService(
 //        )
     }
 
-
     fun cleanFileCacheFor(stateID: StateID) = serviceScope.launch {
         val dirName = treeNodeRepository.sessions[stateID.accountId]?.dirName
             ?: throw IllegalStateException("No record found for $stateID")
@@ -152,7 +151,7 @@ class FileService(
             cache.deleteRecursively()
         }
 
-        val tmpCache = File(dataParentPath(stateID, AppNames.LOCAL_FILE_TYPE_CACHE))
+        val tmpCache = File(dataParentPath(stateID.accountId, AppNames.LOCAL_FILE_TYPE_CACHE))
         if (tmpCache.exists()) {
             tmpCache.deleteRecursively()
         }

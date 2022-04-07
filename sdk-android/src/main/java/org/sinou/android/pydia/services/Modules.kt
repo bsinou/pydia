@@ -17,6 +17,7 @@ import org.sinou.android.pydia.ui.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.account.AccountListViewModel
 import org.sinou.android.pydia.ui.auth.OAuthViewModel
 import org.sinou.android.pydia.ui.auth.ServerUrlViewModel
+import org.sinou.android.pydia.ui.browse.BookmarksViewModel
 import org.sinou.android.pydia.ui.browse.BrowseFolderViewModel
 import org.sinou.android.pydia.ui.browse.OfflineRootsViewModel
 import org.sinou.android.pydia.ui.menus.TransferMenuViewModel
@@ -95,10 +96,12 @@ val viewModelModule = module {
     // FIXME must find a way to pass the state in a reliable fashion
     viewModel { ActiveSessionViewModel(get()) }
     viewModel { BrowseFolderViewModel(get()) }
-    viewModel { OfflineRootsViewModel(get()) }
-    viewModel { PickSessionViewModel(get()) }
-
     viewModel { params -> TreeNodeMenuViewModel(params.get(), params.get(), get()) }
+
+    viewModel { BookmarksViewModel(get()) }
+    viewModel { OfflineRootsViewModel(get()) }
+
+    viewModel { PickSessionViewModel(get()) }
 
     viewModel { TransferViewModel(get()) }
     viewModel { params -> TransferMenuViewModel(params.get(), get()) }

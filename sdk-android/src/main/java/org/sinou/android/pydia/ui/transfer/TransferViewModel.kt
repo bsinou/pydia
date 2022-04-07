@@ -8,7 +8,7 @@ import org.sinou.android.pydia.services.TransferService
  */
 class TransferViewModel(val transferService: TransferService) : ViewModel() {
 
-    private val tag = TransferViewModel::class.java.simpleName
+//     private val tag = TransferViewModel::class.java.simpleName
 
     val transfers = transferService.activeTransfers
 

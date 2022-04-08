@@ -7,8 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,7 +15,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
@@ -25,7 +23,6 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentOffineRootListBinding
 import org.sinou.android.pydia.db.nodes.RLiveOfflineRoot
-import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 
@@ -33,9 +30,7 @@ class OfflineRootsFragment : Fragment() {
 
     private val fTag = OfflineRootsFragment::class.java.simpleName
 
-    private val nodeService: NodeService by inject()
-
-    private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
+    private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val offlineVM: OfflineRootsViewModel by viewModel()
     private lateinit var binding: FragmentOffineRootListBinding
 
@@ -67,7 +62,7 @@ class OfflineRootsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        val activeSession = activeSessionViewModel.liveSession.value
+        val activeSession = activeSessionVM.liveSession.value
         Log.i(fTag, "onResume: ${activeSession?.accountID}")
         activeSession?.let { session ->
             val accountID = StateID.fromId(session.accountID)

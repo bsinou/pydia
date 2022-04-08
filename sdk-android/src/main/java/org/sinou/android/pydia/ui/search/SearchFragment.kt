@@ -30,12 +30,12 @@ import org.sinou.android.pydia.utils.externallyView
 
 class SearchFragment : Fragment() {
 
-    private val fTag = SearchFragment::class.simpleName
-    private val args: SearchFragmentArgs by navArgs()
+    private val logTag = SearchFragment::class.simpleName
 
     private val nodeService: NodeService by inject()
+    private val args: SearchFragmentArgs by navArgs()
+    // TODO wire passing the argument from here
     private val searchVM: SearchViewModel by viewModel()
-
     private lateinit var binding: FragmentSearchBinding
 
     override fun onCreateView(
@@ -117,7 +117,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
-        Log.d(fTag, "Clicked on ${node.name} -> $command")
+        Log.d(logTag, "Clicked on ${node.name} -> $command")
         when (command) {
             AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {

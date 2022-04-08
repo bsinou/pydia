@@ -56,11 +56,6 @@ class CellsApp : Application() {
     // TODO Rather use an Application model that raises a flag when everything is setup.
     var ready = false
 
-//    lateinit var accountService: AccountService
-//    lateinit var nodeService: NodeService
-//    lateinit var fileService: FileService
-//    lateinit var transferService: TransferService
-
     companion object {
         lateinit var instance: CellsApp
             private set
@@ -72,27 +67,24 @@ class CellsApp : Application() {
         Log.i(logTag, "#################################################################")
         super.onCreate()
         instance = this
+
+        updateClientData()
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        Log.i(logTag, "... Pre-init done")
+
+        // Launch dependency injection framework
+        startKoin {
+            androidLogger(Level.DEBUG)
+            androidContext(this@CellsApp)
+            modules(allModules)
+        }
+
         delayedInit()
     }
 
     private fun delayedInit() {
 
         launchScope.launch {
-
-            val clientID = updateClientData()
-            // sharedPreferences = getSharedPreferences(clientID, Context.MODE_PRIVATE)
-            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-            Log.i(logTag, "... Pre-init done")
-
-            // start Koin!
-            startKoin {
-                androidLogger(Level.DEBUG)
-                // declare used Android context
-                androidContext(this@CellsApp)
-                // declare modules
-                // modules(listOf(myModule))
-                modules(allModules)
-            }
 
             // initServices()
             ready = true
@@ -103,39 +95,6 @@ class CellsApp : Application() {
         }
     }
 
-//    private fun initServices() {
-//
-//        // TODO use dependency injection
-//        accountService = AccountService(
-//            AccountDB.getDatabase(applicationContext),
-//            filesDir
-//        )
-//
-//        Log.i(logTag, "... Account service ready")
-//
-//        fileService = FileService(
-//            accountService,
-//        )
-//
-//        Log.i(logTag, "... File service ready")
-//
-//        nodeService = NodeService(
-//            accountService,
-//            fileService,
-//        )
-//
-//        Log.i(logTag, "... Node service ready")
-//
-//        transferService = TransferService(
-//            accountService,
-//            nodeService,
-//            fileService,
-//            RuntimeDB.getDatabase(applicationContext),
-//        )
-//
-//        Log.i(logTag, "... Transfer service ready")
-//
-//    }
 
     private fun setupOfflineWorker() {
 

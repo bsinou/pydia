@@ -27,14 +27,10 @@ import org.sinou.android.pydia.db.runtime.RTransfer
  */
 class TransferMenuFragment : BottomSheetDialogFragment() {
 
-    private val fTag = TransferMenuFragment::class.java.simpleName
+    private val logTag = TransferMenuFragment::class.java.simpleName
     private val args: TransferMenuFragmentArgs by navArgs()
     private val transferMenuVM: TransferMenuViewModel by viewModel { parametersOf(args.transferUid) }
     private lateinit var binding: MoreMenuTransferBinding
-
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,7 +61,7 @@ class TransferMenuFragment : BottomSheetDialogFragment() {
     }
 
     private fun onClicked(rTransfer: RTransfer, action: String) {
-        Log.i("MoreMenu", "${rTransfer.getStateId()} -> $action")
+        Log.i(logTag, "${rTransfer.getStateId()} -> $action")
         val moreMenu = this
         lifecycleScope.launch {
             when (action) {

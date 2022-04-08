@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -20,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
@@ -36,11 +36,11 @@ import org.sinou.android.pydia.utils.resetToHomeStateIfNecessary
 
 class BookmarksFragment : Fragment() {
 
-    private val fTag = BookmarksFragment::class.java.simpleName
+    private val logTag = BookmarksFragment::class.java.simpleName
 
     private val nodeService: NodeService by inject()
 
-    private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
+    private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val bookmarksVM: BookmarksViewModel by viewModel()
 
     private lateinit var binding: FragmentBookmarkListBinding
@@ -81,8 +81,8 @@ class BookmarksFragment : Fragment() {
 //            it.title = "Bookmarks" // accountID.toString()
 //        }
 
-        val activeSession = activeSessionViewModel.liveSession.value
-        Log.i(fTag, "onResume: ${activeSession?.accountID}")
+        val activeSession = activeSessionVM.liveSession.value
+        Log.i(logTag, "onResume: ${activeSession?.accountID}")
         activeSession?.let { session ->
             val accountID = StateID.fromId(session.accountID)
 

@@ -25,7 +25,7 @@ import org.sinou.android.pydia.utils.showLongMessage
 
 class PickFolderFragment : Fragment() {
 
-    private val fTag = PickFolderFragment::class.java.simpleName
+    private val logTag = PickFolderFragment::class.java.simpleName
 
     private lateinit var binding: FragmentPickFolderBinding
 
@@ -51,22 +51,7 @@ class PickFolderFragment : Fragment() {
             StateID.fromId(args.state)
         }
 
-//        val viewModelFactory = PickFolderViewModel.PickFolderViewModelFactory(
-//            stateID,
-//            CellsApp.instance.accountService,
-//            CellsApp.instance.nodeService,
-//            requireActivity().application,
-//        )
-//        val tmpVM: PickFolderViewModel by viewModels { viewModelFactory }
-//
         pickFolderVM.afterCreate(stateID)
-
-//        val chooseTargetFactory = ChooseTargetViewModel.ChooseTargetViewModelFactory(
-//            CellsApp.instance.transferService,
-//            requireActivity().application,
-//        )
-//        val tmpAVM: ChooseTargetViewModel by activityViewModels { chooseTargetFactory }
-//        chooseTargetVM = tmpAVM
 
         val adapter = FolderListAdapter(stateID, chooseTargetVM.actionContext) { state, action ->
             onClicked(state, action)
@@ -121,7 +106,7 @@ class PickFolderFragment : Fragment() {
     }
 
     override fun onResume() {
-        Log.d(fTag, "onResume: ${pickFolderVM.stateID}")
+        Log.d(logTag, "onResume: ${pickFolderVM.stateID}")
         super.onResume()
         chooseTargetVM.setCurrentState(pickFolderVM.stateID)
         pickFolderVM.resume()

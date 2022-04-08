@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.MoreMenuManageConnectionBinding
 import org.sinou.android.pydia.services.AuthService
@@ -22,16 +22,16 @@ import org.sinou.android.pydia.ui.ActiveSessionViewModel
  */
 class ConnectionMenuFragment : BottomSheetDialogFragment() {
 
-    private val fTag = ConnectionMenuFragment::class.java.simpleName
-    private val activeSessionVM: ActiveSessionViewModel by activityViewModels()
+    private val logTag = ConnectionMenuFragment::class.java.simpleName
 
     private val authService: AuthService by inject()
     private val sessionFactory: SessionFactory by inject()
 
+    private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private lateinit var connectionBinding: MoreMenuManageConnectionBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(fTag, "onCreate ${activeSessionVM.accountId}")
+        Log.d(logTag, "onCreate ${activeSessionVM.accountId}")
         super.onCreate(savedInstanceState)
     }
 
@@ -60,19 +60,4 @@ class ConnectionMenuFragment : BottomSheetDialogFragment() {
         connectionBinding.executePendingBindings()
         return connectionBinding.root
     }
-
-//    override fun onResume() {
-//        super.onResume()
-//        Log.i(fTag, "onResume")
-//    }
-//
-//    override fun onPause() {
-//        super.onPause()
-//        Log.i(fTag, "onPause")
-//    }
-//
-//    override fun onStop() {
-//        super.onStop()
-//        Log.i(fTag, "onStop")
-//    }
 }

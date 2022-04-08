@@ -33,7 +33,7 @@ import org.sinou.android.pydia.ui.common.logoutAccount
  */
 class AccountListFragment : Fragment() {
 
-    private val fTag = AccountListFragment::class.java.simpleName
+    private val logTag = AccountListFragment::class.java.simpleName
 
     private lateinit var binding: FragmentAccountListBinding
 
@@ -47,7 +47,7 @@ class AccountListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.e(fTag, "onCreateView ${savedInstanceState?.getString(AppNames.EXTRA_STATE)}")
+        Log.e(logTag, "onCreateView ${savedInstanceState?.getString(AppNames.EXTRA_STATE)}")
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_list, container, false
         )
@@ -86,14 +86,14 @@ class AccountListFragment : Fragment() {
     }
 
     private fun onAccountClicked(accountID: String, action: String) {
-        Log.i(fTag, "ID: $accountID, do $action")
+        Log.i(logTag, "ID: $accountID, do $action")
         when (action) {
             AppNames.ACTION_LOGIN -> {
                 val currSession = accountListViewModel.sessions.value
                     ?.filter { it.accountID == accountID }
                     ?.get(0)
                 if (currSession == null) {
-                    Log.i(fTag, "No live session found for: $accountID in ViewModel, aborting...")
+                    Log.i(logTag, "No live session found for: $accountID in ViewModel, aborting...")
                     return
                 }
                 loginAccount(

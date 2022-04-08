@@ -22,12 +22,9 @@ import org.sinou.android.pydia.services.AuthService
 /** Handle user filled credentials for P8 remote servers */
 class P8CredentialsFragment : Fragment() {
 
-    companion object {
-        private const val TAG = "P8CredentialsFragment"
-    }
+    private val logTag = P8CredentialsFragment::class.simpleName
 
     private val p8CredVM: P8CredViewModel by viewModel()
-
     private lateinit var binding: FragmentP8CredentialsBinding
 
     override fun onCreateView(
@@ -54,7 +51,7 @@ class P8CredentialsFragment : Fragment() {
                     AuthService.NEXT_ACTION_ACCOUNTS -> {
                         // A priori, we come from the account list and return there, no need
                         // to change everything, put a log for the time being to be sure
-                        Log.i(TAG, "Auth success, about to browse to account list")
+                        Log.i(logTag, "Auth success, about to browse to account list")
                         startActivity(Intent(requireActivity(), MainActivity::class.java))
                     }
                     AuthService.NEXT_ACTION_BROWSE -> {
@@ -63,11 +60,11 @@ class P8CredentialsFragment : Fragment() {
                         CellsApp.instance.setCurrentState(nextState)
                         val intent = Intent(requireActivity(), MainActivity::class.java)
                         intent.putExtra(AppNames.EXTRA_STATE, it)
-                        Log.i(TAG, "Auth success, about to browse to $nextState")
+                        Log.i(logTag, "Auth success, about to browse to $nextState")
                         startActivity(intent)
                     }
                     else -> Log.i(
-                        TAG, "Auth successful but invalid next action: ${credArgs.nextAction}"
+                        logTag, "Auth successful but invalid next action: ${credArgs.nextAction}"
                     )
                 }
                 requireActivity().finish()
@@ -83,7 +80,6 @@ class P8CredentialsFragment : Fragment() {
 
             binding.executePendingBindings()
         }
-
 
         // TODO handle captcha
         return binding.root

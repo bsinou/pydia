@@ -8,10 +8,10 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.pydio.cells.transport.StateID
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
@@ -25,15 +25,15 @@ import org.sinou.android.pydia.ui.ActiveSessionViewModel
  */
 class AccountHomeFragment : Fragment() {
 
-    private val fTag = AccountHomeFragment::class.simpleName
-    private val activeSessionVM: ActiveSessionViewModel by activityViewModels()
+    private val logTag = AccountHomeFragment::class.simpleName
+    private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private lateinit var binding: FragmentAccountHomeBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.i(fTag, "onCreateView ${activeSessionVM.accountId}")
+        Log.i(logTag, "onCreateView ${activeSessionVM.accountId}")
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_home, container, false
         )
@@ -46,7 +46,7 @@ class AccountHomeFragment : Fragment() {
     }
 
     override fun onResume() {
-        Log.i(fTag, "onResume: ${activeSessionVM.accountId}")
+        Log.d(logTag, "onResume: ${activeSessionVM.accountId}")
         super.onResume()
 
         activeSessionVM.workspaces.observe(viewLifecycleOwner) {
@@ -115,7 +115,7 @@ class AccountHomeFragment : Fragment() {
 
     override fun onPause() {
         val idStr = activeSessionVM.liveSession.value?.accountID ?: "No active session"
-        Log.d(fTag, "Pausing: $idStr")
+        Log.d(logTag, "Pausing: $idStr")
         super.onPause()
         activeSessionVM.pause()
     }

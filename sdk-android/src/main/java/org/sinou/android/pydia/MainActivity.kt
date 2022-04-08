@@ -50,7 +50,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     private val nodeService: NodeService by inject()
-    // FIXME
     private val activeSessionVM: ActiveSessionViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {

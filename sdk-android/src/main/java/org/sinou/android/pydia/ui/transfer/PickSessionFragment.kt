@@ -18,9 +18,9 @@ class PickSessionFragment : Fragment() {
 
     // private val logTag = PickSessionFragment::class.java.simpleName
 
-    private lateinit var binding: FragmentPickSessionBinding
     private val chooseTargetVM: ChooseTargetViewModel by sharedViewModel()
     private val targetSessionVM: PickSessionViewModel by viewModel()
+    private lateinit var binding: FragmentPickSessionBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,7 +40,6 @@ class PickSessionFragment : Fragment() {
     }
 
     private fun onClicked(stateID: StateID, command: String) {
-        // Log.d(fTag, "Clicked on: $stateID, do $command")
         when (command) {
             AppNames.ACTION_OPEN -> {
                 val action = PickSessionFragmentDirections.actionPickFolder(stateID.id)

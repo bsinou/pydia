@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.AuthService
 import org.sinou.android.pydia.services.SessionFactory
 import java.io.IOException
@@ -32,8 +31,7 @@ class ServerUrlViewModel(
     private val sessionFactory: SessionFactory
 ) : ViewModel() {
 
-    private val tag = "ServerUrlViewModel"
-
+    private val logTag = ServerUrlViewModel::class.simpleName
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -44,9 +42,9 @@ class ServerUrlViewModel(
 
     // Handle TLS if necessary
     private val _skipVerify = MutableLiveData<Boolean>()
-    private val _unvalidTLS = MutableLiveData<Boolean>()
-    val unvalidTLS: LiveData<Boolean>
-        get() = _unvalidTLS
+    private val _invalidTLS = MutableLiveData<Boolean>()
+    val invalidTLS: LiveData<Boolean>
+        get() = _invalidTLS
 
     // A valid server URL with TLS managed
     private val _serverUrl = MutableLiveData<ServerURL>()
@@ -105,10 +103,10 @@ class ServerUrlViewModel(
 
     private suspend fun doPing(serverAddress: String): ServerURL? {
         return withContext(Dispatchers.IO) {
-            Log.i(tag, "Perform real ping to $serverAddress")
+            Log.i(logTag, "Perform real ping to $serverAddress")
             var newURL: ServerURL? = null
             try {
-                val tmp = _skipVerify.value?.let { it } ?: false
+                val tmp = _skipVerify.value ?: false
                 newURL = ServerURLImpl.fromAddress(serverAddress, tmp)
                 newURL.ping()
             } catch (e: MalformedURLException) {
@@ -117,7 +115,7 @@ class ServerUrlViewModel(
                 updateErrorMsg("Invalid certificate for $serverAddress")
                 withContext(Dispatchers.Main) {
                     _skipVerify.value = false
-                    _unvalidTLS.value = true
+                    _invalidTLS.value = true
                 }
                 return@withContext null
             } catch (e: IOException) {
@@ -141,7 +139,7 @@ class ServerUrlViewModel(
     }
 
     private suspend fun doRegister(su: ServerURL): Server? = withContext(Dispatchers.IO) {
-        Log.i(tag, "About to register the server ${su.id}")
+        Log.d(logTag, "About to register the server ${su.id}")
         var newServer: Server? = null
         try {
             newServer = sessionFactory.registerServer(su)
@@ -176,24 +174,12 @@ class ServerUrlViewModel(
     }
 
     override fun onCleared() {
-        Log.i(tag, "onCleared")
+        Log.d(logTag, "onCleared")
         super.onCleared()
         viewModelJob.cancel()
     }
 
     init {
-        Log.i(tag, "Created")
+        Log.d(logTag, "Created")
     }
-
-//    class ServerUrlViewModelFactory(
-//        private val accountService: AccountService
-//    ) : ViewModelProvider.Factory {
-//        @Suppress("unchecked_cast")
-//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//            if (modelClass.isAssignableFrom(ServerUrlViewModel::class.java)) {
-//                return ServerUrlViewModel(accountService) as T
-//            }
-//            throw IllegalArgumentException("Unknown ViewModel class")
-//        }
-//    }
 }

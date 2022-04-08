@@ -20,23 +20,19 @@ import org.sinou.android.pydia.databinding.MoreMenuSortBinding
  */
 class SortMenuFragment : BottomSheetDialogFragment() {
 
-    private val fTag = SortMenuFragment::class.java.simpleName
+    private val logTag = SortMenuFragment::class.java.simpleName
 
     private val oldOrder = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
     //private val oldDirection = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR)
 
     private lateinit var sortBinding: MoreMenuSortBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i(fTag, "onCreate")
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d(logTag, "onCreateView")
         sortBinding = DataBindingUtil.inflate(
             inflater, R.layout.more_menu_sort, container, false
         )
@@ -76,7 +72,7 @@ class SortMenuFragment : BottomSheetDialogFragment() {
     }
 
     private fun onClicked(order: String) {
-        Log.i(tag, "Item clicked: ORDER BY $order ")
+        Log.d(tag, "Item clicked: ORDER BY $order ")
         if (oldOrder != order) {
             CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER, order)
             // CellsApp.instance.setPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER_DIR, direction)
@@ -89,16 +85,16 @@ class SortMenuFragment : BottomSheetDialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        Log.i(fTag, "onResume")
+        Log.d(logTag, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.i(fTag, "onPause")
+        Log.d(logTag, "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.i(fTag, "onStop")
+        Log.d(logTag, "onStop")
     }
 }

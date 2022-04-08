@@ -27,10 +27,10 @@ import org.sinou.android.pydia.utils.showLongMessage
  */
 class ServerUrlFragment : Fragment() {
 
-    private val fTag = ServerUrlFragment::class.simpleName
+    private val logTag = ServerUrlFragment::class.simpleName
 
-    private lateinit var binding: FragmentServerUrlBinding
     private val serverUrlVM: ServerUrlViewModel by viewModel()
+    private lateinit var binding: FragmentServerUrlBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,7 +44,7 @@ class ServerUrlFragment : Fragment() {
         binding.actionButton.setOnClickListener { goForPing() }
 
         serverUrlVM.server.observe(viewLifecycleOwner) { server ->
-            Log.i(fTag, "... LaunchingAuth")
+            Log.i(logTag, "... LaunchingAuth")
             server?.let {
                 val urlStr = server.serverURL.toJson()
                 if (it.isLegacy) { // Navigate to in app legacy auth
@@ -60,7 +60,7 @@ class ServerUrlFragment : Fragment() {
             }
         }
 
-        serverUrlVM.unvalidTLS.observe(viewLifecycleOwner) { invalidTLS ->
+        serverUrlVM.invalidTLS.observe(viewLifecycleOwner) { invalidTLS ->
             if (invalidTLS) {
                 findNavController().navigate(ServerUrlFragmentDirections.actionConfirmSkipVerify())
             }

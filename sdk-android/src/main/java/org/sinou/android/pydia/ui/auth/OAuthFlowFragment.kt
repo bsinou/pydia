@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.pydio.cells.transport.StateID
@@ -23,11 +22,10 @@ import org.sinou.android.pydia.services.AuthService
 /** Manages the external OAuth process to get a JWT Token */
 class OAuthFlowFragment : Fragment() {
 
-    private val fTag = "OAuthFlowFragment"
+    private val logTag = OAuthFlowFragment::class.simpleName
 
-    private lateinit var binding: FragmentOauthFlowBinding
-//    private lateinit var viewModelFactory: OAuthViewModel.OAuthFlowViewModelFactory
     private val oAuthVM: OAuthViewModel by viewModel()
+    private lateinit var binding: FragmentOauthFlowBinding
     private lateinit var navController: NavController
 
     override fun onCreateView(
@@ -39,11 +37,6 @@ class OAuthFlowFragment : Fragment() {
             inflater, R.layout.fragment_oauth_flow, container, false
         )
 
-//        viewModelFactory = OAuthViewModel.OAuthFlowViewModelFactory(
-//            CellsApp.instance.accountService
-//        )
-//        val tmp: OAuthViewModel by viewModels { viewModelFactory }
-//        oAuthVM = tmp
         binding.oAuthViewModel = oAuthVM
         navController = findNavController()
 
@@ -56,7 +49,7 @@ class OAuthFlowFragment : Fragment() {
                     AuthService.NEXT_ACTION_ACCOUNTS -> {
                         // A priori, we come from the account list and return there, no need
                         // to change everything, put a log for the time being to be sure
-                        Log.i(fTag, "Auth success, about to browse to $nextState")
+                        Log.i(logTag, "Auth success, about to browse to $nextState")
                         startActivity(Intent(requireActivity(), MainActivity::class.java))
                     }
                     AuthService.NEXT_ACTION_BROWSE -> {
@@ -65,7 +58,7 @@ class OAuthFlowFragment : Fragment() {
                         CellsApp.instance.setCurrentState(nextState)
                         val intent = Intent(requireActivity(), MainActivity::class.java)
                         intent.putExtra(AppNames.EXTRA_STATE, accountID)
-                        Log.i(fTag, "Auth Successful, navigating to $nextState")
+                        Log.i(logTag, "Auth Successful, navigating to $nextState")
                         startActivity(intent)
                     }
                 }
@@ -79,7 +72,7 @@ class OAuthFlowFragment : Fragment() {
     }
 
     override fun onResume() {
-        Log.i(fTag, "onResume")
+        Log.i(logTag, "onResume")
         super.onResume()
         val uri = requireActivity().intent.data ?: return
         val state = uri.getQueryParameter(AppNames.QUERY_KEY_STATE)
@@ -90,12 +83,12 @@ class OAuthFlowFragment : Fragment() {
     }
 
     override fun onPause() {
-        Log.i(fTag, "onPause")
+        Log.i(logTag, "onPause")
         super.onPause()
     }
 
     override fun onStop() {
-        Log.i(fTag, "onStop")
+        Log.i(logTag, "onStop")
         super.onStop()
     }
 }

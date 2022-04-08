@@ -22,8 +22,7 @@ class OAuthViewModel(
     private val accountService: AccountService,
 ) : ViewModel() {
 
-    private val tag = "OAuthViewModel"
-
+    private val logTag = OAuthViewModel::class.simpleName
     private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -72,24 +71,12 @@ class OAuthViewModel(
     }
 
     override fun onCleared() {
-        Log.i(tag, "onCleared")
+        Log.i(logTag, "onCleared")
         super.onCleared()
         viewModelJob.cancel()
     }
 
     init {
-        Log.i(tag, "created")
+        Log.i(logTag, "created")
     }
-
-//    class OAuthFlowViewModelFactory(
-//        private val accountService: AccountService,
-//    ) : ViewModelProvider.Factory {
-//        @Suppress("unchecked_cast")
-//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//            if (modelClass.isAssignableFrom(OAuthViewModel::class.java)) {
-//                return OAuthViewModel(accountService) as T
-//            }
-//            throw IllegalArgumentException("Unknown ViewModel class")
-//        }
-//    }
 }

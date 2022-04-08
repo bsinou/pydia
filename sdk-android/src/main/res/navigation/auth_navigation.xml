@@ -14,12 +14,6 @@
         android:name="org.sinou.android.pydia.ui.auth.ServerUrlFragment"
         android:label="@string/ask_url_title"
         tools:layout="@layout/fragment_server_url">
-        <!-- Actions:
-        - launch OAuth flow
-        - OAuth Call back ?
-        - Cancel and back
-        - go to p8 cred fragment
-        -->
         <action
             android:id="@+id/action_confirm_skip_verify"
             app:destination="@id/confirm_skip_tls_verify" />

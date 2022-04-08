@@ -118,17 +118,4 @@ class P8CredViewModel(
     init {
         Log.d(logTag, "created")
     }
-
-//    class P8CredViewModelFactory(
-//        private val accountService: AccountService,
-//        private val serverURL: ServerURL,
-//    ) : ViewModelProvider.Factory {
-//        @Suppress("unchecked_cast")
-//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//            if (modelClass.isAssignableFrom(P8CredViewModel::class.java)) {
-//                return P8CredViewModel(accountService, serverURL) as T
-//            }
-//            throw IllegalArgumentException("Unknown ViewModel class")
-//        }
-//    }
 }

@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -15,6 +14,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import org.sinou.android.pydia.AppNames
@@ -29,7 +29,6 @@ import org.sinou.android.pydia.databinding.MoreMenuOfflineRootsBinding
 import org.sinou.android.pydia.databinding.MoreMenuRecycleBinding
 import org.sinou.android.pydia.databinding.MoreMenuSearchBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
-import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.tasks.copyNodes
 import org.sinou.android.pydia.tasks.createFolder
@@ -52,9 +51,6 @@ import org.sinou.android.pydia.utils.showLongMessage
 class TreeNodeMenuFragment : BottomSheetDialogFragment() {
 
     private val logTag = TreeNodeMenuFragment::class.java.simpleName
-
-    private val accountService: AccountService by inject()
-    private val nodeService: NodeService by inject()
 
     companion object {
         const val CONTEXT_BROWSE = "browse"
@@ -83,11 +79,10 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         const val ACTION_FORCE_RESYNC = "force_resync"
     }
 
+    private val nodeService: NodeService by inject()
+
     private val args: TreeNodeMenuFragmentArgs by navArgs()
-
-    private lateinit var contextType: String
-    private val activeSessionViewModel: ActiveSessionViewModel by activityViewModels()
-
+    private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val treeNodeMenuVM: TreeNodeMenuViewModel by viewModel {
         val stateIds = mutableListOf<StateID>()
         for (encoded in args.selected) {
@@ -234,7 +229,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         binding.offlineSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_OFFLINE) }
         // Offline is not supported when remote server is P8
         var legacy = false
-        activeSessionViewModel.liveSession.value?.let {
+        activeSessionVM.liveSession.value?.let {
             legacy = it.isLegacy
         }
         binding.offlineRoot.visibility = if (legacy) {

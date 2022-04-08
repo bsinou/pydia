@@ -49,12 +49,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
+    private val nodeService: NodeService by inject()
     // FIXME
     private val activeSessionVM: ActiveSessionViewModel by viewModel()
-    private val nodeService: NodeService by inject()
-
-    // MyPresenter is resolved from MyActivity's scope
-    // val hc : HelloController by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 //        setTheme(CellsApp.instance.currentTheme)
@@ -68,14 +65,6 @@ class MainActivity : AppCompatActivity() {
         val accountState = encodedState?.let { StateID.fromId(it).accountId }
 
         Log.d(tag, "onCreate for: ${StateID.fromId(encodedState)}")
-
-//        val viewModelFactory = ActiveSessionViewModel.ActiveSessionViewModelFactory(
-//            CellsApp.instance.accountService,
-//            accountState,
-//            application,
-//        )
-//        val tmpVM: ActiveSessionViewModel by viewModels { viewModelFactory }
-//        activeSessionVM = tmpVM
 
         activeSessionVM.afterCreate(accountState)
 
@@ -110,7 +99,6 @@ class MainActivity : AppCompatActivity() {
 //            )
 //        })
         handleStateOrIntent(savedInstanceState)
-        // hc.hello()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

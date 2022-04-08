@@ -32,7 +32,7 @@ import java.net.HttpURLConnection
 /**
  * AccountService is the single source of truth for accounts, sessions and auth in the app.
  * It takes care of both local caching of session info and authentication against the remote
- * servers. It holds a SessionFactory that gives access to the SDK client
+ * servers.
  */
 class AccountServiceImpl(
     accountDB: AccountDB,
@@ -49,7 +49,6 @@ class AccountServiceImpl(
     // private val authStateDao: OAuthStateDao = accountDB.authStateDao()
 
     private val tag = AccountService::class.java.simpleName
-
 
     // Expose the session factory to retrieve unlocked clients
     // val authService = AuthService(authStateDao)

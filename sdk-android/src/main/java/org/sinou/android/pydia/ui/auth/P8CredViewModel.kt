@@ -17,9 +17,7 @@ import org.sinou.android.pydia.services.AccountService
 /**
  * Manages retrieval of P8 credentials, optionally with a captcha.
  */
-class P8CredViewModel(
-    private val accountService: AccountService,
-) : ViewModel() {
+class P8CredViewModel(private val accountService: AccountService) : ViewModel() {
 
     private val logTag = P8CredViewModel::class.simpleName
 

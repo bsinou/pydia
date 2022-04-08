@@ -18,6 +18,7 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentAccountHomeBinding
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
+import org.sinou.android.pydia.utils.showLongMessage
 
 /**
  * Displays the landing page for a given account, mainly the workspace list.
@@ -33,13 +34,24 @@ class AccountHomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         Log.i(logTag, "onCreateView ${activeSessionVM.accountId}")
+
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_account_home, container, false
         )
 
+        binding.forceRefresh.setOnRefreshListener { activeSessionVM.forceRefresh() }
+
         binding.switchAccountButton.setOnClickListener {
             findNavController().navigate(MainNavDirections.openAccountList())
+        }
+
+        activeSessionVM.isLoading.observe(viewLifecycleOwner) {
+            binding.forceRefresh.isRefreshing = it
+        }
+        activeSessionVM.errorMessage.observe(viewLifecycleOwner) { msg ->
+            msg?.let { showLongMessage(requireContext(), msg) }
         }
 
         return binding.root

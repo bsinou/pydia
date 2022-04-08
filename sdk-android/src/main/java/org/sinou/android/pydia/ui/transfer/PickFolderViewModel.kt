@@ -72,29 +72,45 @@ class PickFolderViewModel(
     }
 
     private suspend fun doPull() {
-
-        if (Str.empty(stateID.file)) {
-            val err = accountService.refreshWorkspaceList(stateID.accountId)
-            withContext(Dispatchers.Main) {
-                if (Str.notEmpty(err)) {
-                    _errorMessage.value = err
-                    pause()
-                }
-                // TODO also detect when something has changed to reset backoff ticker
-                _isLoading.value = false
-            }
+        val result = if (Str.empty(stateID.file)) {
+            accountService.refreshWorkspaceList(stateID.accountId)
         } else {
-            val result = nodeService.pull(stateID)
-            withContext(Dispatchers.Main) {
-                if (result.second != null) {
-                    _errorMessage.value = result.second
-                    pause()
-                } else if (result.first > 0) {
-                    backOffTicker.resetIndex()
-                }
-                _isLoading.value = false
-            }
+            nodeService.pull(stateID)
         }
+        withContext(Dispatchers.Main) {
+            if (Str.notEmpty(result.second)) {
+                _errorMessage.value = result.second
+                pause()
+            }
+            if (result.first > 0) { // At least one change => reset backoff ticker
+                backOffTicker.resetIndex()
+            }
+            _isLoading.value = false
+        }
+//        if (Str.empty(stateID.file)) {
+//            val result = accountService.refreshWorkspaceList(stateID.accountId)
+//            withContext(Dispatchers.Main) {
+//                if (Str.notEmpty(result.second)) {
+//                    _errorMessage.value = result.second
+//                    pause()
+//                }
+//                if (result.first > 0) { // At least one change => reset backoff ticker
+//                    backOffTicker.resetIndex()
+//                }
+//                _isLoading.value = false
+//            }
+//        } else {
+//            val result = nodeService.pull(stateID)
+//            withContext(Dispatchers.Main) {
+//                if (result.second != null) {
+//                    _errorMessage.value = result.second
+//                    pause()
+//                } else if (result.first > 0) {
+//                    backOffTicker.resetIndex()
+//                }
+//                _isLoading.value = false
+//            }
+//        }
     }
 
     fun resume() {

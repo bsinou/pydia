@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import com.pydio.cells.api.Client
 import com.pydio.cells.api.Credentials
+import com.pydio.cells.api.ErrorCodes
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.ServerURL
@@ -40,20 +41,14 @@ class AccountServiceImpl(
     private val treeNodeRepository: TreeNodeRepository
 ) : AccountService {
 
+    private val tag = AccountService::class.java.simpleName
+
     private val accountDao: AccountDao = accountDB.accountDao()
     private val sessionDao: SessionDao = accountDB.sessionDao()
     private val liveSessionDao: LiveSessionDao = accountDB.liveSessionDao()
     private val workspaceDao: WorkspaceDao = accountDB.workspaceDao()
     private val tokenDao: TokenDao = accountDB.tokenDao()
     private val legacyCredentialsDao: LegacyCredentialsDao = accountDB.legacyCredentialsDao()
-    // private val authStateDao: OAuthStateDao = accountDB.authStateDao()
-
-    private val tag = AccountService::class.java.simpleName
-
-    // Expose the session factory to retrieve unlocked clients
-    // val authService = AuthService(authStateDao)
-    // val sessionFactory: SessionFactory =
-    //         SessionFactory.getSessionFactory(authService.credentialService, liveSessionDao)
 
     override fun getClient(stateId: StateID): Client {
         return sessionFactory.getUnlockedClient(stateId.accountId)
@@ -177,34 +172,6 @@ class AccountServiceImpl(
         }
     }
 
-    override suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {
-        Log.i(tag, "Received error $code for $stateID")
-        try {
-            accountDao.getAccount(stateID.accountId)?.let {
-                when (code) {
-                    HttpURLConnection.HTTP_UNAUTHORIZED -> {
-                        if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
-                            it.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
-                            accountDao.update(it)
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            val msg = "Could not update account for $stateID after error $code"
-            logException(tag, msg, e)
-        }
-    }
-
-    override suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
-        val isConnected = hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)
-        val accountID = StateID.fromId(stateID).accountId
-        accountDao.getAccount(accountID)?.let {
-            return@withContext isConnected && it.authStatus == AppNames.AUTH_STATUS_CONNECTED
-        }
-        return@withContext false
-    }
-
     /**
      * Sets the lifecycle_state of a given session to "foreground".
      * WARNING: no check is done on the passed accountID.
@@ -233,41 +200,66 @@ class AccountServiceImpl(
         }
     }
 
-    override suspend fun refreshWorkspaceList(accountIDStr: String): String? =
+    override suspend fun isClientConnected(stateID: String): Boolean = withContext(Dispatchers.IO) {
+        val isConnected = hasAtLeastMeteredNetwork(CellsApp.instance.applicationContext)
+        val accountID = StateID.fromId(stateID).accountId
+        accountDao.getAccount(accountID)?.let {
+            return@withContext isConnected && it.authStatus == AppNames.AUTH_STATUS_CONNECTED
+        }
+        return@withContext false
+    }
+
+    override suspend fun refreshWorkspaceList(accountIDStr: String): Pair<Int, String?> =
         withContext(Dispatchers.IO) {
+            var result: Pair<Int, String?>
+
             val accountID = StateID.fromId(accountIDStr)
             try {
                 val client: Client = getClient(StateID.fromId(accountIDStr))
-
                 val wsDiff = WorkspaceDiff(accountID, client)
-                wsDiff.compareWithRemote()
-
-//            // We assume the list of workspaces is small enough to be first loaded in memory
-//            val workspaces = mutableListOf<WorkspaceNode>()
-//            client.workspaceList { node: Node? ->
-//                if (node is WorkspaceNode) {
-//                    workspaces.add(node)
-//                }
-//            }
-//
-//            // TODO also handle deletion
-//            for (node in workspaces) {
-//                var rw = RWorkspace.createChild(parentID, node)
-//                var old = accountDB.workspaceDao().getWorkspace(rw.encodedState)
-//                if (old == null) {
-//                    accountDB.workspaceDao().insert(rw)
-//                    CellsApp.instance.nodeService.
-//                } else {
-//                    accountDB.workspaceDao().update(rw)
-//                }
-//            }
-
+                val changeNb = wsDiff.compareWithRemote()
+                result = Pair(changeNb, null)
             } catch (e: SDKException) {
-                Log.e(tag, "could not get workspace list for $accountID")
+                val msg = "could not get workspace list for $accountID"
+                Log.e(tag, msg)
                 e.printStackTrace()
-                return@withContext "cannot connect to distant server"
+                notifyError(accountID, e.code)
+                return@withContext Pair(0, msg)
             }
-            return@withContext null
+            return@withContext result
+
         }
+
+    override suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {
+        Log.i(tag, "Received error $code for $stateID")
+        try {
+            accountDao.getAccount(stateID.accountId)?.let {
+                when (code) {
+                    HttpURLConnection.HTTP_UNAUTHORIZED -> {
+                        if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+                            it.authStatus = AppNames.AUTH_STATUS_UNAUTHORIZED
+                            accountDao.update(it)
+                        }
+                    }
+                    ErrorCodes.no_token_available -> {
+                        if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+                            it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+                            accountDao.update(it)
+                        }
+                    }
+                    // TODO unreachable host: pause session
+//                    ErrorCodes.unreachable_host -> {
+//                        if (it.authStatus == AppNames.AUTH_STATUS_CONNECTED) {
+//                            it.authStatus = AppNames.AUTH_STATUS_NO_CREDS
+//                            accountDao.update(it)
+//                        }
+//                    }
+                }
+            }
+        } catch (e: Exception) {
+            val msg = "Could not update account for $stateID after error $code"
+            logException(tag, msg, e)
+        }
+    }
 
 }

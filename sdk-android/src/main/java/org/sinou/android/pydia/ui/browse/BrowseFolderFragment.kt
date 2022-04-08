@@ -39,7 +39,6 @@ import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentBrowseFolderBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
-import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
@@ -59,10 +58,9 @@ import org.sinou.android.pydia.utils.showLongMessage
  */
 class BrowseFolderFragment : Fragment() {
 
-    private val fTag = BrowseFolderFragment::class.java.simpleName
+    private val logTag = BrowseFolderFragment::class.java.simpleName
 
     private val nodeService: NodeService by inject()
-    private val accountService: AccountService by inject()
 
     private val args: BrowseFolderFragmentArgs by navArgs()
     private val browseFolderVM: BrowseFolderViewModel by viewModel()
@@ -71,9 +69,6 @@ class BrowseFolderFragment : Fragment() {
 
     // Temp solution to provide a scrim during long running operations
     private var loadingDialog: LoadingDialogFragment? = null
-
-    // FIXME: the flag is set at the end of create view method
-    private var isCreated = false
 
     private var mode: ActionMode? = null
     private var actionModeCallback: PrimaryActionModeCallback? = null
@@ -89,13 +84,6 @@ class BrowseFolderFragment : Fragment() {
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_browse_folder, container, false
         )
-//        val viewModelFactory = BrowseFolderViewModel.BrowseFolderViewModelFactory(
-//            CellsApp.instance.accountService,
-//            CellsApp.instance.nodeService,
-//            ,
-//            requireActivity().application,
-//        )
-//        val tmpVM: BrowseFolderViewModel by viewModels { viewModelFactory }
 
         browseFolderVM.afterCreate(StateID.fromId(args.state))
 
@@ -130,16 +118,14 @@ class BrowseFolderFragment : Fragment() {
         // Put this also in observer when the above has been fixed
         binding.addNodeFab.setOnClickListener { onFabClicked() }
 
-        binding.nodesForceRefresh.setOnRefreshListener { browseFolderVM.forceRefresh() }
+        binding.forceRefresh.setOnRefreshListener { browseFolderVM.forceRefresh() }
 
         browseFolderVM.isLoading.observe(viewLifecycleOwner) {
-            binding.nodesForceRefresh.isRefreshing = it
+            binding.forceRefresh.isRefreshing = it
         }
         browseFolderVM.errorMessage.observe(viewLifecycleOwner) { msg ->
             msg?.let { showLongMessage(requireContext(), msg) }
         }
-
-        isCreated = true
         return binding.root
     }
 
@@ -175,8 +161,8 @@ class BrowseFolderFragment : Fragment() {
         }
 
         // Manage multi selection
-        trackerBuilder.let {
-            val tmpTracker = it.withSelectionPredicate(
+        trackerBuilder.let { builder ->
+            val tmpTracker = builder.withSelectionPredicate(
                 SelectionPredicates.createSelectAnything()
             ).build()
             if (adapter is NodeListAdapter) {
@@ -189,7 +175,7 @@ class BrowseFolderFragment : Fragment() {
 
                     override fun onItemStateChanged(key: String, selected: Boolean) {
                         super.onItemStateChanged(key, selected)
-                        Log.d(fTag, "onItemStateChanged for $key, selected: $selected")
+                        Log.d(logTag, "onItemStateChanged for $key, selected: $selected")
                     }
 
                     override fun onSelectionChanged() {
@@ -203,7 +189,7 @@ class BrowseFolderFragment : Fragment() {
                                 R.menu.main_multi_select_menu,
                                 object : OnActionItemClickListener {
                                     override fun onActionItemClick(item: MenuItem): Boolean {
-                                        Log.e(fTag, "onActionItemClick for: ${item.title}")
+                                        Log.e(logTag, "onActionItemClick for: ${item.title}")
 
                                         val selected = tracker?.selection?.map { it } ?: return true
 
@@ -241,16 +227,14 @@ class BrowseFolderFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (isCreated) {
-            Log.e(fTag, "onSaveInstanceState for: ${browseFolderVM.stateId}")
-            outState.putString(AppNames.EXTRA_STATE, browseFolderVM.stateId.id)
-        }
+        Log.e(logTag, "onSaveInstanceState for: ${browseFolderVM.stateId}")
+        outState.putString(AppNames.EXTRA_STATE, browseFolderVM.stateId.id)
     }
 
     override fun onResume() {
-        Log.i(fTag, "onResume")
+        Log.i(logTag, "onResume")
         super.onResume()
-        dumpBackStack(fTag, parentFragmentManager)
+        dumpBackStack(logTag, parentFragmentManager)
 
         // We must insure the Observed LiveData has been correctly updated
         // Otherwise we won't see sort order changes directly0
@@ -275,26 +259,24 @@ class BrowseFolderFragment : Fragment() {
     }
 
     override fun onPause() {
-        Log.i(fTag, "onPause")
+        Log.i(logTag, "onPause")
         browseFolderVM.pause()
         super.onPause()
     }
 
     override fun onDetach() {
-        Log.i(fTag, "onDetach")
+        Log.i(logTag, "onDetach")
         super.onDetach()
-        if (isCreated) {
-            resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateId)
-        }
+        resetToHomeStateIfNecessary(parentFragmentManager, browseFolderVM.stateId)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        Log.i(fTag, "onViewStateRestored")
+        Log.i(logTag, "onViewStateRestored")
         super.onViewStateRestored(savedInstanceState)
     }
 
     private fun onClicked(node: RTreeNode, command: String) {
-        Log.i(fTag, "Clicked on ${browseFolderVM.stateId} -> $command")
+        Log.i(logTag, "Clicked on ${browseFolderVM.stateId} -> $command")
         when (command) {
             AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {
@@ -328,7 +310,7 @@ class BrowseFolderFragment : Fragment() {
             return@launch
         }
 
-        Log.i(fTag, "About to navigate to ${node.getStateID()}, mime type: ${node.mime}")
+        Log.i(logTag, "About to navigate to ${node.getStateID()}, mime type: ${node.mime}")
 
         if (node.mime.startsWith("image") || node.mime.startsWith("\"image")) {
             val intent = Intent(requireActivity(), CarouselActivity::class.java)
@@ -336,7 +318,7 @@ class BrowseFolderFragment : Fragment() {
             startActivity(intent)
 
             Log.i(
-                fTag,
+                logTag,
                 "It's an image, open carousel ${node.getStateID()}, mime type: ${node.mime}"
             )
 
@@ -345,7 +327,7 @@ class BrowseFolderFragment : Fragment() {
         }
 
         Log.i(
-            fTag, "**NOT** an image, opening in external viewer:" +
+            logTag, "**NOT** an image, opening in external viewer:" +
                     " ${node.getStateID()}, mime type: ${node.mime}"
         )
 
@@ -387,13 +369,13 @@ class BrowseFolderFragment : Fragment() {
     }
 
     override fun onAttach(context: Context) {
-        Log.i(fTag, "onAttach")
+        Log.i(logTag, "onAttach")
         super.onAttach(context)
     }
 
     inner class PrimaryActionModeCallback : ActionMode.Callback {
 
-        var onActionItemClickListener: OnActionItemClickListener? = null
+        private var onActionItemClickListener: OnActionItemClickListener? = null
 
         @MenuRes
         private var menuResId: Int = 0

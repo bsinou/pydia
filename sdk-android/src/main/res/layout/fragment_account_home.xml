@@ -27,8 +27,8 @@
                 style="@style/TextAppearance.Material3.TitleMedium"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_small"
                 android:layout_marginStart="@dimen/margin_header"
+                android:layout_marginTop="@dimen/margin_small"
                 app:accountHomePrimary="@{session}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -49,8 +49,8 @@
                 android:id="@+id/switch_account_button"
                 android:layout_width="@dimen/header_icon"
                 android:layout_height="@dimen/header_icon"
-                android:layout_marginEnd="@dimen/margin_header"
                 android:layout_marginTop="@dimen/margin_medium"
+                android:layout_marginEnd="@dimen/margin_header"
                 android:alpha="0.9"
                 android:src="@drawable/ic_baseline_switch_account_24"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -59,12 +59,18 @@
             <!--            app:tint="?attr/colorPrimary"-->
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/workspaces"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/force_refresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/margin" />
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/workspaces"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="@dimen/margin" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <include
             android:id="@+id/empty_content"

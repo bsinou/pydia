@@ -12,34 +12,29 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.await
 import com.pydio.cells.api.SDKException
 import com.pydio.cells.transport.ClientData
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
+import org.koin.core.component.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import org.sinou.android.pydia.db.accounts.AccountDB
-import org.sinou.android.pydia.db.runtime.RuntimeDB
-import org.sinou.android.pydia.services.AccountService
-import org.sinou.android.pydia.services.FileService
-import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.services.OfflineSyncWorker
-import org.sinou.android.pydia.services.TransferService
 import org.sinou.android.pydia.services.allModules
-import org.sinou.android.pydia.services.databaseModule
-import org.sinou.android.pydia.services.myModule
 import java.util.concurrent.TimeUnit
 
 /**
  * Main entry point of the Pydio client application.
  *
  * Does nothing exotic to begin with */
-class CellsApp : Application() {
+class CellsApp : Application(), KoinComponent {
 
     private val logTag = CellsApp::class.simpleName
     private lateinit var sharedPreferences: SharedPreferences
@@ -76,60 +71,60 @@ class CellsApp : Application() {
         startKoin {
             androidLogger(Level.DEBUG)
             androidContext(this@CellsApp)
+            workManagerFactory()
             modules(allModules)
         }
 
-        delayedInit()
+        cancelPendingWorkManager(this)
+        setupOfflineWorker()
+//        delayedInit()
     }
 
-    private fun delayedInit() {
-
-        launchScope.launch {
-
-            // initServices()
-            ready = true
-            Log.i(logTag, "... Service initialized, configuring workers")
-
-            setupOfflineWorker()
-            Log.i(logTag, "... Delayed init terminated")
-        }
-    }
-
+//    private fun delayedInit() {
+//
+//        launchScope.launch {
+//
+//            // initServices()
+//            ready = true
+//            Log.i(logTag, "... Service initialized, configuring workers")
+//
+//            Log.i(logTag, "... Delayed init terminated")
+//        }
+//    }
 
     private fun setupOfflineWorker() {
 
-        // TODO make this configurable
-
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .setRequiresBatteryNotLow(true)
-// Could be even more defensive:
-//            .setRequiresCharging(true)
-//            .apply {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    setRequiresDeviceIdle(true)
-//                }
-//            }
-            .build()
-
-        // Dev constraints. Do **not** use this in production
+//        // TODO make this configurable
+//        val constraints = Constraints.Builder()
+//            .setRequiredNetworkType(NetworkType.UNMETERED)
+//            .setRequiresBatteryNotLow(true)
+//// Could be even more defensive:
+////            .setRequiresCharging(true)
+////            .apply {
+////                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+////                    setRequiresDeviceIdle(true)
+////                }
+////            }
+//            .build()
+//
+//        // Dev constraints. Do **not** use this in production
 //        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
 //            16,
 //            TimeUnit.MINUTES
 //        ).setConstraints(constraints)
 //            .build()
-
-        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
-            1,
-            TimeUnit.DAYS
-        ).setConstraints(constraints)
-            .build()
-
-        WorkManager.getInstance(instance.applicationContext).enqueueUniquePeriodicWork(
-            OfflineSyncWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            repeatingRequest
-        )
+//
+////        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
+////            1,
+////            TimeUnit.DAYS
+////        ).setConstraints(constraints)
+////            .build()
+//
+//        WorkManager.getInstance(this@CellsApp).enqueueUniquePeriodicWork(
+//            OfflineSyncWorker.WORK_NAME,
+//            ExistingPeriodicWorkPolicy.KEEP,
+//            repeatingRequest
+//        )
     }
 
     @Throws(SDKException::class)
@@ -191,4 +186,52 @@ class CellsApp : Application() {
     // TODO implement background cleaning, typically:
     //  - states
     //  - upload & downloads
+}
+
+/**
+ * If there is a pending work because of previous crash we'd like it to not run.
+ *
+ */
+private fun cancelPendingWorkManager(mainApplication: CellsApp) {
+    runBlocking {
+        WorkManager.getInstance(mainApplication)
+            .cancelAllWork()
+            .result
+            .await()
+
+
+        // TODO make this configurable
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.UNMETERED)
+            .setRequiresBatteryNotLow(true)
+// Could be even more defensive:
+//            .setRequiresCharging(true)
+//            .apply {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    setRequiresDeviceIdle(true)
+//                }
+//            }
+            .build()
+
+        // Dev constraints. Do **not** use this in production
+        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
+            16,
+            TimeUnit.MINUTES
+        ).setConstraints(constraints)
+            .build()
+
+//        val repeatingRequest = PeriodicWorkRequestBuilder<OfflineSyncWorker>(
+//            1,
+//            TimeUnit.DAYS
+//        ).setConstraints(constraints)
+//            .build()
+
+        WorkManager.getInstance(mainApplication).enqueueUniquePeriodicWork(
+            OfflineSyncWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            repeatingRequest
+        )
+
+
+    }
 }

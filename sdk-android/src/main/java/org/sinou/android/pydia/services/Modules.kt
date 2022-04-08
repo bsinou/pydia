@@ -9,6 +9,7 @@ import com.pydio.cells.transport.auth.Token
 import com.pydio.cells.utils.MemoryStore
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.workmanager.dsl.worker
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.sinou.android.pydia.db.accounts.AccountDB
@@ -16,6 +17,7 @@ import org.sinou.android.pydia.db.runtime.RuntimeDB
 import org.sinou.android.pydia.ui.ActiveSessionViewModel
 import org.sinou.android.pydia.ui.account.AccountListViewModel
 import org.sinou.android.pydia.ui.auth.OAuthViewModel
+import org.sinou.android.pydia.ui.auth.P8CredViewModel
 import org.sinou.android.pydia.ui.auth.ServerUrlViewModel
 import org.sinou.android.pydia.ui.browse.BookmarksViewModel
 import org.sinou.android.pydia.ui.browse.BrowseFolderViewModel
@@ -77,12 +79,15 @@ val serviceModule = module {
     single { NodeService(get(), get(), get()) }
     single { FileService(get()) }
     single { TransferService(get(), get(), get(), get()) }
+
+    worker { OfflineSyncWorker(get(), get(), get(), get()) }
 }
 
 val viewModelModule = module {
 
     viewModel { ServerUrlViewModel(get(), get()) }
     viewModel { OAuthViewModel(get(), get(), get()) }
+    viewModel { P8CredViewModel(get()) }
     viewModel { AccountListViewModel(get()) }
 
     // FIXME must find a way to pass the state in a reliable fashion

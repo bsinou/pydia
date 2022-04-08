@@ -34,6 +34,6 @@ interface AccountService {
 
     suspend fun logoutAccount(accountID: String): String?
 
-    suspend fun refreshWorkspaceList(accountIDStr: String): String?
+    suspend fun refreshWorkspaceList(accountIDStr: String): Pair<Int, String?>
 
 }

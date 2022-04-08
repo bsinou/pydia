@@ -44,7 +44,6 @@ fun ImageView.setAccountImage(item: RLiveSession?) {
 @BindingAdapter("authAction")
 fun ImageView.setAuthAction(item: RLiveSession?) {
     item?.let {
-
         setImageResource(
             when (item.authStatus) {
                 //AUTH_STATUS_NEW -> R.drawable.icon_folder
@@ -68,7 +67,6 @@ fun TextView.setAccountPrimaryText(item: RLiveSession?) {
         }
         text = "${item.serverLabel} ${legacy} "
     }
-
 }
 
 @SuppressLint("SetTextI18n")

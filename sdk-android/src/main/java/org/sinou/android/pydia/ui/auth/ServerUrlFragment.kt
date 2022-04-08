@@ -74,6 +74,7 @@ class ServerUrlFragment : Fragment() {
 
         serverUrlVM.isLoading.observe(viewLifecycleOwner) {
             binding.loadingIndicator.visibility = if (it) View.VISIBLE else View.GONE
+            binding.urlEditText.isEnabled = !it
         }
 
         serverUrlVM.errorMessage.observe(viewLifecycleOwner) { msg ->
@@ -85,11 +86,11 @@ class ServerUrlFragment : Fragment() {
 
     private fun goForPing() {
         serverUrlVM.pingAddress(binding.urlEditText.text.toString())
-        binding.apply {
-            // Update model?
-            // Important: trigger re-paint Really ?
-            invalidateAll()
-        }
+//        binding.apply {
+//            // Update model?
+//            // Important: trigger re-paint Really ?
+//            invalidateAll()
+//        }
         hideKeyboard()
     }
 }

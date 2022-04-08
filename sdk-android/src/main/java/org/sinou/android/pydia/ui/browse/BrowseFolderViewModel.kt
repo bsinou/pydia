@@ -1,12 +1,10 @@
 package org.sinou.android.pydia.ui.browse
 
-import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.*
 import org.sinou.android.pydia.db.nodes.RTreeNode
-import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.BackOffTicker
 import java.util.concurrent.TimeUnit
@@ -15,6 +13,10 @@ import java.util.concurrent.TimeUnit
 class BrowseFolderViewModel(
     private val nodeService: NodeService,
 ) : ViewModel() {
+
+    private val logTag = BrowseFolderViewModel::class.simpleName
+    private var viewModelJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     private lateinit var _stateId: StateID
     val stateId: StateID
@@ -32,9 +34,6 @@ class BrowseFolderViewModel(
 //    val selected : Selection<String>?
 //         get() = _selected
 
-    private val tag = BrowseFolderViewModel::class.simpleName
-    private var viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private val backOffTicker = BackOffTicker()
     private var _isActive = false
     private var currWatcher: Job? = null
@@ -61,7 +60,7 @@ class BrowseFolderViewModel(
         while (_isActive) {
             doPull()
             val nd = backOffTicker.getNextDelay()
-            Log.d(tag, "... Next delay: $nd - $stateId")
+            Log.d(logTag, "... Next delay: $nd - $stateId")
             delay(TimeUnit.SECONDS.toMillis(nd))
         }
     }
@@ -85,7 +84,7 @@ class BrowseFolderViewModel(
     }
 
     fun resume() {
-        Log.i(tag, "resumed")
+        Log.i(logTag, "resumed")
         resetLiveChildren()
         if (!_isActive) {
             _isActive = true
@@ -95,7 +94,7 @@ class BrowseFolderViewModel(
     }
 
     fun pause() {
-        Log.i(tag, "paused")
+        Log.i(logTag, "paused")
         _isActive = false
     }
 

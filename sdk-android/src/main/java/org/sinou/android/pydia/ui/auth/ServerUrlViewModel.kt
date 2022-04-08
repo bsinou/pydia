@@ -106,8 +106,7 @@ class ServerUrlViewModel(
             Log.i(logTag, "Perform real ping to $serverAddress")
             var newURL: ServerURL? = null
             try {
-                val tmp = _skipVerify.value ?: false
-                newURL = ServerURLImpl.fromAddress(serverAddress, tmp)
+                newURL = ServerURLImpl.fromAddress(serverAddress, _skipVerify.value ?: false)
                 newURL.ping()
             } catch (e: MalformedURLException) {
                 updateErrorMsg(e.message ?: "Invalid address, please update")
@@ -170,6 +169,7 @@ class ServerUrlViewModel(
     private suspend fun updateErrorMsg(msg: String) {
         return withContext(Dispatchers.Main) {
             _errorMessage.value = msg
+            switchLoading(false)
         }
     }
 

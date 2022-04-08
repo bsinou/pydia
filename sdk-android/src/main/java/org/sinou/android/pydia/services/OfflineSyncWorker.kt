@@ -11,16 +11,15 @@ import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.utils.asFormattedString
 import org.sinou.android.pydia.utils.getCurrentDateTime
 
-class OfflineSyncWorker(appContext: Context, params: WorkerParameters) :
-    CoroutineWorker(appContext, params), KoinComponent {
+class OfflineSyncWorker(
+    private val accountService: AccountService,
+    private val nodeService: NodeService,
+    appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params) {
 
     companion object {
         const val WORK_NAME = "OfflineSyncWorker"
     }
-
-    private val accountService: AccountService by inject()
-    private val nodeService: NodeService by inject()
-    private val treeNodeRepository: TreeNodeRepository by inject()
 
     @SuppressLint("RestrictedApi")
     override suspend fun doWork(): Result {
@@ -30,7 +29,6 @@ class OfflineSyncWorker(appContext: Context, params: WorkerParameters) :
                 getCurrentDateTime().asFormattedString("yyyy-MM-dd HH:mm")
             }"
         )
-
 
         for (session in accountService.listLiveSessions(false)) {
             if (session.lifecycleState != AppNames.LIFECYCLE_STATE_PAUSED

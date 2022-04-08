@@ -21,25 +21,17 @@ import java.io.File
 
 class WorkspaceDiff(
     private val accountId: StateID,
-    private val client: Client,
-//    private val accountService: AccountService,
-//    nodeService: NodeService,
-//    private val fileService: FileService,
+    private val client: Client
 ) : KoinComponent {
 
     private val logTag = WorkspaceDiff::class.simpleName
 
-//    private val wsDiffJob = Job()
-//    private val diffScope = CoroutineScope(Dispatchers.IO + wsDiffJob)
-
-    private var changeNumber = 0
-
-    // private val accountService: AccountService by inject()
     private val nodeService: NodeService by inject()
     private val fileService: FileService by inject()
     private val wsDao: WorkspaceDao by inject()
-
     private val nodeDB = nodeService.nodeDB(accountId)
+
+    private var changeNumber = 0
 
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
         val remotes = RemoteWsIterator()
@@ -47,8 +39,10 @@ class WorkspaceDiff(
         val locals = LocalWsIterator(wsDao.getWsForDiff(accountId.id).iterator())
         processChanges(remotes, locals)
         if (changeNumber > 0) {
-            Log.d(logTag, "Synced workspace list with $changeNumber changes")
+            Log.d(logTag, "Synced workspace list for $accountId with $changeNumber changes")
         }
+
+        return@withContext changeNumber
     }
 
     private fun processChanges(rit: Iterator<WorkspaceNode>, lit: Iterator<RWorkspace>) {
@@ -135,7 +129,7 @@ class WorkspaceDiff(
             fileService.dataParentPath(local.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
         for (node in nodeDB.treeNodeDao().getUnder(local.encodedState)) {
             node.thumbFilename?.let {
-                Log.e(logTag, "Got a file to delete: $it")
+                Log.i(logTag, "Got a file to delete: $it")
                 val thumb = File("${thumbParPath}/$it")
                 if (thumb.exists()) {
                     thumb.delete()

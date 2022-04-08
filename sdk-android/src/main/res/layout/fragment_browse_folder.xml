@@ -17,7 +17,7 @@
             android:visibility="gone" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/nodes_force_refresh"
+            android:id="@+id/force_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -27,9 +27,8 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingTop="@dimen/margin_small"
-                android:paddingBottom="@dimen/recycler_bottom_fab_padding"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
+                android:paddingBottom="@dimen/recycler_bottom_fab_padding"/>
+<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

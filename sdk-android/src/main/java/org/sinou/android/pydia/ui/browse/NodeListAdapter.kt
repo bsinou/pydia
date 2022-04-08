@@ -28,10 +28,10 @@ class NodeListAdapter(
 ) : ListAdapter<RTreeNode, NodeListAdapter.ViewHolder>(TreeNodeDiffCallback()), KoinComponent {
 
     private val tag = NodeListAdapter::class.simpleName
+    private val fileService: FileService by inject()
+
     private var showPath = false
     var tracker: SelectionTracker<String>? = null
-
-    val fileService: FileService by inject()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -73,7 +73,6 @@ class NodeListAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         private val tag = ViewHolder::class.simpleName
-
 
         fun bind(item: RTreeNode, thumbDirPath: String?, isSelected: Boolean = false) {
             binding.node = item

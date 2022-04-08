@@ -23,6 +23,8 @@ import org.sinou.android.pydia.ui.browse.OfflineRootsViewModel
 import org.sinou.android.pydia.ui.menus.TransferMenuViewModel
 import org.sinou.android.pydia.ui.menus.TreeNodeMenuViewModel
 import org.sinou.android.pydia.ui.search.SearchViewModel
+import org.sinou.android.pydia.ui.transfer.ChooseTargetViewModel
+import org.sinou.android.pydia.ui.transfer.PickFolderViewModel
 import org.sinou.android.pydia.ui.transfer.PickSessionViewModel
 import org.sinou.android.pydia.ui.transfer.TransferViewModel
 
@@ -60,31 +62,21 @@ val databaseModule = module {
 
 val serviceModule = module {
 
+    // Manage accounts and authentification
     single<Store<Server>>(named("ServerStore")) { MemoryStore<Server>() }
     single<Store<Transport>>(named("TransportStore")) { MemoryStore<Transport>() }
-
     single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }
     single<Store<String>>(named("PasswordStore")) { PasswordStore(get()) }
     single { CredentialService(get(named("TokenStore")), get(named("PasswordStore"))) }
-
     single { AuthService(get()) }
-
     single { SessionFactory(get(), get(named("ServerStore")), get(named("TransportStore")), get()) }
-
-
-    // val sessionFactory: SessionFactory =
-    //         SessionFactory.getSessionFactory(authService.credentialService, liveSessionDao)
-
-    single { TreeNodeRepository(androidContext().applicationContext, get()) }
-
     single<AccountService> { AccountServiceImpl(get(), get(), get()) }
 
-    single { FileService(get()) }
-
+    // Business services
+    single { TreeNodeRepository(androidContext().applicationContext, get()) }
     single { NodeService(get(), get(), get()) }
-
+    single { FileService(get()) }
     single { TransferService(get(), get(), get(), get()) }
-
 }
 
 val viewModelModule = module {
@@ -101,7 +93,9 @@ val viewModelModule = module {
     viewModel { BookmarksViewModel(get()) }
     viewModel { OfflineRootsViewModel(get()) }
 
+    viewModel { ChooseTargetViewModel(get()) }
     viewModel { PickSessionViewModel(get()) }
+    viewModel { PickFolderViewModel(get(), get()) }
 
     viewModel { TransferViewModel(get()) }
     viewModel { params -> TransferMenuViewModel(params.get(), get()) }

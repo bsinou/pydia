@@ -1,10 +1,16 @@
 package org.sinou.android.pydia.ui.transfer
 
-import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.AccountService
 import org.sinou.android.pydia.services.NodeService
@@ -17,11 +23,10 @@ import java.util.concurrent.TimeUnit
  */
 class PickFolderViewModel(
     private val accountService: AccountService,
-    private val nodeService: NodeService,
-    application: Application
-) : AndroidViewModel(application) {
+    private val nodeService: NodeService
+) : ViewModel() {
 
-    private lateinit var _stateID : StateID
+    private lateinit var _stateID: StateID
     val stateID: StateID
         get() = _stateID
 
@@ -49,7 +54,7 @@ class PickFolderViewModel(
         _isLoading.value = true
     }
 
-    fun afterCreate(stateID : StateID){
+    fun afterCreate(stateID: StateID) {
         _stateID = stateID
         _children = nodeService.listChildFolders(stateID)
     }
@@ -112,19 +117,4 @@ class PickFolderViewModel(
         super.onCleared()
         viewModelJob.cancel()
     }
-
-//    class PickFolderViewModelFactory(
-//        private val stateID: StateID,
-//        private val accountService: AccountService,
-//        private val nodeService: NodeService,
-//        private val application: Application
-//    ) : ViewModelProvider.Factory {
-//        @Suppress("unchecked_cast")
-//        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//            if (modelClass.isAssignableFrom(PickFolderViewModel::class.java)) {
-//                return PickFolderViewModel(stateID, accountService, nodeService, application) as T
-//            }
-//            throw IllegalArgumentException("Unknown ViewModel class")
-//        }
-//    }
 }

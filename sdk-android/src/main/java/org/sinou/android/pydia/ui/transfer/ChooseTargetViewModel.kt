@@ -1,13 +1,18 @@
 package org.sinou.android.pydia.ui.transfer
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.MainActivity
 import org.sinou.android.pydia.services.TransferService
@@ -95,17 +100,4 @@ class ChooseTargetViewModel(private val transferService: TransferService) : View
         uris.clear()
         uris.addAll(targets)
     }
-
-/*    class ChooseTargetViewModelFactory(
-        private val transferService: TransferService,
-        private val application: Application
-    ) : ViewModelProvider.Factory {
-        @Suppress("unchecked_cast")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ChooseTargetViewModel::class.java)) {
-                return ChooseTargetViewModel(transferService, application) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }*/
 }

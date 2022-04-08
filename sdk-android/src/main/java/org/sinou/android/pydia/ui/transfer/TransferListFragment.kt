@@ -30,13 +30,6 @@ class TransferListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-//        val viewModelFactory = TransferViewModel.TransferViewModelFactory(
-//            CellsApp.instance.transferService,
-//            requireActivity().application,
-//        )
-//        val tmpVM: TransferViewModel by viewModels { viewModelFactory }
-//        transferVM = tmpVM
-
         setHasOptionsMenu(true)
         binding = DataBindingUtil.inflate(
             inflater, R.layout.fragment_transfer_list, container, false

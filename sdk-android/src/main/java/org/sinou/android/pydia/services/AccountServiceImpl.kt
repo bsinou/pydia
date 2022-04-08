@@ -179,6 +179,7 @@ class AccountServiceImpl(
     }
 
     override suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {
+        Log.i(tag, "Received error $code for $stateID")
         try {
             accountDao.getAccount(stateID.accountId)?.let {
                 when (code) {

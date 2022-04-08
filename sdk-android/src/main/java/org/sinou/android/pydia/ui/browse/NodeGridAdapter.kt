@@ -9,22 +9,28 @@ import androidx.recyclerview.selection.ItemKeyProvider
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.GridItemNodeBinding
 import org.sinou.android.pydia.db.nodes.RTreeNode
+import org.sinou.android.pydia.services.FileService
 
 class NodeGridAdapter(
     private val onItemClicked: (node: RTreeNode, command: String) -> Unit
-) : ListAdapter<RTreeNode, NodeGridAdapter.ViewHolder>(TreeNodeDiffCallback()) {
+) : ListAdapter<RTreeNode, NodeGridAdapter.ViewHolder>(TreeNodeDiffCallback()), KoinComponent {
 
+    private val fileService: FileService by inject()
     var tracker: SelectionTracker<String>? = null
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
+        val thumbDirPath =
+            fileService.dataParentPath(item.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
         tracker?.let {
-            holder.bind(item, it.isSelected(item.encodedState))
+            holder.bind(item, thumbDirPath, it.isSelected(item.encodedState))
         } ?: run {
-            holder.bind(item)
+            holder.bind(item, thumbDirPath)
         }
     }
 
@@ -50,10 +56,13 @@ class NodeGridAdapter(
     inner class ViewHolder(val binding: GridItemNodeBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: RTreeNode, isSelected: Boolean = false) {
+        fun bind(item: RTreeNode, thumbDirPath: String?, isSelected: Boolean = false) {
             binding.node = item
+            binding.thumbDirPath = thumbDirPath
+
             binding.nodeCard.isActivated = isSelected
             binding.nodeCard.isChecked = isSelected
+
             if (this@NodeGridAdapter.tracker?.hasSelection() ?: false) {
                 binding.moreBtnLayout.visibility = View.GONE
             } else {

@@ -13,6 +13,7 @@ import androidx.navigation.fragment.navArgs
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.R
@@ -30,7 +31,7 @@ class PickFolderFragment : Fragment() {
 
     private val nodeService: NodeService by inject()
     private val pickFolderVM: PickFolderViewModel by viewModel()
-    private val chooseTargetVM: ChooseTargetViewModel by viewModel()
+    private val chooseTargetVM: ChooseTargetViewModel by sharedViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

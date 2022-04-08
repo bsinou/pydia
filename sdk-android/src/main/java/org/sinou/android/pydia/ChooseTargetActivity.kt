@@ -20,20 +20,21 @@ import kotlinx.coroutines.MainScope
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.databinding.ActivityChooseTargetBinding
 import org.sinou.android.pydia.ui.transfer.ChooseTargetViewModel
-import org.sinou.android.pydia.utils.showMessage
 
 /**
  * Let the end-user choose a target in one of the defined remote servers.
+ * This is both used for receiving intents from third-party applications and
+ * for choosing a target location for copy and moved.
  */
 class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private val logTag = ChooseTargetActivity::class.simpleName
 
-    private lateinit var binding: ActivityChooseTargetBinding
+    private val chooseTargetVM by viewModel<ChooseTargetViewModel>()
+
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
-
-    private val chooseTargetVM: ChooseTargetViewModel by viewModel()
+    private lateinit var binding: ActivityChooseTargetBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(logTag, "onCreate: launching target choice process")
@@ -46,23 +47,19 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-//        val chooseTargetFactory = ChooseTargetViewModel.ChooseTargetViewModelFactory(
-//            CellsApp.instance.transferService,
-//            application,
-//        )
-//        val tmpVM: ChooseTargetViewModel by viewModels { chooseTargetFactory }
-//        chooseTargetVM = tmpVM
-
         chooseTargetVM.postDone.observe(this) {
             if (it) {
-                showMessage(this, "And returning")
+//                showMessage(this, "And returning")
                 finishAndRemoveTask()
             }
         }
 
         chooseTargetVM.postIntent.observe(this) {
             it?.let {
-                Log.d(logTag, "Result OK, target state: ${chooseTargetVM.currentLocation.value}")
+                Log.d(
+                    logTag,
+                    "Terminating, chosen target state: ${chooseTargetVM.currentLocation.value}"
+                )
                 setResult(Activity.RESULT_OK, it)
                 finishAndRemoveTask()
             }
@@ -141,7 +138,6 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         return true
     }
 
-
     override fun onStop() {
         Log.d(logTag, "onStop: target state: ${chooseTargetVM.currentLocation.value}")
         super.onStop()
@@ -152,17 +148,14 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-
             R.id.launch_upload -> {
                 chooseTargetVM.launchPost(this)
                 true
             }
-
             R.id.cancel_upload -> {
                 this.finishAndRemoveTask()
                 true
             }
-            // R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
     }

@@ -20,10 +20,10 @@ import org.sinou.android.pydia.db.runtime.RTransfer
 
 class TransferListFragment : Fragment() {
 
-    private val fTag = TransferListFragment::class.java.simpleName
+    private val logTag = TransferListFragment::class.java.simpleName
 
-    private lateinit var binding: FragmentTransferListBinding
     private val transferVM: TransferViewModel by viewModel()
+    private lateinit var binding: FragmentTransferListBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,7 +44,7 @@ class TransferListFragment : Fragment() {
     }
 
     private fun onClicked(node: RTransfer, command: String) {
-        Log.i(fTag, "Clicked on ${node.encodedState} -> $command")
+        Log.i(logTag, "Clicked on ${node.encodedState} -> $command")
         when (command) {
             // AppNames.ACTION_OPEN -> navigateTo(node)
             AppNames.ACTION_MORE -> {

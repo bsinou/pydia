@@ -22,7 +22,6 @@ import org.sinou.android.pydia.services.TransferService
  */
 class ChooseTargetViewModel(private val transferService: TransferService) : ViewModel() {
 
-    // Internal Helpers
     private val logTag = ChooseTargetViewModel::class.simpleName
     private val viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)

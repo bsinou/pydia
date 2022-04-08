@@ -1,5 +1,6 @@
 package org.sinou.android.pydia.ui.transfer
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,6 +27,11 @@ class PickFolderViewModel(
     private val nodeService: NodeService
 ) : ViewModel() {
 
+    private val logTag = PickFolderViewModel::class.simpleName
+    private val viewModelJob = Job()
+    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+
+    // Business objects
     private lateinit var _stateID: StateID
     val stateID: StateID
         get() = _stateID
@@ -35,12 +41,9 @@ class PickFolderViewModel(
         get() = _children
 
     // Technical local objects
-    // private val tag = PickFolderViewModel::class.simpleName
-    private val viewModelJob = Job()
-    private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private val backOffTicker = BackOffTicker()
-    private var _isActive = false
     private var currWatcher: Job? = null
+    private var _isActive = false
 
     // UI
     private val _isLoading = MutableLiveData<Boolean>()
@@ -64,7 +67,7 @@ class PickFolderViewModel(
             doPull()
             val nd = backOffTicker.getNextDelay()
             delay(TimeUnit.SECONDS.toMillis(nd))
-            //Log.d(tag, "... Next delay: $nd")
+            Log.d(logTag, "... Watching folders at $stateID, next delay: ${nd}s")
         }
     }
 

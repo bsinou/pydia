@@ -26,25 +26,29 @@ import org.sinou.android.pydia.services.FileService
 import org.sinou.android.pydia.ui.viewer.CarouselViewModel
 import java.io.File
 
+/**
+ * Basic carousel to open the supported files (for the time being mainly images)
+ * in app with a nice look and feel
+ */
 class CarouselActivity : AppCompatActivity() {
 
-    private val tag = CarouselActivity::class.simpleName
+    private val logTag = CarouselActivity::class.simpleName
     private val fileService: FileService by inject()
 
     private val carouselVM: CarouselViewModel by viewModel()
-
     private lateinit var binding: ActivityCarouselBinding
+
     var numImages = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(tag, "onCreate, intent: $intent")
+        Log.d(logTag, "onCreate, intent: $intent")
         super.onCreate(savedInstanceState)
         handleIntent(savedInstanceState)
         setupActivity()
     }
 
     override fun onResume() {
-        Log.d(tag, "onResume, intent: $intent")
+        Log.d(logTag, "onResume, intent: $intent")
         super.onResume()
         setupCarousel()
         lifecycleScope.launch {
@@ -56,23 +60,13 @@ class CarouselActivity : AppCompatActivity() {
 
     private fun handleIntent(savedInstanceState: Bundle?) {
 
-        Log.d(tag, "handleIntent, bundle: $savedInstanceState")
-        Log.d(tag, "has extra: ${intent.hasExtra(AppNames.EXTRA_STATE)}")
+        Log.e(logTag, "handleIntent, bundle: $savedInstanceState")
+        Log.e(logTag, "has extra: ${intent.hasExtra(AppNames.EXTRA_STATE)}")
 
         if (intent.hasExtra(AppNames.EXTRA_STATE)) {
             val stateStr: String = intent.getStringExtra(AppNames.EXTRA_STATE)!!
-            val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
+//            val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
             val state = StateID.fromId(stateStr)
-
-//            val viewModelFactory = CarouselViewModel.CarouselViewModelFactory(
-//                CellsApp.instance.accountService,
-//                CellsApp.instance.nodeService,
-//                state.parentFolder(),
-//                state,
-//                application,
-//            )
-//            val tmpVM: CarouselViewModel by viewModels { viewModelFactory }
-//            carouselVM = tmpVM
 
             carouselVM.afterCreate(state.parentFolder(), state)
         }
@@ -93,7 +87,7 @@ class CarouselActivity : AppCompatActivity() {
     private fun setupCarousel() {
 
         val ml = binding.motionLayout
-        Log.e(tag, "Motion layout is shown: ${ml.isShown}")
+        Log.e(logTag, "Motion layout is shown: ${ml.isShown}")
 
         binding.carousel.setAdapter(object : Carousel.Adapter {
 
@@ -135,7 +129,7 @@ class CarouselActivity : AppCompatActivity() {
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        Log.i(tag, "onPostCreate")
+        Log.i(logTag, "onPostCreate")
         super.onPostCreate(savedInstanceState, persistentState)
         jumpToIndex()
     }
@@ -151,7 +145,7 @@ class CarouselActivity : AppCompatActivity() {
             }
             i++
         }
-        Log.w(tag, "... Got a carousel, start index: $index")
+        Log.w(logTag, "... Got a carousel, start index: $index")
 
         if (index > 0) {
             binding.carousel.jumpToIndex(index)
@@ -161,17 +155,17 @@ class CarouselActivity : AppCompatActivity() {
     }
 
     override fun onStart() {
-        Log.d(tag, "onStart, intent: $intent")
+        Log.d(logTag, "onStart, intent: $intent")
         super.onStart()
     }
 
     override fun onPause() {
-        Log.i(tag, "onPause, intent: $intent")
+        Log.d(logTag, "onPause, intent: $intent")
         super.onPause()
     }
 
     override fun onStop() {
-        Log.i(tag, "onStop, intent: $intent")
+        Log.d(logTag, "onStop, intent: $intent")
         super.onStop()
     }
 }
@@ -208,4 +202,3 @@ open class SavingMotionLayout @JvmOverloads constructor(
         val progress: Float
     ) : Parcelable
 }
-

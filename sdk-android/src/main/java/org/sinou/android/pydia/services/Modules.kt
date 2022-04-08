@@ -27,6 +27,7 @@ import org.sinou.android.pydia.ui.transfer.ChooseTargetViewModel
 import org.sinou.android.pydia.ui.transfer.PickFolderViewModel
 import org.sinou.android.pydia.ui.transfer.PickSessionViewModel
 import org.sinou.android.pydia.ui.transfer.TransferViewModel
+import org.sinou.android.pydia.ui.viewer.CarouselViewModel
 
 val databaseModule = module {
 
@@ -46,7 +47,6 @@ val databaseModule = module {
     single { get<AccountDB>().sessionDao() }
     single { get<AccountDB>().tokenDao() }
     single { get<AccountDB>().workspaceDao() }
-
 
     // Runtime DB
     single {
@@ -101,6 +101,8 @@ val viewModelModule = module {
     viewModel { params -> TransferMenuViewModel(params.get(), get()) }
 
     viewModel { SearchViewModel(get()) }
+
+    viewModel { CarouselViewModel(get()) }
 }
 
 val dbTestModule = module {

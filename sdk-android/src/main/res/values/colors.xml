@@ -62,6 +62,14 @@
     <color name="seed">#067098</color>
     <color name="error">#BA1B1B</color>
 
+    <!-- A few hard-coded colors -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="flag_bookmark">#FF9800</color>
+    <color name="flag_offline">#03DAC5</color>
+    <color name="flag_share">#219600</color>
+    <color name="searchStatusBarColor">@color/cells_secondary</color>
+
 
     <!-- Main Colors -->
     <color name="cells_primary">@color/md_theme_light_primary</color>
@@ -95,13 +103,7 @@
 
 
     <color name="cells_divider_light">#EDF0F2</color>
-
     <color name="cells_xlight_status_bar">@android:color/white</color>
-
-
-    <color name="flag_bookmark">#FF9800</color>
-    <color name="flag_offline">#03DAC5</color>
-    <color name="flag_share">#219600</color>
 
     <color name="colorAccent">#FF9800</color>
     <color name="ok">#219600</color>
@@ -112,15 +114,12 @@
     <!-- First try for dynamic status bar color -->
     <!-- This is the default (defined by material?) -->
     <color name="defaultStatusBarColor">@color/cells_xlight_status_bar</color>
-    <color name="searchStatusBarColor">@color/cells_secondary</color>
 
     <!-- Define Main Material Palette -->
 
 <!--    <color name="colorPrimary">@color/colorMain</color>-->
 <!--    <color name="colorPrimaryLight">@color/colorMainLight</color>-->
 <!--    <color name="colorPrimaryDark">@color/colorMainAccent</color>-->
-
-
 
     <color name="colorTextPrimary">@color/cells_text</color>
     <color name="colorTextAccent">@color/cells_text_accent</color>
@@ -142,7 +141,7 @@
     <color name="spinner_start_color">@color/cells_primary_container</color>
     <color name="spinner_end_color">@color/cells_primary_inverse</color>
 
-<!--    <color name="skip_red_color">#f44336</color>-->
+    <!--    <color name="skip_red_color">#f44336</color>-->
 <!--    <color name="selected_red_color">#ba000d</color>-->
 <!--    <color name="black_text_color">#de000000</color>-->
 <!--    <color name="grey_text_color">#99000000</color>-->
@@ -153,7 +152,6 @@
 <!--    <color name="teal_200">#FF03DAC5</color>-->
 <!--    <color name="teal_700">#FF018786</color>-->
 <!--    <color name="black">#FF000000</color>-->
-<!--    <color name="white">#FFFFFFFF</color>-->
 
 
 

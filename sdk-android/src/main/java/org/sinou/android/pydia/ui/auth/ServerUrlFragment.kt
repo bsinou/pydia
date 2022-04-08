@@ -10,9 +10,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.sinou.android.pydia.R
 import org.sinou.android.pydia.databinding.FragmentServerUrlBinding
 import org.sinou.android.pydia.services.AuthService
@@ -29,7 +28,7 @@ class ServerUrlFragment : Fragment() {
 
     private val logTag = ServerUrlFragment::class.simpleName
 
-    private val serverUrlVM: ServerUrlViewModel by viewModel()
+    private val serverUrlVM by sharedViewModel<ServerUrlViewModel>()
     private lateinit var binding: FragmentServerUrlBinding
 
     override fun onCreateView(
@@ -97,18 +96,18 @@ class ServerUrlFragment : Fragment() {
 
 class ConfirmSkipTlsVerificationDialog : DialogFragment() {
 
-    private val viewModel: ServerUrlViewModel by activityViewModels()
+    private val serverUrlVM by sharedViewModel<ServerUrlViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireActivity())
         builder.setTitle(R.string.confirm_skip_verify_title)
             .setMessage(R.string.confirm_skip_verify_desc)
             .setPositiveButton(R.string.button_i_understand_the_risks) { _, _ ->
-                Log.i("ConfirmSkip", "Current stored address: ${viewModel.serverAddress.value}")
-                viewModel.confirmTlsValidationSkip(true)
+                Log.i("ConfirmSkip", "Current stored address: ${serverUrlVM.serverAddress.value}")
+                serverUrlVM.confirmTlsValidationSkip(true)
             }
             .setNegativeButton(R.string.button_cancel) { _, _ ->
-                viewModel.confirmTlsValidationSkip(false)
+                serverUrlVM.confirmTlsValidationSkip(false)
             }
         return builder.create()
     }

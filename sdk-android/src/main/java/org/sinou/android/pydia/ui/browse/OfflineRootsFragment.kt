@@ -28,7 +28,7 @@ import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 
 class OfflineRootsFragment : Fragment() {
 
-    private val fTag = OfflineRootsFragment::class.java.simpleName
+    private val logTag = OfflineRootsFragment::class.java.simpleName
 
     private val activeSessionVM by sharedViewModel<ActiveSessionViewModel>()
     private val offlineVM: OfflineRootsViewModel by viewModel()
@@ -63,7 +63,7 @@ class OfflineRootsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         val activeSession = activeSessionVM.liveSession.value
-        Log.i(fTag, "onResume: ${activeSession?.accountID}")
+        Log.i(logTag, "onResume: ${activeSession?.accountID}")
         activeSession?.let { session ->
             val accountID = StateID.fromId(session.accountID)
 
@@ -115,7 +115,7 @@ class OfflineRootsFragment : Fragment() {
             } else {
 
                 // TODO implement file viewing
-                Log.i(fTag, "OPEN: ${node.encodedState}")
+                Log.i(logTag, "OPEN: ${node.encodedState}")
 
 //                val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
 //                file?.let {

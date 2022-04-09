@@ -129,13 +129,15 @@ class AccountServiceImpl(
 
             val fileService: FileService = get()
             fileService.cleanAllLocalFiles(stateId)
-            val treeNodeRepository: TreeNodeRepository = get()
-            treeNodeRepository.closeNodeDb(stateId.accountId)
 
             // Remove rows in the account tables
             sessionDao.forgetSession(accountId)
             workspaceDao.forgetAccount(accountId)
             accountDao.forgetAccount(accountId)
+
+            val treeNodeRepository: TreeNodeRepository = get()
+            treeNodeRepository.closeNodeDb(stateId.accountId)
+
 
             // Update local caches
             treeNodeRepository.refreshSessionCache()

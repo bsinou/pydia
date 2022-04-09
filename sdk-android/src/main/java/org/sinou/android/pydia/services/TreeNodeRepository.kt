@@ -1,6 +1,7 @@
 package org.sinou.android.pydia.services
 
 import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -12,6 +13,7 @@ import org.sinou.android.pydia.db.nodes.TreeNodeDB
 
 class TreeNodeRepository(private val applicationContext: Context, private val sessionDao: SessionDao) {
 
+    private val logTag = TreeNodeRepository::class.simpleName
     private var treeNodeRepoJob = Job()
     private val treeNodeRepoScope = CoroutineScope(Dispatchers.IO + treeNodeRepoJob)
 
@@ -27,10 +29,13 @@ class TreeNodeRepository(private val applicationContext: Context, private val se
     }
 
     suspend fun refreshSessionCache() = withContext(Dispatchers.IO) {
+        Log.e(logTag, "... About to refresh session cache, we have:")
+
         val sessions = sessionDao.getSessions()
         _sessions.clear()
         for (rSession in sessions) {
             _sessions[rSession.accountID] = rSession
+            Log.e(logTag, "   - ${rSession.accountID} at ${rSession.dirName}")
         }
     }
 

@@ -55,7 +55,7 @@ data class RTreeNode(
 
     @ColumnInfo(name = "sort_name") var sortName: String? = null,
 
-    // FIXME with Filename prefix or not
+    // FIXME decide if we also store the filename prefix or not
     @ColumnInfo(name = "thumb") var thumbFilename: String? = null,
 
     // Can be: none, cache, offline, external

@@ -62,8 +62,7 @@ fun View.setShowForOfflineFileOnly(item: RLiveOfflineRoot?) {
     item?.let { visibility = if (it.isFolder()) View.GONE else View.VISIBLE }
 }
 
-
-// FIXME
+// FIXME Also re-implement thumb retrieval for offline roots
 //@BindingAdapter("offlineRootThumb")
 //fun ImageView.setOfflineRootThumb(item: RLiveOfflineRoot?) {
 //

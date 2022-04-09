@@ -1,6 +1,7 @@
 package org.sinou.android.pydia.services
 
 import androidx.room.Room
+import androidx.work.WorkerParameters
 import com.pydio.cells.api.Server
 import com.pydio.cells.api.Store
 import com.pydio.cells.api.Transport
@@ -80,7 +81,14 @@ val serviceModule = module {
     single { FileService(get()) }
     single { TransferService(get(), get(), get(), get()) }
 
-    worker { OfflineSyncWorker(get(), get(), get(), get()) }
+    worker { (workerParams: WorkerParameters) ->
+        OfflineSyncWorker(
+            accountService = get(),
+            nodeService = get(),
+            appContext = get(),
+            params = workerParams,
+        )
+    }
 }
 
 val viewModelModule = module {

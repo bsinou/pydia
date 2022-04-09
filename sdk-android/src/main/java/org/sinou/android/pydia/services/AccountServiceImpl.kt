@@ -11,6 +11,8 @@ import com.pydio.cells.api.ServerURL
 import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.accounts.AccountDB
@@ -39,9 +41,9 @@ class AccountServiceImpl(
     accountDB: AccountDB,
     private val sessionFactory: SessionFactory,
     private val treeNodeRepository: TreeNodeRepository
-) : AccountService {
+) : AccountService, KoinComponent {
 
-    private val tag = AccountService::class.java.simpleName
+    private val logTag = AccountService::class.java.simpleName
 
     private val accountDao: AccountDao = accountDB.accountDao()
     private val sessionDao: SessionDao = accountDB.sessionDao()
@@ -98,7 +100,7 @@ class AccountServiceImpl(
 
     private suspend fun safelyCreateSession(account: RAccount) {
         // We only update the dir and db names at account creation
-        // FIXME finalize this
+        // FIXME finalize session creation, add tests.
         var session = RSession.newInstance(account, 0)
         val sessionWithSameName = sessionDao.getWithDirName(session.dirName)
         if (sessionWithSameName.isNotEmpty()) {
@@ -107,13 +109,13 @@ class AccountServiceImpl(
         sessionDao.insert(session)
         treeNodeRepository.refreshSessionCache()
 
-        // FIXME How do we retrieve the file service here
-        // CellsApp.instance.fileService.prepareTree(StateID.fromId(account.accountID))
+        val fileService: FileService = get()
+        fileService.prepareTree(StateID.fromId(account.accountID))
     }
 
     override suspend fun forgetAccount(accountId: String): String? = withContext(Dispatchers.IO) {
         val stateId = StateID.fromId(accountId)
-        Log.d(tag, "### About to forget $stateId")
+        Log.d(logTag, "### About to forget $stateId")
         try {
             val oldAccount = accountDao.getAccount(accountId)
                 ?: return@withContext null // nothing to forget
@@ -125,13 +127,11 @@ class AccountServiceImpl(
                 tokenDao.deleteToken(accountId)
             }
 
-            // Files
-            // FIXME
-            // FIXME
-            // FIXME
-//            CellsApp.instance.fileService.cleanAllLocalFiles(stateId)
-//            // The account TreeNode DB
-//            CellsApp.instance.nodeService.clearIndexFor(stateId)
+            val fileService: FileService = get()
+            fileService.cleanAllLocalFiles(stateId)
+            val treeNodeRepository: TreeNodeRepository = get()
+            treeNodeRepository.closeNodeDb(stateId.accountId)
+
             // Remove rows in the account tables
             sessionDao.forgetSession(accountId)
             workspaceDao.forgetAccount(accountId)
@@ -140,11 +140,11 @@ class AccountServiceImpl(
             // Update local caches
             treeNodeRepository.refreshSessionCache()
 
-            Log.d(tag, "### $stateId has been forgotten")
+            Log.i(logTag, "### $stateId has been forgotten")
             return@withContext null
         } catch (e: Exception) {
             val msg = "Could not delete account ${StateID.fromId(accountId)}"
-            logException(tag, msg, e)
+            logException(logTag, msg, e)
             return@withContext msg
         }
     }
@@ -152,8 +152,8 @@ class AccountServiceImpl(
     override suspend fun logoutAccount(accountID: String): String? = withContext(Dispatchers.IO) {
         try {
             accountDao.getAccount(accountID)?.let {
-                Log.i(tag, "About to logout $accountID")
-                Log.i(tag, "Calling stack:")
+                Log.i(logTag, "About to logout $accountID")
+                Log.i(logTag, "Calling stack:")
                 Thread.dumpStack()
                 // There is also a token that is generated for P8:
                 // In case of legacy server, we have to discard a row in **both** tables
@@ -167,7 +167,7 @@ class AccountServiceImpl(
             }
         } catch (e: Exception) {
             val msg = "Could not delete credentials for ${StateID.fromId(accountID)}"
-            logException(tag, msg, e)
+            logException(logTag, msg, e)
             return@withContext msg
         }
     }
@@ -190,7 +190,7 @@ class AccountServiceImpl(
 
             if (openSession == null) {
                 // should never happen
-                Log.e(tag, "No session found for $accountID")
+                Log.e(logTag, "No session found for $accountID")
 //                openSession = fromAccountID(accountID)
 //                accountDB.sessionDao().insert(openSession)
             } else {
@@ -221,7 +221,7 @@ class AccountServiceImpl(
                 result = Pair(changeNb, null)
             } catch (e: SDKException) {
                 val msg = "could not get workspace list for $accountID"
-                Log.e(tag, msg)
+                Log.e(logTag, msg)
                 e.printStackTrace()
                 notifyError(accountID, e.code)
                 return@withContext Pair(0, msg)
@@ -231,7 +231,7 @@ class AccountServiceImpl(
         }
 
     override suspend fun notifyError(stateID: StateID, code: Int) = withContext(Dispatchers.IO) {
-        Log.i(tag, "Received error $code for $stateID")
+        Log.i(logTag, "Received error $code for $stateID")
         try {
             accountDao.getAccount(stateID.accountId)?.let {
                 when (code) {
@@ -258,7 +258,7 @@ class AccountServiceImpl(
             }
         } catch (e: Exception) {
             val msg = "Could not update account for $stateID after error $code"
-            logException(tag, msg, e)
+            logException(logTag, msg, e)
         }
     }
 

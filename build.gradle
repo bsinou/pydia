@@ -79,7 +79,7 @@ buildscript {
                 "io.insert-koin:koin-android:$koin_version",
                 // No more koin-android-viewmodel, koin-android-scope, koin-android-fragment
                 // Java Compatibility
-                "io.insert-koin:koin-android-compat:$koin_version",
+                // "io.insert-koin:koin-android-compat:$koin_version",
                 // Architecture components
                 // "io.insert-koin:koin-android-architecture:$koin_version",
                 // Jetpack WorkManager

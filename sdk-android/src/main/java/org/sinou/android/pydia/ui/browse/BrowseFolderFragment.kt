@@ -322,7 +322,7 @@ class BrowseFolderFragment : Fragment() {
                 "It's an image, open carousel ${node.getStateID()}, mime type: ${node.mime}"
             )
 
-            // FIXME
+            // FIXME finish implementing the carousel
             return@launch
         }
 

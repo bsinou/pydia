@@ -12,7 +12,6 @@ import org.sinou.android.pydia.db.nodes.TreeNodeDB
 
 class TreeNodeRepository(private val applicationContext: Context, private val sessionDao: SessionDao) {
 
-
     private var treeNodeRepoJob = Job()
     private val treeNodeRepoScope = CoroutineScope(Dispatchers.IO + treeNodeRepoJob)
 

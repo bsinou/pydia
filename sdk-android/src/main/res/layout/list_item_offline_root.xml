@@ -33,7 +33,6 @@
 
         <!-- FIXME rather use a view that also shows the corresponding node app:offlineRootThumb="@{offlineRoot}" -->
 
-
         <TextView
             android:id="@+id/node_label"
             style="@style/text_list_primary"

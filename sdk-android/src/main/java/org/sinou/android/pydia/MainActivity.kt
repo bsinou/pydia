@@ -22,6 +22,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.WorkManager
 import com.google.android.material.navigation.NavigationView
 import com.pydio.cells.transport.StateID
 import com.pydio.cells.utils.Str
@@ -43,7 +44,7 @@ import java.util.*
  */
 class MainActivity : AppCompatActivity() {
 
-    private val tag = MainActivity::class.simpleName
+    private val logTag = MainActivity::class.simpleName
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     private val nodeService: NodeService by inject()
     private val activeSessionVM: ActiveSessionViewModel by viewModel()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
 //        setTheme(CellsApp.instance.currentTheme)
@@ -63,7 +65,9 @@ class MainActivity : AppCompatActivity() {
 
         val accountState = encodedState?.let { StateID.fromId(it).accountId }
 
-        Log.d(tag, "onCreate for: ${StateID.fromId(encodedState)}")
+        Log.d(logTag, "onCreate for: ${StateID.fromId(encodedState)}")
+
+        // tryWorkManager(CellsApp.instance)
 
         activeSessionVM.afterCreate(accountState)
 
@@ -100,14 +104,15 @@ class MainActivity : AppCompatActivity() {
         handleStateOrIntent(savedInstanceState)
     }
 
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        Log.d(tag, "onCreateOptionsMenu")
+        Log.d(logTag, "onCreateOptionsMenu")
         menuInflater.inflate(R.menu.main_options, menu)
         return true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        Log.d(tag, "onPrepareOptionsMenu: ${StateID.fromId(activeSessionVM.accountId)}")
+        Log.d(logTag, "onPrepareOptionsMenu: ${StateID.fromId(activeSessionVM.accountId)}")
         super.onPrepareOptionsMenu(menu)
         menu?.let {
             configureSearch(it)
@@ -121,17 +126,17 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         activeSessionVM.accountId?.let {
-            Log.i(tag, "onSaveInstanceState for: ${StateID.fromId(it)}")
+            Log.i(logTag, "onSaveInstanceState for: ${StateID.fromId(it)}")
             outState.putString(AppNames.EXTRA_STATE, it)
         }
     }
 
     override fun onResume() {
-        Log.d(tag, "onResume, intent: $intent")
-        Log.d(tag, "#### Calling network usage for: ${activeSessionVM.accountId}")
+        Log.d(logTag, "onResume, intent: $intent")
+        Log.d(logTag, "#### Calling network usage for: ${activeSessionVM.accountId}")
         networkUsage()
         super.onResume()
-        dumpBackStack(tag, supportFragmentManager)
+        dumpBackStack(logTag, supportFragmentManager)
     }
 
     private fun handleStateOrIntent(savedInstanceState: Bundle?) {
@@ -167,7 +172,7 @@ class MainActivity : AppCompatActivity() {
             val received = TrafficStats.getUidRxBytes(runningApp.uid)
             val sent = TrafficStats.getUidTxBytes(runningApp.uid)
             Log.d(
-                tag, java.lang.String.format(
+                logTag, java.lang.String.format(
                     Locale.getDefault(),
                     "uid: %1d - name: %s: Sent = %1d, Received = %1d",
                     runningApp.uid,
@@ -248,7 +253,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val onMenuItemSelected = NavigationView.OnNavigationItemSelectedListener {
-        Log.i(tag, "... Item selected: #${it.itemId}")
+        Log.i(logTag, "... Item selected: #${it.itemId}")
         var done = false
         when (it.itemId) {
             R.id.offline_root_list_destination -> {
@@ -282,17 +287,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onStart() {
-        Log.d(tag, "onStart, intent: $intent")
+        Log.d(logTag, "onStart, intent: $intent")
         super.onStart()
     }
 
     override fun onStop() {
-        Log.d(tag, "onStop, intent: $intent")
+        Log.d(logTag, "onStop, intent: $intent")
         super.onStop()
     }
 
     override fun onPause() {
-        Log.d(tag, "onPause, intent: $intent")
+        Log.d(logTag, "onPause, intent: $intent")
         super.onPause()
     }
 
@@ -368,8 +373,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val oldValue = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_LAYOUT)
-        val storedLayout = oldValue ?: AppNames.RECYCLER_LAYOUT_LIST
-        when (storedLayout) {
+        when (oldValue ?: AppNames.RECYCLER_LAYOUT_LIST) {
             AppNames.RECYCLER_LAYOUT_GRID -> {
                 layoutSwitcher.icon = getIcon(R.drawable.ic_baseline_view_list_24)
                 layoutSwitcher.title = getText(R.string.button_switch_to_list_layout)
@@ -422,9 +426,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private inner class SearchListener : OnQueryTextListener {
-        // FIXME clean this class:
-        //   - why local state?
-        //   - externalize
+        // FIXME clean this class: why local state? Also do externalize.
         private var searchFragment: SearchFragment? = null
         private var stateId: StateID? = null
         private var uiContext: String? = null

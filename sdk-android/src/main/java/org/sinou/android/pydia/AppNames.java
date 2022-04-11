@@ -11,6 +11,8 @@ public interface AppNames {
     String PREF_KEY_CURR_RECYCLER_LAYOUT = "current_recycler_layout";
     String PREF_KEY_CURR_RECYCLER_ORDER = "current_recycler_order";
     String PREF_KEY_CURR_RECYCLER_ORDER_DIR = "current_recycler_order_dir";
+    String PREF_KEY_METERED_DL_THUMBS = "on_metered_dl_thumbs";
+    String PREF_KEY_METERED_DL_FILES = "on_metered_dl_files";
 
     /* SHARED PREFERENCE WELL KNOWN VALUES */
 

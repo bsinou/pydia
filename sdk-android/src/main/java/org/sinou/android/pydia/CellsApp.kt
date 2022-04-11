@@ -34,11 +34,13 @@ import java.util.concurrent.TimeUnit
 class CellsApp : Application(), KoinComponent {
 
     private val logTag = CellsApp::class.simpleName
-    private lateinit var sharedPreferences: SharedPreferences
 
     // Exposed to the whole app for tasks that must survive termination of the calling UI element
     // Typically for actions launched from the "More" menu (copy, move...)
     val appScope = CoroutineScope(SupervisorJob())
+
+    // Shortcut to access preferences, TODO must be a better way to do and let koin handle context injection
+    lateinit var sharedPreferences: SharedPreferences
 
     // var currentTheme = R.style.Theme_Cells
 
@@ -60,7 +62,8 @@ class CellsApp : Application(), KoinComponent {
 
         // Launch dependency injection framework
         startKoin {
-            androidLogger(Level.DEBUG)
+            // androidLogger(Level.DEBUG)
+            androidLogger(Level.INFO)
             androidContext(this@CellsApp)
             workManagerFactory()
             modules(allModules)

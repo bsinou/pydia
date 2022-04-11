@@ -62,12 +62,8 @@ class MainActivity : AppCompatActivity() {
         if (Str.empty(encodedState)) {
             encodedState = intent.getStringExtra(AppNames.EXTRA_STATE)
         }
-
         val accountState = encodedState?.let { StateID.fromId(it).accountId }
-
         Log.d(logTag, "onCreate for: ${StateID.fromId(encodedState)}")
-
-        // tryWorkManager(CellsApp.instance)
 
         activeSessionVM.afterCreate(accountState)
 
@@ -133,10 +129,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         Log.d(logTag, "onResume, intent: $intent")
-        Log.d(logTag, "#### Calling network usage for: ${activeSessionVM.accountId}")
-        networkUsage()
+//        Log.d(logTag, "#### Calling network usage for: ${activeSessionVM.accountId}")
+//        networkUsage()
         super.onResume()
-        dumpBackStack(logTag, supportFragmentManager)
+//        dumpBackStack(logTag, supportFragmentManager)
     }
 
     private fun handleStateOrIntent(savedInstanceState: Bundle?) {

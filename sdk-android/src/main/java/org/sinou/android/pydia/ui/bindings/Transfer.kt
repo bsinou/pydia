@@ -129,7 +129,7 @@ fun TextView.setParentPrimaryText(parentState: StateID?) {
 
 @BindingAdapter("parentSecondaryText")
 fun TextView.setParentSecondaryText(parentState: StateID?) {
-    Log.e("setParentSecondaryText", "ParentState: $parentState")
+    Log.d("setParentSecondaryText", "ParentState: $parentState")
     parentState?.let {
         text = when {
             parentState.id == AppNames.CELLS_ROOT_ENCODED_STATE -> ""

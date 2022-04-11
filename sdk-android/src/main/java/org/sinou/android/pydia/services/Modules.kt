@@ -65,7 +65,10 @@ val databaseModule = module {
 
 val serviceModule = module {
 
-    // Manage accounts and authentification
+    // Manage network state
+    single { NetworkService(androidContext()) }
+
+    // Manage accounts and authentication
     single<Store<Server>>(named("ServerStore")) { MemoryStore<Server>() }
     single<Store<Transport>>(named("TransportStore")) { MemoryStore<Transport>() }
     single<Store<Token>>(named("TokenStore")) { TokenStore(get()) }

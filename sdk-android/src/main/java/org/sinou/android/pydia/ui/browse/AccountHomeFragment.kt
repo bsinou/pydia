@@ -34,7 +34,6 @@ class AccountHomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         Log.i(logTag, "onCreateView ${activeSessionVM.accountId}")
 
         binding = DataBindingUtil.inflate(

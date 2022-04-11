@@ -32,9 +32,9 @@
             app:title="Download thumbs" />
 
         <SwitchPreferenceCompat
-            app:key="on_metered_prevent_file_dl"
-            app:summary="Prevent file download when on metered network"
-            app:title="No file download" />
+            app:key="on_metered_dl_files"
+            app:summary="Also download offline files when on metered network"
+            app:title="Download offline files" />
 
     </PreferenceCategory>
 

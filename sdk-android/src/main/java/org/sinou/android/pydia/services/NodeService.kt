@@ -321,7 +321,7 @@ class NodeService(
         val stateID = rTreeNode.getStateID()
 
         // First re-sync current level
-        val treeDiff = TreeDiff(stateID, client, this, fileService, dao, fileDL, thumbDL)
+        val treeDiff = TreeDiff(stateID, client, dao, fileDL, thumbDL)
         var changeNb = treeDiff.compareWithRemote()
 
         if (rTreeNode.isFolder()) {
@@ -450,8 +450,7 @@ class NodeService(
                     nodeDB(stateID),
                     fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
                 )
-            val folderDiff =
-                TreeDiff(stateID, client, this@NodeService, fileService, dao, null, thumbDL)
+            val folderDiff = TreeDiff(stateID, client, dao, null, thumbDL)
             val changeNb = folderDiff.compareWithRemote()
             result = Pair(changeNb, null)
             /*

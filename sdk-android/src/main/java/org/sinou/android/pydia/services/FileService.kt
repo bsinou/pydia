@@ -15,9 +15,7 @@ import org.sinou.android.pydia.utils.getCurrentDateTime
 import java.io.File
 
 /** Centralizes management of local files and where to store/find them. */
-class FileService(
-    private val treeNodeRepository: TreeNodeRepository,
-) {
+class FileService(private val treeNodeRepository: TreeNodeRepository) {
 
     private val tag = FileService::class.simpleName
 

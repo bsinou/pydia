@@ -126,9 +126,8 @@ class ChooseTargetActivity : AppCompatActivity(), CoroutineScope by MainScope() 
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-
         val valid = chooseTargetVM.isTargetValid()
-        Log.e(logTag, "On PrepareOptionMenu, target is valid: $valid")
+        Log.d(logTag, "On PrepareOptionMenu, target is valid: $valid")
         super.onPrepareOptionsMenu(menu)
         menu?.let { currMenu ->
             currMenu.findItem(R.id.launch_upload)?.let {

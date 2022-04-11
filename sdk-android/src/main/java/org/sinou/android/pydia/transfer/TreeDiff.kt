@@ -11,10 +11,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.db.nodes.TreeNodeDao
 import org.sinou.android.pydia.services.FileService
+import org.sinou.android.pydia.services.NetworkService
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.areNodeContentEquals
 import java.io.File
@@ -22,19 +26,13 @@ import java.io.File
 class TreeDiff(
     private val rootId: StateID,
     private val client: Client,
-    private val nodeService: NodeService,
-    private val fileService: FileService,
     private val dao: TreeNodeDao,
     private val fileDL: FileDownloader?,
     private val thumbDL: ThumbDownloader,
-) {
-
-    private val logTag = TreeDiff::class.java.simpleName
+) : KoinComponent {
 
     companion object {
-
         private const val PAGE_SIZE = 100
-
         fun firstPage(): PageOptions {
             val page = PageOptions()
             page.limit = PAGE_SIZE
@@ -46,14 +44,36 @@ class TreeDiff(
         }
     }
 
+    private val logTag = TreeDiff::class.java.simpleName
     private val folderDiffJob = Job()
     private val diffScope = CoroutineScope(Dispatchers.IO + folderDiffJob)
+
+    private val nodeService: NodeService by inject()
+    private val fileService: FileService by inject()
+    private val networkService: NetworkService by inject()
+
+    private var downloadThumbs = true
+    private var downloadFiles = true
 
     private var changeNumber = 0
 
     /** Retrieve the meta of all readable nodes that are at the passed stateID */
     @Throws(SDKException::class)
     suspend fun compareWithRemote() = withContext(Dispatchers.IO) {
+        Log.d(logTag, "Launching diff for $rootId")
+
+        if (networkService.isNetworkMetered()) {
+            downloadThumbs = CellsApp.instance.sharedPreferences.getBoolean(
+                AppNames.PREF_KEY_METERED_DL_THUMBS,
+                false
+            )
+            downloadFiles = CellsApp.instance.sharedPreferences.getBoolean(
+                AppNames.PREF_KEY_METERED_DL_FILES,
+                false
+            )
+
+            Log.d(logTag, "Metered network, DL thumbs: $downloadThumbs, DL files: $downloadFiles")
+        }
 
         val remote = client.nodeInfo(rootId.workspace, rootId.file)
 
@@ -175,6 +195,10 @@ class TreeDiff(
     /* LOCAL HELPERS */
 
     private fun alsoCheckFile(local: RTreeNode) {
+        if (!downloadFiles) {
+            return
+        }
+
         fileDL?.let {
             diffScope.launch {
                 if (local.isFolder()) { // we do only files
@@ -186,9 +210,6 @@ class TreeDiff(
                     // TODO also check if the file has changed.
                 }
                 if (doIt) {
-//                    Log.e(logTag, "Launching file DL. \n" +
-//                            " - Local path: ${local.localFilePath}\n" +
-//                            " - File Exists: ${local.localFilePath?.let { File(it).exists() }} ")
                     it.orderFileDL(local.encodedState)
                 }
             }
@@ -196,6 +217,9 @@ class TreeDiff(
     }
 
     private fun alsoCheckThumb(remote: FileNode, local: RTreeNode) {
+        if (!downloadThumbs) {
+            return
+        }
         // FIXME we miss the event when we have a filename but the thumb is not present
         if (remote.isImage && local.thumbFilename == null) {
             diffScope.launch {
@@ -206,12 +230,12 @@ class TreeDiff(
     }
 
     private fun downloadFilesIfNecessary(remote: FileNode, stateID: StateID) {
-        if (remote.isImage) {
+        if (remote.isImage && downloadThumbs) {
             diffScope.launch {
                 thumbDL.orderThumbDL(stateID.id)
             }
         }
-        if (remote.isFile) {
+        if (remote.isFile && downloadFiles) {
             fileDL?.let {
                 diffScope.launch {
                     it.orderFileDL(stateID.id)

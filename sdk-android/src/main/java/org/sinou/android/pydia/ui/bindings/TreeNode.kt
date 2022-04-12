@@ -7,6 +7,7 @@ import android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE
 import android.text.format.Formatter.formatShortFileSize
 import android.util.Log
 import android.view.View
+import android.view.View.VISIBLE
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -74,6 +75,19 @@ fun ImageView.setFolderThumb(item: RTreeNode?) {
 }
 
 
+@BindingAdapter("nodeThumbLoading")
+fun ImageView.showLoadingLayer(item: RTreeNode?) {
+    if (item == null) {
+        return
+    }
+
+    visibility = if (item.localModificationTS > item.remoteModificationTS) {
+         View.VISIBLE
+    } else {
+        View.GONE
+    }
+}
+
 @BindingAdapter("nodeThumbItem", "nodeThumbDirPath")
 fun ImageView.setNodeThumb(item: RTreeNode?, thumbDirPath: String?) {
 
@@ -82,10 +96,10 @@ fun ImageView.setNodeThumb(item: RTreeNode?, thumbDirPath: String?) {
         return
     }
 
-    if (item.localModificationTS > item.remoteModificationTS) {
-        setImageResource(R.drawable.loading_animation)
-        return
-    }
+//    if (item.localModificationTS > item.remoteModificationTS) {
+//        setImageResource(R.drawable.loading_animation)
+//        return
+//    }
 
     var thumbPath: String? = null
     if (Str.notEmpty(thumbDirPath) && Str.notEmpty(item.thumbFilename)) {

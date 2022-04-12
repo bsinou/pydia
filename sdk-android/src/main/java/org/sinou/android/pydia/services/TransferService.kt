@@ -255,23 +255,25 @@ class TransferService(
         // Mime Type
         val mime = cr.getType(uri) ?: SdkNames.NODE_MIME_DEFAULT
         Log.d(logTag, "Enqueuing upload for $filename, MIME: [$mime], size: $size")
-        mimeMap.getExtensionFromMimeType(mime)?.let {
-            // TODO make a better check
+
+        // TODO should we implement a "clean" of the extensions
+        //   the code below wasn't good enough and led to files named e.g. "img.JPG.jpg".
+        //   Rather doing nothing.
+        /*mimeMap.getExtensionFromMimeType(mime)?.let {
             //   - retrieve file extension
             //   - only append if the extension seems to be invalid
             if (!filename.endsWith(it, true)) {
                 name += ".$it"
             }
-        }
+        }*/
 
-        // FIXME to by-pass permission issues, we make a local copy of the file to upload
+        // TODO to by-pass permission issues, we make a local copy of the file to upload
         //   in Cells app storage
         val fs = fileService
         val targetStateID = createLocalState(parentID, name as String)
         val localPath = fs.getLocalPathFromState(targetStateID, AppNames.LOCAL_FILE_TYPE_CACHE)
         val localFile = File(localPath)
         localFile.parentFile!!.mkdirs()
-        //val localFile = createTargetFile(parentID, name as String)
 
         var inputStream: InputStream? = null
         var outputStream: OutputStream? = null
@@ -279,16 +281,10 @@ class TransferService(
             inputStream = cr.openInputStream(uri)
             outputStream = FileOutputStream(localFile)
             IoHelpers.pipeRead(inputStream, outputStream)
-
-            //                val error = uploadAt(
-            //                    StateID.fromId(uploadRecord.targetState),
-            //                    uploadRecord.name,
-            //                    uploadRecord.byteSize,
-            //                    uploadRecord.mime,
-            //                    inputStream!!
-            //                )
         } catch (ioe: IOException) {
+            Log.e(logTag, "could not create local copy of $filename: ${ioe.message}")
             ioe.printStackTrace()
+            return null
         } finally {
             IoHelpers.closeQuietly(inputStream)
             IoHelpers.closeQuietly(outputStream)

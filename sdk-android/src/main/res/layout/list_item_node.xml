@@ -11,9 +11,10 @@
         <variable
             name="node"
             type="org.sinou.android.pydia.db.nodes.RTreeNode" />
+
         <variable
             name="thumbDirPath"
-            type="java.lang.String"/>
+            type="java.lang.String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,9 +34,23 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:nodeThumbItem="@{node}"
             app:nodeThumbDirPath="@{thumbDirPath}"
+            app:nodeThumbItem="@{node}"
             tools:srcCompat="@drawable/ic_baseline_folder_24" />
+
+        <ImageView
+            android:id="@+id/node_thumb_loading"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_margin="@dimen/margin_small"
+            android:contentDescription="@string/loading_description"
+            android:src="@drawable/loading_animation"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:nodeThumbLoading="@{node}"
+            tools:srcCompat="@drawable/loading_animation2" />
 
         <TextView
             android:id="@+id/node_label"

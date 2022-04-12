@@ -189,6 +189,7 @@
     <string name="rename_dialog_confirm_button">Rename</string>
 
     <!-- Accessibility various content -->
+    <string name="loading_description">Current item is being refreshed</string>
     <string name="thumb_description">Small content preview</string>
     <string name="folder_icon_description">Folder icon</string>
     <string name="empty_content_icon_desc">Empty list icon</string>

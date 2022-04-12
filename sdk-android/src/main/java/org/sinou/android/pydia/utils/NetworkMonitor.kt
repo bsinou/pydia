@@ -1,6 +1,9 @@
 package org.sinou.android.pydia.utils
 
-import android.content.Context
+class NetworkStatusHelper {}
+
+
+/*import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -173,5 +176,5 @@ object Pinger {
             false
         }
     }
-}
+}*/
 

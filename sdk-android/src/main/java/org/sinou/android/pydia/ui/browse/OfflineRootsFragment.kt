@@ -66,13 +66,6 @@ class OfflineRootsFragment : Fragment() {
         Log.i(logTag, "onResume: ${activeSession?.accountID}")
         activeSession?.let { session ->
             val accountID = StateID.fromId(session.accountID)
-
-//            val viewModelFactory = OfflineRootsViewModel.OfflineRootsViewModelFactory(
-//                CellsApp.instance.nodeService,
-//                accountID,
-//                requireActivity().application,
-//            )
-//            val tmpVM: OfflineRootsViewModel by viewModels { viewModelFactory }
             offlineVM.afterCreate(accountID)
 
             configureRecyclerAdapter()

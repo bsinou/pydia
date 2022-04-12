@@ -11,6 +11,9 @@
         <variable
             name="offlineRoot"
             type="org.sinou.android.pydia.db.nodes.RLiveOfflineRoot" />
+        <variable
+            name="thumbDirPath"
+            type="java.lang.String"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,9 +32,10 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@drawable/ic_baseline_folder_24" />
+            app:offlineRootThumb="@{offlineRoot}"
+            app:nodeThumbDirPath="@{thumbDirPath}"
 
-        <!-- FIXME rather use a view that also shows the corresponding node app:offlineRootThumb="@{offlineRoot}" -->
+            tools:srcCompat="@drawable/ic_baseline_folder_24" />
 
         <TextView
             android:id="@+id/node_label"

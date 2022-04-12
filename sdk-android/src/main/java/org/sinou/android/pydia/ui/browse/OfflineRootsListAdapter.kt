@@ -5,17 +5,25 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.databinding.ListItemOfflineRootBinding
 import org.sinou.android.pydia.db.nodes.RLiveOfflineRoot
+import org.sinou.android.pydia.services.FileService
 
 class OfflineRootsListAdapter(
     private val onItemClicked: (node: RLiveOfflineRoot, command: String) -> Unit
-) : ListAdapter<RLiveOfflineRoot, OfflineRootsListAdapter.ViewHolder>(OfflineDiffCallback()) {
+) : ListAdapter<RLiveOfflineRoot, OfflineRootsListAdapter.ViewHolder>(OfflineDiffCallback()),
+    KoinComponent {
+
+    private val fileService  by inject<FileService>()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item)
+        val thumbDirPath =
+            fileService.dataParentPath(item.getStateID().accountId, AppNames.LOCAL_FILE_TYPE_THUMB)
+        holder.bind(item, thumbDirPath)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,8 +33,9 @@ class OfflineRootsListAdapter(
     class ViewHolder private constructor(val binding: ListItemOfflineRootBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: RLiveOfflineRoot) {
+        fun bind(item: RLiveOfflineRoot, thumbDirPath: String?) {
             binding.offlineRoot = item
+            binding.thumbDirPath = thumbDirPath
             binding.executePendingBindings()
         }
 

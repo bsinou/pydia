@@ -232,7 +232,7 @@ class BrowseFolderFragment : Fragment() {
     }
 
     override fun onResume() {
-        Log.i(logTag, "onResume")
+        Log.d(logTag, "onResume")
         super.onResume()
         dumpBackStack(logTag, parentFragmentManager)
 

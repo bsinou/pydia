@@ -91,8 +91,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/account_auth_button"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/colorAvatarDefault" />
-
+            />
+<!--        app:tint="@color/colorAvatarDefault"-->
         <ImageView
             android:id="@+id/account_auth_button"
             android:layout_width="@dimen/list_button_size"

@@ -12,9 +12,9 @@
         <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 
+<!--
     <style name="Theme.Cells" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/cells_primary</item>
-<!--        <item name="colorPrimary">#00ff00</item>-->
         <item name="colorOnPrimary">@color/cells_on_primary</item>
         <item name="colorPrimaryContainer">@color/cells_primary_container</item>
         <item name="colorOnPrimaryContainer">@color/cells_on_primary_container</item>
@@ -29,7 +29,6 @@
         <item name="colorOnTertiaryContainer">@color/cells_on_tertiary_container</item>
         <item name="colorError">@color/cells_error</item>
 
-        <!-- Top Android Status bar color -->
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@color/defaultStatusBarColor</item>
         <item name="android:actionBarStyle">@style/Cells.AppBar</item>
@@ -39,10 +38,8 @@
 
 
     <style name="ThemeOverlay.Cells.NavigationView"  parent="ThemeOverlay.Material3.NavigationView">
-<!--        <item name="colorPrimary">@color/cells_main</item>-->
-<!--        <item name="colorSurface">@color/cells_main_surface_light</item>-->
-<!--        <item name="colorOnSurface">@color/cells_main_accent</item>-->
     </style>
+-->
 
 
 </resources>

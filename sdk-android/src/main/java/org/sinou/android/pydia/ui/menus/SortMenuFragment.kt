@@ -63,7 +63,7 @@ class SortMenuFragment : BottomSheetDialogFragment() {
         requireActivity().theme
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (view.isActivated) {
-                view.setBackgroundColor(requireActivity().getColor(R.color.cells_main_light))
+                view.setBackgroundColor(requireActivity().getColor(R.color.material_dynamic_primary90))
             } else {
                 view.setBackgroundColor(requireActivity().getColor(R.color.transparent))
             }

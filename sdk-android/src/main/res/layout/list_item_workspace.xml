@@ -29,8 +29,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/colorAvatarDefault"
             app:wsThumb="@{workspace}"/>
+<!--        app:tint="@color/colorAvatarDefault"-->
 
         <TextView
             android:id="@+id/workspace_title"

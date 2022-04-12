@@ -38,7 +38,6 @@ class ActiveSessionViewModel(
     lateinit var liveSession: LiveData<RLiveSession?>
     lateinit var workspaces: LiveData<List<RWorkspace>>
 
-
     // Watcher states
     private var _isRunning = false
     val isRunning: Boolean
@@ -98,6 +97,9 @@ class ActiveSessionViewModel(
                 backOffTicker.resetIndex()
             }
             setLoading(false)
+            if (result.second == null) { // Also reset error message
+                _errorMessage.value = null
+            }
         }
     }
 

@@ -56,8 +56,7 @@
     </style>
 
 
-    <style name="Theme.Cells" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Material 3 default colors (when dynamic colors are disabled) -->
+    <!-- <style name="Theme.Cells" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/cells_primary</item>
         <item name="colorOnPrimary">@color/cells_on_primary</item>
         <item name="colorPrimaryContainer">@color/cells_primary_container</item>
@@ -72,20 +71,20 @@
         <item name="colorTertiaryContainer">@color/cells_tertiary_container</item>
         <item name="colorOnTertiaryContainer">@color/cells_on_tertiary_container</item>
         <item name="colorError">@color/cells_error</item>
-
+ -->
         <!-- Legacy M2 color -->
-        <item name="colorPrimaryDark">@color/cells_primary</item>
+        <!-- <item name="colorPrimaryDark">@color/cells_primary</item>
         <item name="colorSurface">@color/cells_primary_container</item>
         <item name="colorSecondaryVariant">@color/cells_secondary_container</item>
-
+ -->
         <!-- Top Android Status bar color -->
-        <item name="android:statusBarColor">@color/cells_on_primary</item>
-        <item name="colorControlNormal">@color/cells_primary</item>
+        <!-- <item name="android:statusBarColor">@color/cells_on_primary</item>
+        <item name="colorControlNormal">@color/cells_primary</item> -->
         <!--        <item name="android:windowLightStatusBar">true</item>-->
         <!--        <item name="android:statusBarColor">@color/defaultStatusBarColor</item>-->
         <!--        <item name="android:actionBarStyle">@style/Cells.AppBar</item>-->
 
-    </style>
+    <!-- </style> -->
 
 
     <!--    <style name="Theme.Cells.Upload">-->
@@ -113,24 +112,21 @@
         <item name="colorOnPrimary">?attr/colorOnPrimary</item> -->
     </style>
 
-    <style name="ThemeOverlay.Cells.NavigationView" parent="ThemeOverlay.Material3.NavigationView">
-        <!--        <item name="colorPrimary">@color/cells_main</item>-->
-        <!--        <item name="colorSurface">@color/cells_main_surface_light</item>-->
-        <!--        <item name="colorOnSurface">@color/cells_main_accent</item>-->
-    </style>
+    <!-- <style name="ThemeOverlay.Cells.NavigationView" parent="ThemeOverlay.Material3.NavigationView">
+    </style> -->
 
-    <style name="ThemeOverlay.Cells.NavHeader" parent="ThemeOverlay.Material3.Dark">
+    <!-- <style name="ThemeOverlay.Cells.NavHeader" parent="ThemeOverlay.Material3.Dark">
         <item name="android:background">@color/cells_on_primary</item>
         <item name="android:textColor">@color/cells_primary_inverse</item>
-    </style>
+    </style> -->
 
     <!--    <style name="ThemeOverlay.Cells.Popup" parent="ThemeOverlay.Material3.Light">-->
     <!--        <item name="colorPrimary">@color/colorAccent</item>-->
     <!--    </style>-->
 
-    <style name="ThemeOverlay.Cells.Upload.AppBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <!-- <style name="ThemeOverlay.Cells.Upload.AppBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="colorOnPrimary">@color/cells_on_primary</item>
-    </style>
+    </style> -->
 
     <!--    <style name="ThemeOverlay.Cells.Upload.Popup" parent="ThemeOverlay.AppCompat.Light" />-->
 

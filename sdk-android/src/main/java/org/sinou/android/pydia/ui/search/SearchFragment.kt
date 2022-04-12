@@ -1,6 +1,5 @@
 package org.sinou.android.pydia.ui.search
 
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -34,6 +33,7 @@ class SearchFragment : Fragment() {
 
     private val nodeService: NodeService by inject()
     private val args: SearchFragmentArgs by navArgs()
+
     // TODO wire passing the argument from here
     private val searchVM: SearchViewModel by viewModel()
     private lateinit var binding: FragmentSearchBinding
@@ -90,10 +90,12 @@ class SearchFragment : Fragment() {
             bar.setBackgroundDrawable(bg)
             bar.title = "Searching: ${args.query}..."
         }
+/*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             currActivity.window.statusBarColor =
                 resources.getColor(R.color.searchStatusBarColor, requireActivity().theme)
         }
+*/
         // Requires API level 23
         // currActivity.window.statusBarColor =  resources.getColor(R.color.danger, requireActivity().theme)
     }
@@ -103,10 +105,12 @@ class SearchFragment : Fragment() {
         val currActivity = requireActivity() as AppCompatActivity
         val bg = resources.getDrawable(R.drawable.empty, requireActivity().theme)
         currActivity.supportActionBar?.setBackgroundDrawable(bg)
+/*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             currActivity.window.statusBarColor =
-                resources.getColor(R.color.defaultStatusBarColor, requireActivity().theme)
+                resources.getColor(R.color.material_dynamic_neutral_variant99, requireActivity().theme)
         }
+*/
     }
 
     fun updateQuery(query: String) {

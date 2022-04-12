@@ -62,6 +62,11 @@
     <color name="seed">#067098</color>
     <color name="error">#BA1B1B</color>
 
+
+    <!-- App specific indirection -->
+    <color name="colorAvatarDefault">@color/cells_on_primary_container</color> -->
+
+
     <!-- A few hard-coded colors -->
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
@@ -70,16 +75,36 @@
     <color name="flag_share">#219600</color>
     <color name="searchStatusBarColor">@color/cells_secondary</color>
 
+    <color name="iconTint">@color/cells_on_primary_container</color>
+    <color name="iconBackground">@color/cells_main_surface_extra_light</color>
 
-    <!-- Main Colors -->
-    <color name="cells_primary">@color/md_theme_light_primary</color>
-<!--    <color name="cells_primary">#0062A0</color>-->
+    <color name="selected_background">@color/cells_primary_inverse</color>
+
+    <!-- Custom circular spinner -->
+    <color name="spinner_center_color">@color/cells_primary</color>
+    <color name="spinner_start_color">@color/cells_primary_container</color>
+    <color name="spinner_end_color">@color/cells_primary_inverse</color>
+
+    <color name="cells_divider_light">#EDF0F2</color>
+    <color name="cells_xlight_status_bar">@android:color/white</color>
+
+    <color name="colorAccent">#FF9800</color>
+    <color name="ok">#219600</color>
+    <color name="warning">#FF9800</color>
+    <color name="danger">#BA1B1B</color>
+    <color name="transparent">#00000000</color>
+
+
+    <color name="cells_secondary">#FB725C</color>
+    <color name="cells_primary_inverse">#CFDBE1</color>
+    <color name="cells_main_surface_extra_light">#F9FAFB</color>
+
+    <!-- TODO remove these, they were only tests -->
+    <!-- <color name="cells_primary">@color/md_theme_light_primary</color>
     <color name="cells_on_primary">#FFFFFF</color>
     <color name="cells_primary_container">#CEE5FF</color>
     <color name="cells_on_primary_container">#001D35</color>
-    <color name="cells_primary_inverse">#CFDBE1</color>
 
-    <color name="cells_secondary">#FB725C</color>
     <color name="cells_on_secondary">#FFFFFF</color>
     <color name="cells_secondary_container">#FDB8AD</color>
     <color name="cells_on_secondary_container">#E16652</color>
@@ -97,62 +122,43 @@
     <color name="cells_main_accent">#0F3E56</color>
     <color name="cells_main_light">#598398</color>
     <color name="cells_main_surface_light">#F6F7F8</color>
-    <color name="cells_main_surface_extra_light">#F9FAFB</color>
     <color name="cells_secondary_light">#FDB8AD</color>
-    <color name="cells_secondary_dark">#E16652</color>
+    <color name="cells_secondary_dark">#E16652</color> -->
 
-
-    <color name="cells_divider_light">#EDF0F2</color>
-    <color name="cells_xlight_status_bar">@android:color/white</color>
-
-    <color name="colorAccent">#FF9800</color>
-    <color name="ok">#219600</color>
-    <color name="warning">#FF9800</color>
-    <color name="danger">#BA1B1B</color>
-    <color name="transparent">#00000000</color>
 
     <!-- First try for dynamic status bar color -->
     <!-- This is the default (defined by material?) -->
-    <color name="defaultStatusBarColor">@color/cells_xlight_status_bar</color>
+    <!-- <color name="defaultStatusBarColor">@color/cells_xlight_status_bar</color> -->
 
     <!-- Define Main Material Palette -->
 
-<!--    <color name="colorPrimary">@color/colorMain</color>-->
-<!--    <color name="colorPrimaryLight">@color/colorMainLight</color>-->
-<!--    <color name="colorPrimaryDark">@color/colorMainAccent</color>-->
+    <!--    <color name="colorPrimary">@color/colorMain</color>-->
+    <!--    <color name="colorPrimaryLight">@color/colorMainLight</color>-->
+    <!--    <color name="colorPrimaryDark">@color/colorMainAccent</color>-->
 
-    <color name="colorTextPrimary">@color/cells_text</color>
+    <!-- <color name="colorTextPrimary">@color/cells_text</color>
     <color name="colorTextAccent">@color/cells_text_accent</color>
-    <color name="colorAvatarDefault">@color/cells_on_primary_container</color>
+    <color name="colorAvatarDefault">@color/cells_on_primary_container</color> -->
 
     <!-- Icons -->
-    <color name="iconTint">@color/cells_on_primary_container</color>
-    <color name="iconBackground">@color/cells_main_surface_extra_light</color>
 
     <!-- Various -->
-    <!-- TODO this is not a standard color -->colorControlNormal
-    <color name="background">@android:color/white</color>
-    <!-- TODO Rather handle this with a style...-->
-    <color name="selected_background">@color/cells_primary_inverse</color>
-    <color name="decoratorBackground">#EDF0F2</color>
+    <!-- TODO this is not a standard color -->
+    <!-- <color name="background">@android:color/white</color>
+    <color name="decoratorBackground">#EDF0F2</color> -->
 
-    <!-- Custom circular spinner -->
-    <color name="spinner_center_color">@color/cells_primary</color>
-    <color name="spinner_start_color">@color/cells_primary_container</color>
-    <color name="spinner_end_color">@color/cells_primary_inverse</color>
 
     <!--    <color name="skip_red_color">#f44336</color>-->
-<!--    <color name="selected_red_color">#ba000d</color>-->
-<!--    <color name="black_text_color">#de000000</color>-->
-<!--    <color name="grey_text_color">#99000000</color>-->
-<!--    <color name="grey_button_color">#606060</color>-->
-<!--    <color name="white_text_color">#ffffff</color>-->
+    <!--    <color name="selected_red_color">#ba000d</color>-->
+    <!--    <color name="black_text_color">#de000000</color>-->
+    <!--    <color name="grey_text_color">#99000000</color>-->
+    <!--    <color name="grey_button_color">#606060</color>-->
+    <!--    <color name="white_text_color">#ffffff</color>-->
 
     <!-- Some default colors from Android -->
-<!--    <color name="teal_200">#FF03DAC5</color>-->
-<!--    <color name="teal_700">#FF018786</color>-->
-<!--    <color name="black">#FF000000</color>-->
-
+    <!--    <color name="teal_200">#FF03DAC5</color>-->
+    <!--    <color name="teal_700">#FF018786</color>-->
+    <!--    <color name="black">#FF000000</color>-->
 
 
 </resources>

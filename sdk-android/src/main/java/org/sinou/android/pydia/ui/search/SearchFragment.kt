@@ -142,7 +142,8 @@ class SearchFragment : Fragment() {
         }
         val file = nodeService.getOrDownloadFileToCache(node)
         file?.let {
-            val intent = externallyView(requireContext(), file, node)
+            externallyView(requireContext(), it, node)
+/*            val intent = externallyView(requireContext(), file, node)
             try {
                 startActivity(intent)
                 // FIXME DEBUG only
@@ -153,7 +154,7 @@ class SearchFragment : Fragment() {
                 Toast.makeText(requireActivity().application, msg, Toast.LENGTH_LONG).show()
                 Log.e(tag, "Call to intent failed: $msg")
                 e.printStackTrace()
-            }
+            }*/
         }
     }
 }

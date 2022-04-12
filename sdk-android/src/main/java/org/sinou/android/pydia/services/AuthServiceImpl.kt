@@ -65,7 +65,7 @@ class AuthService(
         withContext(Dispatchers.IO) {
             val serverID = StateID(url.id).id
             val server = sessionFactory.getServer(serverID)
-                // FIXME Do we want to try to re-register the server when it is unknonwn from the SessionFactory
+                // TODO Do we want to try to re-register the server when it is unknown from the SessionFactory
                 ?: return@withContext null
 
             val oAuthState = generateOAuthState()

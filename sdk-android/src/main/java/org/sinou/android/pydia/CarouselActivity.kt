@@ -27,8 +27,8 @@ import org.sinou.android.pydia.ui.viewer.CarouselViewModel
 import java.io.File
 
 /**
- * Basic carousel to open the supported files (for the time being mainly images)
- * in app with a nice look and feel
+ * Basic carousel to open the supported files (for the time being only images)
+ * with a nice look and feel without leaving the main app.
  */
 class CarouselActivity : AppCompatActivity() {
 
@@ -105,7 +105,10 @@ class CarouselActivity : AppCompatActivity() {
                             .into(view)
                     } else {
                         Log.w("SetNodeThumb", "no thumb found for ${index}")
-                        // setImageResource(getDrawableFromMime(item.mime, item.sortName))
+                        Glide.with(this@CarouselActivity)
+                            .load(R.drawable.loading_animation2)
+                            .into(view)
+
                     }
                 }
             }

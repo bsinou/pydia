@@ -100,7 +100,7 @@ class AccountServiceImpl(
 
     private suspend fun safelyCreateSession(account: RAccount) {
         // We only update the dir and db names at account creation
-        // FIXME finalize session creation, add tests.
+        // TODO add tests.
         var session = RSession.newInstance(account, 0)
         val sessionWithSameName = sessionDao.getWithDirName(session.dirName)
         if (sessionWithSameName.isNotEmpty()) {

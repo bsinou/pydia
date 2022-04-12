@@ -165,6 +165,7 @@
     <string name="in_progress_restoring">Restoring…</string>
 
     <!-- Dialogs -->
+    <string name="choose_external_app_title">Open with...</string>
     <string name="confirm_account_deletion_title">Delete account\n%s ?</string>
     <string name="confirm_account_deletion_desc">It will forget the connection information for your remote server and also delete  all cached data and files.</string>
     <string name="confirm_account_logout_title">Logout account\n%s ?</string>

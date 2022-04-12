@@ -32,6 +32,7 @@ import com.pydio.cells.transport.StateID
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import org.sinou.android.pydia.AppNames
 import org.sinou.android.pydia.CarouselActivity
 import org.sinou.android.pydia.CellsApp
@@ -63,8 +64,7 @@ class BrowseFolderFragment : Fragment() {
     private val nodeService: NodeService by inject()
 
     private val args: BrowseFolderFragmentArgs by navArgs()
-    private val browseFolderVM: BrowseFolderViewModel by viewModel()
-
+    private val browseFolderVM: BrowseFolderViewModel by viewModel { parametersOf(args.state) }
     private lateinit var binding: FragmentBrowseFolderBinding
 
     // Temp solution to provide a scrim during long running operations
@@ -85,7 +85,7 @@ class BrowseFolderFragment : Fragment() {
             inflater, R.layout.fragment_browse_folder, container, false
         )
 
-        browseFolderVM.afterCreate(StateID.fromId(args.state))
+//        browseFolderVM.afterCreate(StateID.fromId(args.state))
 
         configureRecyclerAdapter()
 
@@ -316,20 +316,9 @@ class BrowseFolderFragment : Fragment() {
             val intent = Intent(requireActivity(), CarouselActivity::class.java)
             intent.putExtra(AppNames.EXTRA_STATE, node.encodedState)
             startActivity(intent)
-
-            Log.i(
-                logTag,
-                "It's an image, open carousel ${node.getStateID()}, mime type: ${node.mime}"
-            )
-
-            // FIXME finish implementing the carousel
+            Log.d(logTag,"open carousel for ${node.getStateID()}, mime type: ${node.mime}")
             return@launch
         }
-
-        Log.i(
-            logTag, "**NOT** an image, opening in external viewer:" +
-                    " ${node.getStateID()}, mime type: ${node.mime}"
-        )
 
         // TODO double check. It smells.
         requireActivity().window.setFlags(
@@ -348,17 +337,8 @@ class BrowseFolderFragment : Fragment() {
         )
 
         file?.let {
-            val intent = externallyView(requireContext(), file, node)
-            try {
-                startActivity(intent)
-                loadingDialog?.dismiss()
-
-            } catch (e: Exception) {
-                val msg = "Cannot open ${it.name} (${intent.type}) with external viewer"
-                Toast.makeText(requireActivity().application, msg, Toast.LENGTH_LONG).show()
-                Log.e(tag, "Call to intent failed: $msg")
-                e.printStackTrace()
-            }
+            externallyView(requireContext(), file, node)
+            loadingDialog?.dismiss()
         }
     }
 

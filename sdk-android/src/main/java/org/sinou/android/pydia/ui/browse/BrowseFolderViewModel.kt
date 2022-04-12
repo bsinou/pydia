@@ -1,9 +1,16 @@
 package org.sinou.android.pydia.ui.browse
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.pydio.cells.transport.StateID
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.NodeService
 import org.sinou.android.pydia.utils.BackOffTicker
@@ -11,6 +18,7 @@ import java.util.concurrent.TimeUnit
 
 /** Holds a folder and all its children */
 class BrowseFolderViewModel(
+    encodedStateID: String,
     private val nodeService: NodeService,
 ) : ViewModel() {
 
@@ -18,17 +26,24 @@ class BrowseFolderViewModel(
     private var viewModelJob = Job()
     private val vmScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    private lateinit var _stateId: StateID
-    val stateId: StateID
-        get() = _stateId
+    val stateId: StateID = StateID.fromId(encodedStateID)
+    val currentFolder = nodeService.getLiveNode(stateId)
+//    val children = nodeService.ls(stateId)
 
+//    private lateinit var _stateId: StateID
+//    val stateId: StateID
+//        get() = _stateId
+
+/*
     private lateinit var _currentFolder: LiveData<RTreeNode>
     val currentFolder: LiveData<RTreeNode>
         get() = _currentFolder
+*/
 
-    private lateinit var _children: LiveData<List<RTreeNode>>
+    private var _children = nodeService.ls(stateId)
     val children: LiveData<List<RTreeNode>>
         get() = _children
+
 
 //    private var _selected : Selection<String>? = null
 //    val selected : Selection<String>?
@@ -50,11 +65,13 @@ class BrowseFolderViewModel(
         setLoading(true)
     }
 
+/*
     fun afterCreate(stateId: StateID){
         _stateId = stateId
         _currentFolder = nodeService.getLiveNode(stateId)
         _children = nodeService.ls(stateId)
     }
+*/
 
     private fun watchFolder() = vmScope.launch {
         while (_isActive) {

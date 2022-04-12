@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -34,6 +33,7 @@ import org.sinou.android.pydia.ui.menus.TreeNodeMenuFragment
 import org.sinou.android.pydia.utils.BackStackAdapter
 import org.sinou.android.pydia.utils.externallyView
 import org.sinou.android.pydia.utils.resetToHomeStateIfNecessary
+import org.sinou.android.pydia.utils.showMessage
 
 class BookmarksFragment : Fragment() {
 
@@ -152,21 +152,24 @@ class BookmarksFragment : Fragment() {
                 findNavController().navigate(action)
             } else {
                 val file = nodeService.getOrDownloadFileToCache(node)
-                file?.let {
-                    val intent = externallyView(requireContext(), file, node)
-                    try {
-                        startActivity(intent)
-                        if (BuildConfig.DEBUG){
-                            // TODO Debug only, remove
-                            val msg = "Opened ${it.name} (${intent.type}) with external viewer"
-                            Log.e(tag, "Intent success: $msg")
-                        }
+                file?.let { nfile ->
+                    externallyView(requireContext(), nfile, node)
+
+/*                    try {
+                        externallyView(requireContext(), nfile, node)?.let {
+                            startActivity(it)
+                            if (BuildConfig.DEBUG) {
+                                // TODO Debug only, remove
+                                val msg = "Opened ${file.name} (${it.type}) with external viewer"
+                                Log.e(tag, "Intent success: $msg")
+                            }
+                        } ?: showMessage(requireContext(), "No app found to open ${file.name}")
                     } catch (e: Exception) {
-                        val msg = "Cannot open ${it.name} (${intent.type}) with external viewer"
-                        Toast.makeText(requireActivity().application, msg, Toast.LENGTH_LONG).show()
+                        val msg = "Cannot open ${file.name} with external viewer"
+                        showMessage(requireContext(), msg)
                         Log.e(tag, "Call to intent failed: $msg")
                         e.printStackTrace()
-                    }
+                    }*/
                 }
             }
         }

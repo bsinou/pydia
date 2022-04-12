@@ -101,9 +101,8 @@ val viewModelModule = module {
     viewModel { P8CredViewModel(get()) }
     viewModel { AccountListViewModel(get()) }
 
-    // FIXME must find a way to pass the state in a reliable fashion
     viewModel { ActiveSessionViewModel(get()) }
-    viewModel { BrowseFolderViewModel(get()) }
+    viewModel { params -> BrowseFolderViewModel(params.get(), get()) }
     viewModel { params -> TreeNodeMenuViewModel(params.get(), params.get(), get()) }
 
     viewModel { BookmarksViewModel(get()) }

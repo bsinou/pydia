@@ -52,6 +52,12 @@ class TreeDiff(
     private val fileService: FileService by inject()
     private val networkService: NetworkService by inject()
 
+    private val thumbParPath =
+        fileService.dataParentPath(
+            rootId.accountId,
+            AppNames.LOCAL_FILE_TYPE_THUMB
+        ) + File.separator
+
     private var downloadThumbs = true
     private var downloadFiles = true
 
@@ -220,11 +226,12 @@ class TreeDiff(
         if (!downloadThumbs) {
             return
         }
-        // FIXME we miss the event when we have a filename but the thumb is not present
-        if (remote.isImage && local.thumbFilename == null) {
-            diffScope.launch {
-                val childStateID = rootId.child(remote.name)
-                thumbDL.orderThumbDL(childStateID.id)
+        if (remote.isImage) {
+            if (local.thumbFilename == null || !File(thumbParPath + local.thumbFilename).exists()) {
+                diffScope.launch {
+                    val childStateID = rootId.child(remote.name)
+                    thumbDL.orderThumbDL(childStateID.id)
+                }
             }
         }
     }

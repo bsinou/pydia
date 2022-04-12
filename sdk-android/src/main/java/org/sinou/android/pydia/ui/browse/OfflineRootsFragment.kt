@@ -107,7 +107,7 @@ class OfflineRootsFragment : Fragment() {
                 findNavController().navigate(action)
             } else {
 
-                // TODO implement file viewing
+                // FIXME implement file viewing
                 Log.i(logTag, "OPEN: ${node.encodedState}")
 
 //                val file = CellsApp.instance.nodeService.getOrDownloadFileToCache(node)
@@ -115,7 +115,6 @@ class OfflineRootsFragment : Fragment() {
 //                    val intent = externallyView(requireContext(), file, node)
 //                    try {
 //                        startActivity(intent)
-//                        // FIXME DEBUG only
 //                        val msg = "Opened ${it.name} (${intent.type}) with external viewer"
 //                        Log.e(tag, "Intent success: $msg")
 //                    } catch (e: Exception) {

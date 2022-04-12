@@ -22,6 +22,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.sinou.android.pydia.AppNames
+import org.sinou.android.pydia.BuildConfig
 import org.sinou.android.pydia.CellsApp
 import org.sinou.android.pydia.MainNavDirections
 import org.sinou.android.pydia.R
@@ -155,9 +156,11 @@ class BookmarksFragment : Fragment() {
                     val intent = externallyView(requireContext(), file, node)
                     try {
                         startActivity(intent)
-                        // FIXME DEBUG only
-                        val msg = "Opened ${it.name} (${intent.type}) with external viewer"
-                        Log.e(tag, "Intent success: $msg")
+                        if (BuildConfig.DEBUG){
+                            // TODO Debug only, remove
+                            val msg = "Opened ${it.name} (${intent.type}) with external viewer"
+                            Log.e(tag, "Intent success: $msg")
+                        }
                     } catch (e: Exception) {
                         val msg = "Cannot open ${it.name} (${intent.type}) with external viewer"
                         Toast.makeText(requireActivity().application, msg, Toast.LENGTH_LONG).show()

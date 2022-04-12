@@ -157,7 +157,7 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        // FIXME we must observe the LiveData or the variables are empty when we want to use them.
+        // TODO we must observe the LiveData or the variables are empty when we want to use them.
         //    Understand and find a more elegant / standard way to do it.
         treeNodeMenuVM.node.observe(viewLifecycleOwner) { it?.let {} }
         treeNodeMenuVM.nodes.observe(viewLifecycleOwner) { it?.let {} }
@@ -371,7 +371,6 @@ class TreeNodeMenuFragment : BottomSheetDialogFragment() {
         binding.node = node
         binding.bookmarkSwitch.setOnClickListener { onClicked(ACTION_TOGGLE_BOOKMARK) }
         binding.download.setOnClickListener { onClicked(ACTION_DOWNLOAD_TO_DEVICE) }
-        binding.openInWorkspaces.setOnClickListener { onClicked(ACTION_OPEN_IN_WORKSPACES) }
         binding.openParentInWorkspace.setOnClickListener {
             onClicked(ACTION_OPEN_PARENT_IN_WORKSPACES)
         }

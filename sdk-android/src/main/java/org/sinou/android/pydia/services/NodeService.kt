@@ -65,9 +65,10 @@ class NodeService(
 
     fun ls(stateID: StateID): LiveData<List<RTreeNode>> {
         var encoded = CellsApp.instance.getPreference(AppNames.PREF_KEY_CURR_RECYCLER_ORDER)
-        if (Str.empty(encoded)) encoded = "${AppNames.SORT_BY_CANON}||${AppNames.SORT_BY_ASC}"
-        var orders = parseOrder(encoded!!)
-
+        if (Str.empty(encoded)) {
+            encoded = "${AppNames.SORT_BY_CANON}||${AppNames.SORT_BY_ASC}"
+        }
+        val orders = parseOrder(encoded!!)
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE encoded_state like '${stateID.id}%' " +
                     "AND parent_path = '${stateID.file}' " +
@@ -84,16 +85,18 @@ class NodeService(
             parPath = ""
             mime = SdkNames.NODE_MIME_WS_ROOT
         } else if (parPath == "/") {
-
+            Log.e(
+                logTag,
+                "unimplemented tweak. Is it OK?  $stateID: parPath: $parPath, mime: $mime"
+            )
         }
         Log.i(logTag, "Listing children of $stateID: parPath: $parPath, mime: $mime")
         return nodeDB(stateID).treeNodeDao().lsWithMime(stateID.id, parPath, mime)
     }
 
     fun listViewable(stateID: StateID, mimeFilter: String): LiveData<List<RTreeNode>> {
-        var parPath = stateID.file
-        Log.i(logTag, "Listing children of $stateID: parPath: $parPath, mime: $mimeFilter")
-        return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, parPath, mimeFilter)
+        Log.d(logTag, "Listing children of $stateID: parPath: ${stateID.file}, mime: $mimeFilter")
+        return nodeDB(stateID).treeNodeDao().lsWithMimeFilter(stateID.id, stateID.file, mimeFilter)
     }
 
     fun listBookmarks(accountID: StateID): LiveData<List<RTreeNode>> {
@@ -152,7 +155,7 @@ class NodeService(
     suspend fun queryLocally(query: String?, stateID: StateID): List<RTreeNode> =
         withContext(Dispatchers.IO) {
             return@withContext if (query == null) {
-                listOf<RTreeNode>()
+                listOf()
             } else {
                 nodeDB(stateID).treeNodeDao().query(query)
             }
@@ -275,7 +278,7 @@ class NodeService(
             val thumbs = fileService.dataParentFolder(stateID, AppNames.LOCAL_FILE_TYPE_THUMB)
             val thumbDL = ThumbDownloader(client, nodeDB(stateID), thumbs)
 
-            var changeNb = syncNodeAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
+            val changeNb = syncNodeAt(rTreeNode, client, treeNodeDao, fileDL, thumbDL)
 
             // TODO check corner cases. Typically "needs deletion"
             if (changeNb > 0) {
@@ -525,10 +528,8 @@ class NodeService(
     suspend fun getOrDownloadFileToCache(rTreeNode: RTreeNode): File? =
 
         withContext(Dispatchers.IO) {
-
-            Log.e(logTag, "In getOrDownloadFileToCache for ${rTreeNode.name}")
-
-            // FIXME improve check to decide wether we should download the full file or not
+            Log.i(logTag, "In getOrDownloadFileToCache for ${rTreeNode.name}")
+            // TODO improve check to decide whether we should download the full file or not
             val isOK = isCacheVersionUpToDate(rTreeNode)
             when {
                 isOK == null && rTreeNode.localFileType != AppNames.LOCAL_FILE_TYPE_NONE

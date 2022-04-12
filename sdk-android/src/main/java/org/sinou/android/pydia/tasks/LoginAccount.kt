@@ -24,7 +24,7 @@ fun loginAccount(
 
     CellsApp.instance.appScope.launch {
 
-        // FIXME clean this when implementing custom certificate acceptance.
+        // TODO clean this when implementing custom certificate acceptance.
         val serverURL = ServerURLImpl.fromAddress(session.url, session.tlsMode == 1)
 
         if (session.isLegacy) {

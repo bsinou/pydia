@@ -82,8 +82,7 @@
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackground"
             android:orientation="horizontal"
-            android:padding="@dimen/menu_row_padding"
-            app:showForFileOnly="@{node}">
+            android:padding="@dimen/menu_row_padding">
 
             <ImageView
                 android:layout_width="@dimen/menu_icon"
@@ -124,7 +123,7 @@
                 android:text="@string/download_to_device" />
         </LinearLayout>
 
-        <LinearLayout
+<!--        <LinearLayout
             android:id="@+id/open_in_workspaces"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -146,7 +145,7 @@
                 android:layout_gravity="center_vertical"
                 android:padding="@dimen/menu_label_padding"
                 android:text="@string/open_in_workspaces" />
-        </LinearLayout>
+        </LinearLayout>-->
 
         <LinearLayout
             android:id="@+id/footer"

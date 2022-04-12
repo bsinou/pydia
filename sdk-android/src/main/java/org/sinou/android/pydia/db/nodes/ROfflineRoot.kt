@@ -15,9 +15,9 @@ data class ROfflineRoot(
 
     @ColumnInfo(name = "encoded_state") val encodedState: String,
 
-    @ColumnInfo(name = "mime") val mime: String,
-
-    @ColumnInfo(name = "name") val name: String,
+//    @ColumnInfo(name = "mime") val mime: String,
+//
+//    @ColumnInfo(name = "name") val name: String,
 
     @ColumnInfo(name = "status") var status: String,
 
@@ -37,19 +37,19 @@ data class ROfflineRoot(
         return StateID.fromId(encodedState)
     }
 
-    fun isFolder(): Boolean {
-        return mime == SdkNames.NODE_MIME_FOLDER
-                || mime == SdkNames.NODE_MIME_WS_ROOT
-                || mime == SdkNames.NODE_MIME_RECYCLE
-    }
+//    fun isFolder(): Boolean {
+//        return mime == SdkNames.NODE_MIME_FOLDER
+//                || mime == SdkNames.NODE_MIME_WS_ROOT
+//                || mime == SdkNames.NODE_MIME_RECYCLE
+//    }
 
     companion object {
         fun fromTreeNode(treeNode: RTreeNode): ROfflineRoot {
             return ROfflineRoot(
                 encodedState = treeNode.encodedState,
                 uuid = treeNode.uuid,
-                mime = treeNode.mime,
-                name = treeNode.name,
+//                mime = treeNode.mime,
+//                name = treeNode.name,
                 status = "new",
                 localModificationTS = 0,
                 lastCheckTS = 0,

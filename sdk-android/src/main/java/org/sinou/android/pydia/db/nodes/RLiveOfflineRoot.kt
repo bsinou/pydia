@@ -9,13 +9,13 @@ import org.sinou.android.pydia.db.Converters
 @DatabaseView(
     "SELECT offline_roots.encoded_state, " +
             "offline_roots.uuid, " +
-            "offline_roots.mime, " +
-            "offline_roots.name, " +
             "offline_roots.status, " +
             "offline_roots.local_mod_ts, " +
             "offline_roots.last_check_ts, " +
             "offline_roots.message, " +
             "offline_roots.sort_name, " +
+            "tree_nodes.mime, " +
+            "tree_nodes.name, " +
             "tree_nodes.size, " +
             "tree_nodes.thumb, " +
             "tree_nodes.localPath " +
@@ -24,7 +24,6 @@ import org.sinou.android.pydia.db.Converters
 )
 @TypeConverters(Converters::class)
 data class RLiveOfflineRoot(
-
 
     @ColumnInfo(name = "uuid") val uuid: String?,
 

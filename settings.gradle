@@ -13,7 +13,7 @@ if( sdkJavaCheck.exists() ) {
     println('[WARNING] Could not find local Java SDK')
 }
 
-include ':sdk-android'
+include ':pydia-client'
 
 /* Use custom names for the "build.gradle" file of child modules */
 rootProject.children.each {

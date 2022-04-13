@@ -2,4 +2,4 @@
 /.gradle/
 /.idea/
 local.properties
-sdk-android/build
+*/build

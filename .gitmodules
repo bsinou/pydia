@@ -3,3 +3,6 @@
 	url = https://github.com/pydio/cells-sdk-java.git
 	branch = future
 
+[submodule "pydia-client"]
+	path = pydia-client
+	url = https://github.com/bsinou/pydia-client.git

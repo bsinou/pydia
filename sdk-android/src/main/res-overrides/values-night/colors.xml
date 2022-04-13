@@ -4,7 +4,7 @@
 
     <!-- Main Colors -->
     <color name="iconBackground">#2F3030</color>
-    <color name="cells_on_primary_container">#001520</color>
+    <color name="cells_on_primary_container">#E1E2E5</color>
     <color name="cells_xlight_status_bar">#001520</color>
 
 </resources>

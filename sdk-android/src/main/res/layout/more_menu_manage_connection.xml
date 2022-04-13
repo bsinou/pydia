@@ -42,11 +42,6 @@
 
         <View style="@style/Divider.Horizontal" />
 
-        <View
-            style="@style/Divider.Horizontal.List"
-            android:layout_width="match_parent"
-            android:layout_height="1dp" />
-
         <TextView
             android:id="@+id/launch_auth"
             style="@style/TextAppearance.Material3.BodyMedium"

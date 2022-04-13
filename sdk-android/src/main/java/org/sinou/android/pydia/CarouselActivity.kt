@@ -65,10 +65,15 @@ class CarouselActivity : AppCompatActivity() {
 
         if (intent.hasExtra(AppNames.EXTRA_STATE)) {
             val stateStr: String = intent.getStringExtra(AppNames.EXTRA_STATE)!!
-//            val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
+            // TODO switch query depending on the context (browse, bookmark, offline...)
+            // val contextType = intent.getStringExtra(AppNames.EXTRA_ACTION_CONTEXT)
             val state = StateID.fromId(stateStr)
-
             carouselVM.afterCreate(state.parentFolder(), state)
+
+            carouselVM.allChildren.observe(this) {
+                carouselVM.updateElements(it)
+            }
+
         }
         // TODO handle errors
     }
@@ -104,7 +109,7 @@ class CarouselActivity : AppCompatActivity() {
                             .load(File(lf))
                             .into(view)
                     } else {
-                        Log.w("SetNodeThumb", "no thumb found for ${index}")
+                        Log.w("SetNodeThumb", "no thumb found for $index")
                         Glide.with(this@CarouselActivity)
                             .load(R.drawable.loading_animation2)
                             .into(view)

@@ -11,7 +11,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.annotation.MenuRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -46,6 +45,7 @@ import org.sinou.android.pydia.ui.utils.LoadingDialogFragment
 import org.sinou.android.pydia.utils.BackStackAdapter
 import org.sinou.android.pydia.utils.dumpBackStack
 import org.sinou.android.pydia.utils.externallyView
+import org.sinou.android.pydia.utils.isPreViewable
 import org.sinou.android.pydia.utils.resetToHomeStateIfNecessary
 import org.sinou.android.pydia.utils.showLongMessage
 
@@ -312,11 +312,12 @@ class BrowseFolderFragment : Fragment() {
 
         Log.i(logTag, "About to navigate to ${node.getStateID()}, mime type: ${node.mime}")
 
-        if (node.mime.startsWith("image") || node.mime.startsWith("\"image")) {
+        if (isPreViewable(node)) {
+//        if (node.mime.startsWith("image") || node.mime.startsWith("\"image")) {
             val intent = Intent(requireActivity(), CarouselActivity::class.java)
             intent.putExtra(AppNames.EXTRA_STATE, node.encodedState)
             startActivity(intent)
-            Log.d(logTag,"open carousel for ${node.getStateID()}, mime type: ${node.mime}")
+            Log.d(logTag, "open carousel for ${node.getStateID()}, mime type: ${node.mime}")
             return@launch
         }
 

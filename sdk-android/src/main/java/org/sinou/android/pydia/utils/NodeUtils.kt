@@ -41,7 +41,7 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
             return false
         }
     }
-  
+
     isEqual = local.remoteModificationTS == remote.getLastModified()
     if (!isEqual) {
         Log.d(NODE_UTILS, "Differ: Modif time are not equals")
@@ -131,6 +131,23 @@ fun getAppMime(context: Context, name: String): String {
         "video/*"
     } else {
         "*/*"
+    }
+}
+
+fun isPreViewable(element: RTreeNode): Boolean {
+    return if (element.mime.startsWith("image/") ||
+        // TODO remove this once the mime has been cleaned
+        element.mime.startsWith("\"image/")
+    ) {
+        true
+    } else if (element.mime == SdkNames.NODE_MIME_DEFAULT || element.mime == "\"${SdkNames.NODE_MIME_DEFAULT}\"") {
+        val name = element.name.lowercase()
+        name.endsWith(".jpg")
+                || name.endsWith(".jpeg")
+                || name.endsWith(".png")
+                || name.endsWith(".gif")
+    } else {
+        false
     }
 }
 

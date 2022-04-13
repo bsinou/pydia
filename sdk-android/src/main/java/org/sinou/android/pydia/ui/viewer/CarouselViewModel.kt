@@ -2,10 +2,13 @@ package org.sinou.android.pydia.ui.viewer
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.pydio.cells.api.SdkNames
 import com.pydio.cells.transport.StateID
 import org.sinou.android.pydia.db.nodes.RTreeNode
 import org.sinou.android.pydia.services.NodeService
+import org.sinou.android.pydia.utils.isPreViewable
 
 /**
  * Holds a list of viewable images for the carousel. It takes care of preloading data in background
@@ -15,7 +18,13 @@ class CarouselViewModel(private val nodeService: NodeService) : ViewModel() {
 
     private val logTag = CarouselViewModel::class.simpleName
 
-    lateinit var elements: LiveData<List<RTreeNode>>
+    private lateinit var _allChildren: LiveData<List<RTreeNode>>
+    val allChildren: LiveData<List<RTreeNode>>
+        get() = _allChildren
+
+    private val _elements = MutableLiveData<MutableList<RTreeNode>>().default(mutableListOf())
+    val elements: LiveData<MutableList<RTreeNode>>
+        get() = _elements
 
     private lateinit var _currActive: StateID
     val currActive: StateID
@@ -23,9 +32,30 @@ class CarouselViewModel(private val nodeService: NodeService) : ViewModel() {
 
     fun afterCreate(parentFolder: StateID, startElement: StateID) {
         _currActive = startElement
-        elements = nodeService.listViewable(parentFolder, "image/")
+        // We cannot rely yet on the mime type that is most of the time not correct
+        // elements = nodeService.listViewable(parentFolder, "image/")
+        _allChildren = nodeService.ls(parentFolder)
+        _allChildren.value?.let {
+            updateElements(it)
+        }
+
         Log.i(logTag, "afterCreate, startElement: $startElement")
     }
+
+    fun <T : Any?> MutableLiveData<MutableList<T>>.default(initialValue: MutableList<T>) =
+        apply { setValue(initialValue) }
+
+    fun updateElements(unfiltered: List<RTreeNode>) {
+
+        val viewables = mutableListOf<RTreeNode>()
+        for (element in unfiltered) {
+            if (isPreViewable(element)) {
+                viewables.add(element)
+            }
+        }
+        _elements.value?.addAll(viewables)
+    }
+
 
     fun setActive(stateID: StateID) {
         _currActive = stateID

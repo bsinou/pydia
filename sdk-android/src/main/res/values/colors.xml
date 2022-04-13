@@ -84,6 +84,7 @@
     <color name="iconTint">@color/cells_on_primary_container</color>
     <color name="iconBackground">@color/cells_main_surface_light</color>
     <color name="selected_background">@color/md_theme_light_surfaceVariant</color>
+    <color name="not_selected_background">@color/md_theme_light_surface</color>
 
     <color name="cells_divider_light">#EDF0F2</color>
     <color name="cells_xlight_status_bar">@android:color/white</color>

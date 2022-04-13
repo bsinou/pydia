@@ -12,7 +12,7 @@
 
         <TextView
             android:id="@+id/welcome_title_text"
-            style="@style/text_title"
+            style="@style/TextAppearance.Material3.TitleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_large"

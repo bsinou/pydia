@@ -15,5 +15,7 @@
         android:bottom="@dimen/grid_ws_icon_margin"
         android:tint="@color/iconTint"
         android:start="@dimen/grid_ws_icon_margin"
-        android:end="@dimen/grid_ws_icon_margin"/>
+        android:end="@dimen/grid_ws_icon_margin"
+        android:left="@dimen/grid_ws_icon_margin"
+        android:right="@dimen/grid_ws_icon_margin"/>
 </layer-list>

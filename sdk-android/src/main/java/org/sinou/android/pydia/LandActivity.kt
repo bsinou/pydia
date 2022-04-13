@@ -1,5 +1,4 @@
 package org.sinou.android.pydia
-// class LandActivity
 
 import android.content.Intent
 import android.os.Bundle

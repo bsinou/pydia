@@ -54,14 +54,3 @@ cp /tmp/forSwagger/pydia/sdk-kotlin/cellsapi-rest.swagger.yml $GITPATH/github.co
 # For the record, more details about the possible options:
 java -jar swagger-codegen-cli.jar help generate
 ```
-
-#### More tweaks
-
-In Jan. 2023, we should also do the following to finalize SDK generation:
-
-- Import the project in Android Studio to insure we did not miss any issue
-- Change the `javax.ws` prefix in the package imports of all class in the openapi package, to
-  import `jakarta.ws.rs.core.GenericType` rather than `javax.ws.rs.core.GenericType`: the later
-  package is not maintained anymore.
-- perform a "optimize import" on the `com.pydio.cells.openapi` client to remove unnecessary
-  warnings.

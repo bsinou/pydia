@@ -6,14 +6,16 @@ def timestamp = new Date().format( 'yyyyMMddHHmm' )
 println('[DEBUG] Starting init phase for ' + rootProject.name + ' at ' + timestamp)
 
 // Enable having the java sdk in the same android project via git submodule
-def sdkJavaCheck = new File( 'sdk-java/sdk-java.gradle' )
-if( sdkJavaCheck.exists() ) {
-    include ':sdk-java'
-} else {
-    println('[WARNING] Could not find local Java SDK')
-}
 
-include ':pydia-client'
+include ':sdk-kotlin'
+
+//def sdkJavaCheck = new File( 'sdk-java/sdk-java.gradle' )
+//if( sdkJavaCheck.exists() ) {
+//    include ':sdk-java'
+//} else {
+//    println('[WARNING] Could not find local Java SDK')
+//}
+//include ':pydia-client'
 
 /* Use custom names for the "build.gradle" file of child modules */
 rootProject.children.each {

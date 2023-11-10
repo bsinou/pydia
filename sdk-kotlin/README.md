@@ -54,3 +54,16 @@ cp /tmp/forSwagger/pydia/sdk-kotlin/cellsapi-rest.swagger.yml $GITPATH/github.co
 # For the record, more details about the possible options:
 java -jar swagger-codegen-cli.jar help generate
 ```
+
+## Tmp extra steps
+
+In nov 2023, we must also:
+
+- retrieve infrastructure package and rename it:
+
+```sh
+cd $GITPATH/github.com/bsinou/pydia/sdk-kotlin/src/main/kotlin/org
+mv /tmp/forSwagger/pydia/sdk-kotlin/src/main/kotlin/org/openapitools .
+```
+
+- refactor in our package

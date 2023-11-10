@@ -26,7 +26,6 @@ import org.sinou.pydia.openapi.model.IdmUpdateUserMetaRequest
 import org.sinou.pydia.openapi.model.IdmUpdateUserMetaResponse
 import org.sinou.pydia.openapi.model.RestBulkMetaResponse
 import org.sinou.pydia.openapi.model.RestDeleteUserMetaTagsResponse
-import org.sinou.pydia.openapi.model.RestError
 import org.sinou.pydia.openapi.model.RestListUserMetaTagsResponse
 import org.sinou.pydia.openapi.model.RestPutUserMetaTagRequest
 import org.sinou.pydia.openapi.model.RestPutUserMetaTagResponse
@@ -34,21 +33,17 @@ import org.sinou.pydia.openapi.model.RestUserBookmarksRequest
 import org.sinou.pydia.openapi.model.RestUserMetaCollection
 import org.sinou.pydia.openapi.model.RestUserMetaNamespaceCollection
 
-import com.squareup.moshi.Json
-
-import org.openapitools.client.infrastructure.ApiClient
-import org.openapitools.client.infrastructure.ApiResponse
-import org.openapitools.client.infrastructure.ClientException
-import org.openapitools.client.infrastructure.ClientError
-import org.openapitools.client.infrastructure.ServerException
-import org.openapitools.client.infrastructure.ServerError
-import org.openapitools.client.infrastructure.MultiValueMap
-import org.openapitools.client.infrastructure.PartConfig
-import org.openapitools.client.infrastructure.RequestConfig
-import org.openapitools.client.infrastructure.RequestMethod
-import org.openapitools.client.infrastructure.ResponseType
-import org.openapitools.client.infrastructure.Success
-import org.openapitools.client.infrastructure.toMultiValue
+import org.sinou.pydia.openapi.infrastructure.ApiClient
+import org.sinou.pydia.openapi.infrastructure.ApiResponse
+import org.sinou.pydia.openapi.infrastructure.ClientException
+import org.sinou.pydia.openapi.infrastructure.ClientError
+import org.sinou.pydia.openapi.infrastructure.ServerException
+import org.sinou.pydia.openapi.infrastructure.ServerError
+import org.sinou.pydia.openapi.infrastructure.MultiValueMap
+import org.sinou.pydia.openapi.infrastructure.RequestConfig
+import org.sinou.pydia.openapi.infrastructure.RequestMethod
+import org.sinou.pydia.openapi.infrastructure.ResponseType
+import org.sinou.pydia.openapi.infrastructure.Success
 
 class UserMetaServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClient = ApiClient.defaultClient) : ApiClient(basePath, client) {
     companion object {

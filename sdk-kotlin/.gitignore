@@ -1,0 +1,12 @@
+# build files
+.gradle
+build
+bin
+
+# various IDE specific files 
+.idea
+*.iml
+.project
+.vscode
+.classpath
+.settings

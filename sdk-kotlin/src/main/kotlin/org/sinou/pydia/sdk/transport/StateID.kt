@@ -1,5 +1,6 @@
-package org.sinou.pydia.transport
+package org.sinou.pydia.sdk.transport
 
+import org.sinou.pydia.sdk.utils.Log
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.net.URLDecoder
@@ -42,7 +43,7 @@ class StateID {
          */
         get() {
             val builder = StringBuilder(accountId)
-            if (path != null && path.length > 0 && "/" != path) {
+            if (!path.isNullOrEmpty() && "/" != path) {
                 builder.append("@").append(utf8Encode(path))
             }
             return builder.toString()
@@ -81,7 +82,9 @@ class StateID {
                 null
             } else file.substring(file.lastIndexOf("/") + 1)
         }
+
     /* HELPER METHODS */
+    
     /**
      * Creates a copy of this state ID and sets the passed path.
      * Warning: we assume parent StateID's username **and** serverUrl are already set.
@@ -113,7 +116,7 @@ class StateID {
             throw RuntimeException("wrong filename: [$fileName], inner slash are forbidden")
         }
         val newPath: String = if (path == null) {
-//            Log.w(tag, "Getting $fileName child for $this, path is null")
+            Log.w(logTag, "Getting $fileName child for $this, path is null")
             "/$fileName"
         } else if (path.endsWith("/")) {
             path + fileName
@@ -127,13 +130,14 @@ class StateID {
         return if (parentFile == null) {
             // Corner case: parent of a workspace or a cell is the corresponding account
             StateID(username, serverUrl)
-        } else StateID(username, serverUrl, "/" + workspace + parentFile)
+        } else StateID(username, serverUrl, "/$workspace$parentFile")
     }
 
     val isWorkspaceRoot: Boolean
-        get() = if (path == null) {
-            false
-        } else path == "/" + workspace
+        get() = path?.let {
+            it == "/$workspace"
+        } ?: run { false }
+
     val parentFile: String?
         get() {
             val file = file
@@ -153,7 +157,7 @@ class StateID {
             builder.append(username).append("@")
         }
         builder.append(serverUrl)
-        if (path != null && path.length > 0 && "/" != path) {
+        if (!path.isNullOrEmpty() &&  "/" != path) {
             builder.append(path)
         }
         return builder.toString()

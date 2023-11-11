@@ -1,7 +1,7 @@
-package com.pydio.cells.transport.auth;
+package org.sinou.pydia.sdk.transport.auth;
 
 import com.google.gson.Gson;
-import com.pydio.cells.utils.Log;
+import org.sinou.pydia.sdk.utils.Log;
 
 import org.json.JSONObject;
 

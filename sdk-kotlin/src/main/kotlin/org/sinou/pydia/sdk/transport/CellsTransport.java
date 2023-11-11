@@ -1,26 +1,26 @@
-package org.sinou.pydia.transport;
+package org.sinou.pydia.sdk.transport;
 
-import static com.pydio.cells.transport.CellsServer.API_PREFIX;
+import static org.sinou.pydia.sdk.transport.CellsServer.API_PREFIX;
 
-import com.pydio.cells.api.CustomEncoder;
-import com.pydio.cells.api.ErrorCodes;
-import com.pydio.cells.api.ICellsTransport;
-import com.pydio.cells.api.PasswordCredentials;
-import com.pydio.cells.api.SDKException;
-import com.pydio.cells.api.SdkNames;
-import com.pydio.cells.api.Server;
-import com.pydio.cells.api.ServerURL;
-import com.pydio.cells.openapi.ApiClient;
-import com.pydio.cells.openapi.ApiException;
-import com.pydio.cells.openapi.api.FrontendServiceApi;
-import com.pydio.cells.openapi.model.RestFrontSessionRequest;
-import com.pydio.cells.openapi.model.RestFrontSessionResponse;
-import com.pydio.cells.transport.auth.CredentialService;
-import com.pydio.cells.transport.auth.Token;
-import com.pydio.cells.transport.auth.jwt.OAuthConfig;
-import com.pydio.cells.utils.IoHelpers;
-import com.pydio.cells.utils.Log;
-import com.pydio.cells.utils.Str;
+import org.sinou.pydia.sdk.api.CustomEncoder;
+import org.sinou.pydia.sdk.api.ErrorCodes;
+import org.sinou.pydia.sdk.api.ICellsTransport;
+import org.sinou.pydia.sdk.api.PasswordCredentials;
+import org.sinou.pydia.sdk.api.SDKException;
+import org.sinou.pydia.sdk.api.SdkNames;
+import org.sinou.pydia.sdk.api.Server;
+import org.sinou.pydia.sdk.api.ServerURL;
+import org.sinou.pydia.openapi.ApiClient;
+import org.sinou.pydia.sdk.utils.ApiException;
+import org.sinou.pydia.openapi.api.FrontendServiceApi;
+import org.sinou.pydia.openapi.model.RestFrontSessionRequest;
+import org.sinou.pydia.openapi.model.RestFrontSessionResponse;
+import org.sinou.pydia.sdk.transport.auth.CredentialService;
+import org.sinou.pydia.sdk.transport.auth.Token;
+import org.sinou.pydia.sdk.transport.auth.jwt.OAuthConfig;
+import org.sinou.pydia.sdk.utils.IoHelpers;
+import org.sinou.pydia.sdk.utils.Log;
+import org.sinou.pydia.sdk.utils.Str;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;

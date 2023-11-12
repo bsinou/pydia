@@ -9,7 +9,7 @@ public interface IServerFactory {
      * @return
      * @throws SDKException
      */
-    String checkServer(ServerURL serverURL) throws SDKException;
+    // String checkServer(ServerURL serverURL) throws SDKException;
 
 
     /**

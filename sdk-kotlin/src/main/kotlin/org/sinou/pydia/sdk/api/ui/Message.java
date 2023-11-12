@@ -1,7 +1,6 @@
 package org.sinou.pydia.sdk.api.ui;
 
 import org.sinou.pydia.sdk.api.SdkNames;
-import com.pydio.cells.client.model.NodeFactory;
 
 import org.w3c.dom.Document;
 
@@ -60,45 +59,46 @@ public class Message implements Serializable {
             return empty();
         }
 
-        org.w3c.dom.Node xml_message = doc.getElementsByTagName(SdkNames.XML_MESSAGE).item(0);
-        Message msg = new Message();
-
-        if (xml_message != null) {
-            msg.setMessage(xml_message.getTextContent());
-            msg.setType(xml_message.getAttributes().getNamedItem(SdkNames.MESSAGE_PROPERTY_TYPE).getNodeValue());
-        }
-
-        org.w3c.dom.Node diff = doc.getElementsByTagName(SdkNames.XML_NODES_DIFF).item(0);
-        if (diff != null) {
-            for (int i = 0; i < diff.getChildNodes().getLength(); i++) {
-                org.w3c.dom.Node child = diff.getChildNodes().item(i);
-                String tag = child.getNodeName();
-
-                List<Node> list = null;
-
-                if (SdkNames.NODE_DIFF_REMOVE.equals(tag)) {
-                    if (msg.deleted == null) {
-                        msg.deleted = new ArrayList<>();
-                    }
-                    list = msg.deleted;
-                } else if (SdkNames.NODE_DIFF_ADD.equals(tag)) {
-                    if (msg.added == null) {
-                        msg.added = new ArrayList<>();
-                    }
-                    list = msg.added;
-                } else if (SdkNames.NODE_DIFF_UPDATE.equals(tag)) {
-                    if (msg.updated == null) {
-                        msg.updated = new ArrayList<>();
-                    }
-                    list = msg.updated;
-                }
-
-                for (int j = 0; list != null && j < child.getChildNodes().getLength(); j++) {
-                    list.add(NodeFactory.createNode(child.getChildNodes().item(j)));
-                }
-            }
-        }
-        return msg;
+//        org.w3c.dom.Node xml_message = doc.getElementsByTagName(SdkNames.XML_MESSAGE).item(0);
+//        Message msg = new Message();
+//
+//        if (xml_message != null) {
+//            msg.setMessage(xml_message.getTextContent());
+//            msg.setType(xml_message.getAttributes().getNamedItem(SdkNames.MESSAGE_PROPERTY_TYPE).getNodeValue());
+//        }
+//
+//        org.w3c.dom.Node diff = doc.getElementsByTagName(SdkNames.XML_NODES_DIFF).item(0);
+//        if (diff != null) {
+//            for (int i = 0; i < diff.getChildNodes().getLength(); i++) {
+//                org.w3c.dom.Node child = diff.getChildNodes().item(i);
+//                String tag = child.getNodeName();
+//
+//                List<Node> list = null;
+//
+//                if (SdkNames.NODE_DIFF_REMOVE.equals(tag)) {
+//                    if (msg.deleted == null) {
+//                        msg.deleted = new ArrayList<>();
+//                    }
+//                    list = msg.deleted;
+//                } else if (SdkNames.NODE_DIFF_ADD.equals(tag)) {
+//                    if (msg.added == null) {
+//                        msg.added = new ArrayList<>();
+//                    }
+//                    list = msg.added;
+//                } else if (SdkNames.NODE_DIFF_UPDATE.equals(tag)) {
+//                    if (msg.updated == null) {
+//                        msg.updated = new ArrayList<>();
+//                    }
+//                    list = msg.updated;
+//                }
+//
+//                for (int j = 0; list != null && j < child.getChildNodes().getLength(); j++) {
+//                    list.add(NodeFactory.createNode(child.getChildNodes().item(j)));
+//                }
+//            }
+//        }
+//        return msg;
+        return empty();
     }
 
     public static Message create(String type, String message) {

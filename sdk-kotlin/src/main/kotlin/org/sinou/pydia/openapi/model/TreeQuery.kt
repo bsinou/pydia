@@ -97,7 +97,7 @@ data class TreeQuery (
     val paths: kotlin.collections.List<kotlin.String>? = null,
 
     @Json(name = "Type")
-    val type: TreeNodeType? = TreeNodeType.uNKNOWN,
+    val type: TreeNodeType? = TreeNodeType.UNKNOWN,
 
     @Json(name = "UUIDs")
     val uuIDs: kotlin.collections.List<kotlin.String>? = null

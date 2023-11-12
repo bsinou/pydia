@@ -15,7 +15,7 @@ import java.net.URLEncoder
  */
 class StateID {
 
-    private val username: String?
+    val username: String?
     private val serverUrl: String
     val path: String?
 
@@ -84,7 +84,7 @@ class StateID {
         }
 
     /* HELPER METHODS */
-    
+
     /**
      * Creates a copy of this state ID and sets the passed path.
      * Warning: we assume parent StateID's username **and** serverUrl are already set.
@@ -157,7 +157,7 @@ class StateID {
             builder.append(username).append("@")
         }
         builder.append(serverUrl)
-        if (!path.isNullOrEmpty() &&  "/" != path) {
+        if (!path.isNullOrEmpty() && "/" != path) {
             builder.append(path)
         }
         return builder.toString()
@@ -206,7 +206,7 @@ class StateID {
 
         // TODO find a elegant way to rather inject the CustomEncoder.
         //   Not perfect: Might have side effects when switching from plain Java to Android
-        private fun utf8Encode(value: String): String {
+        fun utf8Encode(value: String): String {
             return try {
                 URLEncoder.encode(value, "UTF-8")
             } catch (e: UnsupportedEncodingException) {
@@ -214,7 +214,7 @@ class StateID {
             }
         }
 
-        private fun utf8Decode(value: String): String {
+        fun utf8Decode(value: String): String {
             return try {
                 URLDecoder.decode(value, "UTF-8")
             } catch (e: UnsupportedEncodingException) {

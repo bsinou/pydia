@@ -44,7 +44,7 @@ data class TreeListNodesRequest (
     val ancestors: kotlin.Boolean? = null,
 
     @Json(name = "FilterType")
-    val filterType: TreeNodeType? = TreeNodeType.uNKNOWN,
+    val filterType: TreeNodeType? = TreeNodeType.UNKNOWN,
 
     @Json(name = "Limit")
     val limit: kotlin.String? = null,

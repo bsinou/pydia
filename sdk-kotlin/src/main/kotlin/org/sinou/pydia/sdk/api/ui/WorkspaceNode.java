@@ -1,7 +1,6 @@
 package org.sinou.pydia.sdk.api.ui;
 
-import com.pydio.cells.client.model.Action;
-import com.pydio.cells.utils.Str;
+import org.sinou.pydia.sdk.utils.Str;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ public class WorkspaceNode extends AbstractNode {
 //     private final String logTag = "WorkspaceNode";
 
     private List<Plugin> plugins;
-    private List<Action> availableActions;
+//     private List<Action> availableActions;
 
     @Override
     public String getId() {
@@ -39,9 +38,9 @@ public class WorkspaceNode extends AbstractNode {
 
     /* WORKSPACES SPECIFIC PROPERTIES */
 
-    public void setActions(List<Action> actions) {
-        this.availableActions = actions;
-    }
+//     public void setActions(List<Action> actions) {
+//        this.availableActions = actions;
+ //   }
 
     public void setPlugins(List<Plugin> plugins) {
         this.plugins = plugins;
@@ -111,31 +110,31 @@ public class WorkspaceNode extends AbstractNode {
         return "w".equals(getACL()) || "rw".equals(getACL());
     }
 
-    public boolean isReadActionAllowed(String action) {
-        if (availableActions == null || availableActions.size() == 0) {
-            return true;
-        }
-
-        for (Action a : availableActions) {
-            if (action.equals(a.name)) {
-                return a.read != null ? a.read : isReadable();
-            }
-        }
-        return true;
-    }
-
-    public boolean isWriteActionAllowed(String action) {
-        if (availableActions == null || availableActions.size() == 0) {
-            return true;
-        }
-
-        for (Action a : availableActions) {
-            if (action.equals(a.name)) {
-                return a.write != null ? a.write : isWriteable();
-            }
-        }
-        return true;
-    }
+//    public boolean isReadActionAllowed(String action) {
+//        if (availableActions == null || availableActions.size() == 0) {
+//            return true;
+//        }
+//
+//        for (Action a : availableActions) {
+//            if (action.equals(a.name)) {
+//                return a.read != null ? a.read : isReadable();
+//            }
+//        }
+//        return true;
+//    }
+//
+//    public boolean isWriteActionAllowed(String action) {
+//        if (availableActions == null || availableActions.size() == 0) {
+//            return true;
+//        }
+//
+//        for (Action a : availableActions) {
+//            if (action.equals(a.name)) {
+//                return a.write != null ? a.write : isWriteable();
+//            }
+//        }
+//        return true;
+//    }
 
     public boolean isShared() {
         return "true".equals(properties.getProperty(NODE_PROPERTY_SHARED)) || "shared".equals(properties.getProperty(WORKSPACE_PROPERTY_OWNER));

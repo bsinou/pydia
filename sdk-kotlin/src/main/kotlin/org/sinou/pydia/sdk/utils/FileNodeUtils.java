@@ -101,7 +101,7 @@ public class FileNodeUtils {
         fileNode.setProperty(SdkNames.NODE_PROPERTY_MIME, type);
 
         // Size
-        String sizeStr = treeNode.getSize();
+        String sizeStr = treeNode.getPropertySize();
         if (Str.empty(sizeStr)) {
             sizeStr = "0";
         }
@@ -218,7 +218,7 @@ public class FileNodeUtils {
             String[] parts = path.substring(index + 1).split("/");
             StringBuilder pathBuilder = new StringBuilder();
             for (String part : parts) {
-                pathBuilder.append("/").append(StateID.utf8Encode(part));
+                pathBuilder.append("/").append(StateID.Companion.utf8Encode(part));
             }
             Log.d(logTag, "   now: [" + ws + pathBuilder + "]");
             return ws + pathBuilder;

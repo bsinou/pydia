@@ -84,11 +84,10 @@ open class ServerFactory(
 
     @Throws(SDKException::class)
     override fun registerServer(serverURL: ServerURL): Server {
-        var server = serverStore[serverURL.id]
-        if (server != null) {
-            return server
+        serverStore[serverURL.id]?.let {
+            return it
         }
-        server = CellsServer(serverURL).refresh(false)
+        val server = CellsServer(serverURL).refresh(false)
         serverStore.put(serverURL.id, server)
         return server
     }

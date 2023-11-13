@@ -24,7 +24,6 @@ import java.util.Arrays
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSession
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
@@ -70,26 +69,32 @@ class ServerURLImpl private constructor(
 
     @Throws(IOException::class)
     override fun openConnection(): HttpURLConnection {
-        return if ("http" == url.protocol) {
-            url.openConnection() as HttpURLConnection
-        } else if ("https" == url.protocol) {
-            val conn = url.openConnection() as HttpsURLConnection
-            if (skipVerify) {
-                setAcceptAllVerifier(conn as HttpsURLConnection?)
+        return when (url.protocol) {
+            "http" -> {
+                url.openConnection() as HttpURLConnection
             }
-            conn
-        } else throw IllegalStateException("Unsupperted protocol: ${url.protocol}")
+
+            "https" -> {
+                val conn = url.openConnection() as HttpsURLConnection
+                if (skipVerify) {
+                    setAcceptAllVerifier(conn as HttpsURLConnection?)
+                }
+                conn
+            }
+
+            else -> throw IllegalStateException("Unsupported protocol: ${url.protocol}")
+        }
     }
 
     @Throws(MalformedURLException::class)
     override fun withPath(path: String): ServerURL {
         val specBuilder = StringBuilder()
-        if (Str.notEmpty(url.path)) {
+        if (url.path.isNotEmpty()) {
             specBuilder.append(url.path)
         }
         val verifyPassedURL = URL(url, path)
         specBuilder.append(verifyPassedURL.path)
-        if (Str.notEmpty(url.query)) {
+        if (url.query.isNotEmpty()) {
             specBuilder.append("?").append(url.query)
         }
         return ServerURLImpl(URL(url, specBuilder.toString()), skipVerify)
@@ -101,7 +106,7 @@ class ServerURLImpl private constructor(
             return this
         }
         var spec = "/"
-        if (Str.notEmpty(url.path)) {
+        if (url.path.isNotEmpty()) {
             spec = url.path
         }
         spec = "$spec?$query"
@@ -111,20 +116,20 @@ class ServerURLImpl private constructor(
     @Throws(MalformedURLException::class)
     override fun withSpec(spec: String): ServerURL {
         val specBuilder = StringBuilder()
-        if (Str.notEmpty(url.path)) {
+        if (url.path.isNotEmpty()) {
             specBuilder.append(url.path)
         }
         val verifyPassedURL = URL(url, spec)
-        if (Str.notEmpty(verifyPassedURL.path)) {
+        if (verifyPassedURL.path.isNotEmpty()) {
             specBuilder.append(verifyPassedURL.path)
         }
-        if (Str.notEmpty(verifyPassedURL.query)) {
+        if (verifyPassedURL.query.isNotEmpty()) {
             specBuilder.append("?").append(verifyPassedURL.query)
         }
         return ServerURLImpl(URL(url, specBuilder.toString()), skipVerify)
     }
 
-    override fun toJson(): String? {
+    override fun toJson(): String {
         return Gson().toJson(this)
     }
 
@@ -133,7 +138,7 @@ class ServerURLImpl private constructor(
         return skipVerify
     }
 
-    /* Manage self signed on a URL by URL Basis.
+    /* Manage self-signed on a URL by URL Basis.
       Thanks to https://stackoverflow.com/questions/19723415/java-overriding-function-to-disable-ssl-certificate-check */
     @Throws(SDKException::class, IOException::class)
     override fun ping() {
@@ -179,9 +184,9 @@ class ServerURLImpl private constructor(
         get() {
             if (sslContext == null) {
                 try {
-                    var tmpContext = SSLContext.getInstance("TLS")
+                    val tmpContext = SSLContext.getInstance("TLS")
                     tmpContext.init(null, arrayOf(trustManager()), null)
-                    tmpContext.getSocketFactory()
+                    // tmpContext.socketFactory
                     sslContext = tmpContext
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -255,14 +260,13 @@ class ServerURLImpl private constructor(
                 override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) {}
             }
         )
-        private val SKIP_HOSTNAME_VERIFIER =
-            HostnameVerifier { hostname: String?, session: SSLSession? -> true }
+        private val SKIP_HOSTNAME_VERIFIER = HostnameVerifier { _, _ -> true }
+//            HostnameVerifier { hostname: String?, session: SSLSession? -> true }
 
         @Throws(MalformedURLException::class)
         fun fromAddress(urlString: String, skipVerify: Boolean = false): ServerURL {
-            var urlString = urlString
-            urlString = urlString.trim { it <= ' ' }.lowercase()
-            var url = URL(urlString)
+            val url = URL(urlString.trim { it <= ' ' }.lowercase())
+            return ServerURLImpl(url, skipVerify)
 //            when (url.path) {
 //                "/", "" -> url = URL(url.protocol + "://" + url.authority)
 //                else -> {
@@ -279,7 +283,7 @@ class ServerURLImpl private constructor(
 //                    url = URL(protocol + "://" + url.authority + path)
 //                }
 //            }
-            return ServerURLImpl(url, skipVerify)
+//            return ServerURLImpl(url, skipVerify)
         }
 
         fun fromJson(jsonString: String): ServerURL {

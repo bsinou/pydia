@@ -48,15 +48,17 @@ class StateID {
             }
             return builder.toString()
         }
+
     val accountId: String
         get() {
             val builder = StringBuilder()
-            if (username != null) {
-                builder.append(utf8Encode(username)).append("@")
+            username?.let{
+                builder.append(utf8Encode(it)).append("@")
             }
             builder.append(utf8Encode(serverUrl))
             return builder.toString()
         }
+
     val serverHost: String
         /**
          * Best effort to provide a short host name from the URL. If the current url values raises
@@ -68,13 +70,16 @@ class StateID {
         } catch (e: Exception) {
             serverUrl
         }
+
     val workspace: String?
         get() = getWorkspace(path)
+
     val file: String?
         /**
-         * Returns the trailing part of the path without the workspace. Always starts with a slash.
+         * Returns the trailing part of the path without the workspace. Always starts with a slash when not null.
          */
         get() = getFile(path)
+
     val fileName: String?
         get() {
             val file = file
@@ -89,11 +94,11 @@ class StateID {
      * Creates a copy of this state ID and sets the passed path.
      * Warning: we assume parent StateID's username **and** serverUrl are already set.
      *
-     * @param path a path including the workspace
+     * @param path a path including the workspace and starting with a slash
      * @return a valid StateID pointing to this path within the account defined by this username
      * and server URL
      */
-    fun withPath(path: String?): StateID {
+    fun withPath(path: String): StateID {
         return StateID(username, serverUrl, path)
     }
 

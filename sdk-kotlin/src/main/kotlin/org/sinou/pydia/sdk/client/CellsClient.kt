@@ -132,14 +132,13 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             limit = options?.limit,
             offset = options?.offset,
         )
-        val api = TreeServiceApi(transport.getApiURL(), ApiClient.defaultClient)
+        val (url, okClient) = transport.apiConf()
+        val api = TreeServiceApi(url, okClient)
         val response: RestBulkMetaResponse
         val nextPageOptions = PageOptions()
         try {
             response = api.bulkStatNodes(request)
-            val pagination = response.pagination
-
-            pagination?.let { pag ->
+            response.pagination?.let { pag ->
 
                 pag.limit?.let { nextPageOptions.limit = it }
                 nextPageOptions.offset = pag.nextOffset ?: -1
@@ -162,24 +161,9 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             val msg = "Could not list: " + e.message
             throw SDKException(e.statusCode, msg, e)
         }
-        val nodes = response.nodes
-        if (nodes != null) {
-            for (node in response.nodes) {
-                var fileNode: FileNode? = try {
-                    FileNodeUtils.toFileNode(node)
-                } catch (e: NullPointerException) {
-                    Log.e(logTag, "Unexpected error while parsing response, cannot create FileNode")
-                    e.printStackTrace()
-                    continue
-                }
-                if (fileNode != null) {
-                    val nodePath = ("/" + node.path).replace("//", "/")
-                    val canonicalPath = FileNodeUtils.toTreeNodePath(slug, path)
-                    if (nodePath != canonicalPath && !fileNode.name.startsWith(".")) {
-                        handler.onNode(fileNode)
-                    }
-                }
-            }
+
+        response.nodes?.let { nodes ->
+            nodes.forEach { handler.onNode(it) }
         }
         return nextPageOptions
     }

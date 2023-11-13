@@ -76,6 +76,8 @@ jar {
 
 dependencies {
 
+    api project(":openapi-client")
+
     // Set of carefully chosen third-party libraries
     // Do not update lightly: see build.gradle sibling file.
 

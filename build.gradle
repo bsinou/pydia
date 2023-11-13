@@ -20,6 +20,7 @@ buildscript {
 plugins {
     // Publish the generated resources as Maven Artifacts.
     id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.10' apply false
 }
 
 // Retrieve local context

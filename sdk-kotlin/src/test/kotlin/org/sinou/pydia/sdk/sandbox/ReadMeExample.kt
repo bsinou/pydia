@@ -14,6 +14,8 @@ import org.sinou.pydia.sdk.utils.tests.TestClientFactory
 import org.sinou.pydia.sdk.utils.tests.TestCredentialService
 import org.sinou.pydia.sdk.utils.tests.TestUtils
 import java.net.MalformedURLException
+import kotlin.io.path.Path
+import kotlin.io.path.name
 
 class ReadMeExample {
 
@@ -72,7 +74,7 @@ class ReadMeExample {
 
         var found = false
         client.ls(slug = defaultSlug, path = "/", options = null) {
-            if (it.name == defaultParent) {
+            if (defaultParent == Path(it?.path ?: "").fileName.name) {
                 found = true
             }
         }
@@ -80,7 +82,7 @@ class ReadMeExample {
 
         try {
             client.ls(slug = defaultSlug, path = "/$defaultParent", options = null) {
-                Log.e(logTag, "Found unexpected node: UUID: ${it.id}, path: ${it.path} ")
+                Log.e(logTag, "Found unexpected node: UUID: ${it.uuid}, path: ${it.path} ")
             }
         } catch (e: Exception) { // expected
             e.printStackTrace()

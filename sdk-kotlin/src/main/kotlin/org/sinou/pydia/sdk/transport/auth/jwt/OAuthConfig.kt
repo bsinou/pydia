@@ -2,13 +2,17 @@ package org.sinou.pydia.sdk.transport.auth.jwt
 
 import com.google.gson.Gson
 import org.sinou.pydia.sdk.api.SDKException
+import java.lang.IllegalArgumentException
 
-class OAuthConfig private constructor() {
+class OAuthConfig private constructor(
+    val authorizeEndpoint: String,
+    val tokenEndpoint: String,
+    val revokeEndpoint: String,
+) {
+
     // public final static String SCOPE = "scope";
-    var authorizeEndpoint: String? = null
+
     var redirectURI: String
-    var tokenEndpoint: String? = null
-    var revokeEndpoint: String? = null
 
     //     public String refreshEndpoint;
     var audience: String? = null
@@ -19,26 +23,17 @@ class OAuthConfig private constructor() {
     init {
         redirectURI = DEFAULT_REDIRECT_URI
         scope = defaultScope
-    } //    private static OAuthConfig fromJSON(JSONObject o) {
+    }
 
-    //        OAuthConfig cfg = new OAuthConfig();
-    //
-    //        cfg.authorizeEndpoint = o.getString(AUTH_ENDPOINT);
-    //        cfg.tokenEndpoint = o.getString(TOKEN_ENDPOINT);
-    //        cfg.revokeEndpoint = o.getString(REVOCATION_ENDPOINT);
-    //
-    //        cfg.redirectURI = DEFAULT_REDIRECT_URI;
-    //
-    //        cfg.scope = defaultScope;
-    //        return cfg;
-    //    }
     companion object {
-        private const val defaultScope = "openid email offline profile pydio"
         const val DEFAULT_REDIRECT_URI = "cellsauth://callback"
         const val OIDC_WELL_KNOWN_CONFIG_PATH = "/oidc/.well-known/openid-configuration"
         const val AUTH_ENDPOINT = "authorization_endpoint"
         const val TOKEN_ENDPOINT = "token_endpoint"
         const val REVOCATION_ENDPOINT = "revocation_endpoint"
+
+        private const val defaultScope = "openid email offline profile pydio"
+
         @Throws(SDKException::class)
         fun fromOIDCResponse(oidcStr: String): OAuthConfig {
             return try {
@@ -49,13 +44,22 @@ class OAuthConfig private constructor() {
         }
 
         private fun fromJsonString(oidcStr: String): OAuthConfig {
-            val cfg = OAuthConfig()
             val gson = Gson()
             val map: Map<String, Any> = gson.fromJson(oidcStr, Map::class.java) as Map<String, Any>
-            cfg.authorizeEndpoint = map[AUTH_ENDPOINT] as String?
-            cfg.tokenEndpoint = map[TOKEN_ENDPOINT] as String?
-            cfg.revokeEndpoint = map[REVOCATION_ENDPOINT] as String?
-            return cfg
+
+            var tmp = map[AUTH_ENDPOINT]
+            val authEP = if ( tmp is String && tmp.isNotEmpty()) tmp
+            else throw IllegalArgumentException("No authorisation endpoint, cannot register server")
+
+            tmp = map[TOKEN_ENDPOINT]
+            val tokenEP = if ( tmp is String && tmp.isNotEmpty()) tmp
+            else throw IllegalArgumentException("No token endpoint, cannot register server")
+
+            tmp = map[REVOCATION_ENDPOINT]
+            val revocationEP = if ( tmp is String && tmp.isNotEmpty()) tmp
+            else throw IllegalArgumentException("No revocation endpoint, cannot register server")
+
+            return OAuthConfig(authEP, tokenEP, revocationEP)
         }
     }
 }

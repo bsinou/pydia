@@ -1,14 +1,15 @@
-package org.sinou.pydia.sdk.api;
+package org.sinou.pydia.sdk.api
 
 /**
  * Local list of the well known HTTP Status Code to ease usage in our layers
  */
-public enum HttpStatus {
+enum class HttpStatus(@JvmField val value: Int, val description: String) {
 
     //1xx: Informational
-    CONTINUE(100, "Continue"),
-    SWITCHING_PROTOCOLS(101, "Switching Protocols"),
-    PROCESSING(102, "Processing"),
+    CONTINUE(100, "Continue"), SWITCHING_PROTOCOLS(101, "Switching Protocols"), PROCESSING(
+        102,
+        "Processing"
+    ),
     EARLY_HINTS(103, "Early Hints"),
 
     //2xx: Success
@@ -76,33 +77,16 @@ public enum HttpStatus {
     NOT_EXTENDED(510, "Not Extended"),
     NETWORK_AUTHENTICATION_REQUIRED(511, "Network Authentication Required");
 
-    private final int value;
-    private final String description;
-
-    HttpStatus(int value, String description) {
-        this.value = value;
-        this.description = description;
+    override fun toString(): String {
+        return "$value $description"
     }
 
-    public int getValue() {
-        return value;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String toString() {
-        return value + " " + description;
-    }
-
-    public static HttpStatus getByValue(int value) {
-        for (HttpStatus status : values()) {
-            if (status.value == value) return status;
+    companion object {
+        fun getByValue(value: Int): HttpStatus {
+            for (status in values()) {
+                if (status.value == value) return status
+            }
+            throw IllegalArgumentException("Invalid status code: $value")
         }
-        throw new IllegalArgumentException("Invalid status code: " + value);
     }
-
-
 }

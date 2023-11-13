@@ -1,7 +1,5 @@
 package org.sinou.pydia.sdk.api.ui;
 
-import org.sinou.pydia.sdk.api.SdkNames;
-
 import org.w3c.dom.Document;
 
 import java.io.Serializable;

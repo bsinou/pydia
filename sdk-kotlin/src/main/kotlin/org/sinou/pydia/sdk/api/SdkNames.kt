@@ -4,6 +4,7 @@ package org.sinou.pydia.sdk.api
  * Centralize all string constants for the com.pydio.sdk API
  */
 interface SdkNames {
+
     companion object {
         /* CONSTANTS */
         const val DEFAULT_CLIENT_ID = "cells-client"

@@ -2,7 +2,6 @@ package org.sinou.pydia.sdk.transport
 
 import okhttp3.OkHttpClient
 import org.sinou.pydia.openapi.api.FrontendServiceApi
-import org.sinou.pydia.openapi.infrastructure.ApiClient
 import org.sinou.pydia.openapi.model.RestFrontSessionRequest
 import org.sinou.pydia.openapi.model.RestFrontSessionResponse
 import org.sinou.pydia.sdk.api.CustomEncoder
@@ -14,6 +13,7 @@ import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.api.Server
 import org.sinou.pydia.sdk.api.ServerURL
 import org.sinou.pydia.sdk.api.Transport
+import org.sinou.pydia.sdk.transport.auth.CellsAnonInterceptor
 import org.sinou.pydia.sdk.transport.auth.CellsOAuthInterceptor
 import org.sinou.pydia.sdk.transport.auth.CredentialService
 import org.sinou.pydia.sdk.transport.auth.Token
@@ -29,7 +29,6 @@ import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URI
-import java.nio.charset.StandardCharsets
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -44,20 +43,11 @@ class CellsTransport(
     private val encoder: CustomEncoder
     private val timeFormatter: SimpleDateFormat = SimpleDateFormat("HH:mm")
     private val credentialService: CredentialService?
+    private var userAgent: String? = null
 
     // TODO rather rely on a state ID
     override val username: String
     override val server: Server
-    override var userAgent: String? = null
-        get() {
-            if (field != null) {
-                return field
-            }
-            field = ClientData.getInstance()!!.userAgent()
-            Log.i(logTag, "New Transport instance for $username, user agent is: $field")
-            return field
-        }
-        private set
 
     init {
         this.credentialService = credentialService
@@ -65,6 +55,25 @@ class CellsTransport(
         this.server = server
         this.encoder = encoder
     }
+
+    override fun getUserAgent(): String {
+        userAgent?.let { return it }
+
+        val agent = ClientData.getInstance().userAgent()
+        userAgent = agent
+        Log.i(logTag, "New Transport instance for $username, user agent is: [$agent]")
+        return agent
+    }
+
+
+    override fun apiConf(): Pair<String, OkHttpClient> {
+        return getApiURL() to authenticatedClient().build()
+    }
+
+    override fun anonApiConf(): Pair<String, OkHttpClient> {
+        return getApiURL() to anonClient().build()
+    }
+
 
     override val id: String
         get() = stateID.id
@@ -113,7 +122,7 @@ class CellsTransport(
 //        get() = credentialService?.get(id)@get:Throws(SDKException::class)
 
     fun getToken(): Token? {
-        return credentialService?.get(id) ?: run { null }
+        return credentialService?.get(id)
     }
 
     @Throws(SDKException::class)
@@ -162,52 +171,80 @@ class CellsTransport(
     }
 
     @Throws(SDKException::class)
-    fun authenticatedClient(): ApiClient {
-        val apiClient: ApiClient = apiClient
-        val accessToken = accessToken
-        if (accessToken.isNullOrEmpty()) {
-            throw SDKException(ErrorCodes.no_token_available)
+    fun authenticatedClient(): OkHttpClient.Builder {
+        val builder = OkHttpClient.Builder().addInterceptor(
+            CellsOAuthInterceptor(getUserAgent()) {
+                val t = this.getToken()
+                val idt = t?.value
+                if (idt.isNullOrEmpty()) throw SDKException(ErrorCodes.no_token_available)
+                idt
+            }
+        )
+
+        if (server.isSSLUnverified) {
+            // TODO handle skip verify
+            // See eg: https://www.baeldung.com/okhttp-self-signed-cert
         }
-        // apiClient.addDefaultHeader("Authorization", "Bearer $accessToken")
-        return apiClient
+
+        return builder
     }
 
-    val apiClient: ApiClient
-        get() {
-//            var apiClient = ApiClient()
-//            if (server.isSSLUnverified) {
-//                apiClient = apiClient.setVerifyingSsl(false)
-//            }
-//            apiClient.setBasePath(getApiURL(server.serverURL))
-//            apiClient.setUserAgent(userAgent)
-//            return apiClient
-            // TODO configure default okhttp client
+    @Throws(SDKException::class)
+    fun anonClient(): OkHttpClient.Builder {
+        val builder = OkHttpClient.Builder().addInterceptor(
+            CellsAnonInterceptor(getUserAgent())
+        )
 
-            val builder = OkHttpClient.Builder().addInterceptor(
-                CellsOAuthInterceptor { this.getToken()?.idToken })
+        if (server.isSSLUnverified) {
             // TODO handle skip verify
-//            if (server.isSSLUnverified) {
-//                apiClient = apiClient.setVerifyingSsl(false)
-//            }
-            // TODO handle user agent
-            // apiClient.setUserAgent(userAgent)
-
-            val apiClient = ApiClient(getApiURL(server.serverURL), builder.build())
-            return apiClient
+            // See eg: https://www.baeldung.com/okhttp-self-signed-cert
         }
+
+        return builder
+    }
+
+//    val apiClient: ApiClient
+//        get() {
+////            var apiClient = ApiClient()
+////            if (server.isSSLUnverified) {
+////                apiClient = apiClient.setVerifyingSsl(false)
+////            }
+////            apiClient.setBasePath(getApiURL(server.serverURL))
+////            apiClient.setUserAgent(userAgent)
+////            return apiClient
+//            // TODO configure default okhttp client
+//
+//            val builder = OkHttpClient.Builder().addInterceptor(
+//                CellsOAuthInterceptor {
+//                    Log.e(logTag, "In CellsOAuthInterceptor")
+//                    val t = this.getToken()
+//                    val idt = t?.value
+//                    Log.e(logTag, "    Got a token: $idt")
+//                    idt
+//                }
+//            )
+//            // TODO handle skip verify
+////            if (server.isSSLUnverified) {
+////                apiClient = apiClient.setVerifyingSsl(false)
+////            }
+//            // TODO handle user agent
+//            // apiClient.setUserAgent(userAgent)
+//
+//            return ApiClient(getApiURL(), builder.build())
+//        }
 
     @Throws(Exception::class)
     fun tryDownloadingBootConf() {
         var con: HttpURLConnection? = null
-        var `in`: InputStream? = null
+        var inputStream: InputStream? = null
         val out = ByteArrayOutputStream()
         try {
             con = openConnection(CellsServer.BOOTCONF_PATH)
-            `in` = con.inputStream
-            IoHelpers.pipeRead(`in`, out)
+            inputStream = con.inputStream
+            IoHelpers.pipeRead(inputStream, out)
         } finally {
             IoHelpers.closeQuietly(con)
-            IoHelpers.closeQuietly(`in`)
+            IoHelpers.closeQuietly(inputStream)
             IoHelpers.closeQuietly(out)
         }
     }
@@ -215,12 +252,12 @@ class CellsTransport(
     @Throws(SDKException::class)
     override fun getTokenFromLegacyCredentials(credentials: PasswordCredentials): Token {
         val authInfo: MutableMap<String, String> = HashMap()
-        authInfo["login"] = credentials.username
-        authInfo["password"] = credentials.password
+        authInfo["login"] = credentials.getUsername()
+        authInfo["password"] = credentials.getPassword()
         authInfo["type"] = "credentials"
         val cd = ClientData.getInstance()
-        authInfo["client_id"] = cd!!.clientId
-        if (Str.notEmpty(cd.clientSecret)) {
+        authInfo["client_id"] = cd.clientId
+        if (cd.clientSecret.isNotEmpty()) {
             // This additional header is only used for "private" clients and not used with
             // default standard clients that have no client secret
             val authHeader = ("Basic "
@@ -231,17 +268,15 @@ class CellsTransport(
             authInfo = authInfo,
             clientTime = System.currentTimeMillis().toInt(),
         )
-        val api = FrontendServiceApi()
+        val api = FrontendServiceApi(getApiURL())
         val response: RestFrontSessionResponse
         return try {
             response = api.frontSession(request)
             val t = Token()
-            t.subject = ServerFactory.accountID(credentials.username, server)
+            t.subject = ServerFactory.accountID(credentials.getUsername(), server)
             t.value = response.JWT
-            val expireTime: Int? = response.expireTime
-            expireTime?.let {
-                t.setExpiry(expireTime.toLong())
-            }
+            // t.value = response.token?.idToken
+            response.expireTime?.let { t.setExpiry(it.toLong()) }
             t
         } catch (e: Exception) { // TODO was ApiException
             throw SDKException(
@@ -255,7 +290,6 @@ class CellsTransport(
     @Throws(Exception::class)
     fun getTokenFromCode(code: String, encoder: CustomEncoder?): Token {
         var input: InputStream? = null
-        var out: ByteArrayOutputStream? = null
         val cfg: OAuthConfig = server.oAuthConfig
             ?: throw IllegalStateException("No OAuth config is defined for ${server.serverURL.id}")
 
@@ -270,11 +304,10 @@ class CellsTransport(
             authData["code"] = code
             authData["redirect_uri"] = cfg.redirectURI
             val cd = ClientData.getInstance()
-            authData["client_id"] = cd!!.clientId
-            if (Str.notEmpty(cd.clientSecret)) {
+            authData["client_id"] = cd.clientId
+            if (cd.clientSecret.isNotEmpty()) {
                 authData["client_secret"] = cd.clientSecret
             }
-            // String authHeader = "Basic " + encoder.base64Encode(cd.getClientId() + ":" + cd.getClientSecret());
             addPostData(con, authData, null)
             input = try { // Real call
                 // TODO double check: do we need to explicitly open the connection before getting the stream ?
@@ -283,43 +316,35 @@ class CellsTransport(
             } catch (ioe: IOException) {
                 throw IOException("Unable to open connection to $endpointURI", ioe)
             }
-            out = ByteArrayOutputStream()
-            IoHelpers.pipeRead(input, out)
-            val jwtStr = out.toString(StandardCharsets.UTF_8)
+            val jwtStr = IoHelpers.readToString(input!!)
             Token.decodeOAuthJWT(jwtStr)
         } finally {
             IoHelpers.closeQuietly(input)
-            IoHelpers.closeQuietly(out)
         }
     }
 
     @Throws(SDKException::class)
     fun getRefreshedOAuthToken(refreshToken: String): Token {
         var input: InputStream? = null
-        var out: ByteArrayOutputStream? = null
         val cfg: OAuthConfig = server.oAuthConfig
             ?: throw IllegalStateException("No OAuth config is defined for ${server.serverURL.id}")
 
         return try {
-            Log.d(
-                logTag,
-                String.format("Launching refresh token flow for %s@%s", username, server.url())
-            )
+            val msg = "Launching refresh token flow for $username@${server.url()}"
+            Log.d(logTag, msg)
             val endpointURI = URI.create(cfg.tokenEndpoint)
             val con = openAnonConnection(endpointURI.path)
             val authData: MutableMap<String, String> = HashMap()
             authData["grant_type"] = "refresh_token"
             authData["refresh_token"] = refreshToken
             val cd = ClientData.getInstance()
-            authData["client_id"] = cd?.clientId ?: ""
-            if (Str.notEmpty(cd!!.clientSecret)) {
+            authData["client_id"] = cd.clientId
+            if (cd.clientSecret.isNotEmpty()) {
                 authData["client_secret"] = cd.clientSecret
             }
             addPostData(con, authData, null)
             input = con.inputStream
-            out = ByteArrayOutputStream()
-            IoHelpers.pipeRead(input, out)
-            val jwtStr = out.toString(StandardCharsets.UTF_8)
+            val jwtStr = IoHelpers.readToString(input)
             val newToken = Token.decodeOAuthJWT(jwtStr)
             Log.i(
                 logTag, String.format(
@@ -348,7 +373,6 @@ class CellsTransport(
             }
         } finally {
             IoHelpers.closeQuietly(input)
-            IoHelpers.closeQuietly(out)
         }
     }
 

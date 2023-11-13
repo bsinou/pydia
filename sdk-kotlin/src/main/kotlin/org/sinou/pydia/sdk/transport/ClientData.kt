@@ -21,10 +21,10 @@ class ClientData {
     fun userAgent(): String {
         var userAgent = String.format(Locale.US, "%s-%s/%d", name, version, versionCode)
         if (Str.notEmpty(platform)) {
-            userAgent = platform + "/" + userAgent
+            userAgent = "$platform/$userAgent"
         }
         if (Str.notEmpty(packageID)) {
-            userAgent = userAgent + "/" + packageID
+            userAgent = "$userAgent/$packageID"
         }
         return userAgent
     }
@@ -35,13 +35,14 @@ class ClientData {
         private const val lock = "lock"
         private var instance: ClientData? = null
         @JvmStatic
-        fun getInstance(): ClientData? {
+        fun getInstance(): ClientData {
             synchronized(lock) {
-                if (instance != null) {
-                    return instance
+                instance?.let{
+                    return it
                 }
-                instance = ClientData()
-                return instance
+                val nd = ClientData()
+                instance = nd
+                return nd
             }
         }
 

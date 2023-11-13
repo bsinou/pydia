@@ -1,5 +1,6 @@
 package org.sinou.pydia.sdk.api
 
+import okhttp3.OkHttpClient
 import org.sinou.pydia.sdk.transport.StateID
 import org.sinou.pydia.sdk.transport.auth.Token
 import java.io.IOException
@@ -12,7 +13,23 @@ interface Transport {
     val id: String
     val username: String?
     val server: Server?
-    val userAgent: String?
+    fun getUserAgent(): String
+
+    /**
+     * Main entry point to then get the various package specific API clients.
+     * Returns a pair (basePath: kotlin.String, client: OkHttpClient) where the OKHttpClient is fully configured and connected if credentials are present.
+     * Otherwise it throws a @SDKException::class
+     */
+    @Throws(SDKException::class)
+    fun apiConf(): Pair<String, OkHttpClient>
+
+    /**
+     * Main entry point to then get the various package specific API clients.
+     * Returns a pair (basePath: kotlin.String, client: OkHttpClient) where the OKHttpClient is fully configured and connected if credentials are present.
+     * Otherwise it throws a @SDKException::class
+     */
+    @Throws(SDKException::class)
+    fun anonApiConf(): Pair<String, OkHttpClient>
 
     /**
      * Tries to login the server with the passed credentials

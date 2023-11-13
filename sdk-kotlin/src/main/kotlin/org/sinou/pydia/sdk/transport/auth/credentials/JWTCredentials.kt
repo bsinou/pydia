@@ -1,5 +1,6 @@
 package org.sinou.pydia.sdk.transport.auth.credentials
 
+import org.sinou.pydia.sdk.api.CredentialType
 import org.sinou.pydia.sdk.api.Credentials
 import org.sinou.pydia.sdk.transport.auth.Token
 
@@ -9,8 +10,8 @@ class JWTCredentials(private val username: String, val token: Token) : Credentia
         return username
     }
 
-    override fun getType(): String {
-        return Credentials.TYPE_JWT
+    override fun getType(): CredentialType {
+        return CredentialType.JWT
     }
 
     override fun getEncodedValue(): String {

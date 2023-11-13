@@ -258,35 +258,27 @@ class ServerURLImpl private constructor(
         private val SKIP_HOSTNAME_VERIFIER =
             HostnameVerifier { hostname: String?, session: SSLSession? -> true }
 
-        //    public static ServerURL withSkipVerify(ServerURL serverURL) {
-        //        try {
-        //            return new ServerURLImpl(new URL(serverURL.getId()), true);
-        //        } catch (MalformedURLException ignore) {
-        //        } // OK at this point
-        //        return null;
-        //    }
-        @JvmOverloads
         @Throws(MalformedURLException::class)
         fun fromAddress(urlString: String, skipVerify: Boolean = false): ServerURL {
             var urlString = urlString
             urlString = urlString.trim { it <= ' ' }.lowercase()
             var url = URL(urlString)
-            when (url.path) {
-                "/", "" -> url = URL(url.protocol + "://" + url.authority)
-                else -> {
-                    // This works for P8 only. We do not support Cells server on a sub-path of a domain.
-                    var path = url.path.trim { it <= ' ' }
-                    if (path.endsWith("/")) {
-                        path = path.substring(0, path.length - 1)
-                    }
-
-                    // Double check the protocol to avoid NPE when handling old servers migration
-                    val protocol = if (url.protocol == null) "https" else url.protocol
-                    val authority = url.authority
-                        ?: throw MalformedURLException("Cannot create a server URL without authority for $urlString")
-                    url = URL(protocol + "://" + url.authority + path)
-                }
-            }
+//            when (url.path) {
+//                "/", "" -> url = URL(url.protocol + "://" + url.authority)
+//                else -> {
+//                    // This works for P8 only. We do not support Cells server on a sub-path of a domain.
+//                    var path = url.path.trim { it <= ' ' }
+//                    if (path.endsWith("/")) {
+//                        path = path.substring(0, path.length - 1)
+//                    }
+//
+//                    // Double check the protocol to avoid NPE when handling old servers migration
+//                    val protocol = if (url.protocol == null) "https" else url.protocol
+//                    val authority = url.authority
+//                        ?: throw MalformedURLException("Cannot create a server URL without authority for $urlString")
+//                    url = URL(protocol + "://" + url.authority + path)
+//                }
+//            }
             return ServerURLImpl(url, skipVerify)
         }
 

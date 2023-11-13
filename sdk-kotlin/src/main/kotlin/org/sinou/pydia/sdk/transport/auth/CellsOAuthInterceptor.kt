@@ -1,21 +1,32 @@
 package org.sinou.pydia.sdk.transport.auth
 
 import okhttp3.Interceptor
-
-private const val TOKEN_TYPE = "bearer"
+import org.sinou.pydia.sdk.transport.auth.AuthNames.Companion.AUTH_HEADER
+import org.sinou.pydia.sdk.transport.auth.AuthNames.Companion.DEFAULT_TOKEN_TYPE
+import org.sinou.pydia.sdk.transport.auth.AuthNames.Companion.USER_AGENT_HEADER
 
 class CellsOAuthInterceptor(
-    private val getToken: () -> String?,
+    private val userAgent: String,
+    private val getToken: () -> String,
 ) : Interceptor {
 
-    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
-        var request = chain.request()
-        getToken()?.let {
-            request = request.newBuilder()
-                .addHeader("Authorization", "$TOKEN_TYPE $it")
-                .build()
-        }
+//    private val logTag = "CellsOAuthInterceptor"
 
-        return chain.proceed(request)
+    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
+        var builder = chain.request().newBuilder()
+
+        builder = builder.addHeader(USER_AGENT_HEADER, userAgent)
+            .addHeader(AUTH_HEADER, "$DEFAULT_TOKEN_TYPE ${getToken()}")
+
+//        userAgent?.let {
+//            builder = builder.addHeader(USER_AGENT_HEADER, it)
+//        }
+//
+//        getToken()?.let {
+//            Log.e(logTag, " Adding '$AUTH_HEADER' Header: [$TOKEN_TYPE $it]")
+//            builder = builder.addHeader(AUTH_HEADER, "$TOKEN_TYPE $it")
+//        }
+
+        return chain.proceed(builder.build())
     }
 }

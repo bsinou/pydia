@@ -3,8 +3,10 @@ package org.sinou.pydia.sdk.client
 import org.sinou.pydia.openapi.api.TreeServiceApi
 import org.sinou.pydia.openapi.api.UserServiceApi
 import org.sinou.pydia.openapi.infrastructure.ApiClient
+import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.model.RestBulkMetaResponse
 import org.sinou.pydia.openapi.model.RestCreateNodesRequest
+import org.sinou.pydia.openapi.model.RestDeleteNodesRequest
 import org.sinou.pydia.openapi.model.RestGetBulkMetaRequest
 import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.openapi.model.TreeNodeType
@@ -22,7 +24,6 @@ import org.sinou.pydia.sdk.client.model.DocumentRegistry
 import org.sinou.pydia.sdk.client.model.TreeNodeInfo
 import org.sinou.pydia.sdk.transport.CellsTransport
 import org.sinou.pydia.sdk.transport.StateID
-import org.sinou.pydia.sdk.utils.ApiException
 import org.sinou.pydia.sdk.utils.FileNodeUtils
 import org.sinou.pydia.sdk.utils.IoHelpers
 import org.sinou.pydia.sdk.utils.Log
@@ -55,13 +56,13 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
                         + " while checking auth state for " + StateID.fromId(transport.id)
             )
             false
-        } catch (e: ApiException) {
+        } catch (e: ServerException) {
             Log.e(logTag, "API error while checking auth state for " + StateID.fromId(transport.id))
             e.printStackTrace()
-            if (e.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            if (e.statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 return false
             }
-            throw SDKException.fromApiException(e)
+            throw SDKException.fromServerException(e)
         }
     }
 
@@ -115,21 +116,21 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 
     @Throws(SDKException::class)
     override fun ls(
-        ws: String,
-        path: String?,
+        slug: String,
+        path: String,
         options: PageOptions?,
         handler: NodeHandler
     ): PageOptions {
         val request = RestGetBulkMetaRequest(
             nodePaths = listOf(
                 FileNodeUtils.toTreeNodePath(
-                    ws,
+                    slug,
                     if ("/" == path) "/*" else "$path/*"
                 )
             ),
             allMetaProviders = true,
-            limit = options?.let { it.limit },
-            offset = options?.let { it.offset },
+            limit = options?.limit,
+            offset = options?.offset,
         )
         val api = TreeServiceApi(transport.getApiURL(), ApiClient.defaultClient)
         val response: RestBulkMetaResponse
@@ -137,25 +138,16 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         try {
             response = api.bulkStatNodes(request)
             val pagination = response.pagination
-            if (pagination != null) {
-                if (pagination.limit != null) {
-                    nextPageOptions.limit = pagination.limit
-                }
-                if (pagination.nextOffset != null) {
-                    nextPageOptions.offset = pagination.nextOffset
-                } else {
-                    nextPageOptions.offset = -1
-                }
-                if (pagination.total != null) {
-                    nextPageOptions.total = pagination.total
-                }
-                if (pagination.currentPage != null) {
-                    nextPageOptions.currentPage = pagination.currentPage
-                }
-                if (pagination.totalPages != null) {
-                    nextPageOptions.totalPages = pagination.totalPages
-                }
-            } else {
+
+            pagination?.let { pag ->
+
+                pag.limit?.let { nextPageOptions.limit = it }
+                nextPageOptions.offset = pag.nextOffset ?: -1
+                pag.total?.let { nextPageOptions.total = it }
+                pag.currentPage?.let { nextPageOptions.currentPage = it }
+                pag.totalPages?.let { nextPageOptions.totalPages = it }
+
+            } ?: run {
                 val nodes = response.nodes
                 if (nodes != null) {
                     val size = nodes.size
@@ -166,9 +158,9 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
                     nextPageOptions.offset = 0
                 }
             }
-        } catch (e: ApiException) {
+        } catch (e: ServerException) {
             val msg = "Could not list: " + e.message
-            throw SDKException(e.code, msg, e)
+            throw SDKException(e.statusCode, msg, e)
         }
         val nodes = response.nodes
         if (nodes != null) {
@@ -182,11 +174,8 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
                 }
                 if (fileNode != null) {
                     val nodePath = ("/" + node.path).replace("//", "/")
-                    if (nodePath != FileNodeUtils.toTreeNodePath(
-                            ws,
-                            path
-                        ) && !fileNode.name.startsWith(".")
-                    ) {
+                    val canonicalPath = FileNodeUtils.toTreeNodePath(slug, path)
+                    if (nodePath != canonicalPath && !fileNode.name.startsWith(".")) {
                         handler.onNode(fileNode)
                     }
                 }
@@ -205,15 +194,29 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         val request = RestCreateNodesRequest(
             recursive = false,
             nodes = listOf(node)
-
         )
 
-        val api = TreeServiceApi(transport.getApiURL(), ApiClient.defaultClient)
+        val (url, client) = transport.apiConf()
+        val api = TreeServiceApi(url, client)
         val response = try {
             api.createNodes(request)
-        } catch (e: ApiException) {
+        } catch (e: ServerException) {
             e.printStackTrace()
-            throw SDKException.fromApiException(e)
+            throw SDKException.fromServerException(e)
+        }
+    }
+
+    //    @Throws(SDKException::class)
+    override fun delete(slug: String, paths: Array<String>, removePermanently: Boolean) {
+        val nodes = paths.map { TreeNode(path = FileNodeUtils.toTreeNodePath(slug, it)) }
+        val request = RestDeleteNodesRequest(nodes = nodes, removePermanently = removePermanently)
+        val (url, okClient) = transport.apiConf()
+        val api = TreeServiceApi(url, okClient)
+        try {
+            api.deleteNodes(request)
+        } catch (e: ServerException) {
+            e.printStackTrace()
+            throw SDKException.fromServerException(e)
         }
     }
 
@@ -643,25 +646,8 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        }
 //    }
 //
-//    @Throws(SDKException::class)
-//    override fun delete(ws: String, files: Array<String>) {
-//        val nodes: MutableList<TreeNode> = ArrayList()
-//        for (file in files) {
-//            val node = TreeNode()
-//            node.setPath(FileNodeUtils.toTreeNodePath(ws, file))
-//            nodes.add(node)
-//        }
-//        val request = RestDeleteNodesRequest()
-//        request.setNodes(nodes)
-//        val api = TreeServiceApi(authenticatedClient())
-//        try {
-//            api.deleteNodes(request)
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
+
+    //
 //    @Throws(SDKException::class)
 //    override fun restore(ws: String, files: Array<FileNode>) {
 //        val nodes: MutableList<TreeNode> = ArrayList()
@@ -1051,8 +1037,8 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         // Log.d(logTag, "############# ");
         return try {
             api.headNode(fullPath).node
-        } catch (e: ApiException) {
-            throw SDKException.fromApiException(e)
+        } catch (e: ServerException) {
+            throw SDKException.fromServerException(e)
         } catch (e: Exception) {
             Log.e(logTag, "unexpected error when doing stat node for $fullPath")
             e.printStackTrace()
@@ -1172,10 +1158,10 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        }
 //    }
 //
-    @Throws(SDKException::class)
-    private fun authenticatedClient(): ApiClient {
-        return transport.authenticatedClient()
-    }
+//    @Throws(SDKException::class)
+//    private fun authenticatedClient(): ApiClient {
+//        return transport.authenticatedClient()
+//    }
 //
 //    /**
 //     * This is necessary until min version is 24: we cannot use the consumer pattern:
@@ -1192,7 +1178,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             val isLeaf = node.type === TreeNodeType.LEAF
             val size: Long = node.propertySize?.toLong() ?: -1
             val lastEdit = node.mtime!!.toLong()
-            return TreeNodeInfo(node.etag, node.path, isLeaf, size, lastEdit)
+            return TreeNodeInfo(node.etag!!, node.path!!, isLeaf, size, lastEdit)
         }
     }
 }

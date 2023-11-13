@@ -13,7 +13,7 @@ class TreeNodeInfo {
     var isLeaf = false
 
     constructor()
-    constructor(eTag: String?, path: String?, isLeaf: Boolean, size: Long, lastEdit: Long) {
+    constructor(eTag: String, path: String, isLeaf: Boolean, size: Long, lastEdit: Long) {
         this.eTag = eTag
         this.path = path
         name = CellsPath.nameFromFullPath(path)
@@ -22,7 +22,7 @@ class TreeNodeInfo {
         this.lastEdit = lastEdit
     }
 
-    fun setPath(path: String?) {
+    fun setPath(path: String) {
         this.path = path
         name = CellsPath.nameFromFullPath(path)
     }
@@ -36,7 +36,7 @@ class TreeNodeInfo {
     }
 
     companion object {
-        fun fromEncoded(encoded: String?): TreeNodeInfo {
+        fun fromEncoded(encoded: String): TreeNodeInfo {
             return Gson().fromJson(encoded, TreeNodeInfo::class.java)
         }
     }

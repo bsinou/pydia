@@ -11,6 +11,7 @@ import javax.net.ssl.SSLSocketFactory
  * Wraps an URL to add convenience methods to ease implementation in a Pydio Context.
  */
 interface ServerURL {
+
     val id: String
         /**
          * Returns a standard id that has been cleaned and normalized.

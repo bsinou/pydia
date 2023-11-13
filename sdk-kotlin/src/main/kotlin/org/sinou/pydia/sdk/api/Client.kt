@@ -1,14 +1,8 @@
 package org.sinou.pydia.sdk.api
 
 import org.sinou.pydia.sdk.api.callbacks.NodeHandler
-import org.sinou.pydia.sdk.api.callbacks.ProgressListener
 import org.sinou.pydia.sdk.api.ui.FileNode
 import org.sinou.pydia.sdk.api.ui.PageOptions
-import org.sinou.pydia.sdk.api.ui.Stats
-import org.sinou.pydia.sdk.transport.StateID
-import java.io.File
-import java.io.InputStream
-import java.io.OutputStream
 
 interface Client {
     // val isLegacy: Boolean
@@ -29,7 +23,10 @@ interface Client {
     fun mkdir(ws: String, parent: String, name: String)
 
     @Throws(SDKException::class)
-    fun ls(ws: String, folder: String?, options: PageOptions?, handler: NodeHandler): PageOptions
+    fun ls(slug: String, path: String, options: PageOptions?, handler: NodeHandler): PageOptions
+
+    @Throws(SDKException::class)
+    fun delete(slug: String, paths: Array<String>, removePermanently: Boolean)
 
     @Throws(SDKException::class)
     fun nodeInfo(ws: String, path: String): FileNode?

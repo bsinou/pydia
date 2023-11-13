@@ -17,7 +17,6 @@ import org.sinou.pydia.sdk.api.S3Client
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.api.Transport
-import org.sinou.pydia.sdk.api.callbacks.NodeHandler
 import org.sinou.pydia.sdk.api.ui.FileNode
 import org.sinou.pydia.sdk.api.ui.PageOptions
 import org.sinou.pydia.sdk.client.model.DocumentRegistry
@@ -75,7 +74,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     }
 
     @Throws(SDKException::class)
-    override fun getWorkspaceList(handler: NodeHandler) {
+    override fun getWorkspaceList(handler: (TreeNode) -> Unit) {
         var con: HttpURLConnection? = null
         var input: InputStream? = null
         val registry: Registry
@@ -119,7 +118,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         slug: String,
         path: String,
         options: PageOptions?,
-        handler: NodeHandler
+        handler: (TreeNode) -> Unit
     ): PageOptions {
         val request = RestGetBulkMetaRequest(
             nodePaths = listOf(
@@ -135,37 +134,38 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         val (url, okClient) = transport.apiConf()
         val api = TreeServiceApi(url, okClient)
         val response: RestBulkMetaResponse
-        val nextPageOptions = PageOptions()
+        // var nextPageOptions: PageOptions
         try {
             response = api.bulkStatNodes(request)
-            response.pagination?.let { pag ->
-
-                pag.limit?.let { nextPageOptions.limit = it }
-                nextPageOptions.offset = pag.nextOffset ?: -1
-                pag.total?.let { nextPageOptions.total = it }
-                pag.currentPage?.let { nextPageOptions.currentPage = it }
-                pag.totalPages?.let { nextPageOptions.totalPages = it }
-
+            val nextPageOptions = response.pagination?.let { pag ->
+                PageOptions(
+                    limit = pag.limit ?: 0,
+                    offset = pag.nextOffset ?: -1,
+                    total = pag.total ?: 0,
+                    currentPage = pag.currentPage ?: 0,
+                    totalPages = pag.totalPages ?: 0
+                )
             } ?: run {
-                val nodes = response.nodes
-                if (nodes != null) {
-                    val size = nodes.size
-                    nextPageOptions.limit = size
-                    nextPageOptions.total = size
-                    nextPageOptions.currentPage = 1
-                    nextPageOptions.totalPages = 1
-                    nextPageOptions.offset = 0
-                }
+                val size = response.nodes?.size ?: 0
+                PageOptions(
+                    limit = size,
+                    offset = 0,
+                    total = size,
+                    currentPage = 1,
+                    totalPages = 1
+                )
             }
+
+            response.nodes?.let { nodes ->
+                nodes.forEach { handler(it) }
+            }
+            return nextPageOptions
+
         } catch (e: ServerException) {
             val msg = "Could not list: " + e.message
             throw SDKException(e.statusCode, msg, e)
         }
 
-        response.nodes?.let { nodes ->
-            nodes.forEach { handler.onNode(it) }
-        }
-        return nextPageOptions
     }
 
     @Throws(SDKException::class)

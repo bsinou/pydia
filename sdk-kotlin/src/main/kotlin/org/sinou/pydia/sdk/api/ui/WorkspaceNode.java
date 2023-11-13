@@ -52,7 +52,7 @@ public class WorkspaceNode extends AbstractNode {
         }
 
         for (Plugin p : plugins) {
-            if (id.equals(p.getId())) {
+            if (id.equals(p.id)) {
                 return p;
             }
         }

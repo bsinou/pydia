@@ -3,9 +3,13 @@ package org.sinou.pydia.sdk.sandbox
 import org.junit.Assert
 import org.junit.Test
 import org.sinou.pydia.openapi.api.TreeServiceApi
+import org.sinou.pydia.openapi.infrastructure.ClientException
 import org.sinou.pydia.openapi.model.RestGetBulkMetaRequest
+import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.sdk.api.Credentials
+import org.sinou.pydia.sdk.api.HttpStatus
 import org.sinou.pydia.sdk.api.SDKException
+import org.sinou.pydia.sdk.api.ui.PageOptions
 import org.sinou.pydia.sdk.transport.ServerURLImpl.Companion.fromAddress
 import org.sinou.pydia.sdk.transport.auth.credentials.LegacyPasswordCredentials
 import org.sinou.pydia.sdk.utils.Log
@@ -71,12 +75,15 @@ class ReadMeExample {
 
         // Delete the created nodes:
         client.delete(defaultSlug, arrayOf("/$defaultParent"), true)
+        Thread.sleep(2000L)
 
         var found = false
-        client.ls(slug = defaultSlug, path = "/", options = null) {
-            if (defaultParent == Path(it?.path ?: "").fileName.name) {
+        val optionTmp: PageOptions
+        client.ls(slug = defaultSlug, path = "/", options = null) { currNode: TreeNode ->
+            if (defaultParent == Path(currNode.path ?: "").fileName.name) {
                 found = true
             }
+            Log.i(logTag, "  - ${currNode.path} - found: $found:")
         }
         Assert.assertEquals("Folder $defaultParent still exists", false, found)
 
@@ -84,8 +91,17 @@ class ReadMeExample {
             client.ls(slug = defaultSlug, path = "/$defaultParent", options = null) {
                 Log.e(logTag, "Found unexpected node: UUID: ${it.uuid}, path: ${it.path} ")
             }
+            Assert.assertTrue("No exception has been thrown", false)
         } catch (e: Exception) { // expected
-            e.printStackTrace()
+            Assert.assertTrue("Expected error", true)
+            Assert.assertTrue("Unvalid exception type", e is ClientException)
+            Assert.assertEquals(
+                "Unexpected code",
+                HttpStatus.NOT_FOUND.value,
+                (e as ClientException).statusCode
+            )
+
+            // e.printStackTrace()
         }
 
     }

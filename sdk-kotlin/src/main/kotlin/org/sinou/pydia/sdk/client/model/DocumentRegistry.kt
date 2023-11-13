@@ -305,7 +305,7 @@ class DocumentRegistry : Registry {
                 break
             }
         }
-        return Plugin(id, name, label, description, properties)
+        return Plugin(id, name, label, description, properties ?: Properties())
     }
 
     private fun parsePluginProperties(node: Node): Properties {

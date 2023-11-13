@@ -1,5 +1,6 @@
 package org.sinou.pydia.sdk.api
 
+import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.sdk.api.callbacks.NodeHandler
 import org.sinou.pydia.sdk.api.ui.FileNode
 import org.sinou.pydia.sdk.api.ui.PageOptions
@@ -17,13 +18,13 @@ interface Client {
     fun stillAuthenticated(): Boolean
 
     @Throws(SDKException::class)
-    fun getWorkspaceList(handler: NodeHandler)
+    fun getWorkspaceList(handler: (TreeNode) -> Unit)
+
+    @Throws(SDKException::class)
+    fun ls(slug: String, path: String, options: PageOptions?, handler: (TreeNode) -> Unit): PageOptions
 
     @Throws(SDKException::class)
     fun mkdir(ws: String, parent: String, name: String)
-
-    @Throws(SDKException::class)
-    fun ls(slug: String, path: String, options: PageOptions?, handler: NodeHandler): PageOptions
 
     @Throws(SDKException::class)
     fun delete(slug: String, paths: Array<String>, removePermanently: Boolean)

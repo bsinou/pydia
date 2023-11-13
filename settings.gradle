@@ -21,4 +21,4 @@ include ':sdk-kotlin'
 rootProject.children.each {
     it.buildFileName = it.name + '.gradle'
 }
-include ':lib'
+// include ':lib'

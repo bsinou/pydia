@@ -1,4 +1,4 @@
-package org.sinou.pydia.sdk.api.callbacks
+package org.sinou.pydia.sdk.client.model.parser
 
 import org.sinou.pydia.sdk.api.ui.Plugin
 import java.util.Properties

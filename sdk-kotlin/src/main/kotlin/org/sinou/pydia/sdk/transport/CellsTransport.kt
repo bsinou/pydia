@@ -6,7 +6,6 @@ import org.sinou.pydia.openapi.model.RestFrontSessionRequest
 import org.sinou.pydia.openapi.model.RestFrontSessionResponse
 import org.sinou.pydia.sdk.api.CustomEncoder
 import org.sinou.pydia.sdk.api.ErrorCodes
-import org.sinou.pydia.sdk.api.ICellsTransport
 import org.sinou.pydia.sdk.api.PasswordCredentials
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames
@@ -38,7 +37,7 @@ class CellsTransport(
     username: String,
     server: Server,
     encoder: CustomEncoder
-) : ICellsTransport, SdkNames {
+) : Transport, SdkNames {
 
     private val encoder: CustomEncoder
     private val timeFormatter: SimpleDateFormat = SimpleDateFormat("HH:mm")

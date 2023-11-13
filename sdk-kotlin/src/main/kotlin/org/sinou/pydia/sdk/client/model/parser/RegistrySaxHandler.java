@@ -1,6 +1,5 @@
 package org.sinou.pydia.sdk.client.model.parser;
 
-import org.sinou.pydia.sdk.api.callbacks.RegistryItemHandler;
 import org.sinou.pydia.sdk.api.ui.Plugin;
 
 import org.xml.sax.Attributes;

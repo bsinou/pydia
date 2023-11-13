@@ -31,6 +31,10 @@ interface Transport {
     @Throws(SDKException::class)
     fun anonApiConf(): Pair<String, OkHttpClient>
 
+    @Throws(SDKException::class)
+    fun withAuth(con: HttpURLConnection): HttpURLConnection
+
+
     /**
      * Tries to login the server with the passed credentials
      * and stores the resulting token in the local token store.

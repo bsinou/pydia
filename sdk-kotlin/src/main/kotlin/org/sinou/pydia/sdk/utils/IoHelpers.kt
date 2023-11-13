@@ -1,7 +1,6 @@
 package org.sinou.pydia.sdk.utils
 
 import org.sinou.pydia.sdk.api.SDKException
-import org.sinou.pydia.sdk.api.callbacks.ProgressListener
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -17,20 +16,21 @@ import java.net.HttpURLConnection
  * and `Exception` management.
  */
 object IoHelpers {
-    var bufferSize = 4096
+
+    private var bufferSize = 4096
 
     @Throws(IOException::class)
-    fun consume(`in`: InputStream) {
+    fun consume(input: InputStream) {
         val buffer = ByteArray(bufferSize)
         var read = 0
         while (read != -1) {
-            read = `in`.read(buffer)
+            read = input.read(buffer)
         }
     }
 
-    fun closeQuietly(`in`: InputStream?) {
+    fun closeQuietly(input: InputStream?) {
         try {
-            `in`?.close()
+            input?.close()
         } catch (ignored: Exception) {
         }
     }
@@ -63,14 +63,14 @@ object IoHelpers {
     }
 
     @Throws(IOException::class)
-    fun readToString (inputStream: InputStream) : String{
+    fun readToString(inputStream: InputStream): String {
         val reader = BufferedReader(inputStream.reader())
         val content = StringBuilder()
-        reader.use { reader ->
-            var line = reader.readLine()
+        reader.use {
+            var line = it.readLine()
             while (line != null) {
                 content.append(line)
-                line = reader.readLine()
+                line = it.readLine()
             }
         }
         return content.toString()
@@ -79,115 +79,115 @@ object IoHelpers {
 
     @Throws(IOException::class)
     fun write(bytes: ByteArray?, out: OutputStream): Long {
-        val `in`: InputStream = ByteArrayInputStream(bytes)
+        val input: InputStream = ByteArrayInputStream(bytes)
         val buffer = ByteArray(bufferSize)
-        var total_read: Long = 0
+        var totalRead: Long = 0
         var read: Int
         while (true) {
-            read = `in`.read(buffer)
+            read = input.read(buffer)
             if (read == -1) break
-            total_read += read.toLong()
+            totalRead += read.toLong()
             out.write(buffer, 0, read)
         }
-        closeQuietly(`in`)
-        return total_read
+        closeQuietly(input)
+        return totalRead
     }
 
     @Throws(IOException::class, SDKException::class)
     fun pipeReadWithIncrementalProgress(
-        `in`: InputStream,
+        input: InputStream,
         out: OutputStream,
-        listener: ProgressListener?
+        progress: ((Long) -> String?)?
     ): Long {
-        if (listener == null) {
-            return pipeRead(`in`, out)
+        if (progress == null) {
+            return pipeRead(input, out)
         }
         val buffer = ByteArray(bufferSize)
-        var total_read: Long = 0
+        var totalRead: Long = 0
         var read = 0
         while (read > -1) {
-            total_read += read.toLong()
+            totalRead += read.toLong()
             out.write(buffer, 0, read)
-            val cancelMsg = listener.onProgress(read.toLong())
-            if (Str.notEmpty(cancelMsg)) {
-                throw SDKException.cancel(cancelMsg)
+            // val cancelMsg =
+            progress(read.toLong())?.let {
+                if (it.isNotEmpty())
+                    throw SDKException.cancel(it)
             }
-            read = `in`.read(buffer)
+            read = input.read(buffer)
         }
-        return total_read
+        return totalRead
     }
 
     @Throws(IOException::class, SDKException::class)
     fun pipeReadWithProgress(
-        `in`: InputStream,
+        input: InputStream,
         out: OutputStream,
-        listener: ProgressListener?
+        progress: ((Long) -> String?)?
     ): Long {
-        if (listener == null) {
-            return pipeRead(`in`, out)
+        if (progress == null) {
+            return pipeRead(input, out)
         }
         val buffer = ByteArray(bufferSize)
-        var total_read: Long = 0
+        var totalRead: Long = 0
         var read = 0
         while (read > -1) {
-            total_read += read.toLong()
+            totalRead += read.toLong()
             out.write(buffer, 0, read)
-            val cancelMsg = listener.onProgress(read.toLong())
-            if (Str.notEmpty(cancelMsg)) {
-                throw SDKException.cancel(cancelMsg)
+            progress(read.toLong())?.let {
+                if (it.isNotEmpty()) throw SDKException.cancel(it)
             }
-            read = `in`.read(buffer)
+            read = input.read(buffer)
         }
-        return total_read
+        return totalRead
     }
 
     @Throws(IOException::class)
-    fun readFile(path: String?): ByteArray {
+    fun readFile(path: String): ByteArray {
         val out = ByteArrayOutputStream()
-        val `in`: InputStream = FileInputStream(path)
+        val input: InputStream = FileInputStream(path)
         val buffer = ByteArray(bufferSize)
         // long total_read = 0;
         var read: Int
         while (true) {
-            read = `in`.read(buffer)
+            read = input.read(buffer)
             if (read == -1) break
             //  total_read += read;
             out.write(buffer, 0, read)
         }
-        closeQuietly(`in`)
+        closeQuietly(input)
         return out.toByteArray()
     }
 
     @Throws(IOException::class)
-    fun writeFile(bytes: ByteArray?, filepath: String?): Long {
+    fun writeFile(bytes: ByteArray, filepath: String): Long {
         val out: OutputStream = FileOutputStream(filepath)
-        val `in`: InputStream = ByteArrayInputStream(bytes)
+        val input: InputStream = ByteArrayInputStream(bytes)
         val buffer = ByteArray(bufferSize)
-        var total_read: Long = 0
+        var totalRead: Long = 0
         var read: Int
         while (true) {
-            read = `in`.read(buffer)
+            read = input.read(buffer)
             if (read == -1) break
-            total_read += read.toLong()
+            totalRead += read.toLong()
             out.write(buffer, 0, read)
         }
         closeQuietly(out)
-        return total_read
+        return totalRead
     }
 
     @Throws(IOException::class)
-    fun writeFile(`in`: InputStream, filepath: String?): Long {
-        var total_read: Long = 0
+    fun writeFile(input: InputStream, filepath: String): Long {
+        var totalRead: Long = 0
         FileOutputStream(filepath).use { out ->
             val buffer = ByteArray(bufferSize)
             var read: Int
             while (true) {
-                read = `in`.read(buffer)
+                read = input.read(buffer)
                 if (read == -1) break
-                total_read += read.toLong()
+                totalRead += read.toLong()
                 out.write(buffer, 0, read)
             }
         }
-        return total_read
+        return totalRead
     }
 }

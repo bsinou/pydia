@@ -1,12 +1,10 @@
 package org.sinou.pydia.sdk.api
 
 import org.sinou.pydia.openapi.model.TreeNode
-import org.sinou.pydia.sdk.api.callbacks.NodeHandler
 import org.sinou.pydia.sdk.api.ui.FileNode
 import org.sinou.pydia.sdk.api.ui.PageOptions
 
 interface Client {
-    // val isLegacy: Boolean
 
     @Throws(SDKException::class)
     fun getDefaultRegistry(): Registry?

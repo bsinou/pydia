@@ -1,3 +1,11 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 /* Insure the name stays constants, even if the root directory name changes */
 rootProject.name = 'pydia'
 rootProject.buildFileName = 'build.gradle'
@@ -7,18 +15,11 @@ println('[DEBUG] Starting init phase for ' + rootProject.name + ' at ' + timesta
 
 include ':openapi-client'
 include ':sdk-kotlin'
+include ':client-core'
 
-// Enable having the java sdk in the same android project via git submodule
-//def sdkJavaCheck = new File( 'sdk-java/sdk-java.gradle' )
-//if( sdkJavaCheck.exists() ) {
-//    include ':sdk-java'
-//} else {
-//    println('[WARNING] Could not find local Java SDK')
-//}
-//include ':pydia-client'
 
-/* Use custom names for the "build.gradle" file of child modules */
+/* Use custom names for the "client-sandbox.gradle" file of child modules */
 rootProject.children.each {
     it.buildFileName = it.name + '.gradle'
 }
-// include ':lib'
+include ':mylibrary'

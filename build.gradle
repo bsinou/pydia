@@ -3,7 +3,7 @@ buildscript {
     ext {
         // Global variables: build plugins
         kotlin_version = '1.9.10'
-        gradle_build_tools_version = '8.1.2'
+        gradle_build_tools_version = '8.1.3'
     }
 
     repositories {
@@ -12,16 +12,18 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:$gradle_build_tools_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.android.tools.build:gradle:$gradle_build_tools_version"
     }
 }
 
-plugins {
-    // Publish the generated resources as Maven Artifacts.
-    id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version '1.9.10' apply false
-}
+//plugins {
+//    // Publish the generated resources as Maven Artifacts.
+////    id 'maven-publish'
+//    id 'org.jetbrains.kotlin.android'  version '1.9.0' apply false
+////    id 'org.jetbrains.kotlin.jvm' version '1.9.10' apply true
+//    id 'com.android.application'  version '8.1.2' apply false
+//}
 
 // Retrieve local context
 def localProperties = new Properties()
@@ -31,6 +33,10 @@ retrieveFromEnv(localProperties) // There must be a more elegant way to do this.
 def versionProperties = new Properties()
 versionProperties.load(new FileInputStream(rootProject.file("versions.properties")))
 
+// Manage optional local submodules
+def sdkKotlinCheck = new File('sdk-kotlin/sdk-kotlin.gradle')
+def openApiClientCheck = new File('openapi-client/openapi-client.gradle')
+
 // Expose custom properties to all modules in the project.
 ext {
     githubUrl = 'https://github.com/bsinou/pydia.git'
@@ -38,6 +44,9 @@ ext {
     // Expose properties retrieved from files to child projects
     configs = localProperties
     ownVersions = versionProperties
+
+    useLocalSdkKotlin = sdkKotlinCheck.exists()
+    useLocalOpenapiClient = openApiClientCheck.exists()
 }
 
 allprojects {

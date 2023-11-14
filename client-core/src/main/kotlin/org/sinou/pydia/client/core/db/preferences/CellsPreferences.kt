@@ -77,7 +77,7 @@ fun defaultCellsPreferences(): CellsPreferences {
 
 // Migration from legacy SharedPreference system
 
-const val LEGACY_PREFERENCES_KEY = "com.pydio.android.Client_preferences"
+const val LEGACY_PREFERENCES_KEY = "unsupported"
 
 val legacyMigrations: (Context) -> List<DataMigration<Preferences>> = { context ->
     // Since we're migrating from SharedPreferences, add a migration based on the SharedPreferences name

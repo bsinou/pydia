@@ -57,7 +57,8 @@ class CellsServer(override val serverURL: ServerURL) : Server {
 
     @Throws(IOException::class)
     fun openAnonConnection(path: String): HttpURLConnection {
-        return newURL(path).openConnection()
+        val mUrl = newURL(path)
+        return mUrl.openConnection()
     }
 
     @Throws(SDKException::class)

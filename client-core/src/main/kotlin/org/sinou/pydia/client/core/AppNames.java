@@ -2,6 +2,8 @@ package org.sinou.pydia.client.core;
 
 public interface AppNames {
 
+    String KEY_PREFIX = "org.sinou.pydia.client";
+
     // OAuth Code Flow when remote is Cells
     String QUERY_KEY_CODE = "code";
     String QUERY_KEY_STATE = "state";
@@ -35,7 +37,6 @@ public interface AppNames {
 
     /* Generic actions */
     // Rather make this generic
-    String KEY_PREFIX = "com.pydio.android.cells";
     String KEY_PREFIX_ = KEY_PREFIX + ".";
 
     String ACTION_MORE = KEY_PREFIX_ + "more";

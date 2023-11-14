@@ -3,8 +3,6 @@ package org.sinou.pydia.client.core.db.runtime
 //import androidx.room.ColumnInfo
 //import androidx.room.Entity
 //import androidx.room.PrimaryKey
-//import com.pydio.android.cells.AppNames
-//import com.pydio.android.cells.utils.currentTimestamp
 //
 ///**
 // * Experimental class to try a cache of the network status. Will probably disappear soon:

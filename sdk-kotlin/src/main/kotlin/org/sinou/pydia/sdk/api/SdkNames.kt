@@ -1,7 +1,7 @@
 package org.sinou.pydia.sdk.api
 
 /**
- * Centralize all string constants for the com.pydio.sdk API
+ * Centralize all string constants
  */
 interface SdkNames {
 

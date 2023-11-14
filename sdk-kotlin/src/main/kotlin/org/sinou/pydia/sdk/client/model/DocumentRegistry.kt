@@ -4,7 +4,6 @@ import org.sinou.pydia.sdk.api.Registry
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.api.ui.Plugin
 import org.sinou.pydia.sdk.api.ui.WorkspaceNode
-import org.sinou.pydia.sdk.utils.Log
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -83,15 +82,16 @@ class DocumentRegistry : Registry {
         parsedWorkspaces?.let {
             return it
         }
-        parsedWorkspaces = parseWorkspaces()
-        return parsedWorkspaces!!
+        val tmp = parseWorkspaces()
+        parsedWorkspaces = tmp
+        return tmp
     }
 
     override fun getActions(): MutableList<Action> {
         TODO("Not yet implemented")
     }
 
-    private fun parseWorkspaces(): List<WorkspaceNode>? {
+    private fun parseWorkspaces(): List<WorkspaceNode> {
         val xPath = XPathFactory.newInstance().newXPath()
         try {
             val workspaceNodes: MutableList<WorkspaceNode> = ArrayList()
@@ -107,8 +107,9 @@ class DocumentRegistry : Registry {
                     val node = repositoriesChildNodes.item(i)
                     val tag = node.nodeName
                     if ("repo" == tag) {
-                        val workspaceNode = parseWorkspace(node)
-                        workspaceNodes.add(workspaceNode)
+                        parseWorkspace(node)?.let {
+                            workspaceNodes.add(it)
+                        }
                     }
                 }
             }
@@ -116,70 +117,90 @@ class DocumentRegistry : Registry {
         } catch (e: XPathExpressionException) {
             e.printStackTrace()
         }
-        return null
+        return listOf()
     }
 
     private fun parseWorkspace(node: Node): WorkspaceNode {
         val attrs = node.attributes
-        val id = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ID)
-        val acl = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACL)
-        val slug = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_SLUG)
-        val owner = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_OWNER)
-        val crossCopy = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_CROSS_COPY)
-        val accessType = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACCESS_TYPE)
-        val repositoryType = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_TYPE)
-        val metaSync = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_META_SYNC)
-        val workspaceNode = WorkspaceNode()
-        if (acl != null) {
-            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_ACL, acl.nodeValue)
-        }
-        if (id != null) {
-            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_ID, id.nodeValue)
-        }
-        if (slug != null) {
-            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_SLUG, slug.nodeValue)
-        }
-        if (owner != null) {
-            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_OWNER, owner.nodeValue)
-        }
-        if (crossCopy != null) {
-            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_CROSS_COPY, crossCopy.nodeValue)
-        }
-        if (accessType != null) {
-            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_ACCESS_TYPE, accessType.nodeValue)
-        }
-        if (repositoryType != null) {
-            var type = repositoryType.nodeValue
-            if (isLegacy) { // Tweak when generating the local object to ease implementation of clients
-                type = if ("my-files" == workspaceNode.slug) {
-                    SdkNames.WS_TYPE_PERSONAL
-                } else {
-                    SdkNames.WS_TYPE_DEFAULT
-                }
-                Log.e("DocumentRegistry", "Using document registry for a legacy server")
-            }
-            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_TYPE, type)
-        }
-        if (metaSync != null) {
-            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_META_SYNC, metaSync.nodeValue)
-        }
-        val repoChildren = node.childNodes
-        for (j in 0 until repoChildren.length) {
-            val repoChildNode = repoChildren.item(j)
-            val name = repoChildNode.nodeName
-            when (name) {
-                SdkNames.NODE_PROPERTY_LABEL -> workspaceNode.setProperty(
-                    SdkNames.NODE_PROPERTY_LABEL,
-                    repoChildNode.firstChild.nodeValue
-                )
 
-                SdkNames.WORKSPACE_DESCRIPTION -> workspaceNode.setProperty(
-                    SdkNames.WORKSPACE_DESCRIPTION,
-                    repoChildNode.firstChild.nodeValue
-                )
+        // We currently only use  id, slug, label and description
+        val slug = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_SLUG).nodeValue
+
+        var label: String? = null
+        var desc: String? = null
+
+        val props = node.childNodes
+        for (j in 0 until props.length) {
+            val prop = props.item(j)
+            when (prop.nodeName) {
+                SdkNames.NODE_PROPERTY_LABEL -> label = prop.firstChild.nodeValue
+
+                SdkNames.WORKSPACE_DESCRIPTION -> desc = prop.firstChild.nodeValue
+
             }
         }
-        return workspaceNode
+
+        return WorkspaceNode(
+            slug = slug,
+            label = label ?: slug,
+            description = desc,
+        )
+
+        TODO("Rewire this")
+
+//        val id = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ID)
+//        val acl = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACL)
+//        val slug = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_SLUG)
+//        val owner = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_OWNER)
+//        val crossCopy = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_CROSS_COPY)
+//        val accessType = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACCESS_TYPE)
+//        val repositoryType = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_TYPE)
+//        val metaSync = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_META_SYNC)
+//
+//        val workspaceNode = WorkspaceNode()
+//
+//        if (acl != null) {
+//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_ACL, acl.nodeValue)
+//        }
+//        if (id != null) {
+//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_ID, id.nodeValue)
+//        }
+//        if (slug != null) {
+//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_SLUG, slug.nodeValue)
+//        }
+//        if (owner != null) {
+//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_OWNER, owner.nodeValue)
+//        }
+//        if (crossCopy != null) {
+//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_CROSS_COPY, crossCopy.nodeValue)
+//        }
+//        if (accessType != null) {
+//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_ACCESS_TYPE, accessType.nodeValue)
+//        }
+//        if (repositoryType != null) {
+//            var type = repositoryType.nodeValue
+//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_TYPE, type)
+//        }
+//        if (metaSync != null) {
+//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_META_SYNC, metaSync.nodeValue)
+//        }
+//        val repoChildren = node.childNodes
+//        for (j in 0 until repoChildren.length) {
+//            val repoChildNode = repoChildren.item(j)
+//            val name = repoChildNode.nodeName
+//            when (name) {
+//                SdkNames.NODE_PROPERTY_LABEL -> workspaceNode.setProperty(
+//                    SdkNames.NODE_PROPERTY_LABEL,
+//                    repoChildNode.firstChild.nodeValue
+//                )
+//
+//                SdkNames.WORKSPACE_DESCRIPTION -> workspaceNode.setProperty(
+//                    SdkNames.WORKSPACE_DESCRIPTION,
+//                    repoChildNode.firstChild.nodeValue
+//                )
+//            }
+//        }
+//        return workspaceNode
     }
 
 //    override fun getActions(): List<Action> {

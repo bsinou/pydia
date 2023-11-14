@@ -17,8 +17,8 @@ import org.sinou.pydia.sdk.api.S3Client
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.api.Transport
-import org.sinou.pydia.sdk.api.ui.FileNode
 import org.sinou.pydia.sdk.api.ui.PageOptions
+import org.sinou.pydia.sdk.api.ui.WorkspaceNode
 import org.sinou.pydia.sdk.client.model.DocumentRegistry
 import org.sinou.pydia.sdk.client.model.TreeNodeInfo
 import org.sinou.pydia.sdk.transport.CellsTransport
@@ -30,6 +30,7 @@ import org.xml.sax.SAXException
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
+import java.util.Arrays
 import javax.xml.parsers.ParserConfigurationException
 
 class CellsClient(transport: Transport, private val s3Client: S3Client) : Client, SdkNames {
@@ -74,7 +75,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     }
 
     @Throws(SDKException::class)
-    override fun getWorkspaceList(handler: (TreeNode) -> Unit) {
+    override fun getWorkspaceList(handler: (WorkspaceNode) -> Unit) {
         var con: HttpURLConnection? = null
         var input: InputStream? = null
         val registry: Registry
@@ -95,12 +96,13 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
                     "not logged in " + transport.id + ", you cannot list workspaces."
                 )
             }
-            // FIXME do we still need this
-//            for (node in registry.workspaces) {
+            for (node in registry.getWorkspaces()) {
+                handler(node)
+                // TODO check if we have to skip some of the workspaces at this point
 //                if (!Arrays.asList<Any>(defaultExcludedWorkspaces).contains(node.accessType)) {
 //                    handler.onNode(node)
 //                }
-//            }
+            }
         } catch (e: ParserConfigurationException) {
             throw SDKException.unexpectedContent(e)
         } catch (e: SAXException) {
@@ -204,11 +206,11 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
     }
 
-    @Throws(SDKException::class)
-    override fun nodeInfo(ws: String, path: String): FileNode? {
-        val node = internalStatNode(ws, path)
-        return node?.let { FileNodeUtils.toFileNode(it) }
-    }
+//    @Throws(SDKException::class)
+//    override fun nodeInfo(ws: String, path: String): FileNode? {
+//        val node = internalStatNode(ws, path)
+//        return node?.let { FileNodeUtils.toFileNode(it) }
+//    }
 
     //    @Throws(SDKException::class)
 //    override fun getThumbnail(

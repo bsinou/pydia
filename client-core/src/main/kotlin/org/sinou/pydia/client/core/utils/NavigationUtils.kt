@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentManager
-import com.pydio.android.cells.BuildConfig
+import org.sinou.pydia.client.BuildConfig
 import org.sinou.pydia.client.core.PydiaSimpleApp
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.db.nodes.RTreeNode

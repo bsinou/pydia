@@ -5,8 +5,8 @@ import android.webkit.MimeTypeMap
 import androidx.compose.runtime.saveable.Saver
 import org.sinou.pydia.client.core.db.accounts.RWorkspace
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
+import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.sdk.api.SdkNames
-import org.sinou.pydia.sdk.api.ui.FileNode
 import org.sinou.pydia.sdk.api.ui.WorkspaceNode
 import org.sinou.pydia.sdk.transport.StateID
 
@@ -18,7 +18,8 @@ val stateIDSaver = Saver<StateID, String>(
     restore = { id -> StateID.fromId(id) },
 )
 
-fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): Boolean {
+fun areNodeContentEquals(remote: TreeNode, local: RTreeNode, legacy: Boolean): Boolean {
+    return true
     // TODO rather use this when debugging is over. Also adapt areWsNodeContentEquals(), see below
 //        return remote.eTag != null
 //                && remote.eTag == local.etag
@@ -28,40 +29,42 @@ fun areNodeContentEquals(remote: FileNode, local: RTreeNode, legacy: Boolean): B
 // // Does not work
 // // && remote.flags == local.flags
 
-    var isEqual: Boolean
 
-    isEqual = local.remoteModificationTS == remote.lastModified
-    if (!isEqual) {
-        //Log.d(NODE_UTILS, "Differ: modification times are not equals")
-        return false
-    }
-
-    if (!legacy) { // We can rely on the ETag if remote is a Cells leaf node.
-        isEqual = remote.eTag != null
-        if (!isEqual) {
-            Log.d(logTag, "Differ: no remote eTag")
-            return false
-        }
-        isEqual = remote.eTag == local.etag
-        if (!isEqual) {
-            Log.d(logTag, "Differ: eTag are different")
-            return false
-        }
-    }
-
-    // Also compare meta hash: timestamp is not updated when a meta changes
-    isEqual = remote.metaHashCode == local.metaHash
-    if (!isEqual) {
-        Log.d(logTag, "Differ: meta hash are not equals")
-        Log.d(logTag, "local meta: ${local.properties}")
-        Log.d(logTag, "remote meta: ${remote.properties}")
-        return false
-    }
-
-    // TODO when miss modifications when the offline flag is set.
-    // isEqual = remote.flags == local.flags
-
-    return true
+    // FIXME
+//    var isEqual: Boolean
+//
+//    isEqual = local.remoteModificationTS == remote.mtime
+//    if (!isEqual) {
+//        //Log.d(NODE_UTILS, "Differ: modification times are not equals")
+//        return false
+//    }
+//
+//    if (!legacy) { // We can rely on the ETag if remote is a Cells leaf node.
+//        isEqual = remote.eTag != null
+//        if (!isEqual) {
+//            Log.d(logTag, "Differ: no remote eTag")
+//            return false
+//        }
+//        isEqual = remote.eTag == local.etag
+//        if (!isEqual) {
+//            Log.d(logTag, "Differ: eTag are different")
+//            return false
+//        }
+//    }
+//
+//    // Also compare meta hash: timestamp is not updated when a meta changes
+//    isEqual = remote.metaHashCode == local.metaHash
+//    if (!isEqual) {
+//        Log.d(logTag, "Differ: meta hash are not equals")
+//        Log.d(logTag, "local meta: ${local.properties}")
+//        Log.d(logTag, "remote meta: ${remote.properties}")
+//        return false
+//    }
+//
+//    // TODO when miss modifications when the offline flag is set.
+//    // isEqual = remote.flags == local.flags
+//
+//    return true
 }
 
 fun areWsNodeContentEquals(remote: WorkspaceNode, local: RWorkspace): Boolean {

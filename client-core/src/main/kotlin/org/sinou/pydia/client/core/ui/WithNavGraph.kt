@@ -9,28 +9,15 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 import org.sinou.pydia.client.core.ui.account.AccountListVM
 import org.sinou.pydia.client.core.ui.account.AccountsScreen
-import org.sinou.pydia.client.core.ui.browse.browseNavGraph
-import org.sinou.pydia.client.core.ui.browse.composables.Download
-import org.sinou.pydia.client.core.ui.browse.screens.NoAccount
-import org.sinou.pydia.client.core.ui.core.lazyQueryContext
-import org.sinou.pydia.client.core.ui.core.lazyStateID
 import org.sinou.pydia.client.core.ui.core.nav.CellsDestinations
 import org.sinou.pydia.client.core.ui.login.LoginHelper
 import org.sinou.pydia.client.core.ui.login.LoginNavigation
 import org.sinou.pydia.client.core.ui.login.loginNavGraph
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.client.core.ui.models.BrowseRemoteVM
-import org.sinou.pydia.client.core.ui.models.DownloadVM
-import org.sinou.pydia.client.core.ui.search.Search
-import org.sinou.pydia.client.core.ui.search.SearchHelper
-import org.sinou.pydia.client.core.ui.search.SearchVM
-import org.sinou.pydia.client.core.ui.share.ShareHelper
-import org.sinou.pydia.client.core.ui.share.shareNavGraph
 import org.sinou.pydia.client.core.ui.system.systemNavGraph
 import org.sinou.pydia.sdk.transport.StateID
 
@@ -102,26 +89,6 @@ fun CellsNavGraph(
             ),
         )
 
-        browseNavGraph(
-            isExpandedScreen = isExpandedScreen,
-            navController = navController,
-            openDrawer = openDrawer,
-            back = { navController.popBackStack() },
-            browseRemoteVM = browseRemoteVM,
-        )
-
-        shareNavGraph(
-            isExpandedScreen = isExpandedScreen,
-            browseRemoteVM = browseRemoteVM,
-            helper = ShareHelper(
-                navController,
-                launchTaskFor,
-                startingState,
-                ackStartStateProcessing
-            ),
-            back = { navController.popBackStack() },
-        )
-
         systemNavGraph(
             isExpandedScreen = isExpandedScreen,
             navController = navController,
@@ -129,42 +96,6 @@ fun CellsNavGraph(
             launchIntent = launchIntent,
             back = { navController.popBackStack() },
         )
-
-        composable(CellsDestinations.Search.route) { entry ->
-            val searchVM: SearchVM =
-                koinViewModel(parameters = { parametersOf(lazyStateID(entry)) })
-            Search(
-                isExpandedScreen = isExpandedScreen,
-                queryContext = lazyQueryContext(entry),
-                stateID = lazyStateID(entry),
-                searchVM = searchVM,
-                SearchHelper(
-                    navController = navController,
-                    searchVM = searchVM
-                ),
-            )
-        }
-
-        dialog(CellsDestinations.Download.route) { entry ->
-            val downloadVM: DownloadVM =
-                koinViewModel(parameters = {
-                    parametersOf(
-                        browseRemoteVM.isLegacy,
-                        lazyStateID(entry)
-                    )
-                })
-            Download(
-                stateID = lazyStateID(entry),
-                downloadVM = downloadVM
-            ) { navController.popBackStack() }
-        }
-
-        composable(CellsDestinations.Home.route) {
-            NoAccount(
-                openDrawer = { openDrawer() },
-                addAccount = { loginNavActions.askUrl() },
-            )
-        }
 
     }
 }

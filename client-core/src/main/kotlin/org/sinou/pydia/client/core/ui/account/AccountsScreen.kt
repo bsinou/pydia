@@ -18,18 +18,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
-import org.sinou.pydia.client.core.AppKeys
+import kotlinx.coroutines.launch
 import org.sinou.pydia.client.R
+import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.db.accounts.RSessionView
 import org.sinou.pydia.client.core.services.AuthService
-import org.sinou.pydia.client.core.ui.browse.BrowseDestinations
+import org.sinou.pydia.client.core.ui.Destinations
 import org.sinou.pydia.client.core.ui.core.composables.DefaultTopBar
 import org.sinou.pydia.client.core.ui.core.composables.dialogs.AskForConfirmation
 import org.sinou.pydia.client.core.ui.core.encodeStateForRoute
 import org.sinou.pydia.client.core.ui.core.lazyStateID
 import org.sinou.pydia.client.core.ui.login.LoginDestinations
 import org.sinou.pydia.sdk.transport.StateID
-import kotlinx.coroutines.launch
 
 private const val LOG_TAG = "AccountsScreen.kt"
 private const val ACCOUNT_LIST = "account-list"
@@ -59,7 +59,7 @@ fun AccountsScreen(
                     scope.launch {
                         accountListVM.openSession(it)?.let {
                             Log.i(LOG_TAG, "About to open session for: $it")
-                            navigateTo(BrowseDestinations.Open.createRoute(it.getStateID()))
+                            navigateTo(Destinations.browse(it.getStateID()))
                         }
                     }
                 },

@@ -18,36 +18,16 @@ import org.sinou.pydia.client.core.services.ErrorService
 import org.sinou.pydia.client.core.services.FileService
 import org.sinou.pydia.client.core.services.JobService
 import org.sinou.pydia.client.core.services.NetworkService
-import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.client.core.services.OfflineService
 import org.sinou.pydia.client.core.services.PasswordStore
 import org.sinou.pydia.client.core.services.PreferencesService
 import org.sinou.pydia.client.core.services.SessionFactory
 import org.sinou.pydia.client.core.services.TokenStore
-import org.sinou.pydia.client.core.services.TransferService
 import org.sinou.pydia.client.core.services.TreeNodeRepository
 import org.sinou.pydia.client.core.services.WorkerService
 import org.sinou.pydia.client.core.services.workers.OfflineSyncWorker
 import org.sinou.pydia.client.core.ui.account.AccountListVM
-import org.sinou.pydia.client.core.ui.browse.models.AccountHomeVM
-import org.sinou.pydia.client.core.ui.browse.models.BookmarksVM
-import org.sinou.pydia.client.core.ui.browse.models.CarouselVM
-import org.sinou.pydia.client.core.ui.browse.models.FilterTransferByMenuVM
-import org.sinou.pydia.client.core.ui.browse.models.FolderVM
-import org.sinou.pydia.client.core.ui.browse.models.NodeActionsVM
-import org.sinou.pydia.client.core.ui.browse.models.OfflineVM
-import org.sinou.pydia.client.core.ui.browse.models.SingleTransferVM
-import org.sinou.pydia.client.core.ui.browse.models.SortByMenuVM
-import org.sinou.pydia.client.core.ui.browse.models.TransfersVM
-import org.sinou.pydia.client.core.ui.browse.models.TreeNodeVM
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
-import org.sinou.pydia.client.core.ui.migration.MigrationVM
-import org.sinou.pydia.client.core.ui.models.BrowseRemoteVM
-import org.sinou.pydia.client.core.ui.models.DownloadVM
-import org.sinou.pydia.client.core.ui.search.SearchVM
-import org.sinou.pydia.client.core.ui.share.models.MonitorUploadsVM
-import org.sinou.pydia.client.core.ui.share.models.ShareVM
-import org.sinou.pydia.client.core.ui.system.models.HouseKeepingVM
 import org.sinou.pydia.client.core.ui.system.models.JobListVM
 import org.sinou.pydia.client.core.ui.system.models.LandingVM
 import org.sinou.pydia.client.core.ui.system.models.LogListVM
@@ -230,24 +210,11 @@ val serviceModule = module {
     single { AccountService(get(), get(), get(), get(), get(), get(), get()) }
 
     // Business services
-    single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
-    single { ConnectionService(get(), get(), get(), get(), get()) }
+    single { ConnectionService(get(), get(), get(), get()) }
 
     single {
         OfflineService(
             androidContext().applicationContext,
-            get(),
-            get(),
-            get(),
-            get(),
-            get()
-        )
-    }
-    single {
-        TransferService(
-            androidContext().applicationContext,
-            get(),
-            get(),
             get(),
             get(),
             get(),
@@ -267,7 +234,6 @@ val serviceModule = module {
 val viewModelModule = module {
 
     viewModelOf(::LandingVM)
-    viewModelOf(::MigrationVM)
 
     viewModelOf(::SettingsVM)
     viewModelOf(::PrefReadOnlyVM)
@@ -275,32 +241,8 @@ val viewModelModule = module {
     viewModelOf(::LoginVM)
     viewModelOf(::AccountListVM)
 
-    viewModelOf(::BrowseRemoteVM)
-    viewModelOf(::AccountHomeVM)
-    viewModelOf(::FolderVM)
-    viewModelOf(::CarouselVM)
-
-    viewModelOf(::TreeNodeVM)
-    viewModelOf(::SortByMenuVM)
-
-    viewModelOf(::BookmarksVM)
-    viewModelOf(::OfflineVM)
-
-    viewModelOf(::NodeActionsVM)
-
-    viewModelOf(::DownloadVM)
-    viewModelOf(::SingleTransferVM)
-
-    viewModelOf(::SearchVM)
-
-    viewModelOf(::ShareVM)
-    viewModelOf(::MonitorUploadsVM)
-    viewModelOf(::TransfersVM)
-    viewModelOf(::FilterTransferByMenuVM)
-
     viewModelOf(::JobListVM)
     viewModelOf(::LogListVM)
-    viewModelOf(::HouseKeepingVM)
 }
 
 val allModules = appModule + dbModule + daoModule + serviceModule + viewModelModule

@@ -7,16 +7,16 @@ import androidx.annotation.DimenRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
+import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.AppNames
-import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.services.AuthService
 import org.sinou.pydia.sdk.transport.StateID
 import org.sinou.pydia.sdk.utils.Str
 import java.net.URLDecoder
 import java.net.URLEncoder
 
-private const val logTag = "core.utils"
+private const val LOG_TAG = "core.utils"
 
 @Composable
 fun getMessageFromLocalModifStatus(status: String): String? {
@@ -49,15 +49,15 @@ fun lazyStateID(
         if (it.isEmpty()) {
             return StateID.NONE
         }
-        return StateID.fromId(it)
+        return StateID.safeFromId(it)
     } ?: run {
-        Log.w(logTag, " ... No stateID found in backstack entry with key $key")
+        Log.w(LOG_TAG, " ... No stateID found in backstack entry with key $key")
         StateID.NONE
     }
 }
 
 fun encodeStateSetForRoute(stateIDs: Set<StateID>): String {
-    val reduced = stateIDs.map {  URLEncoder.encode(it.id, "UTF-8")}.reduce { acc, curr ->
+    val reduced = stateIDs.map { URLEncoder.encode(it.id, "UTF-8") }.reduce { acc, curr ->
         if (acc.isEmpty()) {
             curr
         } else {
@@ -80,20 +80,20 @@ fun lazyStateIDs(
             val reduced = URLDecoder.decode(it, "UTF-8")
             val ids = mutableSetOf<StateID>()
             reduced.split("&").forEach { currEncoded ->
-                if (currEncoded.isNotEmpty()){
-                    val currID =StateID.fromId(URLDecoder.decode(currEncoded, "UTF-8"))
-                    if (currID != StateID.NONE){
+                if (currEncoded.isNotEmpty()) {
+                    val currID = StateID.safeFromId(URLDecoder.decode(currEncoded, "UTF-8"))
+                    if (currID != StateID.NONE) {
                         ids.add(currID)
                     }
                 }
             }
-            if (ids.isEmpty()){ // TODO double check if it is really necessary
+            if (ids.isEmpty()) { // TODO double check if it is really necessary
                 ids.add(StateID.NONE)
             }
             ids
         }
     } ?: run {
-        Log.w(logTag, " ... No stateID found in backstack entry with key $key")
+        Log.w(LOG_TAG, " ... No stateID found in backstack entry with key $key")
         setOf(StateID.NONE)
     }
 }
@@ -104,7 +104,7 @@ fun lazyQueryContext(
 ): String {
     return navBackStackEntry?.arguments?.getString(key)
         ?: run {
-            Log.e(logTag, " ... No query context found in backstack entry, for key $key")
+            Log.e(LOG_TAG, " ... No query context found in backstack entry, for key $key")
             "none"
         }
 }
@@ -135,7 +135,7 @@ fun lazyUID(
         try {
             return stringValue!!.toLong()
         } catch (nfe: NumberFormatException) {
-            Log.e(logTag, "Un-valid jobID format: [$stringValue]")
+            Log.e(LOG_TAG, "Un-valid jobID format: [$stringValue]")
         }
     }
     return 0L

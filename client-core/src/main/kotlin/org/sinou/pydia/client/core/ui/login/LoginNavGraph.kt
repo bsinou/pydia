@@ -10,7 +10,6 @@ import org.sinou.pydia.client.core.ui.core.lazyStateID
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.client.core.ui.login.screens.AskServerUrl
 import org.sinou.pydia.client.core.ui.login.screens.LaunchAuthProcessing
-import org.sinou.pydia.client.core.ui.login.screens.P8Credentials
 import org.sinou.pydia.client.core.ui.login.screens.ProcessAuth
 import org.sinou.pydia.client.core.ui.login.screens.SkipVerify
 import org.sinou.pydia.client.core.ui.login.screens.StartingLoginProcess
@@ -51,22 +50,6 @@ fun NavGraphBuilder.loginNavGraph(
             Log.i(logTag, "## 1st compo login/skip-verify/$stateID")
         }
         SkipVerify(stateID, helper = helper, loginVM = loginVM)
-    }
-
-    composable(LoginDestinations.P8Credentials.route) { nbsEntry ->
-        val stateID = lazyStateID(nbsEntry)
-        val skipVerify = lazySkipVerify(nbsEntry)
-        val lContext = lazyLoginContext(nbsEntry)
-        LaunchedEffect(key1 = stateID, key2 = skipVerify) {
-            Log.i(logTag, "## 1st compo login/p8-creds/$stateID/$skipVerify/$lContext")
-        }
-        P8Credentials(
-            stateID = stateID,
-            skipVerify = skipVerify,
-            loginContext = lContext,
-            helper = helper,
-            loginVM = loginVM,
-        )
     }
 
     composable(LoginDestinations.LaunchAuthProcessing.route) { nbsEntry ->

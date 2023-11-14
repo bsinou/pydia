@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.PermanentDrawerSheet
@@ -26,20 +24,17 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.koin.androidx.compose.koinViewModel
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.services.ConnectionService
-import org.sinou.pydia.client.core.ui.browse.BrowseDestinations
-import org.sinou.pydia.client.core.ui.browse.BrowseNavigationActions
 import org.sinou.pydia.client.core.ui.core.composables.ConnectionStatus
 import org.sinou.pydia.client.core.ui.core.composables.MenuTitleText
-import org.sinou.pydia.client.core.ui.core.composables.getWsThumbVector
 import org.sinou.pydia.client.core.ui.core.composables.menus.BottomSheetDivider
 import org.sinou.pydia.client.core.ui.system.SystemDestinations
 import org.sinou.pydia.client.core.ui.system.SystemNavigationActions
 import org.sinou.pydia.client.core.ui.system.models.PrefReadOnlyVM
 import org.sinou.pydia.client.core.ui.theme.CellsIcons
 import org.sinou.pydia.sdk.transport.StateID
-import org.koin.androidx.compose.koinViewModel
 
 /** AppNavRail provides the main lateral "rail" menu on large screens. */
 @Composable
@@ -50,7 +45,7 @@ fun AppPermanentDrawer(
     connectionService: ConnectionService,
     cellsNavActions: CellsNavigationActions,
     systemNavActions: SystemNavigationActions,
-    browseNavActions: BrowseNavigationActions
+//     browseNavActions: BrowseNavigationActions
 ) {
 
     val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
@@ -94,59 +89,61 @@ fun AppPermanentDrawer(
                     .padding(defaultPadding)
                     .padding(vertical = dimensionResource(id = R.dimen.margin))
             )
-            accountID.value?.let { currAccountID ->
 
-                MyNavigationRailItem(
-                    label = stringResource(R.string.action_open_offline_roots),
-                    icon = CellsIcons.KeepOffline,
-                    selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
-                    onClick = { browseNavActions.toOfflineRoots(currAccountID) },
-                )
-                MyNavigationRailItem(
-                    label = stringResource(R.string.action_open_bookmarks),
-                    icon = CellsIcons.Bookmark,
-                    selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
-                    onClick = { browseNavActions.toBookmarks(currAccountID) },
-                )
-                MyNavigationRailItem(
-                    label = stringResource(R.string.action_open_transfers),
-                    icon = CellsIcons.Transfers,
-                    selected = BrowseDestinations.Transfers.isCurrent(currRoute),
-                    onClick = { browseNavActions.toTransfers(currAccountID) },
-                )
-
-                BottomSheetDivider()
-
-                MenuTitleText(stringResource(R.string.my_workspaces), defaultTitleModifier)
-                wss.value.listIterator().forEach {
-                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
-                            && it.getStateID() == currSelectedID
-                    MyNavigationRailItem(
-                        label = it.label ?: it.slug,
-                        icon = getWsThumbVector(it.sortName ?: ""),
-                        selected = selected,
-                        onClick = { browseNavActions.toBrowse(it.getStateID()) },
-                    )
-                }
-                cells.value.listIterator().forEach {
-                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
-                            && it.getStateID() == currSelectedID
-                    MyNavigationRailItem(
-                        label = it.label ?: it.slug,
-                        icon = getWsThumbVector(it.sortName ?: ""),
-                        selected = selected,
-                        onClick = { browseNavActions.toBrowse(it.getStateID()) },
-                    )
-                }
-            } ?: run { // Temporary fallback when no account is defined
-                // until all routes are hardened for all corner cases
-                MyNavigationRailItem(
-                    label = stringResource(id = R.string.choose_account),
-                    icon = Icons.Filled.Group,
-                    selected = CellsDestinations.Accounts.route == currRoute,
-                    onClick = { cellsNavActions.navigateToAccounts() },
-                )
-            }
+            // TOOD this must be injected when everything is modular
+//            accountID.value?.let { currAccountID ->
+//
+//                MyNavigationRailItem(
+//                    label = stringResource(R.string.action_open_offline_roots),
+//                    icon = CellsIcons.KeepOffline,
+//                    selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
+//                    onClick = { browseNavActions.toOfflineRoots(currAccountID) },
+//                )
+//                MyNavigationRailItem(
+//                    label = stringResource(R.string.action_open_bookmarks),
+//                    icon = CellsIcons.Bookmark,
+//                    selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
+//                    onClick = { browseNavActions.toBookmarks(currAccountID) },
+//                )
+//                MyNavigationRailItem(
+//                    label = stringResource(R.string.action_open_transfers),
+//                    icon = CellsIcons.Transfers,
+//                    selected = BrowseDestinations.Transfers.isCurrent(currRoute),
+//                    onClick = { browseNavActions.toTransfers(currAccountID) },
+//                )
+//
+//                BottomSheetDivider()
+//
+//                MenuTitleText(stringResource(R.string.my_workspaces), defaultTitleModifier)
+//                wss.value.listIterator().forEach {
+//                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
+//                            && it.getStateID() == currSelectedID
+//                    MyNavigationRailItem(
+//                        label = it.label ?: it.slug,
+//                        icon = getWsThumbVector(it.sortName ?: ""),
+//                        selected = selected,
+//                        onClick = { browseNavActions.toBrowse(it.getStateID()) },
+//                    )
+//                }
+//                cells.value.listIterator().forEach {
+//                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
+//                            && it.getStateID() == currSelectedID
+//                    MyNavigationRailItem(
+//                        label = it.label ?: it.slug,
+//                        icon = getWsThumbVector(it.sortName ?: ""),
+//                        selected = selected,
+//                        onClick = { browseNavActions.toBrowse(it.getStateID()) },
+//                    )
+//                }
+//            } ?: run { // Temporary fallback when no account is defined
+//                // until all routes are hardened for all corner cases
+//                MyNavigationRailItem(
+//                    label = stringResource(id = R.string.choose_account),
+//                    icon = Icons.Filled.Group,
+//                    selected = CellsDestinations.Accounts.route == currRoute,
+//                    onClick = { cellsNavActions.navigateToAccounts() },
+//                )
+//            }
 
             BottomSheetDivider()
 

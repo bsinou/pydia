@@ -4,14 +4,13 @@ import android.content.Context
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.core.services.AuthService
 import org.sinou.pydia.client.core.ui.StartingState
-import org.sinou.pydia.client.core.ui.browse.BrowseDestinations
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.sdk.transport.ServerURLImpl
 import org.sinou.pydia.sdk.transport.StateID
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class LoginHelper(
     private val navController: NavHostController,
@@ -54,19 +53,6 @@ class LoginHelper(
         navigateTo(res)
     }
 
-    suspend fun launchP8Auth(
-        url: String,
-        skipVerify: Boolean,
-        loginContext: String,
-        login: String,
-        pwd: String,
-        captcha: String?
-    ) {
-        val stateID = loginVM.logToP8(url, skipVerify, login, pwd, captcha)
-        if (stateID != null) { // Login has been successful, we clean after ourselves and leave the login subgraph
-            afterAuth(stateID, loginContext)
-        } // else do nothing: error message has already been displayed and we stay on the page
-    }
 
     suspend fun launchAuth(
         context: Context,
@@ -150,7 +136,7 @@ class LoginHelper(
 
         if (loginContext == AuthService.LOGIN_CONTEXT_CREATE) {
             // New account -> we open it
-            navigateTo(BrowseDestinations.Open.createRoute(stateID))
+            // TODO navigateTo(BrowseDestinations.Open.createRoute(stateID))
         } else {
             // We only get rid of login pages.
         }

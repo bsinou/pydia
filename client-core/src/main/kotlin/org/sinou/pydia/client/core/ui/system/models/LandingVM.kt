@@ -8,8 +8,8 @@ import org.sinou.pydia.client.core.services.AccountService
 import org.sinou.pydia.client.core.services.AuthService
 import org.sinou.pydia.client.core.services.JobService
 import org.sinou.pydia.client.core.services.PreferencesService
+import org.sinou.pydia.client.core.ui.Destinations
 import org.sinou.pydia.client.core.ui.StartingState
-import org.sinou.pydia.client.core.ui.browse.BrowseDestinations
 import org.sinou.pydia.client.core.ui.core.nav.CellsDestinations
 import org.sinou.pydia.client.core.ui.login.LoginDestinations
 import org.sinou.pydia.sdk.transport.ClientData
@@ -80,7 +80,7 @@ class LandingVM(
         state.route = when (stateID) {
             null -> LoginDestinations.AskUrl.createRoute()
             StateID.NONE -> CellsDestinations.Accounts.route
-            else -> BrowseDestinations.Open.createRoute(stateID)
+            else -> Destinations.browse(stateID)
         }
         return state
     }

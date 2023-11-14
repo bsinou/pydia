@@ -66,7 +66,7 @@ class OfflineSyncWorker(
     override suspend fun doWork(): Result {
         if (hasBeenMigrated()) {
             Log.e(logTag, "... Has been migrated, launching full sync")
-            offlineService.runFullSync("Worker")
+            // offlineService.runFullSync("Worker")
         }
         val d = Data.Builder().putString("yes", "no").build()
         return Result.success(d)

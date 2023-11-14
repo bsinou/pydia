@@ -39,7 +39,7 @@ fun AskForNewName(
 ) {
     val newName = remember { mutableStateOf(srcID.fileName) }
     val updateValue: (String) -> Unit = { newName.value = it }
-    val doRename: () -> Unit = { rename(srcID, newName.value) }
+    val doRename: () -> Unit = { rename(srcID, newName.value!!) }
 
     AlertDialog(
         title = {
@@ -48,7 +48,7 @@ fun AskForNewName(
                 icon = CellsIcons.Edit
             )
         },
-        text = { AskForNameContent(srcID.fileName, newName.value, updateValue, doRename) },
+        text = { AskForNameContent(srcID.fileName!!, newName.value!!, updateValue, doRename) },
         confirmButton = { TextButton(onClick = doRename) { Text(stringResource(R.string.rename_dialog_confirm_button)) } },
         dismissButton = { TextButton(onClick = dismiss) { Text(stringResource(R.string.button_cancel)) } },
         onDismissRequest = { dismiss() },

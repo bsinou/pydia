@@ -1,7 +1,6 @@
 package org.sinou.pydia.client.core.ui.models
 
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
-import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.sdk.transport.StateID
 
 interface GenericItem {
@@ -50,7 +49,7 @@ data class MultipleItem(
 }
 
 suspend fun deduplicateNodes(
-    nodeService: NodeService,
+//    nodeService: NodeService,
     nodes: List<RTreeNode>
 ): MutableList<MultipleItem> {
     val bis: MutableList<MultipleItem> = mutableListOf()
@@ -58,9 +57,9 @@ suspend fun deduplicateNodes(
     val wss: MutableMap<String, String> = mutableMapOf()
     for (node in nodes) {
         // Dirty tweak to remove nodes from the local store when they have been deleted remotely
-        if (!nodeService.stillExists(node.getStateID())) {
-            continue
-        }
+//        if (!nodeService.stillExists(node.getStateID())) {
+//            continue
+//        }
 
         // We cannot rely on the fact that nodes are ordered: distinct bookmarked nodes
         // with same size or name that have "more than one path" (e.g are also in a cell)
@@ -79,13 +78,14 @@ suspend fun deduplicateNodes(
             isFolder = node.isFolder(),
         )
         val slug = node.getStateID().slug!!
-        if (!wss.containsKey(slug)) {
-            nodeService.getWorkspace(node.getStateID().workspace())?.let {
-                wss[slug] = it.label ?: slug
-            } ?: run {
-                wss[slug] = slug
-            }
-        }
+// FIXME broken when moved to full kotlin
+//        if (!wss.containsKey(slug)) {
+//            nodeService.getWorkspace(node.getStateID().workspace())?.let {
+//                wss[slug] = it.label ?: slug
+//            } ?: run {
+//                wss[slug] = slug
+//            }
+//        }
         // We manually insure that we only reference each effective target once => might be sub-optimal for very large systems
         val existingIndex = bis.indexOf(newItem)
         if (existingIndex > -1) {

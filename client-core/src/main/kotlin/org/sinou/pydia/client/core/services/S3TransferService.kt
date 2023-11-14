@@ -210,7 +210,7 @@ class S3TransferService(
         SignerFactory.registerSigner(org.sinou.pydia.client.core.transfer.CellsSigner.CELLS_SIGNER_ID, org.sinou.pydia.client.core.transfer.CellsSigner::class.java)
         var conf = ClientConfiguration()
             .withSignerOverride(org.sinou.pydia.client.core.transfer.CellsSigner.CELLS_SIGNER_ID)
-            .withUserAgentOverride(transport.userAgent) // default adds a prefix with the AWS SDK agent that we do not want to expose
+            .withUserAgentOverride(transport.getUserAgent()) // default adds a prefix with the AWS SDK agent that we do not want to expose
 
         if (transport.server.isSSLUnverified) {
             conf = conf.withTrustManager(ServerURLImpl.SKIP_VERIFY_TRUST_MANAGER[0])

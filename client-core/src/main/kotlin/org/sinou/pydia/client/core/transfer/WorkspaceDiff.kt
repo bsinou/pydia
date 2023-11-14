@@ -6,18 +6,16 @@ import org.sinou.pydia.client.core.db.accounts.RWorkspace
 import org.sinou.pydia.client.core.db.accounts.WorkspaceDao
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.services.FileService
-import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.client.core.services.TreeNodeRepository
 import org.sinou.pydia.client.core.utils.areWsNodeContentEquals
 import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.SDKException
-import org.sinou.pydia.sdk.api.ui.Node
-import org.sinou.pydia.sdk.api.ui.WorkspaceNode
 import org.sinou.pydia.sdk.transport.StateID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.sinou.pydia.sdk.api.ui.WorkspaceNode
 import java.io.File
 
 class WorkspaceDiff(
@@ -27,7 +25,7 @@ class WorkspaceDiff(
 
     private val logTag = "WorkspaceDiff"
 
-    private val nodeService: NodeService by inject()
+    // private val nodeService: NodeService by inject()
     private val fileService: FileService by inject()
 
     // TODO we should not access these object here but rather on nodeService methods
@@ -109,7 +107,7 @@ class WorkspaceDiff(
     }
 
     private fun putAddChange(remote: WorkspaceNode) {
-        Log.d(logTag, "add for ${remote.name}")
+        Log.d(logTag, "add for ${remote.label}")
         changeNumber++
         // We add this both on the ws and on the node table
         val rNode = RWorkspace.createChild(accountId, remote)
@@ -122,7 +120,7 @@ class WorkspaceDiff(
     }
 
     private fun putUpdateChange(remote: WorkspaceNode) {
-        Log.d(logTag, "update for ${remote.name}")
+        Log.d(logTag, "update for ${remote.label}")
         changeNumber++
         val childStateID = accountId.child(remote.slug)
 
@@ -191,10 +189,8 @@ class WorkspaceDiff(
 
         @Throws(SDKException::class)
         fun listRemoteWorkspaces() {
-            client.workspaceList { node: Node? ->
-                if (node is WorkspaceNode) {
+            client.getWorkspaceList {  node ->
                     nodes.add(node)
-                }
             }
             nodes.sort()
 

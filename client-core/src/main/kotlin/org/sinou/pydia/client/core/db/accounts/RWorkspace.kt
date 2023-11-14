@@ -59,7 +59,7 @@ data class RWorkspace(
                     description = wsNode.description,
                     // TODO can we retrieve remote mod TS?
                     remoteModificationTS = 0L,
-                    meta = wsNode.properties,
+                    meta = Properties(), //  wsNode.properties,
                 )
 
                 // Add a technical name to easily have a canonical sorting by default,

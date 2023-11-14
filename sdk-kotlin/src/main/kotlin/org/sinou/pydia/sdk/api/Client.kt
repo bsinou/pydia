@@ -1,8 +1,8 @@
 package org.sinou.pydia.sdk.api
 
 import org.sinou.pydia.openapi.model.TreeNode
-import org.sinou.pydia.sdk.api.ui.FileNode
 import org.sinou.pydia.sdk.api.ui.PageOptions
+import org.sinou.pydia.sdk.api.ui.WorkspaceNode
 
 interface Client {
 
@@ -16,7 +16,7 @@ interface Client {
     fun stillAuthenticated(): Boolean
 
     @Throws(SDKException::class)
-    fun getWorkspaceList(handler: (TreeNode) -> Unit)
+    fun getWorkspaceList(handler: (WorkspaceNode) -> Unit)
 
     @Throws(SDKException::class)
     fun ls(slug: String, path: String, options: PageOptions?, handler: (TreeNode) -> Unit): PageOptions
@@ -27,8 +27,8 @@ interface Client {
     @Throws(SDKException::class)
     fun delete(slug: String, paths: Array<String>, removePermanently: Boolean)
 
-    @Throws(SDKException::class)
-    fun nodeInfo(ws: String, path: String): FileNode?
+//    @Throws(SDKException::class)
+//    fun nodeInfo(ws: String, path: String): FileNode?
 
 //    /**
 //     * Temporary test before cleaning this part of the code

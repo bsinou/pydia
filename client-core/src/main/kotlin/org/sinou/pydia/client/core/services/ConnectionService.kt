@@ -1,22 +1,6 @@
 package org.sinou.pydia.client.core.services
 
 import android.util.Log
-import org.sinou.pydia.client.core.LoadingState
-import org.sinou.pydia.client.core.LoginStatus
-import org.sinou.pydia.client.core.NetworkStatus
-import org.sinou.pydia.client.core.ServerConnection
-import org.sinou.pydia.client.core.db.accounts.RSessionView
-import org.sinou.pydia.client.core.db.accounts.RWorkspace
-import org.sinou.pydia.client.core.ui.theme.CellsColor
-import org.sinou.pydia.client.core.utils.BackOffTicker
-import org.sinou.pydia.client.core.utils.CellsCancellation
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.timestampToString
-import org.sinou.pydia.sdk.api.ErrorCodes
-import org.sinou.pydia.sdk.api.SDKException
-import org.sinou.pydia.sdk.api.SdkNames
-import org.sinou.pydia.sdk.transport.StateID
-import org.sinou.pydia.sdk.utils.Str
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,6 +21,22 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.sinou.pydia.client.core.LoadingState
+import org.sinou.pydia.client.core.LoginStatus
+import org.sinou.pydia.client.core.NetworkStatus
+import org.sinou.pydia.client.core.ServerConnection
+import org.sinou.pydia.client.core.db.accounts.RSessionView
+import org.sinou.pydia.client.core.db.accounts.RWorkspace
+import org.sinou.pydia.client.core.ui.theme.CellsColor
+import org.sinou.pydia.client.core.utils.BackOffTicker
+import org.sinou.pydia.client.core.utils.CellsCancellation
+import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.utils.timestampToString
+import org.sinou.pydia.sdk.api.ErrorCodes
+import org.sinou.pydia.sdk.api.SDKException
+import org.sinou.pydia.sdk.api.SdkNames
+import org.sinou.pydia.sdk.transport.StateID
+import org.sinou.pydia.sdk.utils.Str
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -47,7 +47,7 @@ class ConnectionService(
     private val coroutineService: CoroutineService,
     networkService: NetworkService,
     private val accountService: AccountService,
-    private val nodeService: NodeService,
+//     private val nodeService: NodeService,
     private val appCredentialService: AppCredentialService,
 ) {
 
@@ -433,7 +433,9 @@ class ConnectionService(
                     result = if (Str.empty(stateID.file)) {
                         accountService.refreshWorkspaceList(stateID.account())
                     } else {
-                        nodeService.pull(stateID)
+// Fixme
+                        //                         nodeService.pull(stateID)
+                        TODO("Reimplement this ")
                     }
                 } catch (se: SDKException) {
                     if (ErrorCodes.token_expired == se.code) {

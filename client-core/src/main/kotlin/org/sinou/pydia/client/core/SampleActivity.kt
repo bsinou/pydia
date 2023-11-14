@@ -47,7 +47,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import org.sinou.pydia.client.R
-import org.sinou.pydia.client.core.ui.browse.screens.rotateBy
 import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
 
 /**
@@ -116,8 +115,9 @@ private fun OneImage(
                     val oldScale = zoom
                     val newScale = (zoom * gestureZoom).coerceIn(1f..10f)
 
-                    offset = (offset + gestureCentroid / oldScale).rotateBy(gestureRotate) -
-                            (gestureCentroid / newScale + gesturePan / oldScale)
+                    offset = offset
+//                    offset = (offset + gestureCentroid / oldScale).rotateBy(gestureRotate) -
+//                            (gestureCentroid / newScale + gesturePan / oldScale)
                     angle += gestureRotate
                     zoom = newScale
                 }

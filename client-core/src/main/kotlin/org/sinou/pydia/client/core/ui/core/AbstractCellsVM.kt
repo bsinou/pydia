@@ -11,7 +11,6 @@ import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.services.ConnectionService
 import org.sinou.pydia.client.core.services.ConnectionState
 import org.sinou.pydia.client.core.services.ErrorService
-import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.client.core.services.PreferencesService
 import org.sinou.pydia.client.core.ui.models.ErrorMessage
 import org.sinou.pydia.client.core.utils.externallyView
@@ -40,7 +39,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     private val errorService: ErrorService by inject()
     private val connectionService: ConnectionService by inject()
     protected val prefs: PreferencesService by inject()
-    protected val nodeService: NodeService by inject()
+//    protected val nodeService: NodeService by inject()
     // private val applicationContext: Context by inject()
 
     // Expose a flow of error messages for the end-user
@@ -88,15 +87,16 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     }
 
     suspend fun getNode(stateID: StateID): RTreeNode? {
-        return nodeService.getNode(stateID) ?: run {
-            try {
-                // Also try to retrieve node from the remote server
-                nodeService.tryToCacheNode(stateID)
-            } catch (se: SDKException) {
-                done(se)
-                return null
-            }
-        }
+        return null
+//        return nodeService.getNode(stateID) ?: run {
+//            try {
+//                // Also try to retrieve node from the remote server
+//                nodeService.tryToCacheNode(stateID)
+//            } catch (se: SDKException) {
+//                done(se)
+//                return null
+//            }
+//        }
     }
 
     @Throws(SDKException::class)
@@ -142,24 +142,25 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         node: RTreeNode,
         skipUpToDateCheck: Boolean = false
     ) {
-        val reachable = isServerReachable()
-        val currSkip = skipUpToDateCheck || !reachable
-        Log.e(
-            logTag, "Launch view file, skip check: $currSkip," +
-                    " loading: ${connectionService.liveConnectionState.value.loading}" +
-                    " server reachable: $reachable}"
-        )
-        val (lf, isUpToDate) = nodeService.getLocalFile(node, currSkip)
-
-        if (lf == null) {
-            throw SDKException(ErrorCodes.no_local_file)
-        } else if (!isUpToDate) {
-            throw SDKException(ErrorCodes.outdated_local_file)
-        } else {
-            // TODO investigate. We use the activity context to launch the view activity, otherwise we have this message:
-            //   Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag. Is this really what you want?
-            // externallyView(applicationContext, lf, node)
-            externallyView(context, lf, node)
-        }
+        TODO("Reimplement me")
+//        val reachable = isServerReachable()
+//        val currSkip = skipUpToDateCheck || !reachable
+//        Log.e(
+//            logTag, "Launch view file, skip check: $currSkip," +
+//                    " loading: ${connectionService.liveConnectionState.value.loading}" +
+//                    " server reachable: $reachable}"
+//        )
+//        val (lf, isUpToDate) = nodeService.getLocalFile(node, currSkip)
+//
+//        if (lf == null) {
+//            throw SDKException(ErrorCodes.no_local_file)
+//        } else if (!isUpToDate) {
+//            throw SDKException(ErrorCodes.outdated_local_file)
+//        } else {
+//            // TODO investigate. We use the activity context to launch the view activity, otherwise we have this message:
+//            //   Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag. Is this really what you want?
+//            // externallyView(applicationContext, lf, node)
+//            externallyView(context, lf, node)
+//        }
     }
 }

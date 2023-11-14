@@ -1,9 +1,7 @@
 package org.sinou.pydia.client.core.ui.models
 
 import org.sinou.pydia.client.core.AppNames
-import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.services.ConnectionState
-import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.transport.StateID
 
@@ -33,7 +31,8 @@ data class TreeNodeItem(
 ) : GenericItem {
 
     init {
-        isInRecycle = stateID.parentPath.startsWith("/${SdkNames.RECYCLE_BIN_NAME}")
+        isInRecycle =
+            stateID.parentFolder().file?.startsWith("/${SdkNames.RECYCLE_BIN_NAME}") == true
     }
 
     override fun equals(other: Any?): Boolean {
@@ -80,60 +79,60 @@ data class TreeNodeItem(
     }
 }
 
-suspend fun toTreeNodeItems(
-    nodeService: NodeService,
-    nodes: List<RTreeNode>
-): List<TreeNodeItem> {
-    val items: MutableList<TreeNodeItem> = mutableListOf()
-    for (node in nodes) {
-        val newItem = toTreeNodeItem(node, nodeService)
-        items.add(newItem)
-    }
-    return items
-}
+//suspend fun toTreeNodeItems(
+//    nodeService: NodeService,
+//    nodes: List<RTreeNode>
+//): List<TreeNodeItem> {
+//    val items: MutableList<TreeNodeItem> = mutableListOf()
+//    for (node in nodes) {
+//        val newItem = toTreeNodeItem(node, nodeService)
+//        items.add(newItem)
+//    }
+//    return items
+//}
 
-suspend fun toTreeNodeItem(
-    node: RTreeNode,
-    nodeService: NodeService
-): TreeNodeItem {
-    val newItem = TreeNodeItem(
-        stateID = node.getStateID(),
-        uuid = node.uuid,
-        mime = node.mime,
-        eTag = node.etag,
-        metaHash = node.metaHash,
-        name = node.name,
-        sortName = node.sortName ?: node.name,
-        size = node.size,
-        remoteModTs = node.remoteModificationTS,
-        lastCheckTS = node.lastCheckTS,
-        localModeTS = node.localModificationTS,
-        localModStatus = node.localModificationStatus,
-        hasThumb = node.hasThumb(),
-        isFolder = node.isFolder(),
-        isRecycle = node.isRecycle(),
-        isWsRoot = node.isWorkspaceRoot(),
-        isBookmarked = node.isBookmarked(),
-        isOfflineRoot = node.isOfflineRoot(),
-        isShared = node.isShared()
-    )
-
-    if (newItem.isWsRoot) {
-        nodeService.getWorkspace(node.getStateID().workspace())?.let {
-            newItem.desc = it.description
-        }
-    }
-
-    // TODO also update dirty status for this item at this point (typically mod status is too old)
-    //   Also we might directly store the real File object in the item at this point
-    if (node.isFolder() && node.lastCheckTS > 0) {
-        newItem.isCached = true
-    } else {
-        nodeService.getLocalFile(node, true).first?.let {
-            if (it.exists()) {
-                newItem.isCached = true
-            }
-        }
-    }
-    return newItem
-}
+//suspend fun toTreeNodeItem(
+//    node: RTreeNode,
+//    nodeService: NodeService
+//): TreeNodeItem {
+//    val newItem = TreeNodeItem(
+//        stateID = node.getStateID(),
+//        uuid = node.uuid,
+//        mime = node.mime,
+//        eTag = node.etag,
+//        metaHash = node.metaHash,
+//        name = node.name,
+//        sortName = node.sortName ?: node.name,
+//        size = node.size,
+//        remoteModTs = node.remoteModificationTS,
+//        lastCheckTS = node.lastCheckTS,
+//        localModeTS = node.localModificationTS,
+//        localModStatus = node.localModificationStatus,
+//        hasThumb = node.hasThumb(),
+//        isFolder = node.isFolder(),
+//        isRecycle = node.isRecycle(),
+//        isWsRoot = node.isWorkspaceRoot(),
+//        isBookmarked = node.isBookmarked(),
+//        isOfflineRoot = node.isOfflineRoot(),
+//        isShared = node.isShared()
+//    )
+//
+//    if (newItem.isWsRoot) {
+//        nodeService.getWorkspace(node.getStateID().workspace())?.let {
+//            newItem.desc = it.description
+//        }
+//    }
+//
+//    // TODO also update dirty status for this item at this point (typically mod status is too old)
+//    //   Also we might directly store the real File object in the item at this point
+//    if (node.isFolder() && node.lastCheckTS > 0) {
+//        newItem.isCached = true
+//    } else {
+//        nodeService.getLocalFile(node, true).first?.let {
+//            if (it.exists()) {
+//                newItem.isCached = true
+//            }
+//        }
+//    }
+//    return newItem
+//}

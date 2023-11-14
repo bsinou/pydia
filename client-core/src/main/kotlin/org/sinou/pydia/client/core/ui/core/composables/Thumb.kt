@@ -22,7 +22,7 @@ import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.ui.theme.CellsColor
 import org.sinou.pydia.client.core.ui.theme.CellsIcons
 
-private const val logTag = "Thumb.kt"
+private const val LOG_TAG = "Thumb.kt"
 
 enum class Type {
     AUTH, JOB
@@ -78,7 +78,7 @@ private fun JobDecorator(status: String, modifier: Modifier) {
         JobStatus.ERROR.id -> CellsIcons.ErrorDecorator
         JobStatus.DONE.id -> CellsIcons.Check
         else -> {
-            Log.e(logTag, "Adding unknown decorator for status $status")
+            Log.e(LOG_TAG, "Adding unknown decorator for status $status")
             CellsIcons.Unknown
         }
     }

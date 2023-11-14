@@ -52,6 +52,8 @@ interface SdkNames {
         const val NODE_PROPERTY_UID = "uuid"
         const val NODE_PROPERTY_SHARE_UUID = "share_uuid"
 
+
+        // TODO these values are used to parse Cells Legacy Registry
         const val WORKSPACE_PROPERTY_ID = "id"
         const val WORKSPACE_DESCRIPTION = "description"
         const val WORKSPACE_PROPERTY_SLUG = "repositorySlug"

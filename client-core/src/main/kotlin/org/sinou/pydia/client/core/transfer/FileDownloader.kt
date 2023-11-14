@@ -3,7 +3,6 @@ package org.sinou.pydia.client.core.transfer
 import android.util.Log
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.services.JobService
-import org.sinou.pydia.client.core.services.TransferService
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.StateID
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +27,7 @@ class FileDownloader(
     private val logTag = "FileDownloader"
 
     private val jobService: JobService by inject()
-    private val transferService: TransferService by inject()
+    // private val transferService: TransferService by inject()
 
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
@@ -51,18 +50,18 @@ class FileDownloader(
     private var isFailed = false
 
     /** Enqueue a new download */
-    suspend fun orderDL(encodedState: String, type: String, sizeInBytes: Long = 0L) {
-        Log.d(logTag, "DL $type for $encodedState")
-        totalChannel.send(
-            when {
-                sizeInBytes > 0 -> sizeInBytes
-                type == AppNames.LOCAL_FILE_TYPE_THUMB -> TransferService.thumbSize
-                type == AppNames.LOCAL_FILE_TYPE_PREVIEW -> TransferService.previewSize
-                else -> 0L // This should never happen
-            }
-        )
-        queue.send(encodeModel(encodedState, type))
-    }
+//    suspend fun orderDL(encodedState: String, type: String, sizeInBytes: Long = 0L) {
+//        Log.d(logTag, "DL $type for $encodedState")
+//        totalChannel.send(
+//            when {
+//                sizeInBytes > 0 -> sizeInBytes
+//                type == AppNames.LOCAL_FILE_TYPE_THUMB -> TransferService.thumbSize
+//                type == AppNames.LOCAL_FILE_TYPE_PREVIEW -> TransferService.previewSize
+//                else -> 0L // This should never happen
+//            }
+//        )
+//        queue.send(encodeModel(encodedState, type))
+//    }
 
     /** Inform the downloader that no more downloads are to be done */
     suspend fun walkingDone() {
@@ -112,7 +111,7 @@ class FileDownloader(
         val (stateId, type) = decodeModel(encoded)
         try {
             jobService.incrementProgress(parentJobID, 0, stateId.fileName)
-            transferService.getFileForDiff(stateId, type, parentJobID, progressChannel)
+//            transferService.getFileForDiff(stateId, type, parentJobID, progressChannel)
         } catch (e: SDKException) {
             val errMsg = "could not download $type for $stateId, error #${e.code}: ${e.message}"
             Log.w(logTag, errMsg)
@@ -179,18 +178,18 @@ class FileDownloader(
         for (msg in doneChannel) {
             Log.i(logTag, "Finished Walking the queue, waiting for the download to happen...")
             val waiter = dlScope.launch {
-                var running = true
-                while (this.isActive && running) {
-                    delay(10000L)
-                    val rTransfers =
-                        transferService.getRunningTransfersForJob(stateID.account(), parentJobID)
-                    running = rTransfers.isNotEmpty()
-                    Log.d(
-                        logTag,
-                        "... Still waiting for the DL for JobID #${parentJobID}, we still have ${rTransfers.size} running transfers"
-                    )
-                }
-                Log.i(logTag, "Finished processing the queue, exiting...")
+//                var running = true
+//                while (this.isActive && running) {
+//                    delay(10000L)
+//                    val rTransfers =
+//                        transferService.getRunningTransfersForJob(stateID.account(), parentJobID)
+//                    running = rTransfers.isNotEmpty()
+//                    Log.d(
+//                        logTag,
+//                        "... Still waiting for the DL for JobID #${parentJobID}, we still have ${rTransfers.size} running transfers"
+//                    )
+//                }
+//                Log.i(logTag, "Finished processing the queue, exiting...")
                 finalizeJob()
                 queue.close()
                 doneChannel.close()

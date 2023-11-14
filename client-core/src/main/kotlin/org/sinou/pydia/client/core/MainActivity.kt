@@ -29,7 +29,6 @@ import org.sinou.pydia.client.core.ui.StartingState
 import org.sinou.pydia.client.core.ui.core.nav.CellsDestinations
 import org.sinou.pydia.client.core.ui.core.screens.WhiteScreen
 import org.sinou.pydia.client.core.ui.login.LoginDestinations
-import org.sinou.pydia.client.core.ui.share.ShareDestination
 import org.sinou.pydia.client.core.ui.system.models.LandingVM
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
@@ -281,28 +280,28 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            Intent.ACTION_SEND == intent.action -> {
-                val clipData = intent.clipData
-                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
-                clipData?.let {
-                    startingState.route = ShareDestination.ChooseAccount.route
-                    clipData.getItemAt(0).uri?.let {
-                        startingState.uris.add(it)
-                    }
-                }
-            }
-
-            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
-                val tmpClipData = intent.clipData
-                tmpClipData?.let { clipData ->
-                    startingState.route = ShareDestination.ChooseAccount.route
-                    for (i in 0 until clipData.itemCount) {
-                        clipData.getItemAt(i).uri?.let {
-                            startingState.uris.add(it)
-                        }
-                    }
-                }
-            }
+//            Intent.ACTION_SEND == intent.action -> {
+//                val clipData = intent.clipData
+//                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
+//                clipData?.let {
+//                    startingState.route = ShareDestination.ChooseAccount.route
+//                    clipData.getItemAt(0).uri?.let {
+//                        startingState.uris.add(it)
+//                    }
+//                }
+//            }
+//
+//            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
+//                val tmpClipData = intent.clipData
+//                tmpClipData?.let { clipData ->
+//                    startingState.route = ShareDestination.ChooseAccount.route
+//                    for (i in 0 until clipData.itemCount) {
+//                        clipData.getItemAt(i).uri?.let {
+//                            startingState.uris.add(it)
+//                        }
+//                    }
+//                }
+//            }
 
             else -> {
                 val action = intent.action

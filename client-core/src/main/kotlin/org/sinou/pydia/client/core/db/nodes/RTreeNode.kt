@@ -7,9 +7,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.db.CellsConverters
-import org.sinou.pydia.client.core.utils.getMimeType
 import org.sinou.pydia.sdk.api.SdkNames
-import org.sinou.pydia.sdk.api.ui.FileNode
 import org.sinou.pydia.sdk.api.ui.WorkspaceNode
 import org.sinou.pydia.sdk.transport.StateID
 import org.sinou.pydia.sdk.utils.Str
@@ -109,21 +107,21 @@ data class RTreeNode(
         return flags and flag == flag
     }
 
-    fun toFileNode(): FileNode {
-        // TODO double check: we might drop some info that we have missed on first draft implementation
-        //   Rather directly use the properties
-        val fn = FileNode()
-        fn.setProperty(SdkNames.NODE_PROPERTY_UID, uuid)
-        fn.setProperty(SdkNames.NODE_PROPERTY_ETAG, etag)
-        fn.setProperty(SdkNames.NODE_PROPERTY_MTIME, "$remoteModificationTS")
-        fn.setProperty(SdkNames.NODE_PROPERTY_PATH, getStateID().path)
-        fn.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, workspace)
-        fn.setProperty(SdkNames.NODE_PROPERTY_FILENAME, name)
-        fn.setProperty(SdkNames.NODE_PROPERTY_IS_FILE, "${isFile()}")
-        fn.setProperty(SdkNames.NODE_PROPERTY_MIME, mime)
-        fn.setProperty(SdkNames.NODE_PROPERTY_BYTESIZE, "$size")
-        return fn
-    }
+//    fun toFileNode(): FileNode {
+//        // TODO double check: we might drop some info that we have missed on first draft implementation
+//        //   Rather directly use the properties
+//        val fn = FileNode()
+//        fn.setProperty(SdkNames.NODE_PROPERTY_UID, uuid)
+//        fn.setProperty(SdkNames.NODE_PROPERTY_ETAG, etag)
+//        fn.setProperty(SdkNames.NODE_PROPERTY_MTIME, "$remoteModificationTS")
+//        fn.setProperty(SdkNames.NODE_PROPERTY_PATH, getStateID().path)
+//        fn.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, workspace)
+//        fn.setProperty(SdkNames.NODE_PROPERTY_FILENAME, name)
+//        fn.setProperty(SdkNames.NODE_PROPERTY_IS_FILE, "${isFile()}")
+//        fn.setProperty(SdkNames.NODE_PROPERTY_MIME, mime)
+//        fn.setProperty(SdkNames.NODE_PROPERTY_BYTESIZE, "$size")
+//        return fn
+//    }
 
     companion object {
         private const val logTag = "RTreeNode"
@@ -133,67 +131,67 @@ data class RTreeNode(
          * we do not have the parent ID. But any node with the same accountID is OK.
          * @param fileNode the newly retrieved node
          */
-        fun fromFileNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-
-            throw RuntimeException("TODO re-implement without FileNode legacy layer")
-
-//            // Construct the path from file node info
-//            val childStateID = StateID.safeFromId(stateID.accountId)
-//                .withPath("/${fileNode.workspace}${fileNode.path}")
-//            // Log.d(logTag, "... fromFileNode $childStateID")
+//        fun fromFileNode(stateID: StateID, fileNode: FileNode): RTreeNode {
 //
-//            try {
-//                val node = RTreeNode(
-//                    encodedState = childStateID.id,
-//                    workspace = childStateID.slug,
-//                    parentPath = childStateID.parentFile ?: "",
-//                    name = childStateID.fileName ?: run {
-//                        Log.e(logTag, "Using slug instead of filename")
-//                        childStateID.slug
-//                    },
-//                    uuid = fileNode.id,
-//                    etag = fileNode.eTag,
-//                    mime = fileNode.mimeType,
-//                    size = fileNode.size,
-//                    remoteModificationTS = fileNode.lastModified,
-//                    properties = fileNode.properties,
-//                    meta = fileNode.meta ?: Properties(),
-//                    metaHash = fileNode.metaHashCode
-//                )
+//            throw RuntimeException("TODO re-implement without FileNode legacy layer")
 //
-//                // Share and offline cache values are rather handled in the NodeService directly
-//                node.setBookmarked(fileNode.isBookmark)
-//                node.setHasThumb(fileNode.hasThumb())
-//                node.setPreViewable(fileNode.isPreViewable)
-//
-//                // Use Android library to precise MimeType when possible
-//                if (SdkNames.NODE_MIME_DEFAULT == node.mime) {
-//                    node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
-//                }
-//
-//                node.sortName = when (node.mime) {
-//                    SdkNames.NODE_MIME_WS_ROOT -> "1_${node.name}"
-//                    SdkNames.NODE_MIME_FOLDER -> "3_${node.name}"
-//                    SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
-//                    else -> "5_${node.name}"
-//                }
-//                return node
-//
-//            } catch (e: java.lang.Exception) {
-//                Log.e(logTag, "could not create RTreeNode for ${childStateID}: ${e.message}")
-//                throw e
-//            }
-        }
+////            // Construct the path from file node info
+////            val childStateID = StateID.safeFromId(stateID.accountId)
+////                .withPath("/${fileNode.workspace}${fileNode.path}")
+////            // Log.d(logTag, "... fromFileNode $childStateID")
+////
+////            try {
+////                val node = RTreeNode(
+////                    encodedState = childStateID.id,
+////                    workspace = childStateID.slug,
+////                    parentPath = childStateID.parentFile ?: "",
+////                    name = childStateID.fileName ?: run {
+////                        Log.e(logTag, "Using slug instead of filename")
+////                        childStateID.slug
+////                    },
+////                    uuid = fileNode.id,
+////                    etag = fileNode.eTag,
+////                    mime = fileNode.mimeType,
+////                    size = fileNode.size,
+////                    remoteModificationTS = fileNode.lastModified,
+////                    properties = fileNode.properties,
+////                    meta = fileNode.meta ?: Properties(),
+////                    metaHash = fileNode.metaHashCode
+////                )
+////
+////                // Share and offline cache values are rather handled in the NodeService directly
+////                node.setBookmarked(fileNode.isBookmark)
+////                node.setHasThumb(fileNode.hasThumb())
+////                node.setPreViewable(fileNode.isPreViewable)
+////
+////                // Use Android library to precise MimeType when possible
+////                if (SdkNames.NODE_MIME_DEFAULT == node.mime) {
+////                    node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
+////                }
+////
+////                node.sortName = when (node.mime) {
+////                    SdkNames.NODE_MIME_WS_ROOT -> "1_${node.name}"
+////                    SdkNames.NODE_MIME_FOLDER -> "3_${node.name}"
+////                    SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
+////                    else -> "5_${node.name}"
+////                }
+////                return node
+////
+////            } catch (e: java.lang.Exception) {
+////                Log.e(logTag, "could not create RTreeNode for ${childStateID}: ${e.message}")
+////                throw e
+////            }
+//        }
 
         fun fromWorkspaceNode(stateID: StateID, node: WorkspaceNode): RTreeNode {
             try {
                 val currSortName = when (node.workspaceType) {
-                    SdkNames.WS_TYPE_PERSONAL -> "1_2_${node.name}"
-                    SdkNames.WS_TYPE_CELL -> "1_8_${node.name}"
-                    else -> "1_5_${node.name}"
+                    SdkNames.WS_TYPE_PERSONAL -> "1_2_${node.label}"
+                    SdkNames.WS_TYPE_CELL -> "1_8_${node.label}"
+                    else -> "1_5_${node.label}"
                 }
 
-                val nodeUuid = if (Str.notEmpty(node.id)) node.id else node.slug
+//                val nodeUuid = if (Str.notEmpty(node.id)) node.id else node.slug
 
                 val storedID = // Retrieve the account from the passed state
                     StateID.safeFromId(stateID.accountId).withPath("/${node.slug}")

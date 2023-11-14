@@ -25,9 +25,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.services.ConnectionService
-import org.sinou.pydia.client.core.ui.browse.BrowseNavigationActions
 import org.sinou.pydia.client.core.ui.core.composables.WithInternetBanner
 import org.sinou.pydia.client.core.ui.core.lazyStateID
 import org.sinou.pydia.client.core.ui.core.nav.AppDrawer
@@ -36,9 +38,6 @@ import org.sinou.pydia.client.core.ui.core.nav.CellsNavigationActions
 import org.sinou.pydia.client.core.ui.system.SystemNavigationActions
 import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
 import org.sinou.pydia.sdk.transport.StateID
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 
 private const val LOG_TAG = "WithDrawer.kt"
 
@@ -57,9 +56,11 @@ fun NavHostWithDrawer(
     val cellsNavActions = remember(mainNavController) {
         CellsNavigationActions(mainNavController)
     }
-    val browseNavActions = remember(mainNavController) {
-        BrowseNavigationActions(mainNavController)
-    }
+
+//    val browseNavActions = remember(mainNavController) {
+//        BrowseNavigationActions(mainNavController)
+//    }
+
     val systemNavActions = remember(mainNavController) {
         SystemNavigationActions(mainNavController)
     }
@@ -128,7 +129,7 @@ fun NavHostWithDrawer(
                     connectionService = connectionService,
                     cellsNavActions = cellsNavActions,
                     systemNavActions = systemNavActions,
-                    browseNavActions = browseNavActions,
+//                    browseNavActions = browseNavActions,
                 )
             },
             drawerState = sizeAwareDrawerState,
@@ -143,7 +144,7 @@ fun NavHostWithDrawer(
                         connectionService = connectionService,
                         cellsNavActions = cellsNavActions,
                         systemNavActions = systemNavActions,
-                        browseNavActions = browseNavActions,
+//                        browseNavActions = browseNavActions,
                     )
                 }
                 WithInternetBanner(

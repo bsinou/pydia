@@ -3,7 +3,6 @@ package org.sinou.pydia.client.core.transfer.glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.DataFetcher
-import org.sinou.pydia.client.core.services.TransferService
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.utils.Log
@@ -37,16 +36,16 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
 
-    private val transferService: TransferService by inject()
+//    private val transferService: TransferService by inject()
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in ByteBuffer>) {
         dlScope.launch {
             val (stateId, type) = decodeModel(model)
             try {
-                val file = transferService.getImageForDisplay(stateId, type, -1)
-                val bytes = file.readBytes()
-                val byteBuffer = ByteBuffer.wrap(bytes)
-                callback.onDataReady(byteBuffer)
+//                val file = transferService.getImageForDisplay(stateId, type, -1)
+//                val bytes = file.readBytes()
+//                val byteBuffer = ByteBuffer.wrap(bytes)
+//                callback.onDataReady(byteBuffer)
             } catch (se: SDKException) {
                 Log.e(logTag, "could not get $type at $stateId: ${se.message}")
                 callback.onLoadFailed(

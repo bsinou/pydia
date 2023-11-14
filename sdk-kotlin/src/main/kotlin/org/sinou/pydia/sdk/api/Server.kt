@@ -40,7 +40,9 @@ interface Server {
 
 //    val remoteType: String?
 //    val isLegacy: Boolean
+
     val oAuthConfig: OAuthConfig?
+
     val isSSLUnverified: Boolean
         get() = serverURL.skipVerify()
     val label: String?

@@ -32,7 +32,7 @@ fun CellsNavGraph(
     launchTaskFor: (String, StateID) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     loginVM: LoginVM = koinViewModel(),
-    browseRemoteVM: BrowseRemoteVM = koinViewModel()
+//     browseRemoteVM: BrowseRemoteVM = koinViewModel()
 ) {
 
     val logTag = "CellsNavGraph"

@@ -2,9 +2,9 @@ package org.sinou.pydia.client.core.services
 
 import android.net.Uri
 import android.util.Log
+import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.core.db.auth.AuthDB
 import org.sinou.pydia.client.core.db.auth.ROAuthState
-import org.sinou.pydia.client.core.utils.AndroidCustomEncoder
 import org.sinou.pydia.client.core.utils.currentTimestamp
 import org.sinou.pydia.sdk.api.CustomEncoder
 import org.sinou.pydia.sdk.api.SDKException
@@ -16,7 +16,6 @@ import org.sinou.pydia.sdk.transport.auth.Token
 import org.sinou.pydia.sdk.transport.auth.credentials.JWTCredentials
 import org.sinou.pydia.sdk.transport.auth.jwt.IdToken
 import org.sinou.pydia.sdk.transport.auth.jwt.OAuthConfig
-import kotlinx.coroutines.withContext
 import java.util.*
 
 class AuthService(
@@ -30,7 +29,8 @@ class AuthService(
     private val authStateDao = authDB.authStateDao()
 
     private val logTag = "AuthService"
-    private val encoder: CustomEncoder = org.sinou.pydia.client.core.utils.AndroidCustomEncoder()
+    private val encoder: CustomEncoder? =
+        null //  = org.sinou.pydia.client.core.utils.AndroidCustomEncoder()
 
     companion object {
         const val LOGIN_CONTEXT_CREATE = "new_account"

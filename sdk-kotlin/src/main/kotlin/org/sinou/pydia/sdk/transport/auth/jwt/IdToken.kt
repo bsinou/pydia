@@ -11,7 +11,9 @@ class IdToken {
 
     companion object {
         @Throws(ParseException::class)
-        fun parse(decoder: CustomEncoder, strJwt: String): IdToken {
+        fun parse(cd: CustomEncoder?, strJwt: String): IdToken {
+            val decoder = cd ?: throw IllegalArgumentException("cannot be null")
+
             val parts = strJwt.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             if (parts.size != 3) {
                 throw ParseException("IdToken string cannot be parsed in 3 parts as expected", -1)

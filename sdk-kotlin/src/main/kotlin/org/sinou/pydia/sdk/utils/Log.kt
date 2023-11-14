@@ -10,6 +10,7 @@ object Log {
     // Temporary tags
     const val TAG_SDK = "CELLS/SDK"
     private var logger: Logger? = null
+
     fun setLogger(l: Logger?) {
         logger = l
     }

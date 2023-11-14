@@ -34,7 +34,7 @@ class PydiaSimpleApp : Application(), KoinComponent {
 
     override fun onCreate() {
 
-        setLogger()
+        // setLogger()
 
         // FIXME it seems we have some leaks and some not correctly tagged sockets
         // Enable resource leak tracking during dev when the "A resource failed to call xxx" message shows up

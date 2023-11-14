@@ -97,10 +97,10 @@ object Log {
     }
 
     interface Logger {
-        fun e(tag: String?, text: String?)
-        fun i(tag: String?, text: String?)
-        fun v(tag: String?, text: String?)
-        fun d(tag: String?, text: String?)
-        fun w(tag: String?, text: String?)
+        fun e(tag: String, text: String)
+        fun i(tag: String, text: String)
+        fun v(tag: String, text: String)
+        fun d(tag: String, text: String)
+        fun w(tag: String, text: String)
     }
 }

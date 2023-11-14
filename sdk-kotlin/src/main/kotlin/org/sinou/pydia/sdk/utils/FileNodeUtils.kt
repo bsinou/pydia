@@ -71,17 +71,13 @@ object FileNodeUtils {
         fileNode.setProperty(SdkNames.NODE_PROPERTY_IS_FILE, isFile.toString())
 
         // Mime based on remote info
-        val type: String?
-        type = if (isFile) {
+        val type = if (isFile) {
             // This needs API level 24
             // type = meta.getOrDefault(SdkNames.NODE_PROPERTY_MIME, SdkNames.NODE_MIME_DEFAULT);
-            if (meta.containsKey(SdkNames.NODE_PROPERTY_MIME)) {
-                extractJSONString(meta[SdkNames.NODE_PROPERTY_MIME])
-            } else {
-                // Log.e(logTag, "No mime found for " + path);
-                // TODO rather leave this at null?
-                SdkNames.NODE_MIME_DEFAULT
-            }
+            (meta[SdkNames.NODE_PROPERTY_MIME] as? String)?.let {
+                extractJSONString(it)
+            } ?: SdkNames.NODE_MIME_DEFAULT                 // TODO rather leave this at null?
+
         } else {
             if (SdkNames.RECYCLE_BIN_NAME == name) {
                 SdkNames.NODE_MIME_RECYCLE
@@ -150,12 +146,12 @@ object FileNodeUtils {
      * - have leading and trailing double quotes
      * - is shorter than 3 characters
      */
-    fun extractJSONString(jsonStr: String?): String? {
-        var jsonStr = jsonStr
-        if (jsonStr!!.length > 2 && jsonStr.startsWith("\"") && jsonStr.endsWith("\"")) {
-            jsonStr = jsonStr.substring(1, jsonStr.length - 1)
+    fun extractJSONString(jsonStr: String): String {
+        var tmp = jsonStr
+        if (tmp.length > 2 && tmp.startsWith("\"") && tmp.endsWith("\"")) {
+            tmp = tmp.substring(1, tmp.length - 1)
         }
-        return jsonStr
+        return tmp
     }
 
     fun getNameFromPath(path: String): String {

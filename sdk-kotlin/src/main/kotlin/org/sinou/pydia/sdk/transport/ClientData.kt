@@ -12,9 +12,7 @@ class ClientData {
     var packageID = ""
     var name = DEFAULT_APP_NAME
     var label = DEFAULT_APP_LABEL
-    var clientId = SdkNames.DEFAULT_CLIENT_ID
-        get() = field
-        set
+    var clientID = SdkNames.DEFAULT_CLIENT_ID
 
     var clientSecret = SdkNames.DEFAULT_CLIENT_SECRET
     var versionCode: Long = 1

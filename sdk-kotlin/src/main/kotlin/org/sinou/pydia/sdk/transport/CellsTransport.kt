@@ -255,12 +255,12 @@ class CellsTransport(
         authInfo["password"] = credentials.getPassword()
         authInfo["type"] = "credentials"
         val cd = ClientData.getInstance()
-        authInfo["client_id"] = cd.clientId
+        authInfo["client_id"] = cd.clientID
         if (cd.clientSecret.isNotEmpty()) {
             // This additional header is only used for "private" clients and not used with
             // default standard clients that have no client secret
             val authHeader = ("Basic "
-                    + encoder.base64Encode(cd.clientId + ":" + cd.clientSecret))
+                    + encoder.base64Encode(cd.clientID + ":" + cd.clientSecret))
             authInfo["Authorization"] = authHeader
         }
         val request = RestFrontSessionRequest(
@@ -303,7 +303,7 @@ class CellsTransport(
             authData["code"] = code
             authData["redirect_uri"] = cfg.redirectURI
             val cd = ClientData.getInstance()
-            authData["client_id"] = cd.clientId
+            authData["client_id"] = cd.clientID
             if (cd.clientSecret.isNotEmpty()) {
                 authData["client_secret"] = cd.clientSecret
             }
@@ -337,7 +337,7 @@ class CellsTransport(
             authData["grant_type"] = "refresh_token"
             authData["refresh_token"] = refreshToken
             val cd = ClientData.getInstance()
-            authData["client_id"] = cd.clientId
+            authData["client_id"] = cd.clientID
             if (cd.clientSecret.isNotEmpty()) {
                 authData["client_secret"] = cd.clientSecret
             }

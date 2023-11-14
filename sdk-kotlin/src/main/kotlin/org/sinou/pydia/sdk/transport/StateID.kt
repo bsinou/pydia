@@ -1,6 +1,8 @@
 package org.sinou.pydia.sdk.transport
 
+import org.sinou.pydia.sdk.api.Transport
 import org.sinou.pydia.sdk.utils.Log
+import org.sinou.pydia.sdk.utils.PathUtils
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.net.URLDecoder
@@ -16,7 +18,7 @@ import java.net.URLEncoder
 class StateID {
 
     val username: String?
-    private val serverUrl: String
+    val serverUrl: String
     val path: String?
 
     constructor(serverUrl: String) {
@@ -52,11 +54,20 @@ class StateID {
     val accountId: String
         get() {
             val builder = StringBuilder()
-            username?.let{
+            username?.let {
                 builder.append(utf8Encode(it)).append("@")
             }
             builder.append(utf8Encode(serverUrl))
             return builder.toString()
+        }
+
+    fun account(): StateID {
+        return safeFromId(accountId)
+    }
+
+    val slug: String?
+        get() {
+            return PathUtils.getWorkspace(path)
         }
 
     val serverHost: String
@@ -170,6 +181,7 @@ class StateID {
 
     companion object {
         private const val logTag = "StateID"
+        val NONE = StateID(Transport.UNDEFINED_URL)
 
         /**
          * Simply creates a StateID object from its *encoded* string representation.
@@ -208,6 +220,35 @@ class StateID {
             }
             return StateID(username, host, path)
         }
+
+        fun safeFromId(stateId: String): StateID {
+            if (stateId.isEmpty()) {
+                throw IllegalArgumentException("Passed stateID cannot be empty")
+            }
+
+            var username: String? = null
+            val host: String
+            var path: String? = null
+            val parts = stateId.split("@".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            when (parts.size) {
+                1 -> host = utf8Decode(parts[0])
+                2 -> {
+                    username = utf8Decode(parts[0])
+                    host = utf8Decode(parts[1])
+                }
+
+                3 -> {
+                    username = utf8Decode(parts[0])
+                    host = utf8Decode(parts[1])
+                    path = utf8Decode(parts[2])
+                }
+
+                else -> {
+                    throw IllegalArgumentException("Cannot parse: $stateId (found ${parts.size} parts)")
+                }
+            }
+            return StateID(username, host, path)
+       }
 
         // TODO find a elegant way to rather inject the CustomEncoder.
         //   Not perfect: Might have side effects when switching from plain Java to Android

@@ -2,6 +2,7 @@ plugins {
     // Build kotlin project
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin-kapt'
 
     // Publish the generated resources as Maven Artifacts
     // See: https://docs.gradle.org/5.0/userguide/publishing_overview.html#publishing_overview
@@ -43,36 +44,36 @@ compileTestKotlin {
     }
 }
 
-publishing {
-    publications {
-        CellsSdk(MavenPublication) {
-            from components.java
-            groupId 'org.sinou.pydia'
-            artifactId 'sdk-kotlin'
-            version = sdkKotlinVersion
+//publishing {
+//    publications {
+//        CellsSdk(MavenPublication) {
+//            from components.java
+//            groupId 'org.sinou.pydia'
+//            artifactId 'sdk-kotlin'
+//            version = sdkKotlinVersion
+//
+//            pom.withXml {
+//                def root = asNode()
+//                root.appendNode('description', 'Provide base java libraries to communicate with the Pydio Cells stack')
+//                root.appendNode('name', 'Cells SDK for Java')
+//                root.appendNode('url', 'https://pydio.com')
+//
+//                root.children().last() + rootProject.getBasePom(sdkJavaRepoURL)
+//            }
+//        }
+//    }
+//}
 
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('description', 'Provide base java libraries to communicate with the Pydio Cells stack')
-                root.appendNode('name', 'Cells SDK for Java')
-                root.appendNode('url', 'https://pydio.com')
-
-                root.children().last() + rootProject.getBasePom(sdkJavaRepoURL)
-            }
-        }
-    }
-}
-
-jar {
-    manifest {
-        attributes('Specification-Title': 'Cells SDK for Kotlin',
-                'Specification-Version': sdkSwaggerSpecVersion,
-                'Specification-Vendor': vendorName,
-                'Implementation-Title': artifactID,
-                'Implementation-Vendor': vendorName,
-                'Implementation-Version': sdkKotlinVersion)
-    }
-}
+//jar {
+//    manifest {
+//        attributes('Specification-Title': 'Cells SDK for Kotlin',
+//                'Specification-Version': sdkSwaggerSpecVersion,
+//                'Specification-Vendor': vendorName,
+//                'Implementation-Title': artifactID,
+//                'Implementation-Vendor': vendorName,
+//                'Implementation-Version': sdkKotlinVersion)
+//    }
+//}
 
 dependencies {
 

@@ -100,7 +100,7 @@ open class ServerFactory(
      *
      * @param id can be a server URL or an encoded account id (including the username)
      */
-    fun getServer(id: String): Server? {
+    open fun getServer(id: String): Server? {
         val stateID = StateID.fromId(id)
         return serverStore[stateID!!.accountId]
     }

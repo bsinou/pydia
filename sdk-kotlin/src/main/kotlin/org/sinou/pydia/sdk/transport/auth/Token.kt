@@ -10,12 +10,15 @@ class Token {
     var subject: String? = null
 
     // value is the real useful token => access_token in OAuth2
+    // TODO check model. Should value and token type be nullable here?
     var value: String? = null
+    var tokenType: String? = null
 
     // idToken contains encoded information about current session, typically the claims
     var idToken: String? = null
     var scope: String? = null
-    var tokenType: String? = null
+
+
     var refreshToken: String? = null
     var expiresIn: Long = 0
     var expirationTime: Long = 0

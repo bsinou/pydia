@@ -6,21 +6,10 @@
     <!-- See  https://developer.android.com/develop/ui/views/launch/splash-screen
          and   https://developer.android.com/develop/ui/views/launch/splash-screen/migrate -->
     <style name="CellsTheme.SplashScreen" parent="Theme.SplashScreen">
-
         <!-- Theme that must be applied once the app has started -->
         <item name="postSplashScreenTheme">@style/CellsTheme</item>
-
         <!-- The logo -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon</item>
-        
-        <!-- unused for the time being -->
-        <!-- the background for the splash icon, must be used with parent="Theme.SplashScreen.IconBackground"  -->
-        <!--        <item name="windowSplashScreenIconBackgroundColor">@color/cells_primary</item>-->
-        <!-- Configure a custom duration for the splash icon animation -->
-        <!--        <item name="windowSplashScreenAnimationDuration">1000</item>-->
-        <!-- Background for the full splash page -->
-        <!--        <item name="windowSplashScreenBackground">@color/cells_primary</item>-->
-
     </style>
 
 </resources>

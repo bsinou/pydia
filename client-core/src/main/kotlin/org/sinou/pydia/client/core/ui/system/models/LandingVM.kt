@@ -4,8 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.sinou.pydia.client.core.db.runtime.RuntimeDB
 import org.sinou.pydia.client.core.services.AccountService
 import org.sinou.pydia.client.core.services.AuthService
+import org.sinou.pydia.client.core.services.CoroutineService
 import org.sinou.pydia.client.core.services.JobService
 import org.sinou.pydia.client.core.services.PreferencesService
 import org.sinou.pydia.client.core.ui.Destinations
@@ -18,12 +21,15 @@ import kotlin.properties.Delegates
 
 class LandingVM(
     private val prefs: PreferencesService,
+    coroutineService: CoroutineService,
     private val jobService: JobService,
     private val authService: AuthService,
     private val accountService: AccountService,
 ) : ViewModel() {
 
     private val logTag = "LandingVM"
+    private val ioDispatcher = coroutineService.ioDispatcher
+
     private var oldVersion by Delegates.notNull<Int>()
     private val newVersion = ClientData.getInstance().versionCode.toInt()
 
@@ -62,12 +68,11 @@ class LandingVM(
     }
 
     suspend fun getStartingState(): StartingState {
-        val stateID: StateID?
         // TODO get latest known state from preferences and navigate to it
 
         // Fallback on defined accounts:
-        val sessions = accountService.listSessionViews(true)
-        stateID = when (sessions.size) {
+        val sessions = accountService.listSessionViews()
+        val stateID  = when (sessions.size) {
             0 -> null
             1 -> sessions[0].getStateID()
             else -> {

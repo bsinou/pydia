@@ -53,12 +53,11 @@ class AuthService(
         loginContext: String
     ): Uri? = withContext(ioDispatcher) {
         try {
-            val serverID = StateID(url.id).id
 
-            val server = sessionFactory.getServer(serverID)
+            val server = sessionFactory.getServer(url.getStateID())
             // TODO Do we want to try to re-register the server when it is unknown from the SessionFactory
                 ?: let {
-                    Log.e(logTag, "could not get server $serverID  with url ${url.id}")
+                    Log.e(logTag, "could not get server with url ${url.getStateID()}")
                     return@withContext null
                 }
 
@@ -113,7 +112,7 @@ class AuthService(
             Log.i(logTag, "... Handling state ${rState.state} for ${rState.serverURL.url}")
 
             val transport = sessionFactory
-                .getAnonymousTransport(rState.serverURL.id) as CellsTransport
+                .getAnonymousTransport(rState.serverURL.getStateID()) as CellsTransport
             val token = transport.getTokenFromCode(code, encoder)
             accountID = manageRetrievedToken(accountService, transport, token)
             Log.e(logTag, "... Token managed. Next action: ${rState.next}")

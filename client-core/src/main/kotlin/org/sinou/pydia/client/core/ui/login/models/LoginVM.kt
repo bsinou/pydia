@@ -54,13 +54,14 @@ class LoginVM(
         }
     }
 
+    /**
+     * Returns the next route to navigate to or null if we want to stay on the page
+     */
     suspend fun pingAddress(url: String, skipVerify: Boolean): String? {
-        val res = processAddress(url, skipVerify)
-        // TODO check this
-        if (res?.isNotEmpty() == true) {
-            _message.value = ""
+        return processAddress(url, skipVerify).also {
+            if (!it.isNullOrEmpty())
+                _message.value = ""
         }
-        return res
     }
 
     suspend fun confirmSkipVerifyAndPing(url: String): String? {
@@ -106,7 +107,7 @@ class LoginVM(
     /** Returns the route for the next destination if we have to move to next page */
     private suspend fun processAddress(url: String, skipVerify: Boolean): String? {
 
-        if (url.isNullOrEmpty()) {
+        if (url.isEmpty()) {
             updateErrorMsg("Server address is empty, could not proceed")
             return null
         }
@@ -146,10 +147,10 @@ class LoginVM(
     }
 
     /**
-     * Returns a ServerURL if the ping is successful or a route to navigate
-     * to the skip verify step if we got a SSL exception
+     * Returns a ServerURL if the ping is successful or a route to navigate to the skip verify step if we got a SSL exception
+     * All exception are handled locally and we should never be further thrown
      */
-    private suspend fun doPing(
+   private suspend fun doPing(
         serverAddress: String,
         skipVerify: Boolean
     ): Pair<ServerURL?, String?> {
@@ -174,10 +175,10 @@ class LoginVM(
                     )
                 )
             } catch (e: IOException) {
-                updateErrorMsg("IOException: ${e.message}")
+                updateErrorMsg("Unexpected IOException: ${e.message}")
                 e.printStackTrace()
             } catch (e: Exception) {
-                updateErrorMsg(e.message ?: "Invalid address, please update")
+                updateErrorMsg("Unexpected error for $serverAddress: ${e.message}")
                 e.printStackTrace()
             }
             Pair(newURL, null)

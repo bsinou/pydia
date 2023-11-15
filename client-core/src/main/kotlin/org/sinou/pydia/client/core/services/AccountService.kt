@@ -128,8 +128,8 @@ class AccountService(
     @Throws(SDKException::class)
     suspend fun signUp(serverURL: ServerURL, credentials: Credentials): StateID {
         sessionFactory.registerAccountCredentials(serverURL, credentials)
-        val server = sessionFactory.getServer(serverURL.id)
-            ?: throw SDKException("could not sign up: unknown server with id ${serverURL.id}")
+        val server = sessionFactory.getServer(serverURL.getStateID())
+            ?: throw SDKException("could not sign up: unknown server with id ${serverURL.getStateID()}")
         // At this point we assume we have been connected or an error has already been thrown
         return registerAccount(credentials.getUsername(), server, LoginStatus.Connected.id)
     }
@@ -160,13 +160,11 @@ class AccountService(
         workspaceDao.getWorkspace(stateID.id)
     }
 
-    suspend fun listSessionViews(includeLegacy: Boolean): List<RSessionView> =
+    suspend fun listSessionViews(): List<RSessionView> =
         withContext(ioDispatcher) {
-            return@withContext if (includeLegacy) {
-                sessionViewDao.getSessions()
-            } else {
-                sessionViewDao.getCellsSessions()
-            }
+            val views = sessionViewDao.getCellsSessions()
+         //    Log.e(logTag, "After listing, found ${views.size} session(s).")
+            views
         }
 
     /**

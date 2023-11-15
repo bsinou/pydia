@@ -24,13 +24,13 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.launch
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.ui.core.composables.FormBottomButtons
 import org.sinou.pydia.client.core.ui.core.composables.FormInput
 import org.sinou.pydia.client.core.ui.login.LoginHelper
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
-import kotlinx.coroutines.launch
 
 private const val LOG_TAG = "AskServerUrl.kt"
 
@@ -54,9 +54,9 @@ fun AskServerUrl(
 
     val doPing: (String) -> Unit = { url ->
         scope.launch {
-            val res = loginVM.pingAddress(url, false)
-            Log.e(LOG_TAG, "After ping with no SkipVerify flag, res: $res")
-            res?.let { helper.afterPing(it) }
+            val nextRoute = loginVM.pingAddress(url, false)
+            Log.e(LOG_TAG, "After ping with no SkipVerify flag, next route: $nextRoute")
+            nextRoute?.let { helper.afterPing(it) }
         }
     }
 

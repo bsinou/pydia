@@ -17,7 +17,7 @@ interface SessionViewDao {
     @Query("SELECT * FROM RSessionView")
     fun getSessions(): List<RSessionView>
 
-    @Query("SELECT * FROM RSessionView where is_legacy = 0")
+    @Query("SELECT * FROM RSessionView")
     fun getCellsSessions(): List<RSessionView>
 
     // Exposes Reactive Flows

@@ -1,5 +1,7 @@
 package org.sinou.pydia.sdk.api
 
+import org.sinou.pydia.sdk.transport.StateID
+
 interface IServerFactory {
 
     /**
@@ -21,7 +23,7 @@ interface IServerFactory {
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun registerAccountCredentials(serverURL: ServerURL, credentials: Credentials): String
+    fun registerAccountCredentials(serverURL: ServerURL, credentials: Credentials): StateID
 
     /**
      * Cleanly unregister an account, among others, this deletes the relate tokens from the token store.
@@ -30,18 +32,18 @@ interface IServerFactory {
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun unregisterAccount(accountID: String)
+    fun unregisterAccount(accountID: StateID)
 
     /**
      * Simply get a well-configured transport for this account.
      * `registerAccount()` must have been called before at least once.
      *
-     * @param accountId
+     * @param accountID
      * @return
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun getTransport(accountId: String): Transport?
+    fun getTransport(accountID: StateID): Transport?
 
     /**
      * Until we find a better option, it is the factory responsibility to provide an encoder

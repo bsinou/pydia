@@ -272,7 +272,7 @@ class CellsTransport(
         return try {
             response = api.frontSession(request)
             val t = Token()
-            t.subject = ServerFactory.accountID(credentials.getUsername(), server)
+            t.subject = ServerFactory.accountID(credentials.getUsername(), server).id
             t.value = response.JWT
             // t.value = response.token?.idToken
             response.expireTime?.let { t.setExpiry(it.toLong()) }

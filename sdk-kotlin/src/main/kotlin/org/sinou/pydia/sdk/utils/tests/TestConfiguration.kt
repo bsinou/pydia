@@ -13,22 +13,22 @@ import java.util.Properties
  * Simply retrieve test sessions from properties files that are in user-defined folders.
  * By default in the resources folder of the calling class.
  */
-class TestConfiguration {
+class TestConfiguration(localURL: URL) {
+
     private val accounts: MutableMap<String, RemoteServerConfig> = HashMap()
 
-    constructor()
-    constructor(localURL: URL) {
+    init {
         try {
             val f = File(localURL.toURI())
             val filter = FilenameFilter { f1: File?, name: String -> name.endsWith(".properties") }
             for (currName in f.list(filter)) {
                 loadOne(
                     currName.substring(0, currName.lastIndexOf('.')),
-                    accountFolder + "/" + currName
+                    "$accountFolder/$currName"
                 )
             }
         } catch (e: Exception) {
-            Log.e("Initialisation", "Could not load server configuration at " + accountFolder)
+            Log.e("Initialisation", "Could not load server configuration at $accountFolder")
             e.printStackTrace()
         }
     }
@@ -49,28 +49,28 @@ class TestConfiguration {
     private fun loadOne(id: String, path: String) {
         try {
             TestConfiguration::class.java.getResourceAsStream(path)
-                .use { `is` -> loadOne(id, `is`) }
+                .use { inputStream -> loadOne(id, inputStream) }
         } catch (e: IOException) {
-            Log.e("Initialisation", "Could not retrieve configuration file, cause: " + e.message)
+            Log.e("Initialisation", "Could not retrieve configuration file, cause: ${e.message}")
             e.printStackTrace()
         }
     }
 
     @Throws(IOException::class)
-    fun loadOne(id: String, inputStream: InputStream?) {
+    fun loadOne(id: String, inputStream: InputStream) {
         val p = Properties()
         p.load(InputStreamReader(inputStream))
         if ("true" == p.getProperty("skipServer")) {
             return
         }
-        val currConf = RemoteServerConfig()
-        currConf.serverURL = p.getProperty("serverURL")
-        currConf.username = p.getProperty("username")
-        currConf.pwd = p.getProperty("pwd")
-        currConf.pat = p.getProperty("pat")
-        currConf.defaultWS = p.getProperty("defaultWorkspace")
-        currConf.skipVerify = "true" == p.getProperty("skipVerify")
-        accounts[id] = currConf
+        accounts[id] = RemoteServerConfig(
+            serverURL = p.getProperty("serverURL"),
+            username = p.getProperty("username"),
+            pwd = p.getProperty("pwd"),
+            pat = p.getProperty("pat"),
+            defaultWS = p.getProperty("defaultWorkspace"),
+            skipVerify = "true" == p.getProperty("skipVerify"),
+        )
     }
 
     companion object {

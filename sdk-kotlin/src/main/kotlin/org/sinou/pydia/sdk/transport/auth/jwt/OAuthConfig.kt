@@ -10,28 +10,20 @@ class OAuthConfig private constructor(
     val revokeEndpoint: String,
 ) {
 
-    // public final static String SCOPE = "scope";
+    val redirectURI: String = DEFAULT_REDIRECT_URI
+    val scope: String = defaultScope
 
-    var redirectURI: String
-
-    //     public String refreshEndpoint;
     var audience: String? = null
-    var scope: String
     var state: String? = null
     var code: String? = null
 
-    init {
-        redirectURI = DEFAULT_REDIRECT_URI
-        scope = defaultScope
-    }
-
     companion object {
-        const val DEFAULT_REDIRECT_URI = "cellsauth://callback"
         const val OIDC_WELL_KNOWN_CONFIG_PATH = "/oidc/.well-known/openid-configuration"
-        const val AUTH_ENDPOINT = "authorization_endpoint"
-        const val TOKEN_ENDPOINT = "token_endpoint"
-        const val REVOCATION_ENDPOINT = "revocation_endpoint"
 
+        private const val DEFAULT_REDIRECT_URI = "cellsauth://callback"
+        private const val AUTH_ENDPOINT = "authorization_endpoint"
+        private const val TOKEN_ENDPOINT = "token_endpoint"
+        private const val REVOCATION_ENDPOINT = "revocation_endpoint"
         private const val defaultScope = "openid email offline profile pydio"
 
         @Throws(SDKException::class)
@@ -44,8 +36,9 @@ class OAuthConfig private constructor(
         }
 
         private fun fromJsonString(oidcStr: String): OAuthConfig {
-            val gson = Gson()
-            val map: Map<String, Any> = gson.fromJson(oidcStr, Map::class.java) as Map<String, Any>
+
+            val map: Map<String, Any> = (Gson().fromJson(oidcStr, Map::class.java) as? Map<String, Any>
+                ?: throw IllegalArgumentException("Could not deserialize OIDC JSON String: $oidcStr"))
 
             var tmp = map[AUTH_ENDPOINT]
             val authEP = if ( tmp is String && tmp.isNotEmpty()) tmp

@@ -60,7 +60,7 @@ object Log {
     }
 
     fun i(tag: String, msg: String) {
-        val let = logger?.let {
+        logger?.let {
             it.i(tag, msg)
             return
         }
@@ -76,8 +76,8 @@ object Log {
     }
 
     fun v(tag: String, msg: String) {
-        if (logger != null) {
-            logger!!.v(tag, msg)
+        logger?.let {
+            it.v(tag, msg)
             return
         }
         println("${getStatusMsg(Levels.DEBUG)} - $tag\t$msg")

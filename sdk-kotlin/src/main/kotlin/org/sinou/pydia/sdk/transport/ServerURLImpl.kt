@@ -1,13 +1,14 @@
 package org.sinou.pydia.sdk.transport
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.annotations.Expose
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.ServerURL
 import org.sinou.pydia.sdk.client.security.CertificateTrust
 import org.sinou.pydia.sdk.client.security.CertificateTrustManager
 import org.sinou.pydia.sdk.utils.Log
-import org.sinou.pydia.sdk.utils.Str
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
@@ -29,43 +30,20 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 class ServerURLImpl private constructor(
-    override val url: URL, // Self-signed servers management
-    private val skipVerify: Boolean
+    override val url: URL,
+    private val skipVerify: Boolean // Self-signed servers management
 ) : ServerURL {
 
     override val certificateChain: Array<ByteArray>? = null
     private var sslContext: SSLContext? = null
-    private var trustHelper: CertificateTrust.Helper? = null
-        private get() = if (field == null) {
-            object : CertificateTrust.Helper {
-                override fun isServerTrusted(chain: Array<X509Certificate>): Boolean {
-                    for (c in chain) {
-                        certificateChain?.let {
-                            for (trusted in it) {
-                                try {
-                                    c.checkValidity()
-                                    val hash = MessageDigest.getInstance("MD5")
-                                    val c1 = hash.digest(trusted)
-                                    val c2 = hash.digest(c.encoded)
-                                    if (Arrays.equals(c1, c2)) {
-                                        return true
-                                    }
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
-                            }
-                        }
-                    }
-                    return false
-                }
-
-                override fun getAcceptedIssuers(): Array<X509Certificate> {
-                    return arrayOf()
-                }
-            }.also { field = it }
-        } else field
-
     private var sslSocketFactory: SSLSocketFactory? = null
+
+    override fun toJson(): String {
+        // This does not work, we rather do it manually...
+        val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
+        val props: Map<String, Any> = mapOf(urlKey to url.toString(), skipKey to skipVerify)
+        return gson.toJson(props)
+    }
 
     @Throws(IOException::class)
     override fun openConnection(): HttpURLConnection {
@@ -89,12 +67,12 @@ class ServerURLImpl private constructor(
     @Throws(MalformedURLException::class)
     override fun withPath(path: String): ServerURL {
         val specBuilder = StringBuilder()
-        if (url.path.isNotEmpty()) {
+        if (!url.path.isNullOrEmpty()) {
             specBuilder.append(url.path)
         }
         val verifyPassedURL = URL(url, path)
         specBuilder.append(verifyPassedURL.path)
-        if (url.query.isNotEmpty()) {
+        if (!url.query.isNullOrEmpty()) {
             specBuilder.append("?").append(url.query)
         }
         return ServerURLImpl(URL(url, specBuilder.toString()), skipVerify)
@@ -102,7 +80,7 @@ class ServerURLImpl private constructor(
 
     @Throws(MalformedURLException::class)
     override fun withQuery(query: String): ServerURL {
-        if (Str.empty(query)) {
+        if (query.isEmpty()) {
             return this
         }
         var spec = "/"
@@ -119,18 +97,14 @@ class ServerURLImpl private constructor(
         if (url.path.isNotEmpty()) {
             specBuilder.append(url.path)
         }
-        val verifyPassedURL = URL(url, spec)
-        if (verifyPassedURL.path.isNotEmpty()) {
-            specBuilder.append(verifyPassedURL.path)
+        val tmpURL = URL(url, spec)
+        if (tmpURL.path.isNotEmpty()) {
+            specBuilder.append(tmpURL.path)
         }
-        if (verifyPassedURL.query.isNotEmpty()) {
-            specBuilder.append("?").append(verifyPassedURL.query)
+        if (tmpURL.query.isNotEmpty()) {
+            specBuilder.append("?").append(tmpURL.query)
         }
         return ServerURLImpl(URL(url, specBuilder.toString()), skipVerify)
-    }
-
-    override fun toJson(): String {
-        return Gson().toJson(this)
     }
 
     // TODO finalize self-signed management.
@@ -153,6 +127,8 @@ class ServerURLImpl private constructor(
                     code,
                     "Could not reach " + url.host + ": " + connection.responseMessage
                 )
+            } else {
+                Log.i(logTag, "Successfully pinged server at ${url.host}")
             }
         } catch (uhe: UnknownHostException) {
             throw SDKException(ErrorCodes.con_failed, uhe.message, uhe)
@@ -180,33 +156,20 @@ class ServerURLImpl private constructor(
         }
     }
 
-    override val sSLContext: SSLContext?
-        get() {
-            if (sslContext == null) {
-                try {
-                    val tmpContext = SSLContext.getInstance("TLS")
-                    tmpContext.init(null, arrayOf(trustManager()), null)
-                    // tmpContext.socketFactory
-                    sslContext = tmpContext
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    return null
-                }
+    override fun getSslContext(): SSLContext? {
+        return sslContext ?: run {
+            try {
+                val tmpContext = SSLContext.getInstance("TLS")
+                tmpContext.init(null, arrayOf(trustManager()), null)
+                // tmpContext.socketFactory
+                sslContext = tmpContext
+                tmpContext
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
             }
-
-//        try {
-//            sslContext.getSocketFactory();
-//        } catch (Exception e) {
-//            try {
-//                sslContext = SSLContext.getInstance("TLS");
-//                sslContext.init(null, new TrustManager[]{trustManager()}, null);
-//            } catch (Exception ex) {
-//                e.printStackTrace();
-//                return null;
-//            }
-//        }
-            return sslContext
         }
+    }
 
     // TODO tweak until we rework the self signed.
     override fun getSslSocketFactory(): SSLSocketFactory? {
@@ -245,11 +208,50 @@ class ServerURLImpl private constructor(
     }
 
     private fun trustManager(): TrustManager {
-        return CertificateTrustManager(trustHelper)
+        return CertificateTrustManager(getTrustHelper())
+    }
+
+    private var field: CertificateTrust.Helper? = null
+    private fun getTrustHelper(): CertificateTrust.Helper? {
+
+        if (field == null) {
+            object : CertificateTrust.Helper {
+                override fun isServerTrusted(chain: Array<X509Certificate>): Boolean {
+                    for (c in chain) {
+                        certificateChain?.let {
+                            for (trusted in it) {
+                                try {
+                                    c.checkValidity()
+                                    val hash = MessageDigest.getInstance("MD5")
+                                    val c1 = hash.digest(trusted)
+                                    val c2 = hash.digest(c.encoded)
+                                    if (Arrays.equals(c1, c2)) {
+                                        return true
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        }
+                    }
+                    return false
+                }
+
+                override fun getAcceptedIssuers(): Array<X509Certificate> {
+                    return arrayOf()
+                }
+            }.also { field = it }
+        }
+        return field
     }
 
     companion object {
         private const val logTag = "ServerURLImpl"
+
+        private const val urlKey = "url"
+        private const val skipKey = "skipVerify"
+
+
         val SKIP_VERIFY_TRUST_MANAGER = arrayOf<TrustManager>(
             object : X509TrustManager {
                 override fun getAcceptedIssuers(): Array<X509Certificate> {
@@ -267,37 +269,16 @@ class ServerURLImpl private constructor(
         fun fromAddress(urlString: String, skipVerify: Boolean = false): ServerURL {
             val url = URL(urlString.trim { it <= ' ' }.lowercase())
             return ServerURLImpl(url, skipVerify)
-//            when (url.path) {
-//                "/", "" -> url = URL(url.protocol + "://" + url.authority)
-//                else -> {
-//                    // This works for P8 only. We do not support Cells server on a sub-path of a domain.
-//                    var path = url.path.trim { it <= ' ' }
-//                    if (path.endsWith("/")) {
-//                        path = path.substring(0, path.length - 1)
-//                    }
-//
-//                    // Double check the protocol to avoid NPE when handling old servers migration
-//                    val protocol = if (url.protocol == null) "https" else url.protocol
-//                    val authority = url.authority
-//                        ?: throw MalformedURLException("Cannot create a server URL without authority for $urlString")
-//                    url = URL(protocol + "://" + url.authority + path)
-//                }
-//            }
-//            return ServerURLImpl(url, skipVerify)
         }
 
         fun fromJson(jsonString: String): ServerURL {
             return try {
                 // TODO Dirty tweak until we finalize implementation of self-signed certificates
-                // We Assume the passed json is correctly formatted
-                // Type type = new TypeToken<Map<String, Object>>() {
-                // }.getType();
-                // Map<String, Object> props = new Gson().fromJson(jsonString, type);           
                 val propType: Map<String, Any> = HashMap()
                 val props = Gson().fromJson(jsonString, propType.javaClass)
                 fromAddress(
-                    props["url"].toString(), java.lang.Boolean.parseBoolean(
-                        props["skipVerify"].toString()
+                    props[urlKey].toString(), java.lang.Boolean.parseBoolean(
+                        props[skipKey].toString()
                     )
                 )
             } catch (e: MalformedURLException) {

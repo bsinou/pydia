@@ -1,5 +1,6 @@
 package org.sinou.pydia.sdk.api
 
+import org.sinou.pydia.sdk.transport.StateID
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
@@ -17,6 +18,8 @@ interface ServerURL {
          * Returns a standard id that has been cleaned and normalized.
          */
         get() = url.protocol + "://" + url.authority + url.path
+
+
 
     /**
      * Returns the underlying URL Object to perform various checks and/or access to its properties.
@@ -36,6 +39,14 @@ interface ServerURL {
      */
     @Throws(MalformedURLException::class)
     fun withPath(path: String): ServerURL
+
+    @Throws(IllegalArgumentException::class)
+    fun getStateID(): StateID = if (url.path.isNotEmpty()) {
+            throw IllegalArgumentException("We do not support sub path at the server level yet")
+        } else {
+            StateID(id)
+        }
+
 
     /**
      * Returns a new instance of the current Server URL object with the passed query.
@@ -65,9 +76,10 @@ interface ServerURL {
     fun ping()
 
     val certificateChain: Array<ByteArray>?
-    val sSLContext: SSLContext?
 
-    fun getSslSocketFactory() : SSLSocketFactory?
+    fun getSslSocketFactory(): SSLSocketFactory?
+
+    fun getSslContext(): SSLContext?
 
     fun skipVerify(): Boolean
     fun toJson(): String?

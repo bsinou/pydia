@@ -3,6 +3,7 @@ package org.sinou.pydia.sdk.client
 import org.sinou.pydia.openapi.api.TreeServiceApi
 import org.sinou.pydia.openapi.api.UserServiceApi
 import org.sinou.pydia.openapi.infrastructure.ApiClient
+import org.sinou.pydia.openapi.infrastructure.ClientException
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.model.RestBulkMetaResponse
 import org.sinou.pydia.openapi.model.RestCreateNodesRequest
@@ -30,7 +31,6 @@ import org.xml.sax.SAXException
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.util.Arrays
 import javax.xml.parsers.ParserConfigurationException
 
 class CellsClient(transport: Transport, private val s3Client: S3Client) : Client, SdkNames {
@@ -43,13 +43,16 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     @Throws(SDKException::class)
     override fun stillAuthenticated(): Boolean {
         return try {
-            val api = UserServiceApi(transport.getApiURL(), ApiClient.defaultClient)
-            //            IdmUser user =
-            api.getUser(
-                transport.username, null, null, null, null,
-                false, null, -1, true
-            )
+            val (u, c) = transport.apiConf()
+            val api = UserServiceApi(u, c)
+            api.getUser(transport.username)
             true
+        } catch (e: ClientException) {
+            Log.e(
+                logTag, "SDK error #" + e.statusCode
+                        + " while checking auth state for " + StateID.fromId(transport.id)
+            )
+            false
         } catch (e: SDKException) {
             Log.e(
                 logTag, "SDK error #" + e.code

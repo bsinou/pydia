@@ -4,6 +4,7 @@ import org.sinou.pydia.sdk.api.Registry
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.api.ui.Plugin
 import org.sinou.pydia.sdk.api.ui.WorkspaceNode
+import org.sinou.pydia.sdk.utils.Log
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -128,6 +129,7 @@ class DocumentRegistry : Registry {
 
         var label: String? = null
         var desc: String? = null
+        var type: String? = null
 
         val props = node.childNodes
         for (j in 0 until props.length) {
@@ -137,13 +139,18 @@ class DocumentRegistry : Registry {
 
                 SdkNames.WORKSPACE_DESCRIPTION -> desc = prop.firstChild.nodeValue
 
+                SdkNames.WORKSPACE_PROPERTY_TYPE -> type = prop.firstChild.nodeValue
+
             }
         }
+
+        Log.e(logTag, "Found WS type: $type")
 
         return WorkspaceNode(
             slug = slug,
             label = label ?: slug,
             description = desc,
+            type = type ?: "todo",
         )
 
         TODO("Rewire this")

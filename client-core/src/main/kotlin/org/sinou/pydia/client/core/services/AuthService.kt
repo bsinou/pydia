@@ -5,6 +5,7 @@ import android.util.Log
 import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.core.db.auth.AuthDB
 import org.sinou.pydia.client.core.db.auth.ROAuthState
+import org.sinou.pydia.client.core.utils.AndroidCustomEncoder
 import org.sinou.pydia.client.core.utils.currentTimestamp
 import org.sinou.pydia.sdk.api.CustomEncoder
 import org.sinou.pydia.sdk.api.SDKException
@@ -22,15 +23,14 @@ class AuthService(
     coroutineService: CoroutineService,
     authDB: AuthDB
 ) {
+    private val logTag = "AuthService"
+    private val encoder: CustomEncoder = AndroidCustomEncoder()
+
     private val ioDispatcher = coroutineService.ioDispatcher
 
     private val tokenDao = authDB.tokenDao()
     private val legacyCredentialsDao = authDB.legacyCredentialsDao()
     private val authStateDao = authDB.authStateDao()
-
-    private val logTag = "AuthService"
-    private val encoder: CustomEncoder? =
-        null //  = org.sinou.pydia.client.core.utils.AndroidCustomEncoder()
 
     companion object {
         const val LOGIN_CONTEXT_CREATE = "new_account"
@@ -115,7 +115,7 @@ class AuthService(
                 .getAnonymousTransport(rState.serverURL.getStateID()) as CellsTransport
             val token = transport.getTokenFromCode(code, encoder)
             accountID = manageRetrievedToken(accountService, transport, token)
-            Log.e(logTag, "... Token managed. Next action: ${rState.next}")
+            Log.e(logTag, "... Token managed. Login context: ${rState.next}")
 
             // Leave OAuth state cacheDB clean
             authStateDao.delete(oauthState)

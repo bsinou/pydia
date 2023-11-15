@@ -124,7 +124,7 @@ fun NavHostWithDrawer(
             drawerContent = {
                 AppDrawer(
                     currRoute = navBackStackEntry?.destination?.route,
-                    currSelectedID = lazyStateID(navBackStackEntry),
+                    currSelectedID = lazyStateID(entry = navBackStackEntry, verbose = false),
                     closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
                     connectionService = connectionService,
                     cellsNavActions = cellsNavActions,

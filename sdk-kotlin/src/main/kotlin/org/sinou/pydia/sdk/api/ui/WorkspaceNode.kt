@@ -20,9 +20,9 @@ class WorkspaceNode(
     val slug: String,
     var label: String?,
     var description: String?,
+    val type: String,
 ) : Comparable<WorkspaceNode> {
 
-    val type = 2
     var properties: Properties? = null
     fun getProperty(key: String?): String {
         return properties!!.getProperty(key, "")

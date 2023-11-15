@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import org.koin.androidx.compose.koinViewModel
 import org.sinou.pydia.client.core.ui.account.AccountListVM
 import org.sinou.pydia.client.core.ui.account.AccountsScreen
+import org.sinou.pydia.client.core.ui.browse.browseNavGraph
 import org.sinou.pydia.client.core.ui.core.nav.CellsDestinations
 import org.sinou.pydia.client.core.ui.login.LoginHelper
 import org.sinou.pydia.client.core.ui.login.LoginNavigation
@@ -87,6 +88,14 @@ fun CellsNavGraph(
                 startingState,
                 ackStartStateProcessing
             ),
+        )
+
+        browseNavGraph(
+            isExpandedScreen = isExpandedScreen,
+            navController = navController,
+            openDrawer = openDrawer,
+            back = { navController.popBackStack() },
+//            browseRemoteVM = browseRemoteVM,
         )
 
         systemNavGraph(

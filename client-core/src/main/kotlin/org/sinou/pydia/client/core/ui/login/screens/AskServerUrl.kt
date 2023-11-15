@@ -82,7 +82,6 @@ fun AskServerUrl(
     pingUrl: (String) -> Unit,
     cancel: () -> Unit,
 ) {
-
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -130,9 +129,9 @@ fun AskServerUrl(
         )
 
         FormBottomButtons(
-            backBtnLabel = stringResource(id = R.string.button_cancel),
+            backBtnLabel = stringResource(R.string.button_cancel),
             back = { cancel() },
-            nextBtnLabel = stringResource(id = R.string.button_next),
+            nextBtnLabel = stringResource(R.string.button_next),
             next = { pingUrl(urlString) },
             isProcessing = isProcessing,
             modifier = Modifier

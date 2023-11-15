@@ -53,7 +53,6 @@ class LoginHelper(
         navigateTo(res)
     }
 
-
     suspend fun launchAuth(
         context: Context,
         stateID: StateID,

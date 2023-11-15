@@ -41,17 +41,22 @@ fun encodeStateForRoute(stateID: StateID): String {
 }
 
 fun lazyStateID(
-    navBackStackEntry: NavBackStackEntry?,
+    entry: NavBackStackEntry?,
     key: String = AppKeys.STATE_ID,
+    verbose: Boolean = true,
 ): StateID {
-    return navBackStackEntry?.arguments?.getString(key)?.let {
+    return entry?.arguments?.getString(key)?.let {
         // Log.e(logTag, " ... Retrieving stateID from backstack entry, found: $it")
         if (it.isEmpty()) {
             return StateID.NONE
         }
         return StateID.safeFromId(it)
     } ?: run {
-        Log.w(LOG_TAG, " ... No stateID found in backstack entry with key $key")
+        if (verbose) {
+            Log.w(LOG_TAG, " ... No stateID found in backstack entry with key $key")
+            Log.w(LOG_TAG, " ... ${entry?.arguments}")
+            Thread.dumpStack()
+        }
         StateID.NONE
     }
 }

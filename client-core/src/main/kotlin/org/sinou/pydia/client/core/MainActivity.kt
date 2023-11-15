@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -48,8 +49,10 @@ class MainActivity : ComponentActivity() {
     private val connectionService: ConnectionService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i(logTag, "... onCreate for main activity, bundle: $savedInstanceState")
 
+        installSplashScreen()
+
+        Log.i(logTag, "... onCreate for main activity, bundle: $savedInstanceState")
         super.onCreate(savedInstanceState)
         val mainActivity = this
         WindowCompat.setDecorFitsSystemWindows(window, true)
@@ -62,6 +65,7 @@ class MainActivity : ComponentActivity() {
                     sBundle = savedInstanceState,
                     launchIntent = mainActivity::launchIntent
                 ) {
+                    Log.e(logTag, "App is ready ")
                     appIsReady = true
                 }
             }
@@ -72,15 +76,14 @@ class MainActivity : ComponentActivity() {
         content.viewTreeObserver.addOnPreDrawListener(
             object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
-                    // Check whether the initial data is ready.
-                    return if (appIsReady) {
-                        // The content is ready. Start drawing.
+                    Log.e(logTag, " in on predraw")
+
+                    if (appIsReady) { // Check whether the initial data is ready.
+                        // Content is ready: Start drawing.
                         content.viewTreeObserver.removeOnPreDrawListener(this)
-                        true
-                    } else {
-                        // The content isn't ready. Suspend.
-                        false
                     }
+                    Log.e(logTag, " ... app ready: $appIsReady")
+                    return appIsReady
                 }
             }
         )
@@ -100,7 +103,7 @@ class MainActivity : ComponentActivity() {
         val widthSizeClass = calculateWindowSizeClass(activity).widthSizeClass
         val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
         val startingState = remember { mutableStateOf<StartingState?>(null) }
-        val ready = remember { mutableStateOf(false) }
+        val ready = rememberSaveable { mutableStateOf(false) }
 
         val ackStartStateProcessed: (String?, StateID) -> Unit = { _, _ ->
             intentHasBeenProcessed.value = true
@@ -122,7 +125,7 @@ class MainActivity : ComponentActivity() {
         }
 
         LaunchedEffect(key1 = intent.toString()) {
-            Log.e(logTag, "## Launching main effect for $intent")
+            Log.e(logTag, "... Launching main effect for $intent")
             Log.e(logTag, "\t\tIntent already processed: ${intentHasBeenProcessed.value}")
 
             try { // We only handle intent when we have no bundle state
@@ -141,10 +144,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            Log.i(logTag, "############################")
-            Log.d(logTag, "  onCreate with starting state:")
-            Log.d(logTag, "   StateID: ${startingState.value?.stateID}")
-            Log.d(logTag, "   Route: ${startingState.value?.route}")
+            Log.d(logTag, "... OnCreate with starting state:")
+            Log.d(logTag, "      - StateID: ${startingState.value?.stateID}")
+            Log.d(logTag, "      - Route: ${startingState.value?.route}")
 
             // Rework this: we have the default for the time being.
             // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
@@ -155,6 +157,7 @@ class MainActivity : ComponentActivity() {
         }
 
         Box {
+            Log.e(logTag, "... in box")
             if (ready.value) {
                 Log.d(logTag, "... Now ready, composing for ${startingState.value?.route}")
                 MainApp(
@@ -165,6 +168,7 @@ class MainActivity : ComponentActivity() {
                     widthSizeClass = widthSizeClass,
                 )
             } else {
+                Log.e(logTag, "... in box - white screen")
                 WhiteScreen()
             }
         }
@@ -226,11 +230,8 @@ class MainActivity : ComponentActivity() {
         }
 
         // Intent with a stateID => should not happen anymore
-        val encodedState = intent.getStringExtra(AppKeys.EXTRA_STATE)
-        val initialStateID = encodedState?.let {
-            val stateID = StateID.fromId(it)
-            // We must probably never pass here anymore
-            // TODO double check and clean this (and the corresponding AppKeys.EXTRA_STATE)
+        val initialStateID = intent.getStringExtra(AppKeys.EXTRA_STATE)?.let {
+            val stateID = StateID.safeFromId(it)
             Log.e(logTag, "#### Received an intent with a state: $stateID")
             stateID
         } ?: StateID.NONE
@@ -238,7 +239,6 @@ class MainActivity : ComponentActivity() {
 
         // Handle various supported events
         when {
-
             // Normal start
             Intent.ACTION_MAIN == intent.action
                     && intent.hasCategory(Intent.CATEGORY_LAUNCHER) -> {

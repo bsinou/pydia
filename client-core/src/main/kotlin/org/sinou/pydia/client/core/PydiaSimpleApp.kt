@@ -34,7 +34,7 @@ class PydiaSimpleApp : Application(), KoinComponent {
 
     override fun onCreate() {
 
-        // setLogger()
+        setLogger()
 
         // FIXME it seems we have some leaks and some not correctly tagged sockets
         // Enable resource leak tracking during dev when the "A resource failed to call xxx" message shows up
@@ -134,28 +134,30 @@ class PydiaSimpleApp : Application(), KoinComponent {
         return "AndroidSDK" + sdkVersion + "v" + release
     }
 
+
     private fun setLogger() {
-        Log.setLogger(object : Log.Logger {
+        Log.setLogger(CustomLogger())
+    }
+}
 
-            override fun v(tag: String, text: String) {
-                Log.v(tag, text)
-            }
+private class CustomLogger : Log.Logger {
+    override fun v(tag: String, text: String) {
+        android.util.Log.v(tag, text)
+    }
 
-            override fun d(tag: String, text: String) {
-                Log.d(tag, text)
-            }
+    override fun d(tag: String, text: String) {
+        android.util.Log.d(tag, text)
+    }
 
-            override fun w(tag: String, text: String) {
-                Log.w(tag, text)
-            }
+    override fun w(tag: String, text: String) {
+        android.util.Log.w(tag, text)
+    }
 
-            override fun i(tag: String, text: String) {
-                Log.i(tag, text)
-            }
+    override fun i(tag: String, text: String) {
+        android.util.Log.i(tag, text)
+    }
 
-            override fun e(tag: String, text: String) {
-                Log.e(tag, text)
-            }
-        })
+    override fun e(tag: String, text: String) {
+        android.util.Log.e(tag, text)
     }
 }

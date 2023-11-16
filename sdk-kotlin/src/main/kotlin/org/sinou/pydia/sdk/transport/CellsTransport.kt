@@ -48,6 +48,18 @@ class CellsTransport(
     override val username: String
     override val server: Server
 
+    override val id: String
+        get() = stateID.id
+    override val stateID: StateID
+        get() = StateID(username, server.serverURL.id)
+    override val isOffline: Boolean
+        get() {
+            Log.w(logTag, "Hard-coded non relevant offline check from ")
+            Thread.dumpStack()
+            return false
+        }
+
+
     init {
         this.credentialService = credentialService
         this.username = username
@@ -72,18 +84,6 @@ class CellsTransport(
     override fun anonApiConf(): Pair<String, OkHttpClient> {
         return getApiURL() to anonClient().build()
     }
-
-
-    override val id: String
-        get() = stateID.id
-    override val stateID: StateID
-        get() = StateID(username, server.serverURL.id)
-    override val isOffline: Boolean
-        get() {
-            Log.w(logTag, "Hard-coded non relevant offline check from ")
-            Thread.dumpStack()
-            return false
-        }
 
     @Throws(SDKException::class)
     override fun getServerRegistryAsNonAuthenticatedUser(): InputStream? {

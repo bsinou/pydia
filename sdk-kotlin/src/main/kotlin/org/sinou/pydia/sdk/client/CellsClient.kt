@@ -54,10 +54,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             )
             false
         } catch (e: SDKException) {
-            Log.e(
-                logTag, "SDK error #" + e.code
-                        + " while checking auth state for " + StateID.fromId(transport.id)
-            )
+            Log.w(logTag,"${e.code} (${e.message}) when checking auth for ${transport.stateID}")
             false
         } catch (e: ServerException) {
             Log.e(logTag, "API error while checking auth state for " + StateID.fromId(transport.id))

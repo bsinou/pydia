@@ -1,43 +1,6 @@
 buildscript {
 
     ext {
-        // Local variables (use def)
-        def lifecycle_version = '2.6.2'
-        def coroutines_android_version = '1.7.3'
-        def room_version = '2.6.0'
-        def work_version = '2.8.1'
-
-        def appcompat_version = '1.6.1'
-        def androidx_core_version = '1.12.0'
-        def preference_version = '1.2.1'
-        def splash_version = '1.0.1'
-
-        def material_version = '1.10.0'
-
-        // Compose versions is defined via platform BOM
-        // We define here the versions of a few extra libraries that extend the Jetpack Compose features
-        def navigation_version = '2.7.4'
-        def compose_nav_version = '2.7.4'
-
-        // Define All non-Android Third Party versions in a single place
-        def aws_s3_sdk_version = '2.73.0'
-        def glide_version = '5.0.0-rc01'
-        def compose_glide_version = '1.0.0-beta01'
-        def zxing_version = '3.5.2'
-        def gson_version = '2.10.1'
-        def commons_codec_version = '1.15'
-
-        // Test libraries
-        def junit_version = '4.13.2'
-        def truth_version = '1.1.3'
-        def robolectric_version = '4.9.2'
-        def mockito_version = '5.1.1'
-        def androidx_core_testing_version = '2.2.0'
-        def androidx_test_version = '1.5.0'
-        def androidx_test_runner_version = '1.5.2'
-        def androidx_test_ext_version = '1.1.5'
-        def espresso_version = '3.5.1'
-
 
         // Define dependency packages that are then used as shortcuts by the various modules.
         librariesKapt = [
@@ -51,7 +14,7 @@ buildscript {
 
         libraries = [
                 // Kotlin standard library and coroutines
-                "org.jetbrains.kotlin:kotlin-stdlib:1.9.10",
+                "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
                 "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3",
                 "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3",
 
@@ -123,57 +86,12 @@ buildscript {
                 "androidx.navigation:navigation-compose:2.7.4",
                 "com.github.bumptech.glide:compose:1.0.0-beta01",
         ]
-
-//        testLibraries = [
-//                // Junit 4
-//                "junit:junit:$junit_version",
-//
-//                // Assertions
-//                "com.google.truth:truth:$truth_version",
-//
-//                // Coroutines testing
-//                "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_android_version",
-//
-//                // Dependency injection with Koin
-//                "io.insert-koin:koin-test",
-//                "io.insert-koin:koin-test-junit4",
-//
-//                // Mocks
-//                "org.mockito:mockito-core:$mockito_version",
-//                "androidx.arch.core:core-testing:$androidx_core_testing_version",
-//        ]
-
-//        androidTestLibraries = [
-//                // Koin for Test + JUnit 4
-//                "junit:junit:$junit_version",
-//                "io.insert-koin:koin-test",
-//                "io.insert-koin:koin-test-junit4",
-//
-//                //  Androidx Testing
-//                "androidx.arch.core:core-testing:$androidx_core_testing_version",
-//                "androidx.test:runner:$androidx_test_runner_version",
-//                "androidx.test:rules:$androidx_test_version",
-//                "androidx.test.ext:junit:$androidx_test_ext_version",
-//                "androidx.work:work-testing:$work_version",
-//
-//                // Coroutines testing
-//                "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_android_version",
-//
-//                // Espresso
-//                "androidx.test.espresso:espresso-core:$espresso_version",
-//                "androidx.test.espresso:espresso-contrib:$espresso_version",
-//                "androidx.test.espresso:espresso-intents:$espresso_version",
-//
-//                "org.robolectric:robolectric:$robolectric_version",
-//        ]
     }
 }
 
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-//    id 'com.android.library'
-//    id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
 }
@@ -219,7 +137,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
 
     kapt {
@@ -244,8 +162,6 @@ dependencies {
     kapt librariesKapt
     implementation libraries
     implementation composeLibraries
-
-
 
     // override default platform version
     // e.G    implementation "androidx.compose.material3:material3:1.2.0-alpha1"

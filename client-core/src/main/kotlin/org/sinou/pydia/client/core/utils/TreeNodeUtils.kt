@@ -41,8 +41,10 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
             ?: getMimeType(name, SdkNames.NODE_MIME_DEFAULT)
     }
 
+    val mTime: Long = treeNode.mtime?.let{
+        it.toLong()
+    } ?: -1
     try {
-
         // Size
         var sizeStr: String? = treeNode.propertySize
         if (sizeStr.isNullOrEmpty()) {
@@ -99,8 +101,8 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
             etag = treeNode.etag ?: "",
             mime = mimeType,
             size = size,
+            remoteModificationTS = mTime,
             // TODO
-            remoteModificationTS = currentTimestamp(),
             properties = Properties(),
             meta = Properties(),
             metaHash = -1,

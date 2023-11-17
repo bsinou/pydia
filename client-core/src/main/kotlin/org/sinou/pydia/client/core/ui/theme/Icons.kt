@@ -246,26 +246,26 @@ fun getIconAndColorFromType(type: CellsIconType): Pair<Int, Color> {
     val defCol = MaterialTheme.colorScheme.onSurface
     return when (type) {
         // Workspace Roots
-        CellsIconType.WS_PERSONAL -> R.drawable.folder_shared_24px to defCol
+        CellsIconType.WS_PERSONAL -> R.drawable.folder_shared_24 to defCol
         CellsIconType.WS_CELL -> R.drawable.file_cells_logo to defCol
-        CellsIconType.WS_DEFAULT -> R.drawable.folder_24px to defCol
+        CellsIconType.WS_DEFAULT -> R.drawable.folder_24 to defCol
         // Folders
-        CellsIconType.FOLDER -> R.drawable.folder_24px to defCol
-        CellsIconType.RECYCLE -> R.drawable.delete_24px to defCol
+        CellsIconType.FOLDER -> R.drawable.folder_24 to defCol
+        CellsIconType.RECYCLE -> R.drawable.delete_24 to defCol
         // Documents
         CellsIconType.WORD -> R.drawable.file_word_outline to CellsColor.material_blue
         CellsIconType.CALC -> R.drawable.file_excel_outline to CellsColor.material_green
         CellsIconType.PRESENTATION -> R.drawable.file_powerpoint_outline to defCol
-        CellsIconType.PDF -> R.drawable.picture_as_pdf_40px to CellsColor.material_red
-        CellsIconType.DOCUMENT -> R.drawable.description_40px to CellsColor.material_blue
+        CellsIconType.PDF -> R.drawable.picture_as_pdf_40 to CellsColor.material_red
+        CellsIconType.DOCUMENT -> R.drawable.description_40 to CellsColor.material_blue
         // Media
-        CellsIconType.IMAGE -> R.drawable.image_40px to CellsColor.material_deep_orange
-        CellsIconType.VIDEO -> R.drawable.video_file_40px to CellsColor.material_orange
-        CellsIconType.AUDIO -> R.drawable.audio_file_40px to CellsColor.material_deep_orange
+        CellsIconType.IMAGE -> R.drawable.image_40 to CellsColor.material_deep_orange
+        CellsIconType.VIDEO -> R.drawable.video_file_40 to CellsColor.material_orange
+        CellsIconType.AUDIO -> R.drawable.audio_file_40 to CellsColor.material_deep_orange
         // Other Files
         CellsIconType.CODE -> R.drawable.file_code_outline to CellsColor.material_yellow
-        CellsIconType.ZIP -> R.drawable.folder_zip_40px to CellsColor.material_yellow
-        CellsIconType.FILE -> R.drawable.description_40px to defCol
+        CellsIconType.ZIP -> R.drawable.folder_zip_40 to CellsColor.material_yellow
+        CellsIconType.FILE -> R.drawable.description_40 to defCol
 //         else -> R.drawable.file_outline
     }
 }

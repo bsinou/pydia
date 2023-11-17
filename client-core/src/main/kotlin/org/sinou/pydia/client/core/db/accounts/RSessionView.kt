@@ -18,7 +18,6 @@ import java.util.*
             "accounts.username, " +
             "accounts.auth_status, " +
             "accounts.tls_mode, " +
-            "accounts.is_legacy, " +
             "accounts.properties " +
             "FROM sessions INNER JOIN accounts " +
             "ON sessions.account_id = accounts.account_id"
@@ -35,7 +34,6 @@ data class RSessionView(
     @ColumnInfo(name = "username") val username: String,
     @ColumnInfo(name = "auth_status") var authStatus: String,
     @ColumnInfo(name = "tls_mode") var tlsMode: Int,
-    @ColumnInfo(name = "is_legacy") var isLegacy: Boolean,
     @ColumnInfo(name = "properties") var properties: Properties,
 ) {
     fun skipVerify() = tlsMode != 0

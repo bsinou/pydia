@@ -127,7 +127,10 @@ val dbModule = module {
             androidContext().applicationContext,
             AccountDB::class.java,
             ACCOUNT_DB_NAME
-        ).build()
+        )
+            .fallbackToDestructiveMigrationFrom(1)
+            .fallbackToDestructiveMigrationOnDowngrade()
+            .build()
     }
 }
 

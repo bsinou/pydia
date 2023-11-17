@@ -43,7 +43,7 @@ import org.sinou.pydia.sdk.transport.StateID
 fun TargetAccountList(
     accounts: List<RSessionView>,
     openAccount: (StateID) -> Unit,
-    doLogin: (StateID, Boolean, Boolean) -> Unit,
+    doLogin: (StateID, Boolean) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
@@ -70,7 +70,7 @@ fun TargetAccountList(
                 url = account.url,
                 authStatus = account.authStatus,
                 isForeground = account.lifecycleState == AppNames.LIFECYCLE_STATE_FOREGROUND,
-                doLogin = { doLogin(account.getStateID(), account.skipVerify(), account.isLegacy) },
+                doLogin = { doLogin(account.getStateID(), account.skipVerify()) },
                 modifier = currModifier
             )
         }

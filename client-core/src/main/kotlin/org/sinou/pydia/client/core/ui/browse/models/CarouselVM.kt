@@ -1,30 +1,23 @@
 package org.sinou.pydia.client.core.ui.browse.models
 
 import android.util.Log
-import androidx.lifecycle.viewModelScope
-import org.sinou.pydia.client.core.db.nodes.RTreeNode
-import org.sinou.pydia.client.core.services.AccountService
-import org.sinou.pydia.client.core.ui.core.AbstractCellsVM
-import org.sinou.pydia.client.core.utils.isPreViewable
-import org.sinou.pydia.sdk.transport.StateID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
+import org.sinou.pydia.client.core.db.nodes.RTreeNode
+import org.sinou.pydia.client.core.ui.core.AbstractCellsVM
+import org.sinou.pydia.client.core.utils.isPreViewable
+import org.sinou.pydia.sdk.transport.StateID
 
 /** Hold the state for the carousel component */
 class CarouselVM(
     initialStateID: StateID,
-    private val accountService: AccountService,
+//     private val accountService: AccountService,
 ) : AbstractCellsVM() {
 
     private val logTag = "CarouselVM"
-
-    private var _isRemoteLegacy = false
-    val isRemoteLegacy: Boolean
-        get() = _isRemoteLegacy
 
     // Observe current folder children
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -48,12 +41,6 @@ class CarouselVM(
         childList.filter { item ->
             val preViewable = isPreViewable(item)
             preViewable
-        }
-    }
-
-    init {
-        viewModelScope.launch {
-            _isRemoteLegacy = accountService.isLegacy(initialStateID)
         }
     }
 }

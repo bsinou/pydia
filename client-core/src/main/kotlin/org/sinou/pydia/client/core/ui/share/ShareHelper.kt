@@ -19,22 +19,13 @@ class ShareHelper(
     private val logTag = "ShareHelper"
     private val navigation = ShareNavigation(navController)
 
-    fun login(stateID: StateID, skipVerify: Boolean, isLegacy: Boolean) {
-        val route = if (isLegacy) {
-            Log.i(logTag, "... Launching re-log on P8 for $stateID")
-            LoginDestinations.P8Credentials.createRoute(
-                stateID,
-                skipVerify,
-                AuthService.LOGIN_CONTEXT_SHARE,
-            )
-        } else {
-            Log.i(logTag, "... Launching re-log for ${stateID.account()} from $stateID")
-            LoginDestinations.LaunchAuthProcessing.createRoute(
-                stateID.account(),
-                skipVerify,
-                AuthService.LOGIN_CONTEXT_SHARE,
-            )
-        }
+    fun login(stateID: StateID, skipVerify: Boolean) {
+        val route = LoginDestinations.LaunchAuthProcessing.createRoute(
+            stateID.account(),
+            skipVerify,
+            AuthService.LOGIN_CONTEXT_SHARE,
+        )
+        Log.i(logTag, "... Launching re-log for ${stateID.account()} from $stateID")
         navController.navigate(route)
     }
 

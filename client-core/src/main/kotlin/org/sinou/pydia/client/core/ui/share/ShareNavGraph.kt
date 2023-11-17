@@ -5,6 +5,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.ui.core.lazyStateID
 import org.sinou.pydia.client.core.ui.core.lazyUID
@@ -15,8 +17,6 @@ import org.sinou.pydia.client.core.ui.share.screens.SelectFolderScreen
 import org.sinou.pydia.client.core.ui.share.screens.SelectTargetAccount
 import org.sinou.pydia.client.core.ui.share.screens.UploadProgressList
 import org.sinou.pydia.sdk.transport.StateID
-import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 fun NavGraphBuilder.shareNavGraph(
     isExpandedScreen: Boolean,
@@ -75,7 +75,7 @@ fun NavGraphBuilder.shareNavGraph(
             Log.i(logTag, "## First Comp for: share/in-progress/ #$jobID @ $stateID")
         }
         val monitorUploadsVM: MonitorUploadsVM =
-            koinViewModel(parameters = { parametersOf(browseRemoteVM.isLegacy, stateID, jobID) })
+            koinViewModel(parameters = { parametersOf(stateID, jobID) })
         UploadProgressList(
             isExpandedScreen = isExpandedScreen,
             monitorUploadsVM,

@@ -15,7 +15,6 @@ class BrowseRemoteVM(
     private val logTag = "BrowseRemoteVM"
 
     val connectionState = connectionService.liveConnectionState
-    val isLegacy = connectionService.isRemoteLegacy
 
     fun watch(newStateID: StateID, isForceRefresh: Boolean) {
         Log.i(

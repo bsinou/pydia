@@ -67,20 +67,13 @@ fun AccountsScreen(
                 registerNew = {
                     navigateTo(LoginDestinations.AskUrl.createRoute())
                 },
-                login = { stateID, skipVerify, isLegacy ->
-                    val route = if (isLegacy) {
-                        LoginDestinations.P8Credentials.createRoute(
-                            stateID,
-                            skipVerify,
-                            AuthService.LOGIN_CONTEXT_ACCOUNTS
-                        )
-                    } else {
-                        LoginDestinations.LaunchAuthProcessing.createRoute(
-                            stateID,
-                            skipVerify,
-                            AuthService.LOGIN_CONTEXT_ACCOUNTS
-                        )
-                    }
+                login = { stateID, skipVerify ->
+                    val route = LoginDestinations.LaunchAuthProcessing.createRoute(
+                        stateID,
+                        skipVerify,
+                        AuthService.LOGIN_CONTEXT_ACCOUNTS
+                    )
+
                     navigateTo(route)
                 },
                 logout = { accountListVM.logoutAccount(it) },
@@ -122,7 +115,7 @@ private fun AccountsScreen(
     openAccount: (stateID: StateID) -> Unit,
     openDrawer: () -> Unit,
     registerNew: () -> Unit,
-    login: (stateID: StateID, skipVerify: Boolean, isLegacy: Boolean) -> Unit,
+    login: (stateID: StateID, skipVerify: Boolean) -> Unit,
     logout: (stateID: StateID) -> Unit,
     forget: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier,

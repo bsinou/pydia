@@ -10,7 +10,7 @@ import androidx.room.RoomDatabase
         RWorkspace::class,
     ],
     views = [RSessionView::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
 //    autoMigrations = [
 //        AutoMigration(from = 1, to = 2)

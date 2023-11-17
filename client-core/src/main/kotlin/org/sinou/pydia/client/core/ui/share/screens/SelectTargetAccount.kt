@@ -33,7 +33,7 @@ fun SelectTargetAccount(
         accountListVM = accountListVM,
         openAccount = { scope.launch { helper.open(it) } },
         cancel = { scope.launch { helper.launchTaskFor(AppNames.ACTION_CANCEL, StateID.NONE) } },
-        login = { s, skip, legacy -> scope.launch { helper.login(s, skip, legacy) } },
+        login = { s, skip -> scope.launch { helper.login(s, skip) } },
     )
 
     DisposableEffect(key1 = true) {
@@ -49,7 +49,7 @@ private fun SelectTargetAccount(
     accountListVM: AccountListVM,
     openAccount: (StateID) -> Unit,
     cancel: () -> Unit,
-    login: (StateID, Boolean, Boolean) -> Unit,
+    login: (StateID, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 

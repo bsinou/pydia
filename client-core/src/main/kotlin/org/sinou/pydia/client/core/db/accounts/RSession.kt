@@ -20,8 +20,8 @@ data class RSession(
 
     @ColumnInfo(name = "db_name") val dbName: String,
 
-    // We duplicate this info to ease implementation: we can do this because we won't have tons of accounts.
-    @ColumnInfo(name = "is_legacy") val isRemoteLegacy: Boolean,
+//    // We duplicate this info to ease implementation: we can do this because we won't have tons of accounts.
+//    @ColumnInfo(name = "is_legacy") val isRemoteLegacy: Boolean,
 
     // Simple flag to make the UI more explicit for the end user.
     // This flag is set to false when we have internet but cannot ping the server.
@@ -46,7 +46,7 @@ data class RSession(
                 lifecycleState = AppNames.SESSION_STATE_NEW,
                 dirName = cleanUrl,
                 dbName = cleanDbName,
-                isRemoteLegacy = account.isLegacy,
+                // isRemoteLegacy = account.isLegacy,
                 isReachable = true
             )
         }

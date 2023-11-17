@@ -149,18 +149,16 @@ class NodeService(
             val ndb = nodeDB(state)
 
             // Also cache offline status and public link URL locally
-            if (!currSession.isRemoteLegacy) {
-                ndb.offlineRootDao().getByUuid(newNode.uuid)?.let {
-                    if (it.encodedState != newNode.encodedState) {
-                        // TODO we should rather try to move existing offline root
-                        offlineService.removeOfflineRoot(state)
-                        offlineService.updateOfflineRoot(newNode)
-                    } else {
-                        newNode.setOfflineRoot(true)
-                    }
+            ndb.offlineRootDao().getByUuid(newNode.uuid)?.let {
+                if (it.encodedState != newNode.encodedState) {
+                    // TODO we should rather try to move existing offline root
+                    offlineService.removeOfflineRoot(state)
+                    offlineService.updateOfflineRoot(newNode)
+                } else {
+                    newNode.setOfflineRoot(true)
                 }
             }
-            var address: String? = null
+            val address: String? = null
             val isShared =
                 newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARED, "false") == "true"
             if (isShared) {
@@ -363,35 +361,6 @@ class NodeService(
         }
     }
 
-    suspend fun refreshBookmarks(stateID: StateID) = withContext(ioDispatcher) {
-        TODO("Reimplement")
-        return@withContext null
-//        try {
-//            val dao = nodeDB(stateID).treeNodeDao()
-//            val nodes = mutableListOf<FileNode>()
-//            getClient(stateID).getBookmarks { node: Node? ->
-//                if (node !is FileNode) {
-//                    Log.w(logTag, "could not store node: $node")
-//                } else {
-//                    nodes.add(node)
-//                    val currNode = RTreeNode.fromFileNode(stateID, node)
-//                    currNode.setBookmarked(true)
-//                    val oldNode = dao.getNode(currNode.encodedState)
-//                    if (oldNode == null) {
-//                        dao.insert(currNode)
-//                    } else if (!oldNode.isBookmarked()) {
-//                        oldNode.setBookmarked(true)
-//                        dao.update(oldNode)
-//                    }
-//                }
-//            }
-//        } catch (se: SDKException) {
-//            val msg = "Could not refresh bookmarks from server: ${se.message}"
-//            handleSdkException(stateID, msg, se)
-//            throw SDKException(ErrorCodes.api_error, "Could not refresh bookmarks for $stateID", se)
-//        }
-    }
-
     suspend fun stillExists(stateID: StateID): Boolean = withContext(ioDispatcher) {
         if (!accountService.isClientConnected(stateID)) { // Cannot check: we assume node is still there
             return@withContext true
@@ -452,7 +421,6 @@ class NodeService(
             throw SDKException("Could not delete $stateID", se)
         }
     }
-
 
     private suspend fun getNodeInfo(stateID: StateID): TreeNode? {
         try {
@@ -602,7 +570,6 @@ class NodeService(
                 localNode.remoteModificationTS >= remote.remoteModificationTS
     }
 
-
     suspend fun rename(stateID: StateID, newName: String): String? =
         withContext(ioDispatcher) {
             try {
@@ -699,6 +666,36 @@ class NodeService(
         return@withContext null
 //        getClient(stateID).delete(stateID.slug, arrayOf<String>(stateID.file))
     }
+
+    suspend fun refreshBookmarks(stateID: StateID) = withContext(ioDispatcher) {
+        TODO("Reimplement")
+        return@withContext null
+//        try {
+//            val dao = nodeDB(stateID).treeNodeDao()
+//            val nodes = mutableListOf<FileNode>()
+//            getClient(stateID).getBookmarks { node: Node? ->
+//                if (node !is FileNode) {
+//                    Log.w(logTag, "could not store node: $node")
+//                } else {
+//                    nodes.add(node)
+//                    val currNode = RTreeNode.fromFileNode(stateID, node)
+//                    currNode.setBookmarked(true)
+//                    val oldNode = dao.getNode(currNode.encodedState)
+//                    if (oldNode == null) {
+//                        dao.insert(currNode)
+//                    } else if (!oldNode.isBookmarked()) {
+//                        oldNode.setBookmarked(true)
+//                        dao.update(oldNode)
+//                    }
+//                }
+//            }
+//        } catch (se: SDKException) {
+//            val msg = "Could not refresh bookmarks from server: ${se.message}"
+//            handleSdkException(stateID, msg, se)
+//            throw SDKException(ErrorCodes.api_error, "Could not refresh bookmarks for $stateID", se)
+//        }
+    }
+
 
     /* Constants and helpers */
     private suspend fun handleSdkException(stateID: StateID, msg: String, se: SDKException) {

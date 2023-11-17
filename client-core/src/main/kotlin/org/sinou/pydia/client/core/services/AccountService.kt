@@ -114,9 +114,9 @@ class AccountService(
 
     // Direct communication with the backend
 
-    suspend fun isLegacy(stateId: StateID): Boolean = withContext(ioDispatcher) {
-        return@withContext accountDao.getAccount(stateId.accountId)?.isLegacy ?: false
-    }
+//    suspend fun isLegacy(stateId: StateID): Boolean = withContext(ioDispatcher) {
+//        return@withContext accountDao.getAccount(stateId.accountId)?.isLegacy ?: false
+//    }
 
     suspend fun getActiveSession(): RSessionView? = withContext(ioDispatcher) {
         return@withContext sessionViewDao.getActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)
@@ -434,10 +434,10 @@ class AccountService(
                     return@withContext
                 }
 
-                if (currAccount.isLegacy) {
-                    Log.w(logTag, "Error while connecting to remote P8 server, ignoring")
-                    return@withContext
-                }
+//                if (currAccount.isLegacy) {
+//                    Log.w(logTag, "Error while connecting to remote P8 server, ignoring")
+//                    return@withContext
+//                }
 
                 if (se.isAuthorizationError) {
                     serviceScope.launch {

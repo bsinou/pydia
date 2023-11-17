@@ -12,6 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.sinou.pydia.client.core.services.TransferService
 import java.nio.ByteBuffer
 
 /**
@@ -36,16 +37,16 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
 
-//    private val transferService: TransferService by inject()
+    private val transferService: TransferService by inject()
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in ByteBuffer>) {
         dlScope.launch {
             val (stateId, type) = decodeModel(model)
             try {
-//                val file = transferService.getImageForDisplay(stateId, type, -1)
-//                val bytes = file.readBytes()
-//                val byteBuffer = ByteBuffer.wrap(bytes)
-//                callback.onDataReady(byteBuffer)
+                val file = transferService.getImageForDisplay(stateId, type, -1)
+                val bytes = file.readBytes()
+                val byteBuffer = ByteBuffer.wrap(bytes)
+                callback.onDataReady(byteBuffer)
             } catch (se: SDKException) {
                 Log.e(logTag, "could not get $type at $stateId: ${se.message}")
                 callback.onLoadFailed(

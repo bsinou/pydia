@@ -121,8 +121,8 @@ class ConnectionService(
     //     }
 
     // Expose a flag to the various screens to know if current remote is Cells or P8
-    private var _isRemoteLegacy = false
-    val isRemoteLegacy: Boolean = _isRemoteLegacy
+//    private var _isRemoteLegacy = false
+//    val isRemoteLegacy: Boolean = _isRemoteLegacy
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val wss: Flow<List<RWorkspace>> = sessionView.flatMapLatest { currSessionView ->
@@ -154,7 +154,7 @@ class ConnectionService(
             if (activeSession == null) {
                 SessionState(networkStatus, false, LoginStatus.Undefined)
             } else {
-                _isRemoteLegacy = activeSession.isLegacy
+//                _isRemoteLegacy = activeSession.isLegacy
 
                 if (networkStatus.isConnected() && !activeSession.isReachable) {
                     // We have internet access but current server is marked as un-reachable
@@ -286,10 +286,10 @@ class ConnectionService(
     private suspend fun monitorCredentials() = withContext(coroutineService.ioDispatcher) {
         val currSession = sessionView.first() ?: return@withContext
         val currID = currSession.getStateID()
-        if (currSession.isLegacy) {
-            // this is for Cells only
-            return@withContext
-        }
+//        if (currSession.isLegacy) {
+//            // this is for Cells only
+//            return@withContext
+//        }
         val token = appCredentialService.get(currID.id) ?: run {
             Log.w(logTag, "Session $currID has no credentials, aborting")
             pauseMonitoring()

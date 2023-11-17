@@ -49,7 +49,7 @@ import org.sinou.pydia.sdk.transport.StateID
 fun AccountList(
     accounts: List<RSessionView>,
     openAccount: (stateID: StateID) -> Unit,
-    login: (stateID: StateID, skipVerify: Boolean, isLegacy: Boolean) -> Unit,
+    login: (stateID: StateID, skipVerify: Boolean) -> Unit,
     logout: (stateID: StateID) -> Unit,
     forget: (stateID: StateID) -> Unit,
     modifier: Modifier = Modifier,
@@ -81,8 +81,7 @@ fun AccountList(
                         login = {
                             login(
                                 account.getStateID(),
-                                account.skipVerify(),
-                                account.isLegacy
+                                account.skipVerify()
                             )
                         },
                         logout = { logout(account.getStateID()) },

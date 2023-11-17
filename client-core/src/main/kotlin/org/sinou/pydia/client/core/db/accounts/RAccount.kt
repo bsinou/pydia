@@ -27,7 +27,7 @@ data class RAccount(
     // 0 = normal, 1 = skip verify, 2 = custom certificate (to be implemented)
     @ColumnInfo(name = "tls_mode") var tlsMode: Int = 0,
 
-    @ColumnInfo(name = "is_legacy") var isLegacy: Boolean = false,
+    // @ColumnInfo(name = "is_legacy") var isLegacy: Boolean = false,
 
     // We rather use properties to simply be able to enrich model
     @ColumnInfo(name = "properties") val properties: Properties,

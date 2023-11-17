@@ -27,8 +27,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.R
+import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.transfer.glide.encodeModel
 import org.sinou.pydia.client.core.ui.browse.models.CarouselVM
@@ -87,13 +87,12 @@ fun HorizontalPagerWithOffsetTransition(
             .fillMaxSize()
             .wrapContentSize(Alignment.Center),
         key = { currIndex -> items[currIndex].encodedState }
-    ) { page -> OneImage(carouselVM.isRemoteLegacy, items, page) }
+    ) { page -> OneImage(items, page) }
 }
 
 @Composable
 @OptIn(ExperimentalGlideComposeApi::class)
 private fun OneImage(
-    isLegacy: Boolean,
     items: List<RTreeNode>,
     page: Int
 ) {
@@ -149,25 +148,15 @@ private fun OneImage(
         // cardModifier
         cardNoZoomModifier
     ) {
-        if (isLegacy) {
-            GlideImage(
-                model = encodeModel(items[page], AppNames.LOCAL_FILE_TYPE_FILE),
-                contentDescription = "${items[page].name} thumbnail",
-                failure = placeholder(R.drawable.file_image_outline),
-                loading = placeholder(R.drawable.loading_img),
-                modifier = imageModifier,
-            )
-        } else {
-            GlideImage(
-                model = encodeModel(items[page], AppNames.LOCAL_FILE_TYPE_PREVIEW),
-                contentDescription = "${items[page].name} thumbnail",
-                loading = placeholder(R.drawable.loading_img),
-                failure = placeholder(R.drawable.file_image_outline),
-                modifier = imageModifier,
-                // TODO we lost this in comparison with XML era
-                //   thumbnail(thumbnailRequest)
-            )
-        }
+        GlideImage(
+            model = encodeModel(items[page], AppNames.LOCAL_FILE_TYPE_PREVIEW),
+            contentDescription = "${items[page].name} thumbnail",
+            loading = placeholder(R.drawable.loading_img),
+            failure = placeholder(R.drawable.file_image_outline),
+            modifier = imageModifier,
+            // TODO we lost this in comparison with XML era
+            //   thumbnail(thumbnailRequest)
+        )
     }
 }
 

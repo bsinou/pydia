@@ -1,24 +1,47 @@
 package org.sinou.pydia.client.core.ui.login
 
 import android.util.Log
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import org.koin.androidx.compose.koinViewModel
 import org.sinou.pydia.client.core.ui.core.lazyLoginContext
 import org.sinou.pydia.client.core.ui.core.lazySkipVerify
 import org.sinou.pydia.client.core.ui.core.lazyStateID
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.client.core.ui.login.screens.AskServerUrl
 import org.sinou.pydia.client.core.ui.login.screens.LaunchAuthProcessing
-import org.sinou.pydia.client.core.ui.login.screens.ProcessAuth
 import org.sinou.pydia.client.core.ui.login.screens.SkipVerify
 import org.sinou.pydia.client.core.ui.login.screens.StartingLoginProcess
 
-fun NavGraphBuilder.loginNavGraph(
-    helper: LoginHelper,
-    loginVM: LoginVM,
+
+private const val logTag = "LoginNavGraphNew"
+
+@Composable
+fun LoginNavGraphNew(
+    navController: NavHostController,
+    navigateTo: (String) -> Unit,
+    loginVM: LoginVM = koinViewModel()
 ) {
-    val logTag = "loginNavGraph"
+
+    val helper = LoginHelper(
+        navController = navController,
+        loginVM = loginVM,
+        navigateTo = navigateTo
+    )
+
+    NavHost(navController, LoginDestinations.AskUrl.route) {
+        localLoginGraph(helper, loginVM)
+    }
+}
+
+fun NavGraphBuilder.localLoginGraph(
+    helper: LoginHelper,
+    loginVM: LoginVM
+) {
 
     composable(LoginDestinations.Starting.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
@@ -67,15 +90,15 @@ fun NavGraphBuilder.loginNavGraph(
         )
     }
 
-    composable(LoginDestinations.ProcessAuthCallback.route) { nbsEntry ->
-        val stateID = lazyStateID(nbsEntry)
-        LaunchedEffect(key1 = stateID) {
-            Log.i(logTag, "## 1st compo login/process-auth/$stateID")
-        }
-        ProcessAuth(
-            stateID = stateID,
-            loginVM = loginVM,
-            helper = helper,
-        )
-    }
+//        composable(LoginDestinations.ProcessAuthCallback.route) { nbsEntry ->
+//            val stateID = lazyStateID(nbsEntry)
+//            LaunchedEffect(key1 = stateID) {
+//                Log.i(logTag, "## 1st compo login/process-auth/$stateID")
+//            }
+//            ProcessAuth(
+//                stateID = stateID,
+//                loginVM = loginVM,
+//                helper = helper,
+//            )
+//        }
 }

@@ -88,7 +88,7 @@ class PydiaSimpleApp : Application(), KoinComponent {
     private fun configureWorkers() {
         try {
             val workerService: WorkerService by inject()
-            Log.i(logTag, "Initialised workers: $workerService")
+            Log.i(logTag, "... Initialised workers: $workerService")
         } catch (e: Exception) {
             Log.e(logTag, "Could not configure workerService start: $e")
         }

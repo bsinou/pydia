@@ -38,7 +38,7 @@ class WorkerService(
                 configureOfflinePrefObserver()
             }
         }
-        Log.i(logTag, "## WorkerService initialised")
+//        Log.i(logTag, "... After init")
     }
 
     // TODO implement background cleaning, typically:

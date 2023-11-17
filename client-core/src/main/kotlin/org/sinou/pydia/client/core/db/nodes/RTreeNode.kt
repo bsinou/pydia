@@ -10,7 +10,6 @@ import org.sinou.pydia.client.core.db.CellsConverters
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.api.ui.WorkspaceNode
 import org.sinou.pydia.sdk.transport.StateID
-import org.sinou.pydia.sdk.utils.Str
 import java.util.*
 
 @Entity(tableName = "tree_nodes")
@@ -185,19 +184,38 @@ data class RTreeNode(
 
         fun fromWorkspaceNode(stateID: StateID, node: WorkspaceNode): RTreeNode {
             try {
-                val currSortName = when (node.workspaceType) {
+
+                val currSortName = when (node.type) {
                     SdkNames.WS_TYPE_PERSONAL -> "1_2_${node.label}"
                     SdkNames.WS_TYPE_CELL -> "1_8_${node.label}"
                     else -> "1_5_${node.label}"
                 }
 
+                return RTreeNode(
+                    encodedState = stateID.id,
+                    workspace = node.slug,
+                    parentPath = "",
+                    name = node.label ?: "",
+                    uuid = stateID.id, // TODO fix this
+                    etag = "",
+                    mime = SdkNames.NODE_MIME_WS_ROOT,
+                    size = 0L,
+                    remoteModificationTS = 0,
+                    // TODO re-implement the 2 below
+                    properties = Properties(),
+                    meta = Properties(),
+                    metaHash = 0,
+                    sortName = currSortName,
+                )
+
+
 //                val nodeUuid = if (Str.notEmpty(node.id)) node.id else node.slug
 
-                val storedID = // Retrieve the account from the passed state
-                    StateID.safeFromId(stateID.accountId).withPath("/${node.slug}")
-
-                // FIXME WorkspaceNode is also deprecated
-                throw RuntimeException("TODO re-implement without FileNode legacy layer")
+//                val storedID = // Retrieve the account from the passed state
+//                    StateID.safeFromId(stateID.accountId).withPath("/${node.slug}")
+//
+//                // FIXME WorkspaceNode is also deprecated
+//                throw RuntimeException("TODO re-implement without FileNode legacy layer")
 //
 //                return RTreeNode(
 //                    encodedState = storedID.id,

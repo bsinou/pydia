@@ -39,11 +39,8 @@ class AuthService(
         const val LOGIN_CONTEXT_ACCOUNTS = "account_list"
     }
 
-    fun forgetCredentials(accountID: StateID, isLegacy: Boolean) {
+    fun forgetCredentials(accountID: StateID) {
         tokenDao.deleteToken(accountID.id)
-        if (isLegacy) {
-            legacyCredentialsDao.forgetPassword(accountID.id)
-        }
     }
 
     /** Cells' Credentials flow management */
@@ -95,12 +92,16 @@ class AuthService(
             return@withContext true to StateID(rState.serverURL.id)
         }
 
+    /**
+     * Returns the target session's account StateID and a login context when the process is successful,
+     * or null otherwise
+     */
     suspend fun handleOAuthResponse(
         accountService: AccountService,
         sessionFactory: SessionFactory,
         oauthState: String,
         code: String
-    ): Pair<StateID, String?>? = withContext(ioDispatcher) {
+    ): Pair<StateID, String>? = withContext(ioDispatcher) {
         var accountID: StateID? = null
 
         val rState = authStateDao.get(oauthState)

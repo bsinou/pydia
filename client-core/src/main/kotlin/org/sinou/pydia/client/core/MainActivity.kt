@@ -16,6 +16,8 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,16 +27,13 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.compose.KoinContext
 import org.sinou.pydia.client.core.services.ConnectionService
-import org.sinou.pydia.client.core.ui.MainApp
-import org.sinou.pydia.client.core.ui.StartingState
-import org.sinou.pydia.client.core.ui.core.nav.CellsDestinations
+import org.sinou.pydia.client.core.ui.AppState
+import org.sinou.pydia.client.core.ui.MainController
 import org.sinou.pydia.client.core.ui.core.screens.WhiteScreen
-import org.sinou.pydia.client.core.ui.login.LoginDestinations
-import org.sinou.pydia.client.core.ui.system.models.LandingVM
-import org.sinou.pydia.sdk.api.ErrorCodes
-import org.sinou.pydia.sdk.api.SDKException
+import org.sinou.pydia.client.core.ui.login.models.OAuthProcessState
+import org.sinou.pydia.client.core.ui.login.models.OAuthVM
+import org.sinou.pydia.client.core.ui.login.screens.AuthScreen
 import org.sinou.pydia.sdk.transport.StateID
-
 
 /**
  * Main entry point for the Cells Application:
@@ -45,27 +44,25 @@ import org.sinou.pydia.sdk.transport.StateID
 class MainActivity : ComponentActivity() {
 
     private val logTag = "MainActivity"
-
     private val connectionService: ConnectionService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         installSplashScreen()
-
         Log.i(logTag, "... onCreate for main activity, bundle: $savedInstanceState")
         super.onCreate(savedInstanceState)
-        val mainActivity = this
-        WindowCompat.setDecorFitsSystemWindows(window, true)
 
+        WindowCompat.setDecorFitsSystemWindows(window, true)
         var appIsReady = false
+        val mainActivity = this
         setContent {
             KoinContext {
-                MainActivityContent(
+                AppBinding(
                     activity = mainActivity,
                     sBundle = savedInstanceState,
+                    intentID = intentIdentifier(),
                     launchIntent = mainActivity::launchIntent
                 ) {
-                    Log.e(logTag, "App is ready ")
                     appIsReady = true
                 }
             }
@@ -76,13 +73,11 @@ class MainActivity : ComponentActivity() {
         content.viewTreeObserver.addOnPreDrawListener(
             object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
-                    Log.e(logTag, " in on predraw")
-
                     if (appIsReady) { // Check whether the initial data is ready.
                         // Content is ready: Start drawing.
                         content.viewTreeObserver.removeOnPreDrawListener(this)
                     }
-                    Log.e(logTag, " ... app ready: $appIsReady")
+                    Log.d(logTag, "... In onPreDraw(), ready: $appIsReady")
                     return appIsReady
                 }
             }
@@ -91,87 +86,64 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @Composable
-    fun MainActivityContent(
+    fun AppBinding(
         activity: Activity,
         sBundle: Bundle?,
+        intentID: String,
         launchIntent: (Intent?, Boolean, Boolean) -> Unit,
         readyCallback: () -> Unit,
     ) {
-        Log.e(logTag, "... Recomposing MainActivityContent with i: $intent and b: $sBundle ")
-        val landingVM by viewModel<LandingVM>()
-
-        val widthSizeClass = calculateWindowSizeClass(activity).widthSizeClass
+        Log.e(logTag, "... Composing AppBinding with\n\tintent[$intentID]: $intent\n\tb: $sBundle ")
         val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
-        val startingState = remember { mutableStateOf<StartingState?>(null) }
-        val ready = rememberSaveable { mutableStateOf(false) }
+        val appState = remember { mutableStateOf(AppState.NONE) }
+        val oauthVM by viewModel<OAuthVM>()
+        val processState by oauthVM.processState.collectAsState()
 
-        val ackStartStateProcessed: (String?, StateID) -> Unit = { _, _ ->
-            intentHasBeenProcessed.value = true
-            startingState.value = null
-        }
-
-        val launchTaskFor: (String, StateID) -> Unit = { action, _ ->
-            when (action) {
-                AppNames.ACTION_CANCEL -> {
-                    setResult(RESULT_CANCELED)
-                    finishAndRemoveTask()
-                }
-
-                AppNames.ACTION_DONE -> {
-                    setResult(RESULT_OK)
-                    finish()
-                }
+        LaunchedEffect(key1 = intentID) {
+            if (intentHasBeenProcessed.value) {
+                Log.w(logTag, "intent has already been processed...")
+                return@LaunchedEffect
             }
-        }
-
-        LaunchedEffect(key1 = intent.toString()) {
-            Log.e(logTag, "... Launching main effect for $intent")
-            Log.e(logTag, "\t\tIntent already processed: ${intentHasBeenProcessed.value}")
-
-            try { // We only handle intent when we have no bundle state
-                sBundle ?: run {
-                    startingState.value = handleIntent(landingVM)
-                }
-            } catch (e: SDKException) {
-                Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
-                if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
-                    Log.e(logTag, "Launch activity with un-valid state, ignoring...")
-                    activity.finishAndRemoveTask()
-                    return@LaunchedEffect
-                } else {
-                    Log.e(logTag, "Could not handle intent, aborting....")
-                    throw e
-                }
-            }
-
-            Log.d(logTag, "... OnCreate with starting state:")
-            Log.d(logTag, "      - StateID: ${startingState.value?.stateID}")
-            Log.d(logTag, "      - Route: ${startingState.value?.route}")
-
-            // Rework this: we have the default for the time being.
-            // see e.g https://medium.com/mobile-app-development-publication/android-jetpack-compose-inset-padding-made-easy-5f156a790979
-            // WindowCompat.setDecorFitsSystemWindows(window, false)
-            // WindowCompat.setDecorFitsSystemWindows(window, true)
-            ready.value = true
+            appState.value = handleIntent(sBundle, oauthVM) ?: AppState(StateID.NONE, null)
             readyCallback()
+            intentHasBeenProcessed.value = true
         }
+
+        // Prepare the BaseUiState
+        val widthSizeClass = calculateWindowSizeClass(activity).widthSizeClass
 
         Box {
-            Log.e(logTag, "... in box")
-            if (ready.value) {
-                Log.d(logTag, "... Now ready, composing for ${startingState.value?.route}")
-                MainApp(
-                    startingState = startingState.value,
-                    ackStartStateProcessed = ackStartStateProcessed,
-                    launchIntent = launchIntent,
-                    launchTaskFor = launchTaskFor,
-                    widthSizeClass = widthSizeClass,
-                )
-            } else {
-                Log.e(logTag, "... in box - white screen")
-                WhiteScreen()
+
+            when (processState) {
+                // FIXME Handle the case where we have to explicitly navigate to a new page (e.G: new account...)
+                OAuthProcessState.DONE,
+                OAuthProcessState.SKIP ->
+                    MainController(
+                        appState = appState.value,
+                        launchIntent = launchIntent,
+                        widthSizeClass = widthSizeClass,
+                    )
+
+                OAuthProcessState.PROCESSING -> ProcessAuth(oauthVM)
+
+                OAuthProcessState.NEW -> {
+                    Log.d(logTag, "... At Compose root, not yet ready")
+                    WhiteScreen()
+                }
             }
         }
+    }
+
+    @Composable
+    fun ProcessAuth(loginVM: OAuthVM) {
+        val message = loginVM.message.collectAsState()
+        val errMsg = loginVM.errorMessage.collectAsState()
+        AuthScreen(
+            isProcessing = errMsg.value.isNullOrEmpty(),
+            message = message.value,
+            errMsg = errMsg.value,
+            cancel = { TODO("Reimplement") }
+        )
     }
 
     override fun onPause() {
@@ -182,6 +154,104 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         connectionService.relaunchMonitoring()
         super.onResume()
+    }
+
+    private fun intentIdentifier(): String {
+        var id: String? = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            id = intent.identifier
+        }
+        id = id ?: run {// tmp hack: compute a local ID based on a few variables
+            "${intent.categories}/${intent.action}/${intent.component}"
+        }
+        Log.e(logTag, "#### Got an intent identifier: $id")
+        return id
+    }
+
+    /**
+     * This should not throw any error
+     */
+    private suspend fun handleIntent(
+        sBundle: Bundle?,
+        oauthVM: OAuthVM
+    ): AppState? {
+        try {
+            val msg = "... Launching processing for ($intent)\n" +
+                    "\t- cmp: ${intent.component}\n\t- action${intent.action}" +
+                    "\n\t- categories: ${intent.categories}" //+
+            Log.e(logTag, msg)
+            if (sBundle != null) {
+                TODO("Handle non-null saved bundle state")
+            }
+
+            // Handle various supported events
+            when (intent.action) {
+                Intent.ACTION_MAIN -> {
+                    oauthVM.skip()
+                }
+
+                Intent.ACTION_VIEW -> {
+                    val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
+                    val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
+
+                    if (code == null || state == null) {
+                        throw IllegalArgumentException("Received an unexpected VIEW intent: $intent")
+                    }
+
+                    val (isValid, targetStateID) = oauthVM.isAuthStateValid(state)
+                    if (!isValid) {
+                        throw IllegalArgumentException("Passed state is wrong or already consumed: $intent")
+                    }
+
+                    oauthVM.launchCodeManagement(state, code)
+                }
+
+//            Intent.ACTION_SEND == intent.action -> {
+//                val clipData = intent.clipData
+//                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
+//                clipData?.let {
+//                    startingState.route = ShareDestination.ChooseAccount.route
+//                    clipData.getItemAt(0).uri?.let {
+//                        startingState.uris.add(it)
+//                    }
+//                }
+//            }
+//
+//            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
+//                val tmpClipData = intent.clipData
+//                tmpClipData?.let { clipData ->
+//                    startingState.route = ShareDestination.ChooseAccount.route
+//                    for (i in 0 until clipData.itemCount) {
+//                        clipData.getItemAt(i).uri?.let {
+//                            startingState.uris.add(it)
+//                        }
+//                    }
+//                }
+//            }
+
+                else -> {
+                    val action = intent.action
+                    var categories = ""
+                    intent.categories?.forEach { categories += "$it, " }
+                    Log.w(logTag, "... Unexpected intent: $action - $categories")
+                }
+            }
+            // FIXME Handle errors here.
+        } catch (e: Exception) {
+            Log.e(logTag, "Could not handle intent, doing nothing...")
+            e.printStackTrace()
+//                if (e is SDKException) {
+//                    Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
+//                    if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
+//                        Log.e(logTag, "Launch activity with un-valid state, ignoring...")
+//                        activity.finishAndRemoveTask()
+//                        return@LaunchedEffect
+//                    }
+//                }
+//                Log.e(logTag, "Could not handle intent, aborting....")
+//                throw e
+        }
+        return null
     }
 
     private fun launchIntent(
@@ -210,106 +280,5 @@ class MainActivity : ComponentActivity() {
                 finishAndRemoveTask()
             }
         }
-    }
-
-    private suspend fun handleIntent(
-        landingVM: LandingVM
-    ): StartingState {
-        Log.d(logTag, "   => Processing intent: $intent")
-
-        // No intent => issue
-        if (intent == null) {
-            Log.e(logTag, "#############################")
-            Log.e(logTag, "No Intent and no bundle")
-            Thread.dumpStack()
-            Log.e(logTag, "#############################")
-            // TODO find how we can land here and fix.
-            val state = StartingState(StateID.NONE)
-            state.route = CellsDestinations.Accounts.route
-            return state
-        }
-
-        // Intent with a stateID => should not happen anymore
-        val initialStateID = intent.getStringExtra(AppKeys.EXTRA_STATE)?.let {
-            val stateID = StateID.safeFromId(it)
-            Log.e(logTag, "#### Received an intent with a state: $stateID")
-            stateID
-        } ?: StateID.NONE
-        var startingState = StartingState(initialStateID)
-
-        // Handle various supported events
-        when {
-            // Normal start
-            Intent.ACTION_MAIN == intent.action
-                    && intent.hasCategory(Intent.CATEGORY_LAUNCHER) -> {
-                startingState = landingVM.getStartingState()
-            }
-
-            Intent.ACTION_VIEW == intent.action -> {
-                val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
-                val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
-
-                if (code != null && state != null) { // Callback for OAuth credential flow
-                    val (isValid, targetStateID) = landingVM.isAuthStateValid(state)
-                    if (!isValid) {
-                        Log.e(
-                            logTag,
-                            "Received a OAuth flow callback intent, but it has already been consumed, ignoring "
-                        )
-                        throw SDKException(
-                            ErrorCodes.unexpected_content,
-                            "Passed state is wrong or already consumed"
-                        )
-                    }
-                    startingState.code = code
-                    startingState.state = state
-                    startingState.stateID = targetStateID
-                    startingState.route =
-                        LoginDestinations.ProcessAuthCallback.createRoute(targetStateID)
-
-                } else {
-                    Log.e(logTag, "Unexpected ACTION_VIEW: $intent")
-                    if (intent.extras != null) {
-                        Log.e(logTag, "Listing extras:")
-                        intent.extras?.keySet()?.let {
-                            for (key in it.iterator()) {
-                                Log.e(logTag, " - $key")
-                            }
-                        }
-                    }
-                }
-            }
-
-//            Intent.ACTION_SEND == intent.action -> {
-//                val clipData = intent.clipData
-//                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
-//                clipData?.let {
-//                    startingState.route = ShareDestination.ChooseAccount.route
-//                    clipData.getItemAt(0).uri?.let {
-//                        startingState.uris.add(it)
-//                    }
-//                }
-//            }
-//
-//            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
-//                val tmpClipData = intent.clipData
-//                tmpClipData?.let { clipData ->
-//                    startingState.route = ShareDestination.ChooseAccount.route
-//                    for (i in 0 until clipData.itemCount) {
-//                        clipData.getItemAt(i).uri?.let {
-//                            startingState.uris.add(it)
-//                        }
-//                    }
-//                }
-//            }
-
-            else -> {
-                val action = intent.action
-                var categories = ""
-                intent.categories?.forEach { categories += "$it, " }
-                Log.w(logTag, "... Unexpected intent: $action - $categories")
-            }
-        }
-        return startingState
     }
 }

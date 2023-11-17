@@ -33,13 +33,14 @@ class TreeNodeRepository(
     }
 
     suspend fun refreshSessionCache() = withContext(ioDispatcher) {
-        Log.d(logTag, "... Refreshing session cache. Known accounts:")
         val sessions = sessionDao.getSessions()
+        var msg = "... Refreshing session cache. Known accounts:\n"
         _sessions.clear()
         for (rSession in sessions) {
             _sessions[rSession.accountID] = rSession
-            Log.d(logTag, "   - ${rSession.account()} at ./${rSession.dirName}")
+            msg += "\t- ${rSession.account()} at ./${rSession.dirName}\n"
         }
+        Log.i(logTag, msg)
     }
 
     fun nodeDB(stateID: StateID): TreeNodeDB {

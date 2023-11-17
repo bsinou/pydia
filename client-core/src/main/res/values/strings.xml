@@ -58,21 +58,21 @@
     <!-- PAGE SPECIFIC MESSAGES -->
 
     <!-- Welcome Page -->
-    <string name="welcome_title">Welcome in Pydio!</string>
-    <string name="welcome_subtitle">A light Cells client for Android</string>
+    <string name="welcome_title">Welcome in Pydia!</string>
+    <string name="welcome_subtitle">A lab for the future of Pydio Cells on Android</string>
     <string name="welcome_text">All your data on your device, everywhere, at any time!</string>
     <string name="welcome_no_account_instructions">First, configure your connection to your remote Pydio server:</string>
     <string name="welcome_add_account_button">Configure a connection</string>
 
     <!-- About Page -->
-    <string name="about_page_version_title">Pydio</string>
-    <string name="about_version_title">Pydio Client for Android</string>
+    <string name="about_page_version_title">Pydia</string>
+    <string name="about_version_title">The next generation client for Pydio Cells on your mobile device</string>
     <string name="about_help_title">Troubleshooting</string>
-    <string name="about_page_copyright">Pydio is a trademark of Abstrium SAS.</string>
+    <string name="about_page_copyright">Pydio Cells is a trademark of Abstrium SAS. The current application is a client for mobile device, entirely rewritten in Kotlin by B. Sinou based on his and others previous open source work, in or outside Abstrium.</string>
     <string name="version_name_display">Version name: %s</string>
     <string name="version_code_display">Version code: %s</string>
     <string name="last_update_time_display">Last update on: %s</string>
-    <string name="about_page_get_help">If you cannot get this application to work correctly, please send an email with a complete description of the problem you are facing so that we can help you.</string>
+    <string name="about_page_get_help">If you cannot get this application to work correctly, please check us on github or on the forum.</string>
     <string name="help_button_support">Contact Pydio Support</string>
     <string name="open_website_button">More info on pydio.com</string>
 

@@ -82,12 +82,10 @@ fun ConnectionStatus(
 
             currState.isServerReachable && !currState.loginStatus.isConnected()
             -> {
-                Log.e(LOG_TAG, "Credentials Expired ")
                 ConnectionStatus(
                     icon = CellsIcons.NoValidCredentials,
                     desc = stringResource(R.string.auth_err_expired),
                     type = Status.DANGER
-
                 )
             }
 
@@ -102,7 +100,6 @@ fun ConnectionStatus(
 
             else -> {
                 Log.e(LOG_TAG, "Unexpected status: $currState")
-
                 ConnectionStatus(
                     icon = CellsIcons.Unknown,
                     desc = stringResource(R.string.no_connection_title),

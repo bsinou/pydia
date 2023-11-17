@@ -1,11 +1,9 @@
 package org.sinou.pydia.client.core.ui
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,42 +13,43 @@ import org.sinou.pydia.client.core.ui.account.AccountsScreen
 import org.sinou.pydia.client.core.ui.browse.browseNavGraph
 import org.sinou.pydia.client.core.ui.core.nav.CellsDestinations
 import org.sinou.pydia.client.core.ui.login.LoginHelper
-import org.sinou.pydia.client.core.ui.login.LoginNavigation
-import org.sinou.pydia.client.core.ui.login.loginNavGraph
+import org.sinou.pydia.client.core.ui.login.localLoginGraph
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.client.core.ui.models.BrowseRemoteVM
 import org.sinou.pydia.client.core.ui.system.systemNavGraph
-import org.sinou.pydia.sdk.transport.StateID
+import org.sinou.pydia.client.core.utils.rememberContentPaddingForScreen
+import org.sinou.pydia.sdk.utils.Log
 
 @Composable
-fun CellsNavGraph(
-    startingState: StartingState?,
-    ackStartStateProcessing: (String?, StateID) -> Unit,
+fun NavGraph(
     isExpandedScreen: Boolean,
+    appState: AppState,
     navController: NavHostController,
-    navigateTo: (String) -> Unit,
     openDrawer: () -> Unit,
-    launchTaskFor: (String, StateID) -> Unit,
+    navigateTo: (String) -> Unit,
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
+    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
     loginVM: LoginVM = koinViewModel(),
-//     browseRemoteVM: BrowseRemoteVM = koinViewModel()
 ) {
 
-    val logTag = "CellsNavGraph"
 
-    val loginNavActions = remember(navController) {
-        LoginNavigation(navController)
-    }
+    val loginHelper = LoginHelper(
+        navController = navController,
+        loginVM = loginVM,
+        navigateTo = navigateTo
+    )
 
-    Log.i(logTag, "### Composing nav graph for ${startingState?.route}")
+    val logTag = "NavGraph"
 
-    startingState?.let {
-        LaunchedEffect(key1 = it.route) {
-            it.route?.let { dest ->
-                Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
-                Log.e(logTag, "      newRoute: $dest")
-                navController.navigate(dest)
-            }
+    Log.i(logTag, "### Composing nav graph for ${appState.route}")
+    LaunchedEffect(key1 = appState.route) {
+        appState.route?.let { dest ->
+            Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
+            Log.e(logTag, "      newRoute: $dest")
+            navController.navigate(dest)
+        } ?: run {
+            Log.i(logTag, "### Forcing navigation to accounts")
+            navController.navigate(CellsDestinations.Accounts.route)
         }
     }
 
@@ -61,6 +60,7 @@ fun CellsNavGraph(
     ) {
 
         composable(CellsDestinations.Accounts.route) {
+            Log.i(logTag, "### Composing Accounts")
             val accountListVM: AccountListVM = koinViewModel()
             AccountsScreen(
                 isExpandedScreen = isExpandedScreen,
@@ -79,23 +79,14 @@ fun CellsNavGraph(
             }
         }
 
-        loginNavGraph(
-            loginVM = loginVM,
-            helper = LoginHelper(
-                navController,
-                loginVM,
-                navigateTo,
-                startingState,
-                ackStartStateProcessing
-            ),
-        )
+        localLoginGraph(loginHelper, loginVM)
 
         browseNavGraph(
             isExpandedScreen = isExpandedScreen,
             navController = navController,
             openDrawer = openDrawer,
             back = { navController.popBackStack() },
-//            browseRemoteVM = browseRemoteVM,
+            browseRemoteVM = browseRemoteVM,
         )
 
         systemNavGraph(
@@ -105,6 +96,5 @@ fun CellsNavGraph(
             launchIntent = launchIntent,
             back = { navController.popBackStack() },
         )
-
     }
 }

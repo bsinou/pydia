@@ -1,14 +1,9 @@
 package org.sinou.pydia.client.core.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.add
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
@@ -21,8 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers.Main
@@ -37,17 +30,28 @@ import org.sinou.pydia.client.core.ui.core.nav.AppPermanentDrawer
 import org.sinou.pydia.client.core.ui.core.nav.CellsNavigationActions
 import org.sinou.pydia.client.core.ui.system.SystemNavigationActions
 import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
+import org.sinou.pydia.client.core.utils.rememberContentPaddingForScreen
 import org.sinou.pydia.sdk.transport.StateID
 
-private const val LOG_TAG = "WithDrawer.kt"
+private const val LOG_TAG = "MainHost.kt"
+
+class AppState(
+    val stateID: StateID,
+    val route: String?
+){
+    companion object {
+        val NONE = AppState(
+            StateID.NONE,
+            null
+        )
+    }
+}
 
 @Composable
-fun NavHostWithDrawer(
-    startingState: StartingState?,
-    ackStartStateProcessed: (String?, StateID) -> Unit,
-    launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    launchTaskFor: (String, StateID) -> Unit,
+fun MainController(
     widthSizeClass: WindowWidthSizeClass,
+    appState: AppState,
+    launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     connectionService: ConnectionService = koinInject(),
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -57,9 +61,9 @@ fun NavHostWithDrawer(
         CellsNavigationActions(mainNavController)
     }
 
-//    val browseNavActions = remember(mainNavController) {
-//        BrowseNavigationActions(mainNavController)
-//    }
+    val currAppState = remember {
+        mutableStateOf(appState)
+    }
 
     val systemNavActions = remember(mainNavController) {
         SystemNavigationActions(mainNavController)
@@ -155,18 +159,16 @@ fun NavHostWithDrawer(
                         excludeTop = !isExpandedScreen
                     )
                 ) {
-                    CellsNavGraph(
-                        startingState = startingState,
-                        ackStartStateProcessing = ackStartStateProcessed,
+                    NavGraph(
                         isExpandedScreen = isExpandedScreen,
+                        appState = appState,
                         navController = mainNavController,
-                        navigateTo = navigateTo,
-                        launchTaskFor = launchTaskFor,
                         openDrawer = {
                             if (!isExpandedScreen) {
                                 coroutineScope.launch { sizeAwareDrawerState.open() }
                             }
                         },
+                        navigateTo = navigateTo,
                         launchIntent = launchIntent,
                     )
                 }
@@ -193,15 +195,13 @@ private fun rememberSizeAwareDrawerState(isExpandedScreen: Boolean): DrawerState
     }
 }
 
-/**
- * Determine the content padding to apply to the different screens of the app
- */
-@Composable
-fun rememberContentPaddingForScreen(
-    additionalTop: Dp = 0.dp,
-    excludeTop: Boolean = false
-) =
-    WindowInsets.systemBars
-        .only(if (excludeTop) WindowInsetsSides.Bottom else WindowInsetsSides.Vertical)
-        .add(WindowInsets(top = additionalTop))
-        .asPaddingValues()
+class StartingState(var stateID: StateID) {
+    var route: String? = null
+
+    // OAuth credential flow call back
+    var code: String? = null
+    var state: String? = null
+
+    // Share with Pydio
+    var uris: MutableList<Uri> = mutableListOf()
+}

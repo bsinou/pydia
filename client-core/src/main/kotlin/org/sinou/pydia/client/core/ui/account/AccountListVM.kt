@@ -2,17 +2,14 @@ package org.sinou.pydia.client.core.ui.account
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import org.sinou.pydia.client.core.db.accounts.RSessionView
-import org.sinou.pydia.client.core.services.AccountService
-import org.sinou.pydia.client.core.ui.core.AbstractCellsVM
-import org.sinou.pydia.client.core.ui.models.fromMessage
-import org.sinou.pydia.client.core.utils.BackOffTicker
-import org.sinou.pydia.sdk.transport.StateID
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import org.sinou.pydia.client.core.db.accounts.RSessionView
+import org.sinou.pydia.client.core.services.AccountService
+import org.sinou.pydia.client.core.ui.core.AbstractCellsVM
+import org.sinou.pydia.client.core.utils.BackOffTicker
+import org.sinou.pydia.sdk.transport.StateID
 import java.util.concurrent.TimeUnit
 
 /**
@@ -86,25 +83,22 @@ class AccountListVM(
         // First we check if some token are about to expire
         // accountService.checkRegisteredAccounts()
         // Then we refresh the list
-        val result = accountService.checkRegisteredAccounts()
-        withContext(Dispatchers.Main) {
-            result.second?.let {
-                if (backOffTicker.getCurrentIndex() > 0) {
-                    // Not optimal, we should rather check the current session status
-                    // before launching the poll
-                    // We do not display the error message if first
-                    done(fromMessage(it))
-                } else {
-                    done()
-                }
-                pause()
-            } ?: run {
-                if (result.first > 0) {
-                    Log.e(logTag, "Found ${result.first} change(s)")
-                    backOffTicker.resetIndex()
-                }
+        try {
+            val changes = accountService.checkRegisteredAccounts()
+            if (changes > 0) {
+                Log.i(logTag, "Found $changes change(s)")
+                backOffTicker.resetIndex()
+            }
+            done()
+        } catch (e: Exception) {
+            // Small hack: we skip the message if it happens just after a backoff ticker reset
+            // TODO comes from when we did not handle network correctly. Insure it is still necessary
+            if (backOffTicker.getCurrentIndex() > 0) {
+                done(e)
+            } else {
                 done()
             }
+            pause()
         }
     }
 

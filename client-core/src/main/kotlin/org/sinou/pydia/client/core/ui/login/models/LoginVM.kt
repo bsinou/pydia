@@ -202,8 +202,6 @@ class LoginVM(
         }
     }
 
-
-
     suspend fun newOAuthIntent(serverURL: ServerURL, loginContext: String): Intent? =
         withContext(Dispatchers.Main) {
             updateMessage("Launching OAuth credential flow")

@@ -54,7 +54,7 @@ data class RWorkspace(
                 val node = RWorkspace(
                     encodedState = stateID.id,
                     slug = wsNode.slug,
-                    type = wsNode.workspaceType,
+                    type = wsNode.type,
                     label = wsNode.label,
                     description = wsNode.description,
                     // TODO can we retrieve remote mod TS?

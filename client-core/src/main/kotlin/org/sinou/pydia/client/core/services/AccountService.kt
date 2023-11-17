@@ -21,6 +21,7 @@ import org.sinou.pydia.client.core.utils.currentTimestamp
 import org.sinou.pydia.client.core.utils.logException
 import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.Credentials
+import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.HttpStatus
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames
@@ -163,41 +164,41 @@ class AccountService(
     suspend fun listSessionViews(): List<RSessionView> =
         withContext(ioDispatcher) {
             val views = sessionViewDao.getCellsSessions()
-         //    Log.e(logTag, "After listing, found ${views.size} session(s).")
+            //    Log.e(logTag, "After listing, found ${views.size} session(s).")
             views
         }
 
     /**
      * Performs a check on all accounts that are listed as connected
      * to insure we are still correctly logged in.
+     *
+     * Returns the number of accounts where we have find a change
+     *
      */
-    suspend fun checkRegisteredAccounts(): Pair<Int, String?> = withContext(ioDispatcher) {
-        try {
-            var changes = 0
-            val accounts = accountDao.getAccounts()
-            accountLoop@ for (rAccount in accounts) {
-                if (rAccount.authStatus != LoginStatus.Connected.id) {
-                    continue@accountLoop
-                }
-                if (networkService.isConnected()) {
-                    if (checkOneAccount(rAccount)) {
-                        changes++
-                    }
-                } else {
-                    Log.w(
-                        logTag, "No network connection, " +
-                                "cannot check auth status for ${rAccount.accountID()}"
-                    )
-                }
+    @Throws(SDKException::class)
+    suspend fun checkRegisteredAccounts(): Int = withContext(ioDispatcher) {
+        var changes = 0
+        val accounts = accountDao.getAccounts()
+        accountLoop@ for (acc in accounts) {
+            if (acc.authStatus != LoginStatus.Connected.id) {
+                continue@accountLoop // we only check connected accounts
             }
-            return@withContext Pair(changes, null)
-        } catch (e: SDKException) {
-            val msg = "could not refresh account list"
-            return@withContext Pair(0, msg)
+            if (networkService.isConnected()) {
+                if (checkOneAccount(acc)) {
+                    changes++
+                }
+            } else {
+                Log.d(logTag, "No network conn, cannot check auth for ${acc.accountID()}")
+            }
         }
+        changes
     }
 
-    /** Return true if something has changed */
+    /**
+     * Return true if something has changed
+     *
+     * FIXME This is called every 5 seconds after we lose credentials, e.G for the demo
+     * */
     private suspend fun checkOneAccount(rAccount: RAccount): Boolean {
         val currID = rAccount.accountID()
         try {
@@ -208,8 +209,12 @@ class AccountService(
                 val transport = getTransport(rAccount.accountID(), true) as CellsTransport
 
                 var currToken = transport.getToken() ?: run {
-                    Log.e(logTag, "No token found for $currID, skipping")
-                    return false
+                    Log.w(
+                        logTag, "No token found for $currID, " +
+                                "but account is still listed as connected, about to logout."
+                    )
+                    logoutAccount(currID)
+                    return true
                 }
 
                 val timeout = currentTimestamp() + 30
@@ -303,7 +308,7 @@ class AccountService(
             // Downloaded files
             fileService.cleanAllLocalFiles(accountID)
             // Credentials
-            authService.forgetCredentials(accountID, oldAccount.isLegacy)
+            authService.forgetCredentials(accountID)
             // Remove rows in the account tables
             sessionDao.forgetSession(accountID.id)
             workspaceDao.forgetAccount(accountID.id)
@@ -322,22 +327,20 @@ class AccountService(
         }
     }
 
-    suspend fun logoutAccount(accountID: StateID): String? = withContext(ioDispatcher) {
+    @Throws(SDKException::class)
+    suspend fun logoutAccount(accountID: StateID) = withContext(ioDispatcher) {
         Log.e(logTag, "In logout account for $accountID")
         try {
             accountDao.getAccount(accountID.id)?.let {
                 Log.i(logTag, "About to logout $accountID")
-                // There is also a token that is generated for P8:
-                // In case of legacy server, we have to discard a row in **both** tables
-                authService.forgetCredentials(accountID, it.isLegacy)
+                authService.forgetCredentials(accountID)
                 it.authStatus = LoginStatus.NoCreds.id
                 doUpdateAccount(it)
-                return@withContext null
             }
         } catch (e: Exception) {
-            val msg = "Could not delete credentials for $accountID}"
+            val msg = "Could not logout from $accountID}"
             logException(logTag, msg, e)
-            return@withContext msg
+            throw SDKException(ErrorCodes.internal_error, msg, e)
         }
     }
 
@@ -378,6 +381,22 @@ class AccountService(
             }
             return@withContext false
         }
+
+
+    /** Returns the number of changed applied or throws an exception if something bad happened */
+    @Throws(SDKException::class)
+    suspend fun refreshWorkspaces(accountID: StateID): Int = withContext(ioDispatcher) {
+        try {
+            val client: Client = getClient(accountID)
+            val wsDiff = WorkspaceDiff(accountID, client)
+            wsDiff.compareWithRemote()
+        } catch (e: SDKException) {
+            val msg = "Could not get workspace list for $accountID"
+            notifyError(accountID, msg, e)
+            throw e
+        }
+    }
+
 
     suspend fun refreshWorkspaceList(accountID: StateID): Pair<Int, String?> =
         withContext(ioDispatcher) {
@@ -514,33 +533,4 @@ class AccountService(
             }
         }
     }
-
-
-//    private class DummyHandler(stateID: StateID) : DefaultHandler() {
-//        private val logTag = "DummyHandler"
-//
-//        var currPath = ""
-//
-//        init {
-//            Log.e(logTag, "New Dummy handler for $stateID")
-//        }
-//
-//        @Throws(SAXException::class)
-//        override fun startElement(
-//            uri: String?,
-//            localName: String?,
-//            qName: String?,
-//            attributes: Attributes?
-//        ) {
-//            currPath += "/$localName"
-//            if (!currPath.startsWith("/pydio_registry/actions/act"))
-//                Log.e(logTag, "$currPath $uri")
-//        }
-//
-//        @Throws(SAXException::class)
-//        override fun endElement(uri: String?, localName: String?, qName: String?) {
-//            currPath.removeSuffix("/$localName")
-//            // Log.e(logTag, "END - $localName $uri")
-//        }
-//    }
 }

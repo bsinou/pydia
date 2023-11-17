@@ -7,7 +7,7 @@ import org.sinou.pydia.sdk.transport.StateID
 sealed class LoginDestinations(val route: String) {
 
     companion object {
-        protected const val PREFIX = "login"
+        const val PREFIX = "login"
         fun isCurrent(route: String?): Boolean = route?.startsWith(PREFIX) ?: false
     }
 

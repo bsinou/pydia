@@ -4,6 +4,13 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import androidx.work.WorkerParameters
+import kotlinx.coroutines.Dispatchers
+import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.androidx.workmanager.dsl.worker
+import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 import org.sinou.pydia.client.core.db.accounts.AccountDB
 import org.sinou.pydia.client.core.db.auth.AuthDB
 import org.sinou.pydia.client.core.db.preferences.CELLS_PREFERENCES_NAME
@@ -27,7 +34,10 @@ import org.sinou.pydia.client.core.services.TreeNodeRepository
 import org.sinou.pydia.client.core.services.WorkerService
 import org.sinou.pydia.client.core.services.workers.OfflineSyncWorker
 import org.sinou.pydia.client.core.ui.account.AccountListVM
+import org.sinou.pydia.client.core.ui.browse.models.AccountHomeVM
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
+import org.sinou.pydia.client.core.ui.login.models.OAuthVM
+import org.sinou.pydia.client.core.ui.models.BrowseRemoteVM
 import org.sinou.pydia.client.core.ui.system.models.JobListVM
 import org.sinou.pydia.client.core.ui.system.models.LandingVM
 import org.sinou.pydia.client.core.ui.system.models.LogListVM
@@ -38,13 +48,6 @@ import org.sinou.pydia.sdk.api.Store
 import org.sinou.pydia.sdk.api.Transport
 import org.sinou.pydia.sdk.transport.auth.Token
 import org.sinou.pydia.sdk.utils.MemoryStore
-import kotlinx.coroutines.Dispatchers
-import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModelOf
-import org.koin.androidx.workmanager.dsl.worker
-import org.koin.core.module.dsl.singleOf
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
 
 // Well Known IDs
 class DiNames {
@@ -100,6 +103,8 @@ val dbModule = module {
             AuthDB::class.java,
             AUTH_DB_NAME
         )
+            .fallbackToDestructiveMigrationFrom(1)
+            .fallbackToDestructiveMigrationOnDowngrade()
             .build()
     }
 
@@ -238,8 +243,13 @@ val viewModelModule = module {
     viewModelOf(::SettingsVM)
     viewModelOf(::PrefReadOnlyVM)
 
+    viewModelOf(::OAuthVM)
     viewModelOf(::LoginVM)
+
+    viewModelOf(::BrowseRemoteVM)
+
     viewModelOf(::AccountListVM)
+    viewModelOf(::AccountHomeVM)
 
     viewModelOf(::JobListVM)
     viewModelOf(::LogListVM)

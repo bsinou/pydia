@@ -47,6 +47,10 @@ class LoginVM(
     private var _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    fun isProcessing():Boolean {
+        return _isProcessing.value
+    }
+
     // Business methods
     fun flush() {
         viewModelScope.launch {
@@ -68,38 +72,8 @@ class LoginVM(
         return processAddress(url, true)
     }
 
-
     suspend fun getSessionView(accountID: StateID): RSessionView? = withContext(Dispatchers.IO) {
         accountService.getSession(accountID)
-    }
-
-    suspend fun handleOAuthResponse(state: String, code: String): Pair<StateID, String?>? {
-        Log.i(logTag, "Handling OAuth response")
-
-        switchLoading(true)
-        updateMessage("Retrieving authentication token...")
-        val res = withContext(Dispatchers.IO) {
-            delay(smoothActionDelay)
-            authService.handleOAuthResponse(accountService, sessionFactory, state, code)
-        } ?: run {
-            updateErrorMsg("could not retrieve token from code")
-            return null
-        }
-
-        updateMessage("Updating account info...")
-
-        val res2 = withContext(Dispatchers.IO) {
-            val tmpResult = accountService.refreshWorkspaceList(res.first)
-            delay(smoothActionDelay)
-            tmpResult
-        }
-
-        return res2.second?.let {
-            updateErrorMsg(it)
-            null
-        } ?: run {
-            res
-        }
     }
 
     // Internal helpers
@@ -266,4 +240,35 @@ class LoginVM(
     init {
         Log.i(logTag, "Created")
     }
+
+//    suspend fun handleOAuthResponse(state: String, code: String): Pair<StateID, String?>? {
+//        Log.i(logTag, "Handling OAuth response")
+//
+//        switchLoading(true)
+//        updateMessage("Retrieving authentication token...")
+//        val res = withContext(Dispatchers.IO) {
+//            delay(smoothActionDelay)
+//            authService.handleOAuthResponse(accountService, sessionFactory, state, code)
+//        } ?: run {
+//            updateErrorMsg("could not retrieve token from code")
+//            return null
+//        }
+//
+//        updateMessage("Updating account info...")
+//
+//        val res2 = withContext(Dispatchers.IO) {
+//            val tmpResult = accountService.refreshWorkspaceList(res.first)
+//            delay(smoothActionDelay)
+//            tmpResult
+//        }
+//
+//        return res2.second?.let {
+//            updateErrorMsg(it)
+//            null
+//        } ?: run {
+//            res
+//        }
+//    }
+
+
 }

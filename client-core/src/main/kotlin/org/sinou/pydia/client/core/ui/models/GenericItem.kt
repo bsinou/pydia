@@ -1,6 +1,7 @@
 package org.sinou.pydia.client.core.ui.models
 
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
+import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.sdk.transport.StateID
 
 interface GenericItem {
@@ -49,7 +50,7 @@ data class MultipleItem(
 }
 
 suspend fun deduplicateNodes(
-//    nodeService: NodeService,
+    nodeService: NodeService,
     nodes: List<RTreeNode>
 ): MutableList<MultipleItem> {
     val bis: MutableList<MultipleItem> = mutableListOf()
@@ -78,14 +79,15 @@ suspend fun deduplicateNodes(
             isFolder = node.isFolder(),
         )
         val slug = node.getStateID().slug!!
-// FIXME broken when moved to full kotlin
-//        if (!wss.containsKey(slug)) {
-//            nodeService.getWorkspace(node.getStateID().workspace())?.let {
-//                wss[slug] = it.label ?: slug
-//            } ?: run {
-//                wss[slug] = slug
-//            }
-//        }
+        if (!wss.containsKey(slug)) {
+            // TODO double check was:
+//             nodeService.getWorkspace(node.getStateID().workspace())?.let {
+            nodeService.getWorkspace(node.getStateID())?.let {
+                wss[slug] = it.label ?: slug
+            } ?: run {
+                wss[slug] = slug
+            }
+        }
         // We manually insure that we only reference each effective target once => might be sub-optimal for very large systems
         val existingIndex = bis.indexOf(newItem)
         if (existingIndex > -1) {

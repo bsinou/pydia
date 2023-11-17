@@ -4,10 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.core.services.AuthService
-import org.sinou.pydia.client.core.ui.StartingState
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.sdk.transport.ServerURLImpl
 import org.sinou.pydia.sdk.transport.StateID
@@ -69,9 +66,7 @@ class LoginHelper(
             loginVM.newOAuthIntent(url, loginContext)
         }
         intent?.let {
-            withContext(Dispatchers.Main) {
-                ContextCompat.startActivity(context, intent, null)
-            }
+            ContextCompat.startActivity(context, intent, null)
         }
     }
 

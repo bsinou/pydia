@@ -87,6 +87,7 @@ class OAuthVM(
                 accountService.refreshWorkspaceList(accID)
                 _accountID.value = accID
                 _loginContext.value = lc
+                _processState.value = OAuthProcessState.DONE
             } catch (se: SDKException) {
                 updateErrorMsg("Could not refresh workspaces for $accID: ${se.message}")
             }

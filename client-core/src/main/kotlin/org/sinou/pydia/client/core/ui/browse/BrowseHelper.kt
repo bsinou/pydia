@@ -36,12 +36,12 @@ open class BrowseHelper(
             Log.d(logTag, " #$i: ${bse.destination.route}")
             i++
         }
-        Log.e(logTag, "... Next  [$callingContext] destination: $stateID")
+        Log.e(logTag, "... Next [$callingContext] destination: $stateID")
 
         val prevRoute = navController.previousBackStackEntry?.destination?.route
-        val prevStateID = lazyStateID(navController.previousBackStackEntry)
+        val prevStateID = lazyStateID(entry = navController.previousBackStackEntry, verbose = false)
         val currRoute = navController.currentBackStackEntry?.destination?.route
-        val currStateID = lazyStateID(navController.currentBackStackEntry)
+        val currStateID = lazyStateID(navController.currentBackStackEntry, verbose = false)
 
         // Kind of tweak: we check if the target node is the penultimate
         // element of the backStack, in such case we consider it is a "back":

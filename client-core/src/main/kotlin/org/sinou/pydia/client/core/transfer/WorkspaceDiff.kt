@@ -68,7 +68,7 @@ class WorkspaceDiff(
                     // last local is smaller than next remote, no more matches for any next remote
                     local = null
                 } else if (order == 0) {
-                    if (!areWsNodeContentEquals(remote, local!!)) {
+                    if (!areWsNodeContentEquals(local!!, remote)) {
                         putUpdateChange(remote)
                     } else {
                         alsoCheckWSTreeNode(local, remote)

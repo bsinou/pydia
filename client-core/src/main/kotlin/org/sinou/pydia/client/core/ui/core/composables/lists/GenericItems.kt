@@ -2,6 +2,8 @@ package org.sinou.pydia.client.core.ui.core.composables.lists
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.ui.models.MultipleItem
 
 @Composable
@@ -38,9 +40,9 @@ fun MultipleGridItem(
     }
 }
 
-//@Composable
-//public fun getAppearsInDesc(item: MultipleItem): String {
-//    val suffix = item.appearsIn
-//        .joinToString(", ") { item.appearsInWorkspace[it.slug] ?: it.slug }
-//    return stringResource(R.string.appears_in_prefix, suffix)
-//}
+@Composable
+public fun getAppearsInDesc(item: MultipleItem): String {
+    val suffix = item.appearsIn
+        .joinToString(", ") { item.appearsInWorkspace[it.slug] ?: it.slug ?: "" }
+    return stringResource(R.string.appears_in_prefix, suffix)
+}

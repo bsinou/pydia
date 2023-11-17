@@ -134,7 +134,6 @@ class PydiaSimpleApp : Application(), KoinComponent {
         return "AndroidSDK" + sdkVersion + "v" + release
     }
 
-
     private fun setLogger() {
         Log.setLogger(CustomLogger())
     }

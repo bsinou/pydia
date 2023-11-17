@@ -23,6 +23,7 @@ import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.transfer.glide.encodeModel
+import org.sinou.pydia.client.core.ui.models.TreeNodeItem
 import org.sinou.pydia.client.core.ui.theme.CellsIcons
 import org.sinou.pydia.client.core.ui.theme.getIconAndColorFromType
 import org.sinou.pydia.client.core.ui.theme.getIconTypeFromMime
@@ -41,18 +42,18 @@ fun Thumbnail(item: RTreeNode) {
     )
 }
 
-//@Composable
-//fun Thumbnail(item: TreeNodeItem) {
-//    Thumbnail(
-//        item.stateID,
-//        item.sortName,
-//        item.name,
-//        item.mime,
-//        item.eTag,
-//        item.metaHash,
-//        item.hasThumb,
-//    )
-//}
+@Composable
+fun Thumbnail(item: TreeNodeItem) {
+    Thumbnail(
+        item.stateID,
+        item.sortName,
+        item.name,
+        item.mime,
+        item.eTag,
+        item.metaHash,
+        item.hasThumb,
+    )
+}
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable

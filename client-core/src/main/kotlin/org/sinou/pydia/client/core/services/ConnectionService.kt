@@ -47,7 +47,7 @@ class ConnectionService(
     private val coroutineService: CoroutineService,
     networkService: NetworkService,
     private val accountService: AccountService,
-//     private val nodeService: NodeService,
+    private val nodeService: NodeService,
     private val appCredentialService: AppCredentialService,
 ) {
 
@@ -434,12 +434,10 @@ class ConnectionService(
             while (retryNb == 0 || (retry && retryNb < 4)) {
                 retryNb++
                 try {
-                    result = if (Str.empty(stateID.file)) {
+                    result = if (stateID.file.isNullOrEmpty()) {
                         accountService.refreshWorkspaceList(stateID.account())
                     } else {
-// Fixme
-                        //                         nodeService.pull(stateID)
-                        TODO("Reimplement this ")
+                        nodeService.pull(stateID)
                     }
                 } catch (se: SDKException) {
                     if (ErrorCodes.token_expired == se.code) {

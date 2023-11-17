@@ -57,6 +57,9 @@ fun Date.asFormattedString(format: String, locale: Locale = Locale.getDefault())
     return formatter.format(this)
 }
 
+
+/** NOTE: As a convention, for timestamps undefined is always -1 */
+
 /**
  * Centralise generation of timestamp to ease potential later refactoring.
  * We currently rely on number of seconds since 1970.

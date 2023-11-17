@@ -34,6 +34,7 @@ import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
 import org.sinou.pydia.sdk.transport.StateID
 
+private const val LOG_TAG = "OAuthFlow.kt"
 
 @Composable
 fun LaunchAuthProcessing(
@@ -43,16 +44,17 @@ fun LaunchAuthProcessing(
     loginVM: LoginVM,
     helper: LoginHelper,
 ) {
-    val logTag = "LaunchAuthProcessing"
-
     val message = loginVM.message.collectAsState()
     val errMsg = loginVM.errorMessage.collectAsState()
-
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = stateID) {
-        Log.i(logTag, "... Launch auth process for $stateID")
-        helper.launchAuth(context, stateID, skipVerify, loginContext)
+    LaunchedEffect(key1 = stateID.id) {
+        if (loginVM.isProcessing()) {
+            Log.i(LOG_TAG, "... Already processing auth for $stateID, login context: $loginContext")
+        } else {
+            Log.i(LOG_TAG, "... Launching auth process for $stateID, login context: $loginContext")
+            helper.launchAuth(context, stateID, skipVerify, loginContext)
+        }
     }
 
     AuthScreen(
@@ -62,29 +64,6 @@ fun LaunchAuthProcessing(
         cancel = helper::cancel
     )
 }
-
-//@Composable
-//fun ProcessAuth(
-//    stateID: StateID,
-//    loginVM: LoginVM,
-//    helper: LoginHelper,
-//) {
-//    val logTag = "ProcessAuth"
-//    val message = loginVM.message.collectAsState()
-//    val errMsg = loginVM.errorMessage.collectAsState()
-//
-//    LaunchedEffect(key1 = stateID) {
-//        Log.d(logTag, "About to Process Auth for ${helper.startingState?.route}")
-//        helper.processAuth(stateID)
-//    }
-//
-//    AuthScreen(
-//        isProcessing = errMsg.value.isNullOrEmpty(),
-//        message = message.value,
-//        errMsg = errMsg.value,
-//        cancel = helper::cancel
-//    )
-//}
 
 @Composable
 fun AuthScreen(
@@ -195,3 +174,27 @@ private fun ProcessAuthPreview() {
         )
     }
 }
+
+
+//@Composable
+//fun ProcessAuth(
+//    stateID: StateID,
+//    loginVM: LoginVM,
+//    helper: LoginHelper,
+//) {
+//    val logTag = "ProcessAuth"
+//    val message = loginVM.message.collectAsState()
+//    val errMsg = loginVM.errorMessage.collectAsState()
+//
+//    LaunchedEffect(key1 = stateID) {
+//        Log.d(logTag, "About to Process Auth for ${helper.startingState?.route}")
+//        helper.processAuth(stateID)
+//    }
+//
+//    AuthScreen(
+//        isProcessing = errMsg.value.isNullOrEmpty(),
+//        message = message.value,
+//        errMsg = errMsg.value,
+//        cancel = helper::cancel
+//    )
+//}

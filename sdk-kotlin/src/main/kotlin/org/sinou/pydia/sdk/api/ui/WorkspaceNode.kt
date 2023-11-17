@@ -9,6 +9,8 @@ import java.util.Properties
  * and only rely on their respective slug: the workspaces don't hold a reference to their hosting server.
  */
 class WorkspaceNode(
+    // TODO this is still not persisted in the DB
+    //   We must also remove thumb column
     val uuid: String,
     val slug: String,
     var label: String?,
@@ -17,6 +19,7 @@ class WorkspaceNode(
     val path: String = "/",
     // TODO we never get this info from the cells server
     val lastModified: Long = 0,
+    // TODO This is also missing in the DB
     val props: Properties
 ) : Comparable<WorkspaceNode> {
 

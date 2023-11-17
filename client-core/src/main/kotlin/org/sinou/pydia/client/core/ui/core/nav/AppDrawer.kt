@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.services.ConnectionService
+import org.sinou.pydia.client.core.ui.AppState
 import org.sinou.pydia.client.core.ui.core.composables.ConnectionStatus
 import org.sinou.pydia.client.core.ui.core.composables.MenuTitleText
 import org.sinou.pydia.client.core.ui.core.composables.menus.BottomSheetDivider
@@ -34,8 +35,9 @@ import org.sinou.pydia.sdk.transport.StateID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawer(
-    currRoute: String?,
-    currSelectedID: StateID?,
+    appState: AppState,
+//    currRoute: String?,
+//    currSelectedID: StateID?,
     closeDrawer: () -> Unit,
     prefReadOnlyVM: PrefReadOnlyVM = koinViewModel(),
     connectionService: ConnectionService,
@@ -43,6 +45,8 @@ fun AppDrawer(
     systemNavActions: SystemNavigationActions,
 //    browseNavActions: BrowseNavigationActions
 ) {
+
+    val currRoute = appState.route
 
     val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
     val accountID = connectionService.currAccountID.collectAsState(StateID.NONE)
@@ -144,7 +148,7 @@ fun AppDrawer(
             MyNavigationDrawerItem(
                 label = stringResource(R.string.action_settings),
                 icon = CellsIcons.Settings,
-                selected = SystemDestinations.Settings.route == currRoute,
+                selected = SystemDestinations.Settings.route == appState.route,
                 onClick = { systemNavActions.navigateToSettings(); closeDrawer() },
             )
             accountID.value?.let { accID -> // We also temporarily disable this when no account is defined

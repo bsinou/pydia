@@ -163,6 +163,9 @@ dependencies {
     implementation libraries
     implementation composeLibraries
 
+
+    implementation "io.insert-koin:koin-android"
+
     // override default platform version
     // e.G    implementation "androidx.compose.material3:material3:1.2.0-alpha1"
 

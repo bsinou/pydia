@@ -36,9 +36,9 @@ data class RTreeNode(
 
     @ColumnInfo(name = "remote_mod_ts") var remoteModificationTS: Long,
 
-    @ColumnInfo(name = "last_check_ts") var lastCheckTS: Long = 0L,
+    @ColumnInfo(name = "last_check_ts") var lastCheckTS: Long = -1L,
 
-    @ColumnInfo(name = "local_mod_ts") var localModificationTS: Long = 0L,
+    @ColumnInfo(name = "local_mod_ts") var localModificationTS: Long = -1L,
 
     @ColumnInfo(name = "local_mod_status") var localModificationStatus: String? = null,
 
@@ -130,57 +130,7 @@ data class RTreeNode(
          * we do not have the parent ID. But any node with the same accountID is OK.
          * @param fileNode the newly retrieved node
          */
-//        fun fromFileNode(stateID: StateID, fileNode: FileNode): RTreeNode {
-//
-//            throw RuntimeException("TODO re-implement without FileNode legacy layer")
-//
-////            // Construct the path from file node info
-////            val childStateID = StateID.safeFromId(stateID.accountId)
-////                .withPath("/${fileNode.workspace}${fileNode.path}")
-////            // Log.d(logTag, "... fromFileNode $childStateID")
-////
-////            try {
-////                val node = RTreeNode(
-////                    encodedState = childStateID.id,
-////                    workspace = childStateID.slug,
-////                    parentPath = childStateID.parentFile ?: "",
-////                    name = childStateID.fileName ?: run {
-////                        Log.e(logTag, "Using slug instead of filename")
-////                        childStateID.slug
-////                    },
-////                    uuid = fileNode.id,
-////                    etag = fileNode.eTag,
-////                    mime = fileNode.mimeType,
-////                    size = fileNode.size,
-////                    remoteModificationTS = fileNode.lastModified,
-////                    properties = fileNode.properties,
-////                    meta = fileNode.meta ?: Properties(),
-////                    metaHash = fileNode.metaHashCode
-////                )
-////
-////                // Share and offline cache values are rather handled in the NodeService directly
-////                node.setBookmarked(fileNode.isBookmark)
-////                node.setHasThumb(fileNode.hasThumb())
-////                node.setPreViewable(fileNode.isPreViewable)
-////
-////                // Use Android library to precise MimeType when possible
-////                if (SdkNames.NODE_MIME_DEFAULT == node.mime) {
-////                    node.mime = getMimeType(node.name, SdkNames.NODE_MIME_DEFAULT)
-////                }
-////
-////                node.sortName = when (node.mime) {
-////                    SdkNames.NODE_MIME_WS_ROOT -> "1_${node.name}"
-////                    SdkNames.NODE_MIME_FOLDER -> "3_${node.name}"
-////                    SdkNames.NODE_MIME_RECYCLE -> "8_${node.name}"
-////                    else -> "5_${node.name}"
-////                }
-////                return node
-////
-////            } catch (e: java.lang.Exception) {
-////                Log.e(logTag, "could not create RTreeNode for ${childStateID}: ${e.message}")
-////                throw e
-////            }
-//        }
+
 
         fun fromWorkspaceNode(stateID: StateID, node: WorkspaceNode): RTreeNode {
             try {

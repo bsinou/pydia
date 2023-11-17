@@ -128,23 +128,23 @@ class FileService(
         ndb.localFileDao().insert(rLocalFile)
     }
 
-//    fun needsUpdate(stateID: StateID, remote: FileNode, type: String): Boolean {
-//        val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
-//        val fileRecord = dao.getFile(stateID.id, type) ?: let {
-//            Log.d(logTag, "$type not found for ${stateID.file}, downloading")
-//            return true
-//        }
-//        val hasChanged = !(remote.lastModified <= fileRecord.remoteTS &&
-//                remote.eTag == fileRecord.etag)
-//        if (hasChanged) {
-//            Log.d(
-//                logTag, "$type for ${stateID.file} needs update:\n" +
-//                        "  ${remote.lastModified} - ${fileRecord.remoteTS} \n" +
-//                        "  ${remote.eTag} - ${fileRecord.etag}"
-//            )
-//        }
-//        return hasChanged
-//    }
+    fun needsUpdate(stateID: StateID, remote: RTreeNode, type: String): Boolean {
+        val dao = treeNodeRepository.nodeDB(stateID).localFileDao()
+        val fileRecord = dao.getFile(stateID.id, type) ?: let {
+            Log.d(logTag, "$type not found for ${stateID.file}, downloading")
+            return true
+        }
+        val hasChanged = !(remote.remoteModificationTS <= fileRecord.remoteTS &&
+                remote.etag == fileRecord.etag)
+        if (hasChanged) {
+            Log.d(
+                logTag, "$type for ${stateID.file} needs update:\n" +
+                        "  ${remote.remoteModificationTS} - ${fileRecord.remoteTS} \n" +
+                        "  ${remote.etag} - ${fileRecord.etag}"
+            )
+        }
+        return hasChanged
+    }
 
     fun isLocalFileUpToDate(updatedNode: RTreeNode, localFile: RLocalFile): Boolean {
 

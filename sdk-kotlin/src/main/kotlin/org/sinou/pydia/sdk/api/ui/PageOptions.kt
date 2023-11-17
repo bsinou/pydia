@@ -5,5 +5,5 @@ class PageOptions(
     var offset: Int = 0,
     var total: Int = 0,
     var currentPage: Int = 0,
-    var totalPages: Int = 0,
+    var totalPages: Int = -1,
 )

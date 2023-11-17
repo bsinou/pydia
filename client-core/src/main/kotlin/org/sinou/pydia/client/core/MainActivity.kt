@@ -33,6 +33,7 @@ import org.sinou.pydia.client.core.ui.core.screens.WhiteScreen
 import org.sinou.pydia.client.core.ui.login.models.OAuthProcessState
 import org.sinou.pydia.client.core.ui.login.models.OAuthVM
 import org.sinou.pydia.client.core.ui.login.screens.AuthScreen
+import org.sinou.pydia.client.core.utils.currentTimestamp
 import org.sinou.pydia.sdk.transport.StateID
 
 /**
@@ -70,10 +71,11 @@ class MainActivity : ComponentActivity() {
 
         // Set up an OnPreDrawListener to the root view.
         val content: View = findViewById(android.R.id.content)
+        val timeout = currentTimestamp() + 120
         content.viewTreeObserver.addOnPreDrawListener(
             object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
-                    if (appIsReady) { // Check whether the initial data is ready.
+                    if (appIsReady || currentTimestamp() > timeout) { // Check whether the initial data is ready.
                         // Content is ready: Start drawing.
                         content.viewTreeObserver.removeOnPreDrawListener(this)
                     }
@@ -93,18 +95,21 @@ class MainActivity : ComponentActivity() {
         launchIntent: (Intent?, Boolean, Boolean) -> Unit,
         readyCallback: () -> Unit,
     ) {
-        Log.e(logTag, "... Composing AppBinding with\n\tintent[$intentID]: $intent\n\tb: $sBundle ")
         val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
         val appState = remember { mutableStateOf(AppState.NONE) }
         val oauthVM by viewModel<OAuthVM>()
         val processState by oauthVM.processState.collectAsState()
 
         LaunchedEffect(key1 = intentID) {
+            val msg = "... First composition for AppBinding with:" +
+                    "\n\tintent: [$intentID]\n\tbundle: $sBundle "
+            Log.e(logTag, msg)
             if (intentHasBeenProcessed.value) {
                 Log.w(logTag, "intent has already been processed...")
-                return@LaunchedEffect
+                oauthVM.skip()
+            } else {
+                appState.value = handleIntent(sBundle, oauthVM) ?: AppState(StateID.NONE, null)
             }
-            appState.value = handleIntent(sBundle, oauthVM) ?: AppState(StateID.NONE, null)
             readyCallback()
             intentHasBeenProcessed.value = true
         }
@@ -164,7 +169,7 @@ class MainActivity : ComponentActivity() {
         id = id ?: run {// tmp hack: compute a local ID based on a few variables
             "${intent.categories}/${intent.action}/${intent.component}"
         }
-        Log.e(logTag, "#### Got an intent identifier: $id")
+//        Log.e(logTag, "#### Got an intent identifier: $id")
         return id
     }
 
@@ -176,7 +181,7 @@ class MainActivity : ComponentActivity() {
         oauthVM: OAuthVM
     ): AppState? {
         try {
-            val msg = "... Launching processing for ($intent)\n" +
+            val msg = "... Processing intent ($intent):\n" +
                     "\t- cmp: ${intent.component}\n\t- action${intent.action}" +
                     "\n\t- categories: ${intent.categories}" //+
             Log.e(logTag, msg)
@@ -191,8 +196,8 @@ class MainActivity : ComponentActivity() {
                 }
 
                 Intent.ACTION_VIEW -> {
-                    val code = intent.data?.getQueryParameter(AppNames.QUERY_KEY_CODE)
-                    val state = intent.data?.getQueryParameter(AppNames.QUERY_KEY_STATE)
+                    val code = intent.data?.getQueryParameter(AppKeys.QUERY_KEY_CODE)
+                    val state = intent.data?.getQueryParameter(AppKeys.QUERY_KEY_STATE)
 
                     if (code == null || state == null) {
                         throw IllegalArgumentException("Received an unexpected VIEW intent: $intent")

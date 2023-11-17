@@ -79,7 +79,7 @@ fun NavGraphBuilder.localLoginGraph(
         val skipVerify = lazySkipVerify(nbsEntry)
         val lContext = lazyLoginContext(nbsEntry)
         LaunchedEffect(key1 = stateID, key2 = skipVerify) {
-            Log.i(logTag, "## 1st compo login/launch-auth/$stateID/$skipVerify/$lContext")
+            Log.e(logTag, "... 1st compo login/launch-auth/$stateID/$skipVerify/$lContext")
         }
         LaunchAuthProcessing(
             stateID = stateID,

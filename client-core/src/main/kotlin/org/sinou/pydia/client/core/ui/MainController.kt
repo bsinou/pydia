@@ -38,7 +38,7 @@ private const val LOG_TAG = "MainHost.kt"
 class AppState(
     val stateID: StateID,
     val route: String?
-){
+) {
     companion object {
         val NONE = AppState(
             StateID.NONE,
@@ -54,7 +54,7 @@ fun MainController(
     launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     connectionService: ConnectionService = koinInject(),
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
 
     val mainNavController = rememberNavController()
     val cellsNavActions = remember(mainNavController) {
@@ -90,7 +90,7 @@ fun MainController(
 
         val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
         val oldState: StateID? = oldRoute?.let {
-            Log.i(LOG_TAG, "... Got an old route")
+            Log.i(LOG_TAG, "... Got an old route: $oldRoute")
             if (it.endsWith("{${AppKeys.STATE_ID}}")) {
                 Log.i(LOG_TAG, "... with state id suffix ")
                 lazyStateID(mainNavController.previousBackStackEntry)
@@ -100,8 +100,8 @@ fun MainController(
         }
         val currRoute = mainNavController.currentBackStackEntry?.destination?.route
         val currState: StateID? = currRoute?.let {
-            if (it.endsWith("{${AppKeys.STATE_ID}}")) {
-                lazyStateID(mainNavController.currentBackStackEntry)
+            if (it.contains("{${AppKeys.STATE_ID}}")) {
+                lazyStateID(entry = mainNavController.currentBackStackEntry)
             } else {
                 null
             }
@@ -112,7 +112,7 @@ fun MainController(
         Log.d(LOG_TAG, "      - Current Entry route: $currRoute, stateID: $currState")
         Log.d(LOG_TAG, "      - Local last route: ${lastRoute.value}")
         lastRoute.value = route
-        coroutineScope.launch(Main) {
+        scope.launch {
             mainNavController.navigate(route)
         }
     }
@@ -127,9 +127,10 @@ fun MainController(
         ModalNavigationDrawer(
             drawerContent = {
                 AppDrawer(
-                    currRoute = navBackStackEntry?.destination?.route,
-                    currSelectedID = lazyStateID(entry = navBackStackEntry, verbose = false),
-                    closeDrawer = { coroutineScope.launch { sizeAwareDrawerState.close() } },
+//                    currRoute = navBackStackEntry?.destination?.route,
+//                    currSelectedID = lazyStateID(entry = navBackStackEntry, verbose = false),
+                    appState = currAppState.value,
+                    closeDrawer = { scope.launch { sizeAwareDrawerState.close() } },
                     connectionService = connectionService,
                     cellsNavActions = cellsNavActions,
                     systemNavActions = systemNavActions,
@@ -143,8 +144,9 @@ fun MainController(
             Row {
                 if (isExpandedScreen) { // When we are on a tablet
                     AppPermanentDrawer(
-                        currRoute = navBackStackEntry?.destination?.route,
-                        currSelectedID = lazyStateID(navBackStackEntry),
+                        appState = currAppState.value,
+//                        currRoute = navBackStackEntry?.destination?.route,
+//                        currSelectedID = lazyStateID(navBackStackEntry),
                         connectionService = connectionService,
                         cellsNavActions = cellsNavActions,
                         systemNavActions = systemNavActions,
@@ -161,11 +163,11 @@ fun MainController(
                 ) {
                     NavGraph(
                         isExpandedScreen = isExpandedScreen,
-                        appState = appState,
+                        appState = currAppState.value,
                         navController = mainNavController,
                         openDrawer = {
                             if (!isExpandedScreen) {
-                                coroutineScope.launch { sizeAwareDrawerState.open() }
+                                scope.launch { sizeAwareDrawerState.open() }
                             }
                         },
                         navigateTo = navigateTo,

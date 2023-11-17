@@ -13,7 +13,7 @@ data class RTransfer(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "transfer_id") val transferId: Long = 0L,
     // When this transfer is part of a larger job
-    @ColumnInfo(name = "job_id") var jobId: Long = 0L,
+    @ColumnInfo(name = "job_id") val jobId: Long = -1L,
     // The corresponding node
     @ColumnInfo(name = "encoded_state") var encodedState: String? = null,
     // Download, upload... see AppNames for updated list of supported values
@@ -58,7 +58,7 @@ data class RTransfer(
             path: String,
             byteSize: Long,
             mime: String,
-            parentJobId: Long = 0L,
+            parentJobId: Long = -1L,
             status: String? = JobStatus.NEW.id,
         ): RTransfer {
             return RTransfer(

@@ -38,7 +38,7 @@ fun M3BrowseUpListItem(
         supportingContent = { Text("") },
         leadingContent = {
             M3IconThumb(
-                R.drawable.aa_200_arrow_back_ios_new_24px,
+                R.drawable.arrow_back_ios_24,
                 color = color,
                 // TODO rather provide an "already rotated" drawable resource
                 modifier = Modifier
@@ -67,7 +67,7 @@ fun M3BrowseUpLargeGridItem(
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.grid_large_corner_radius)))
         ) {
             Image(
-                painter = painterResource(R.drawable.aa_200_arrow_back_ios_new_24px),
+                painter = painterResource(R.drawable.arrow_back_ios_24),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(color),
                 modifier = Modifier

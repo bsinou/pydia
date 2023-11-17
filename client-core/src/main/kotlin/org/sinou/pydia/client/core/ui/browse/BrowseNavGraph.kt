@@ -1,19 +1,7 @@
 package org.sinou.pydia.client.core.ui.browse
 
-//import org.sinou.pydia.client.core.ui.browse.models.AccountHomeVM
-//import org.sinou.pydia.client.core.ui.browse.models.BookmarksVM
-//import org.sinou.pydia.client.core.ui.browse.models.CarouselVM
-//import org.sinou.pydia.client.core.ui.browse.models.FolderVM
-//import org.sinou.pydia.client.core.ui.browse.models.OfflineVM
-//import org.sinou.pydia.client.core.ui.browse.models.TransfersVM
-//import org.sinou.pydia.client.core.ui.browse.screens.AccountHome
-//import org.sinou.pydia.client.core.ui.browse.screens.Bookmarks
-//import org.sinou.pydia.client.core.ui.browse.screens.Carousel
-//import org.sinou.pydia.client.core.ui.browse.screens.Folder
-//import org.sinou.pydia.client.core.ui.browse.screens.NoAccount
-//import org.sinou.pydia.client.core.ui.browse.screens.OfflineRoots
-//import org.sinou.pydia.client.core.ui.browse.screens.Transfers
 import android.util.Log
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -21,10 +9,14 @@ import androidx.navigation.compose.composable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sinou.pydia.client.core.ui.browse.models.AccountHomeVM
+import org.sinou.pydia.client.core.ui.browse.models.FolderVM
 import org.sinou.pydia.client.core.ui.browse.screens.AccountHome
+import org.sinou.pydia.client.core.ui.browse.screens.Folder
+import org.sinou.pydia.client.core.ui.browse.screens.NoAccount
 import org.sinou.pydia.client.core.ui.core.lazyStateID
 import org.sinou.pydia.client.core.ui.core.nav.CellsDestinations
 import org.sinou.pydia.client.core.ui.models.BrowseRemoteVM
+import org.sinou.pydia.sdk.transport.StateID
 
 fun NavGraphBuilder.browseNavGraph(
     isExpandedScreen: Boolean,
@@ -42,59 +34,55 @@ fun NavGraphBuilder.browseNavGraph(
             Log.i(logTag, "## First Composition for: browse/open/${stateID}")
         }
 
-
-//        WhiteScreen()
-//        if (stateID == StateID.NONE) {
-//            NoAccount(openDrawer = openDrawer, addAccount = {})
-//        } else if (Str.notEmpty(stateID.slug)) {
-//            val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
-//            Folder(
-//                isExpandedScreen = isExpandedScreen,
-//                folderID = stateID,
-//                openDrawer = openDrawer,
-//                openSearch = {
-//                    navController.navigate(
-//                        CellsDestinations.Search.createRoute("Folder", stateID)
-//                    )
-//                },
-//                browseRemoteVM = browseRemoteVM,
-//                folderVM = folderVM,
-//                browseHelper = BrowseHelper(navController, folderVM),
-//            )
-//        } else {
-//
-        val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })
-        val helper = BrowseHelper(navController, accountHomeVM)
-
-        AccountHome(
-            isExpandedScreen = isExpandedScreen,
-            accountID = stateID,
-            openDrawer = openDrawer,
-            openSearch = {
-                navController.navigate(
-                    CellsDestinations.Search.createRoute(
-                        "AccountHome",
-                        stateID
+        if (stateID == StateID.NONE) {
+            NoAccount(openDrawer = openDrawer, addAccount = {})
+        } else if (!stateID.slug.isNullOrEmpty()) {
+            val folderVM: FolderVM = koinViewModel(parameters = { parametersOf(stateID) })
+            Folder(
+                isExpandedScreen = isExpandedScreen,
+                folderID = stateID,
+                openDrawer = openDrawer,
+                openSearch = {
+                    navController.navigate(
+                        CellsDestinations.Search.createRoute("Folder", stateID)
                     )
-                )
-            },
-            browseRemoteVM = browseRemoteVM,
-            accountHomeVM = accountHomeVM,
-            browseHelper = helper,
-        )
-//        }
-//
-//        DisposableEffect(key1 = stateID) {
-//            if (stateID == StateID.NONE) {
-//                browseRemoteVM.pause(StateID.NONE)
-//            } else {
-//                browseRemoteVM.watch(stateID, false)
-//            }
-//            onDispose {
-//                Log.d(logTag, "onDispose for browse/open/$stateID, pause browseRemoteVM")
-//                browseRemoteVM.pause(stateID)
-//            }
-//        }
+                },
+                browseRemoteVM = browseRemoteVM,
+                folderVM = folderVM,
+                browseHelper = BrowseHelper(navController, folderVM),
+            )
+        } else {
+            val accountHomeVM: AccountHomeVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(navController, accountHomeVM)
+
+            AccountHome(
+                isExpandedScreen = isExpandedScreen,
+                accountID = stateID,
+                openDrawer = openDrawer,
+                openSearch = {
+                    navController.navigate(
+                        CellsDestinations.Search.createRoute(
+                            "AccountHome",
+                            stateID
+                        )
+                    )
+                },
+                browseRemoteVM = browseRemoteVM,
+                accountHomeVM = accountHomeVM,
+                browseHelper = helper,
+            )
+        }
+        DisposableEffect(key1 = stateID) {
+            if (stateID == StateID.NONE) {
+                browseRemoteVM.pause(StateID.NONE)
+            } else {
+                browseRemoteVM.watch(stateID, false)
+            }
+            onDispose {
+                Log.d(logTag, "onDispose for browse/open/$stateID, pause browseRemoteVM")
+                browseRemoteVM.pause(stateID)
+            }
+        }
     }
 
 //    composable(BrowseDestinations.OpenCarousel.route) { navBackStackEntry ->

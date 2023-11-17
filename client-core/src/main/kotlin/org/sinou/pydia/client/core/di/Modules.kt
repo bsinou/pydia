@@ -25,19 +25,32 @@ import org.sinou.pydia.client.core.services.ErrorService
 import org.sinou.pydia.client.core.services.FileService
 import org.sinou.pydia.client.core.services.JobService
 import org.sinou.pydia.client.core.services.NetworkService
+import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.client.core.services.OfflineService
 import org.sinou.pydia.client.core.services.PasswordStore
 import org.sinou.pydia.client.core.services.PreferencesService
 import org.sinou.pydia.client.core.services.SessionFactory
 import org.sinou.pydia.client.core.services.TokenStore
+import org.sinou.pydia.client.core.services.TransferService
 import org.sinou.pydia.client.core.services.TreeNodeRepository
 import org.sinou.pydia.client.core.services.WorkerService
 import org.sinou.pydia.client.core.services.workers.OfflineSyncWorker
 import org.sinou.pydia.client.core.ui.account.AccountListVM
 import org.sinou.pydia.client.core.ui.browse.models.AccountHomeVM
+import org.sinou.pydia.client.core.ui.browse.models.BookmarksVM
+import org.sinou.pydia.client.core.ui.browse.models.CarouselVM
+import org.sinou.pydia.client.core.ui.browse.models.FilterTransferByMenuVM
+import org.sinou.pydia.client.core.ui.browse.models.FolderVM
+import org.sinou.pydia.client.core.ui.browse.models.NodeActionsVM
+import org.sinou.pydia.client.core.ui.browse.models.OfflineVM
+import org.sinou.pydia.client.core.ui.browse.models.SingleTransferVM
+import org.sinou.pydia.client.core.ui.browse.models.SortByMenuVM
+import org.sinou.pydia.client.core.ui.browse.models.TransfersVM
+import org.sinou.pydia.client.core.ui.browse.models.TreeNodeVM
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.client.core.ui.login.models.OAuthVM
 import org.sinou.pydia.client.core.ui.models.BrowseRemoteVM
+import org.sinou.pydia.client.core.ui.system.models.HouseKeepingVM
 import org.sinou.pydia.client.core.ui.system.models.JobListVM
 import org.sinou.pydia.client.core.ui.system.models.LandingVM
 import org.sinou.pydia.client.core.ui.system.models.LogListVM
@@ -215,7 +228,8 @@ val serviceModule = module {
     single { AccountService(get(), get(), get(), get(), get(), get(), get()) }
 
     // Business services
-    single { ConnectionService(get(), get(), get(), get()) }
+    single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
+    single { ConnectionService(get(), get(), get(), get(), get()) }
 
     single {
         OfflineService(
@@ -227,6 +241,20 @@ val serviceModule = module {
             get()
         )
     }
+
+    single {
+        TransferService(
+            androidContext().applicationContext,
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
+
 
     worker { (workerParams: WorkerParameters) ->
         OfflineSyncWorker(
@@ -250,6 +278,21 @@ val viewModelModule = module {
 
     viewModelOf(::AccountListVM)
     viewModelOf(::AccountHomeVM)
+    viewModelOf(::HouseKeepingVM)
+
+    viewModelOf(::SortByMenuVM)
+    viewModelOf(::FilterTransferByMenuVM)
+
+    viewModelOf(::FolderVM)
+    viewModelOf(::TreeNodeVM)
+    viewModelOf(::NodeActionsVM)
+
+    viewModelOf(::CarouselVM)
+    viewModelOf(::BookmarksVM)
+    viewModelOf(::OfflineVM)
+
+    viewModelOf(::TransfersVM)
+    viewModelOf(::SingleTransferVM)
 
     viewModelOf(::JobListVM)
     viewModelOf(::LogListVM)

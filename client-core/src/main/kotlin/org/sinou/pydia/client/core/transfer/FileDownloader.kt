@@ -1,19 +1,18 @@
 package org.sinou.pydia.client.core.transfer
 
 import android.util.Log
-import org.sinou.pydia.client.core.AppNames
-import org.sinou.pydia.client.core.services.JobService
-import org.sinou.pydia.sdk.api.SDKException
-import org.sinou.pydia.sdk.transport.StateID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.sinou.pydia.client.core.AppNames
+import org.sinou.pydia.client.core.services.JobService
+import org.sinou.pydia.client.core.services.TransferService
+import org.sinou.pydia.sdk.api.SDKException
+import org.sinou.pydia.sdk.transport.StateID
 
 /**
  * Manage the various jobs and queues to request downloads and then perform then in background
@@ -50,18 +49,18 @@ class FileDownloader(
     private var isFailed = false
 
     /** Enqueue a new download */
-//    suspend fun orderDL(encodedState: String, type: String, sizeInBytes: Long = 0L) {
-//        Log.d(logTag, "DL $type for $encodedState")
-//        totalChannel.send(
-//            when {
-//                sizeInBytes > 0 -> sizeInBytes
-//                type == AppNames.LOCAL_FILE_TYPE_THUMB -> TransferService.thumbSize
-//                type == AppNames.LOCAL_FILE_TYPE_PREVIEW -> TransferService.previewSize
-//                else -> 0L // This should never happen
-//            }
-//        )
-//        queue.send(encodeModel(encodedState, type))
-//    }
+    suspend fun orderDL(encodedState: String, type: String, sizeInBytes: Long = 0L) {
+        Log.d(logTag, "DL $type for $encodedState")
+        totalChannel.send(
+            when {
+                sizeInBytes > 0 -> sizeInBytes
+                type == AppNames.LOCAL_FILE_TYPE_THUMB -> TransferService.thumbSize
+                type == AppNames.LOCAL_FILE_TYPE_PREVIEW -> TransferService.previewSize
+                else -> 0L // This should never happen
+            }
+        )
+        queue.send(encodeModel(encodedState, type))
+    }
 
     /** Inform the downloader that no more downloads are to be done */
     suspend fun walkingDone() {

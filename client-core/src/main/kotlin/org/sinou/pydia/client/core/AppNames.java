@@ -2,14 +2,8 @@ package org.sinou.pydia.client.core;
 
 public interface AppNames {
 
+    // Rather make this generic
     String KEY_PREFIX = "org.sinou.pydia.client";
-
-    // OAuth Code Flow when remote is Cells
-    String QUERY_KEY_CODE = "code";
-    String QUERY_KEY_STATE = "state";
-
-    // For OAuth callback
-    // String CELLS_ROOT_ENCODED_STATE = "cells%3A%2F%2Froot";
 
     // Network management
     String NETWORK_TYPE_UNMETERED = "Unmetered";
@@ -36,9 +30,7 @@ public interface AppNames {
     String SYNC_FREQ_WEEK = "week";
 
     /* Generic actions */
-    // Rather make this generic
     String KEY_PREFIX_ = KEY_PREFIX + ".";
-
     String ACTION_MORE = KEY_PREFIX_ + "more";
     // String ACTION_OPEN = KEY_PREFIX_ + "open";
     String ACTION_PAUSE = KEY_PREFIX_ + "pause";
@@ -55,10 +47,9 @@ public interface AppNames {
 
     String ACTION_OPEN_PARENT_IN_WORKSPACES = KEY_PREFIX_ + "openparentinworkspaces";
     String ACTION_DELETE_RECORD = KEY_PREFIX_ + "deleterecord";
-
     String ACTION_LOGIN = "login";
-    // String ACTION_LOGOUT = "logout";
-    // String ACTION_FORGET = "forget";
+     String ACTION_LOGOUT = "logout";
+     String ACTION_FORGET = "forget";
 
     /* Flags */
     int FLAG_BOOKMARK = 1;

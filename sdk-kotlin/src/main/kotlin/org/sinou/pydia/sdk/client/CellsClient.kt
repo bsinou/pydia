@@ -2,7 +2,6 @@ package org.sinou.pydia.sdk.client
 
 import org.sinou.pydia.openapi.api.TreeServiceApi
 import org.sinou.pydia.openapi.api.UserServiceApi
-import org.sinou.pydia.openapi.infrastructure.ApiClient
 import org.sinou.pydia.openapi.infrastructure.ClientException
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.model.RestBulkMetaResponse
@@ -54,7 +53,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             )
             false
         } catch (e: SDKException) {
-            Log.w(logTag,"${e.code} (${e.message}) when checking auth for ${transport.stateID}")
+            Log.w(logTag, "${e.code} (${e.message}) when checking auth for ${transport.stateID}")
             false
         } catch (e: ServerException) {
             Log.e(logTag, "API error while checking auth state for " + StateID.fromId(transport.id))
@@ -206,11 +205,23 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
     }
 
-//    @Throws(SDKException::class)
-//    override fun nodeInfo(ws: String, path: String): FileNode? {
-//        val node = internalStatNode(ws, path)
-//        return node?.let { FileNodeUtils.toFileNode(it) }
-//    }
+    @Throws(SDKException::class)
+    override fun statNode(file: String): TreeNode? {
+        try {
+            Log.d(logTag, "############# internal stat for [$file]");
+            val (url, c) = transport.apiConf()
+            val response = TreeServiceApi(url, c).headNode(file)
+            return response?.node
+        } catch (e: ServerException) {
+            throw SDKException.fromServerException(e)
+        } catch (e: Exception) {
+            Log.e(logTag, "unexpected error when doing stat node for $file")
+            e.printStackTrace()
+            throw SDKException(ErrorCodes.internal_error, "Cannot stat $file", e)
+        }
+    }
+
+
 
     //    @Throws(SDKException::class)
 //    override fun getThumbnail(
@@ -1006,35 +1017,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        return if (node != null) toTreeNodeinfo(node) else null
 //    }
 //
-    @Throws(SDKException::class)
-    private fun internalStatNode(ws: String, path: String): TreeNode? {
-// TODO it might be an idea to encode the "tokens" of the path to manage weird folder name (typically with %)
-//    check this when we have the new caddy lib on the server side
-//        return internalStatNode(FileNodeUtils.toEncodedTreeNodePath(ws, path));
-        return internalStatNode(FileNodeUtils.toTreeNodePath(ws, path))
-    }
-
-    @Throws(SDKException::class)
-    private fun internalStatNode(fullPath: String): TreeNode? {
-        val api =
-            TreeServiceApi(transport.getApiURL(), ApiClient.defaultClient)// authenticatedClient())
-        // Log.d(logTag, "############# ");
-        // Log.d(logTag, "############# internal stat for [" + fullPath + "]");
-        // Log.d(logTag, "############# ");
-        return try {
-            api.headNode(fullPath).node
-        } catch (e: ServerException) {
-            throw SDKException.fromServerException(e)
-        } catch (e: Exception) {
-            Log.e(logTag, "unexpected error when doing stat node for $fullPath")
-            e.printStackTrace()
-            throw SDKException(
-                ErrorCodes.internal_error,
-                "unexpected error when doing stat node for $fullPath",
-                e
-            )
-        }
-    }
 
     //
 //    /**

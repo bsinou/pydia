@@ -27,8 +27,8 @@ interface Client {
     @Throws(SDKException::class)
     fun delete(slug: String, paths: Array<String>, removePermanently: Boolean)
 
-//    @Throws(SDKException::class)
-//    fun nodeInfo(ws: String, path: String): FileNode?
+    @Throws(SDKException::class)
+    fun statNode(file: String): TreeNode?
 
 //    /**
 //     * Temporary test before cleaning this part of the code

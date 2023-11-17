@@ -59,7 +59,6 @@ class CellsTransport(
             return false
         }
 
-
     init {
         this.credentialService = credentialService
         this.username = username
@@ -76,13 +75,25 @@ class CellsTransport(
         return agent
     }
 
-
     override fun apiConf(): Pair<String, OkHttpClient> {
         return getApiURL() to authenticatedClient().build()
     }
 
     override fun anonApiConf(): Pair<String, OkHttpClient> {
         return getApiURL() to anonClient().build()
+    }
+
+    override fun getApiURL(): String {
+        return getApiURL(server.serverURL)
+    }
+
+    fun getToken(): Token? {
+        return credentialService?.get(id)
+    }
+
+    @Throws(SDKException::class)
+    fun requestTokenRefresh() {
+        credentialService?.requestRefreshToken(stateID)
     }
 
     @Throws(SDKException::class)
@@ -108,7 +119,6 @@ class CellsTransport(
         }
     }
 
-
     @get:Throws(SDKException::class)
     val accessToken: String?
         get() {
@@ -116,18 +126,6 @@ class CellsTransport(
             return token.value
         }
 
-//    @get:Throws(SDKException::class)
-//    val token: Token?
-//        get() = credentialService?.get(id)@get:Throws(SDKException::class)
-
-    fun getToken(): Token? {
-        return credentialService?.get(id)
-    }
-
-    @Throws(SDKException::class)
-    fun requestTokenRefresh() {
-        credentialService?.requestRefreshToken(stateID)
-    }
 
     override fun getUserData(binary: String?): InputStream? {
         // FIXME  implement
@@ -430,10 +428,6 @@ class CellsTransport(
         } finally {
             IoHelpers.closeQuietly(postOut)
         }
-    }
-
-    fun getApiURL(): String {
-        return getApiURL(server.serverURL)
     }
 
     private fun getApiURL(serverURL: ServerURL): String {

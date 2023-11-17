@@ -18,17 +18,17 @@ import javax.xml.xpath.XPathFactory
 class DocumentRegistry : Registry {
 
     private var prefix: String? = null
-    private var isLegacy = false
     private var userNode: Node? = null
     private val xmlDocument: Document?
     private var parsedWorkspaces: List<WorkspaceNode>? = null
     private var parsedPlugins: List<Plugin>? = null
-    private var parsedActions: List<Action>? = null
+//    private var parsedActions: List<Action>? = null
 
-    protected val ajxpRepositoriesXPath = "/user/repositories"
-    protected val ajxpActionsXPath = "/ajxp_registry/actions"
-    protected val ajxpPluginsXPath = "/ajxp_registry/plugins"
-    protected val pydioRepositoriesXPath = "/pydio_registry/user/repositories"
+    private val ajxpRepositoriesXPath = "/user/repositories"
+
+    //    private val ajxpActionsXPath = "/ajxp_registry/actions"
+    private val ajxpPluginsXPath = "/ajxp_registry/plugins"
+    private val pydioRepositoriesXPath = "/pydio_registry/user/repositories"
 
 
     constructor(xmlDocument: Document?) {
@@ -36,10 +36,10 @@ class DocumentRegistry : Registry {
         handleRoot()
     }
 
-    constructor(`in`: InputStream?) {
+    constructor(input: InputStream?) {
         val factory = DocumentBuilderFactory.newInstance()
         val builder = factory.newDocumentBuilder()
-        xmlDocument = builder.parse(`in`)
+        xmlDocument = builder.parse(input)
         // NodeList children = xmlDocument.getChildNodes();
         // for (int i = 0; i < children.getLength(); i++) {
         //     Log.i(logTag, i + ": " + children.item(i).toString());
@@ -48,27 +48,22 @@ class DocumentRegistry : Registry {
     }
 
     private fun handleRoot() {
-        if (xmlDocument != null && xmlDocument.hasChildNodes()) {
-            val root = xmlDocument.childNodes.item(0)
-            when (root!!.nodeName) {
-                P8_PREFIX -> {
-                    prefix = "/" + P8_PREFIX + "/"
-                    isLegacy = true
-                }
 
-                CELLS_PREFIX -> {
-                    prefix = "/" + CELLS_PREFIX + "/"
-                    isLegacy = false
-                }
+        xmlDocument?.let {
+            if (it.hasChildNodes()) {
+                val root = it.childNodes.item(0)
 
-                else -> throw RuntimeException("Unexpected root: " + root.nodeName)
-            }
-            if (root != null && root.hasChildNodes()) {
-                val children = root.childNodes
-                for (i in 0 until children.length) {
-                    if (USER_NODE_NAME == children.item(i).nodeName) {
-                        userNode = children.item(i)
-                        break
+                prefix = if (root.nodeName == CELLS_PREFIX) {
+                    "/$CELLS_PREFIX/"
+                } else throw RuntimeException("Unexpected root: " + root.nodeName)
+
+                if (root.hasChildNodes()) {
+                    val children = root.childNodes
+                    for (i in 0 until children.length) {
+                        if (USER_NODE_NAME == children.item(i).nodeName) {
+                            userNode = children.item(i)
+                            break
+                        }
                     }
                 }
             }
@@ -121,172 +116,68 @@ class DocumentRegistry : Registry {
         return listOf()
     }
 
-    private fun parseWorkspace(node: Node): WorkspaceNode {
+    private fun parseWorkspace(node: Node): WorkspaceNode? {
         val attrs = node.attributes
 
         // We currently only use  id, slug, label and description
-        val slug = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_SLUG).nodeValue
+        val id = attrs.getNamedItem(SdkNames.WS_XML_KEY_ID).nodeValue
+        val slug = attrs.getNamedItem(SdkNames.WS_XML_KEY_SLUG).nodeValue
+        val type = attrs.getNamedItem(SdkNames.WS_XML_KEY_TYPE).nodeValue
+
+        val nodeProps = Properties()
+        attrs.getNamedItem(SdkNames.WS_XML_KEY_ACL)?.let {
+            nodeProps[SdkNames.WS_XML_KEY_ACL] = it.nodeValue
+        }
+        attrs.getNamedItem(SdkNames.WS_XML_KEY_ACCESS_TYPE)?.let {
+            nodeProps[SdkNames.WS_XML_KEY_ACCESS_TYPE] = it.nodeValue
+        }
+        attrs.getNamedItem(SdkNames.WS_XML_KEY_OWNER)?.let {
+            nodeProps[SdkNames.WS_XML_KEY_OWNER] = it.nodeValue
+        }
+        attrs.getNamedItem(SdkNames.WS_XML_KEY_CROSS_COPY)?.let {
+            nodeProps[SdkNames.WS_XML_KEY_CROSS_COPY] = it.nodeValue
+        }
+        attrs.getNamedItem(SdkNames.WS_XML_KEY_META_SYNC)?.let {
+            nodeProps[SdkNames.WS_XML_KEY_META_SYNC] = it.nodeValue
+        }
 
         var label: String? = null
         var desc: String? = null
-        var type: String? = null
 
-        val props = node.childNodes
-        for (j in 0 until props.length) {
-            val prop = props.item(j)
+        val childProps = node.childNodes
+        for (j in 0 until childProps.length) {
+            val prop = childProps.item(j)
             when (prop.nodeName) {
-                SdkNames.NODE_PROPERTY_LABEL -> label = prop.firstChild.nodeValue
+                SdkNames.WS_XML_KEY_LABEL -> label = prop.firstChild.nodeValue
 
-                SdkNames.WORKSPACE_DESCRIPTION -> desc = prop.firstChild.nodeValue
-
-                SdkNames.WORKSPACE_PROPERTY_TYPE -> type = prop.firstChild.nodeValue
+                SdkNames.WS_XML_KEY_DESC -> desc = prop.firstChild.nodeValue
 
             }
         }
 
-        Log.e(logTag, "Found WS type: $type")
+        return if (SdkNames.hiddenWSLabels.contains(label)) {
+            Log.d(logTag, "... Skipping technical WS: $label")
+            null
+        } else {
+            WorkspaceNode(
+                uuid = id,
+                slug = slug,
+                label = label ?: slug,
+                description = desc,
+                type = type,
+                props = nodeProps
+            )
+        }
 
-        return WorkspaceNode(
-            slug = slug,
-            label = label ?: slug,
-            description = desc,
-            type = type ?: "todo",
-        )
-
-        TODO("Rewire this")
-
+//        TODO we skip these properties since moving to kotlin only
 //        val id = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ID)
 //        val acl = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACL)
-//        val slug = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_SLUG)
 //        val owner = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_OWNER)
 //        val crossCopy = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_CROSS_COPY)
 //        val accessType = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACCESS_TYPE)
-//        val repositoryType = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_TYPE)
 //        val metaSync = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_META_SYNC)
 //
-//        val workspaceNode = WorkspaceNode()
-//
-//        if (acl != null) {
-//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_ACL, acl.nodeValue)
-//        }
-//        if (id != null) {
-//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_ID, id.nodeValue)
-//        }
-//        if (slug != null) {
-//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_SLUG, slug.nodeValue)
-//        }
-//        if (owner != null) {
-//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_OWNER, owner.nodeValue)
-//        }
-//        if (crossCopy != null) {
-//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_CROSS_COPY, crossCopy.nodeValue)
-//        }
-//        if (accessType != null) {
-//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_ACCESS_TYPE, accessType.nodeValue)
-//        }
-//        if (repositoryType != null) {
-//            var type = repositoryType.nodeValue
-//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_TYPE, type)
-//        }
-//        if (metaSync != null) {
-//            workspaceNode.setProperty(SdkNames.WORKSPACE_PROPERTY_META_SYNC, metaSync.nodeValue)
-//        }
-//        val repoChildren = node.childNodes
-//        for (j in 0 until repoChildren.length) {
-//            val repoChildNode = repoChildren.item(j)
-//            val name = repoChildNode.nodeName
-//            when (name) {
-//                SdkNames.NODE_PROPERTY_LABEL -> workspaceNode.setProperty(
-//                    SdkNames.NODE_PROPERTY_LABEL,
-//                    repoChildNode.firstChild.nodeValue
-//                )
-//
-//                SdkNames.WORKSPACE_DESCRIPTION -> workspaceNode.setProperty(
-//                    SdkNames.WORKSPACE_DESCRIPTION,
-//                    repoChildNode.firstChild.nodeValue
-//                )
-//            }
-//        }
-//        return workspaceNode
     }
-
-//    override fun getActions(): List<Action> {
-//
-//        return parsedActions ?: run { parseActions().also { parsedActions = it }!! }
-//    }
-
-//    private fun parseActions(): List<Action>? {
-//        val xPath = XPathFactory.newInstance().newXPath()
-//        try {
-//            val actions: MutableList<Action> = ArrayList()
-//            val repositoriesNode =
-//                xPath.compile(ajxpActionsXPath).evaluate(xmlDocument, XPathConstants.NODE) as Node
-//            val repositoriesChildNodes = repositoriesNode.childNodes
-//            for (i in 0 until repositoriesChildNodes.length) {
-//                val node = repositoriesChildNodes.item(i)
-//                val tag = node.nodeName
-//                if ("action" == tag) {
-//                    val action = parseAction(node)
-//                    actions.add(action)
-//                }
-//            }
-//            return actions
-//        } catch (e: XPathExpressionException) {
-//            e.printStackTrace()
-//        }
-//        return null
-//    }
-
-//    private fun parseAction(node: Node): Action {
-//        var adminOnly: Boolean? = null
-//        var noUser: Boolean? = null
-//        val read: Boolean? = null
-//        val write: Boolean? = null
-//        val userLogged: Boolean? = null
-//
-//        // todo: add constant in SDKNames instead of hardcoded string
-//        val attrs = node.attributes
-//        var dirDefault = false
-//        var fileDefault = false
-//        val name = attrs.getNamedItem("name").nodeValue
-//        val dirDefaultNode = attrs.getNamedItem("dirDefault")
-//        val fileDefaultNode = attrs.getNamedItem("fileDefault")
-//        if (dirDefaultNode != null) {
-//            dirDefault = "true" == dirDefaultNode.nodeValue
-//        }
-//        if (fileDefaultNode != null) {
-//            fileDefault = "true" == fileDefaultNode.nodeValue
-//        }
-//        val actionChildNodes = node.childNodes
-//        for (i in 0 until actionChildNodes.length) {
-//            val actionChildNode = node.firstChild
-//            val tag = actionChildNode.nodeName
-//            if ("rightsContext" == tag) {
-//                val rightsContextAttrs = node.attributes
-//                val attrAdminOnly = rightsContextAttrs.getNamedItem("adminOnly")
-//                if (attrAdminOnly != null) {
-//                    adminOnly = java.lang.Boolean.valueOf(attrAdminOnly.nodeValue)
-//                }
-//                val attrNoUser = rightsContextAttrs.getNamedItem("noUser")
-//                if (attrNoUser != null) {
-//                    noUser = java.lang.Boolean.valueOf(attrNoUser.nodeValue)
-//                }
-//                val attrRead = rightsContextAttrs.getNamedItem("read")
-//                if (attrRead != null) {
-//                    adminOnly = java.lang.Boolean.valueOf(attrRead.nodeValue)
-//                }
-//                val attrWrite = rightsContextAttrs.getNamedItem("write")
-//                if (attrWrite != null) {
-//                    adminOnly = java.lang.Boolean.valueOf(attrWrite.nodeValue)
-//                }
-//                val attrUserLogged = rightsContextAttrs.getNamedItem("userLogged")
-//                if (attrUserLogged != null) {
-//                    adminOnly = java.lang.Boolean.valueOf(attrUserLogged.nodeValue)
-//                }
-//            }
-//        }
-//        return Action(name, dirDefault, fileDefault, write, read, adminOnly, userLogged, noUser)
-//    }
 
     override fun getPlugins(): List<Plugin> {
         return parsedPlugins ?: parsePlugins().also { parsedPlugins = it }!!
@@ -353,8 +244,86 @@ class DocumentRegistry : Registry {
 
     companion object {
         private const val logTag = "DocumentRegistry"
-        private const val P8_PREFIX = "ajxp_registry"
         private const val CELLS_PREFIX = "pydio_registry"
         private const val USER_NODE_NAME = "user"
     }
+
+    //    override fun getActions(): List<Action> {
+//
+//        return parsedActions ?: run { parseActions().also { parsedActions = it }!! }
+//    }
+
+//    private fun parseActions(): List<Action>? {
+//        val xPath = XPathFactory.newInstance().newXPath()
+//        try {
+//            val actions: MutableList<Action> = ArrayList()
+//            val repositoriesNode =
+//                xPath.compile(ajxpActionsXPath).evaluate(xmlDocument, XPathConstants.NODE) as Node
+//            val repositoriesChildNodes = repositoriesNode.childNodes
+//            for (i in 0 until repositoriesChildNodes.length) {
+//                val node = repositoriesChildNodes.item(i)
+//                val tag = node.nodeName
+//                if ("action" == tag) {
+//                    val action = parseAction(node)
+//                    actions.add(action)
+//                }
+//            }
+//            return actions
+//        } catch (e: XPathExpressionException) {
+//            e.printStackTrace()
+//        }
+//        return null
+//    }
+
+//    private fun parseAction(node: Node): Action {
+//        var adminOnly: Boolean? = null
+//        var noUser: Boolean? = null
+//        val read: Boolean? = null
+//        val write: Boolean? = null
+//        val userLogged: Boolean? = null
+//
+//        // To do: add constant in SDKNames instead of hardcoded string
+//        val attrs = node.attributes
+//        var dirDefault = false
+//        var fileDefault = false
+//        val name = attrs.getNamedItem("name").nodeValue
+//        val dirDefaultNode = attrs.getNamedItem("dirDefault")
+//        val fileDefaultNode = attrs.getNamedItem("fileDefault")
+//        if (dirDefaultNode != null) {
+//            dirDefault = "true" == dirDefaultNode.nodeValue
+//        }
+//        if (fileDefaultNode != null) {
+//            fileDefault = "true" == fileDefaultNode.nodeValue
+//        }
+//        val actionChildNodes = node.childNodes
+//        for (i in 0 until actionChildNodes.length) {
+//            val actionChildNode = node.firstChild
+//            val tag = actionChildNode.nodeName
+//            if ("rightsContext" == tag) {
+//                val rightsContextAttrs = node.attributes
+//                val attrAdminOnly = rightsContextAttrs.getNamedItem("adminOnly")
+//                if (attrAdminOnly != null) {
+//                    adminOnly = java.lang.Boolean.valueOf(attrAdminOnly.nodeValue)
+//                }
+//                val attrNoUser = rightsContextAttrs.getNamedItem("noUser")
+//                if (attrNoUser != null) {
+//                    noUser = java.lang.Boolean.valueOf(attrNoUser.nodeValue)
+//                }
+//                val attrRead = rightsContextAttrs.getNamedItem("read")
+//                if (attrRead != null) {
+//                    adminOnly = java.lang.Boolean.valueOf(attrRead.nodeValue)
+//                }
+//                val attrWrite = rightsContextAttrs.getNamedItem("write")
+//                if (attrWrite != null) {
+//                    adminOnly = java.lang.Boolean.valueOf(attrWrite.nodeValue)
+//                }
+//                val attrUserLogged = rightsContextAttrs.getNamedItem("userLogged")
+//                if (attrUserLogged != null) {
+//                    adminOnly = java.lang.Boolean.valueOf(attrUserLogged.nodeValue)
+//                }
+//            }
+//        }
+//        return Action(name, dirDefault, fileDefault, write, read, adminOnly, userLogged, noUser)
+//    }
+
 }

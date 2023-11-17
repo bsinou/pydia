@@ -1,11 +1,12 @@
 package org.sinou.pydia.sdk.api
 
 /**
- * Centralize all string constants
+ * Centralize String constants
  */
 interface SdkNames {
 
     companion object {
+
         /* CONSTANTS */
         const val DEFAULT_CLIENT_ID = "cells-client"
         const val DEFAULT_CLIENT_SECRET = ""
@@ -22,6 +23,34 @@ interface SdkNames {
         const val WS_TYPE_DEFAULT = "workspace"
         const val RECYCLE_BIN_NAME = "recycle_bin"
 
+        // TODO these values are used to parse Cells Legacy Registry
+        const val WS_XML_KEY_ID = "id"
+        const val WS_XML_KEY_SLUG = "repositorySlug"
+        const val WS_XML_KEY_TYPE = "repository_type"
+        const val WS_XML_KEY_ACCESS_TYPE = "access_type"
+        const val WS_XML_KEY_ACL = "acl"
+        const val WS_XML_KEY_LABEL = "label"
+        const val WS_XML_KEY_DESC = "description"
+        const val WS_XML_KEY_OWNER ="owner"
+        const val WS_XML_KEY_CROSS_COPY ="allowCrossRepositoryCopy"
+        const val WS_XML_KEY_META_SYNC ="meta_syncable_REPO_SYNCABLE"
+
+        // The Registry also list technical pages together with the workspaces, we must manually ignore them
+        private const val WORKSPACE_DIRECTORY = "directory"
+        private const val WORKSPACE_HOMEPAGE = "homepage"
+        private const val WORKSPACE_SETTINGS = "settings"
+        private const val WORKSPACE_GATEWAY = "gateway"
+        private const val WORKSPACE_INBOX = "inbox"
+
+        val hiddenWSLabels = arrayOf<String>(
+            WORKSPACE_DIRECTORY,
+            WORKSPACE_HOMEPAGE,
+            WORKSPACE_SETTINGS,
+            WORKSPACE_GATEWAY,
+            WORKSPACE_INBOX,
+        )
+
+        // Lecagy properties. TODO clean
         // Node (file and folder) properties
         const val NODE_PROPERTY_PATH = "path"
         const val NODE_PROPERTY_FILENAME = "filename"
@@ -51,20 +80,5 @@ interface SdkNames {
 
         const val NODE_PROPERTY_UID = "uuid"
         const val NODE_PROPERTY_SHARE_UUID = "share_uuid"
-
-
-        // TODO these values are used to parse Cells Legacy Registry
-        const val WORKSPACE_PROPERTY_ID = "id"
-        const val WORKSPACE_DESCRIPTION = "description"
-        const val WORKSPACE_PROPERTY_SLUG = "repositorySlug"
-        const val WORKSPACE_PROPERTY_LABEL = "label"
-        const val WORKSPACE_PROPERTY_TYPE = "repository_type"
-        const val WORKSPACE_PROPERTY_ACCESS_TYPE = "access_type"
-        const val WORKSPACE_PROPERTY_OWNER = "owner"
-        const val WORKSPACE_PROPERTY_CROSS_COPY = "allowCrossRepositoryCopy"
-        const val WORKSPACE_PROPERTY_META_SYNC = "meta_syncable_REPO_SYNCABLE"
-        const val WORKSPACE_PROPERTY_ACL = "acl"
-        const val WORKSPACE_IS_PUBLIC = "is_public" // Cells
-        //    String WORKSPACE_ACCESS_TYPE_DIRECTORY = "directory";
     }
 }

@@ -2,7 +2,6 @@ package org.sinou.pydia.sdk.transport
 
 import org.sinou.pydia.sdk.api.Transport
 import org.sinou.pydia.sdk.utils.Log
-import org.sinou.pydia.sdk.utils.PathUtils
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.net.URLDecoder
@@ -67,8 +66,16 @@ class StateID {
 
     val slug: String?
         get() {
-            return PathUtils.getWorkspace(path)
+            return getWorkspace(path)
         }
+
+    val workspace: StateID?
+        get() {
+            return slug?.let {
+                withPath("/$it")
+            }
+        }
+
 
     val serverHost: String
         /**
@@ -82,7 +89,7 @@ class StateID {
             serverUrl
         }
 
-    val workspace: String?
+    val workspaceStr: String?
         get() = getWorkspace(path)
 
     val file: String?
@@ -111,6 +118,30 @@ class StateID {
      */
     fun withPath(path: String): StateID {
         return StateID(username, serverUrl, path)
+    }
+
+    // TODO we have this kind of parent method twice, analyse and fix.
+    fun workspace(): StateID? {
+        return slug?.let {
+            withPath("/$it")
+        }
+    }
+
+    fun parent(): StateID {
+        return if (getParentPath() == null) {
+            // Corner case: parent of a workspace or a cell is the corresponding account
+            StateID(username, serverUrl)
+        } else StateID(username, serverUrl, getParentPath())
+    }
+
+    fun getParentPath(): String? {
+        if (path == null || "/" == path) {
+            return null
+        }
+        val parentPath = path.substring(0, path.lastIndexOf("/"))
+        return if ("" == parentPath) {
+            null
+        } else parentPath
     }
 
     /**
@@ -146,12 +177,12 @@ class StateID {
         return if (parentFile == null) {
             // Corner case: parent of a workspace or a cell is the corresponding account
             StateID(username, serverUrl)
-        } else StateID(username, serverUrl, "/$workspace$parentFile")
+        } else StateID(username, serverUrl, "/$workspaceStr$parentFile")
     }
 
     val isWorkspaceRoot: Boolean
         get() = path?.let {
-            it == "/$workspace"
+            it == "/$workspaceStr"
         } ?: run { false }
 
     val parentFile: String?
@@ -248,7 +279,7 @@ class StateID {
                 }
             }
             return StateID(username, host, path)
-       }
+        }
 
         // TODO find a elegant way to rather inject the CustomEncoder.
         //   Not perfect: Might have side effects when switching from plain Java to Android

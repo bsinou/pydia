@@ -23,7 +23,10 @@ interface Transport {
     @Throws(SDKException::class)
     fun apiConf(): Pair<String, OkHttpClient>
 
-    /**
+    fun getApiURL(): String
+
+
+        /**
      * Main entry point to then get the various package specific API clients.
      * Returns a pair (basePath: kotlin.String, client: OkHttpClient) where the OKHttpClient is fully configured and connected if credentials are present.
      * Otherwise it throws a @SDKException::class
@@ -33,7 +36,6 @@ interface Transport {
 
     @Throws(SDKException::class)
     fun withAuth(con: HttpURLConnection): HttpURLConnection
-
 
     /**
      * Tries to login the server with the passed credentials

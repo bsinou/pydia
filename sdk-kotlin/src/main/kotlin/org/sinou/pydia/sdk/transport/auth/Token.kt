@@ -28,18 +28,15 @@ class Token {
             if (expirationTime == -1L) {
                 return false
             }
-            if (value == null) {
-                return true
-            }
-            if ("" == value) {
+            if (value.isNullOrEmpty()) {
                 return true
             }
             val expSince = currentTimeInSeconds() - expirationTime
             val expired = expSince > 0
-            if (expired) {
-                Log.w(logTag,"Token for $subject is expired since $expSince seconds")
-                Thread.dumpStack()
-            }
+//            if (expired) {
+//                Log.w(logTag,"Token for $subject is expired since $expSince seconds")
+//                Thread.dumpStack()
+//            }
             return expired
         }
 

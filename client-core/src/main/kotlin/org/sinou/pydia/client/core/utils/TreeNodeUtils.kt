@@ -15,36 +15,33 @@ private const val LOG_TAG = "TreeNodeUtils.kt"
 /* Performs the mapping between Cells API and the local model*/
 fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
 
-    // Prepare Well known values
     // Construct path & stateID
     val path = treeNode.path
         ?: throw IllegalArgumentException("Cannot create a node with an empty path")
     val childStateID = StateID.safeFromId(stateID.accountId).withPath("/$path")
     // Deduct a Name
     val name = childStateID.fileName ?: run {
-        Log.e(LOG_TAG, "Using slug instead of filename for $childStateID")
         childStateID.slug!!
     }
     val isFolder = treeNode.isFolder()
-    // Mime
-    val mimeType = if (isFolder) {
-        if (SdkNames.RECYCLE_BIN_NAME == name) {
-            SdkNames.NODE_MIME_RECYCLE
-        } else if ("/" == childStateID.file) {
-            SdkNames.NODE_MIME_WS_ROOT
-        } else {
-            SdkNames.NODE_MIME_FOLDER
-        }
-    } else {
-        val encodedMime = treeNode.getProperty(SdkNames.NODE_PROPERTY_MIME)
-        encodedMime?.let { extractJSONString(it) }
-            ?: getMimeType(name, SdkNames.NODE_MIME_DEFAULT)
-    }
 
-    val mTime: Long = treeNode.mtime?.let{
-        it.toLong()
-    } ?: -1
     try {
+        // Mime
+        val mimeType = if (isFolder) {
+            if (SdkNames.RECYCLE_BIN_NAME == name) {
+                SdkNames.NODE_MIME_RECYCLE
+            } else if ("/" == childStateID.file) {
+                SdkNames.NODE_MIME_WS_ROOT
+            } else {
+                SdkNames.NODE_MIME_FOLDER
+            }
+        } else {
+            val encodedMime = treeNode.getProperty(SdkNames.NODE_PROPERTY_MIME)
+            encodedMime?.let { extractJSONString(it) }
+                ?: getMimeType(name, SdkNames.NODE_MIME_DEFAULT)
+        }
+
+        val mTime: Long = treeNode.mtime?.toLong() ?: -1
         // Size
         var sizeStr: String? = treeNode.propertySize
         if (sizeStr.isNullOrEmpty()) {
@@ -91,6 +88,26 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
 //                fileNode.setProperty(SdkNames.NODE_PROPERTY_IS_PRE_VIEWABLE, true.toString())
 //            }
 
+        // Retrieve the MetaData and store it as properties for later use
+        val metaProps = Properties()
+        treeNode.metaStore?.let {
+            metaProps.putAll(it)
+        }
+
+        // FIXME
+        // Also stores a hash of the meta to ease detection of future change
+        val map = mutableMapOf<String, String>()
+        treeNode.metaStore?.let {
+            map.putAll(it)
+        }
+        val sorted = map.toSortedMap(compareBy<String> { it })
+        val builder = StringBuilder()
+        sorted.forEach {
+            // We build a local hash after sorting the map because e.G workspace shares
+            // are returned in a random **changing** order that modifies the hash almost at each call...
+            builder.append(it.value)
+        }
+        val metaHash = builder.toString().hashCode()
 
         val node = RTreeNode(
             encodedState = childStateID.id,
@@ -104,8 +121,8 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
             remoteModificationTS = mTime,
             // TODO
             properties = Properties(),
-            meta = Properties(),
-            metaHash = -1,
+            meta = metaProps,
+            metaHash = metaHash,
         )
 
         // Share and offline cache values are rather handled in the NodeService directly
@@ -127,7 +144,6 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
         throw e
     }
 }
-
 
 fun TreeNode.getProperty(key: String): String? {
     return this.metaStore?.let { it[key] }

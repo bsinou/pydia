@@ -18,7 +18,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.sinou.pydia.client.core.AppKeys
@@ -30,7 +29,7 @@ import org.sinou.pydia.client.core.ui.core.nav.AppPermanentDrawer
 import org.sinou.pydia.client.core.ui.core.nav.CellsNavigationActions
 import org.sinou.pydia.client.core.ui.system.SystemNavigationActions
 import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
-import org.sinou.pydia.client.core.utils.rememberContentPaddingForScreen
+import org.sinou.pydia.client.core.util.rememberContentPaddingForScreen
 import org.sinou.pydia.sdk.transport.StateID
 
 private const val LOG_TAG = "MainHost.kt"

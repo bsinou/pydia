@@ -23,10 +23,10 @@ import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.db.nodes.TransferDao
 import org.sinou.pydia.client.core.db.nodes.TreeNodeDB
-import org.sinou.pydia.client.core.utils.childFile
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.extractJSONString
-import org.sinou.pydia.client.core.utils.parseOrder
+import org.sinou.pydia.client.core.util.childFile
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.extractJSONString
+import org.sinou.pydia.client.core.util.parseOrder
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames

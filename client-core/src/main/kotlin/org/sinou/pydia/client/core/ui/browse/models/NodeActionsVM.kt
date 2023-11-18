@@ -15,7 +15,7 @@ import org.sinou.pydia.client.core.services.OfflineService
 import org.sinou.pydia.client.core.services.TransferService
 import org.sinou.pydia.client.core.ui.core.AbstractCellsVM
 import org.sinou.pydia.client.core.ui.models.fromMessage
-import org.sinou.pydia.client.core.utils.DEFAULT_FILE_PROVIDER_ID
+import org.sinou.pydia.client.core.util.DEFAULT_FILE_PROVIDER_ID
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.StateID
 import java.io.File

@@ -1,4 +1,4 @@
-package org.sinou.pydia.client.core.utils
+package org.sinou.pydia.client.core.util
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides

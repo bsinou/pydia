@@ -6,7 +6,7 @@ import org.sinou.pydia.client.core.JobStatus
 import org.sinou.pydia.client.core.db.runtime.RJob
 import org.sinou.pydia.client.core.db.runtime.RLog
 import org.sinou.pydia.client.core.db.runtime.RuntimeDB
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import kotlinx.coroutines.flow.Flow

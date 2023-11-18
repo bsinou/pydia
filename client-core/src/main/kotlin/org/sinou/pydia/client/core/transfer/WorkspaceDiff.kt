@@ -7,7 +7,7 @@ import org.sinou.pydia.client.core.db.accounts.WorkspaceDao
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.services.FileService
 import org.sinou.pydia.client.core.services.TreeNodeRepository
-import org.sinou.pydia.client.core.utils.areWsNodeContentEquals
+import org.sinou.pydia.client.core.util.areWsNodeContentEquals
 import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.StateID

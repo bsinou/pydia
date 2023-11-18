@@ -10,8 +10,8 @@ import org.sinou.pydia.client.core.LoginStatus
 import org.sinou.pydia.client.core.db.accounts.AccountDao
 import org.sinou.pydia.client.core.db.accounts.SessionDao
 import org.sinou.pydia.client.core.db.accounts.SessionViewDao
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.timestampToString
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.timestampToString
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SDKException.RemoteIOException

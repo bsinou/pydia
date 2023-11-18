@@ -1,4 +1,4 @@
-package org.sinou.pydia.client.core.utils
+package org.sinou.pydia.client.core.util
 
 import android.util.Log
 import android.webkit.MimeTypeMap

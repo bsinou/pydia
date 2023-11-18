@@ -83,7 +83,7 @@ import org.sinou.pydia.client.core.ui.core.composables.modal.rememberModalBottom
 import org.sinou.pydia.client.core.ui.models.toErrorMessage
 import org.sinou.pydia.client.core.ui.theme.CellsIcons
 import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
-import org.sinou.pydia.client.core.utils.asAgoString
+import org.sinou.pydia.client.core.util.asAgoString
 import org.sinou.pydia.sdk.transport.StateID
 import kotlinx.coroutines.launch
 

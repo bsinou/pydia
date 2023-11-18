@@ -13,7 +13,7 @@ import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.db.preferences.SyncPreferences
 import org.sinou.pydia.client.core.services.OfflineService
 import org.sinou.pydia.client.core.services.PreferencesService
-import org.sinou.pydia.client.core.utils.fromFreqToMinuteInterval
+import org.sinou.pydia.client.core.util.fromFreqToMinuteInterval
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.concurrent.TimeUnit

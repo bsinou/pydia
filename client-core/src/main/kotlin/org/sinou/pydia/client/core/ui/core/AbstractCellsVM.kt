@@ -24,7 +24,7 @@ import org.sinou.pydia.client.core.services.ErrorService
 import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.client.core.services.PreferencesService
 import org.sinou.pydia.client.core.ui.models.ErrorMessage
-import org.sinou.pydia.client.core.utils.externallyView
+import org.sinou.pydia.client.core.util.externallyView
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.StateID

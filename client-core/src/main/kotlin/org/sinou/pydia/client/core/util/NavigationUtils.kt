@@ -1,4 +1,4 @@
-package org.sinou.pydia.client.core.utils
+package org.sinou.pydia.client.core.util
 
 import android.content.ActivityNotFoundException
 import android.content.Context

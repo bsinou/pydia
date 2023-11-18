@@ -1,4 +1,4 @@
-package org.sinou.pydia.client.core.utils
+package org.sinou.pydia.client.core.util
 
 import android.util.Base64
 import org.sinou.pydia.sdk.api.CustomEncoder

@@ -10,8 +10,8 @@ import org.sinou.pydia.client.core.db.nodes.TreeNodeDB
 import org.sinou.pydia.client.core.db.nodes.TreeNodeDao
 import org.sinou.pydia.client.core.transfer.FileDownloader
 import org.sinou.pydia.client.core.transfer.TreeDiff
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.timestampForLogMessage
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.timestampForLogMessage
 import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
@@ -22,7 +22,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.R
-import org.sinou.pydia.client.core.utils.fromTreeNode
+import org.sinou.pydia.client.core.util.fromTreeNode
 import kotlin.time.measureTimedValue
 
 class OfflineService(

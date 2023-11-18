@@ -28,10 +28,10 @@ import org.sinou.pydia.client.core.ServerConnection
 import org.sinou.pydia.client.core.db.accounts.RSessionView
 import org.sinou.pydia.client.core.db.accounts.RWorkspace
 import org.sinou.pydia.client.core.ui.theme.CellsColor
-import org.sinou.pydia.client.core.utils.BackOffTicker
-import org.sinou.pydia.client.core.utils.CellsCancellation
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.timestampToString
+import org.sinou.pydia.client.core.util.BackOffTicker
+import org.sinou.pydia.client.core.util.CellsCancellation
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.timestampToString
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames

@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import org.sinou.pydia.client.core.AppNames
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestamp
 
 @Entity(tableName = "logs")
 data class RLog(

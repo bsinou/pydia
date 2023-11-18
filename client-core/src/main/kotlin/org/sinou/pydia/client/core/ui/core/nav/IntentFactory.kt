@@ -4,8 +4,8 @@ import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
 import org.sinou.pydia.client.R
-import org.sinou.pydia.client.core.utils.getOSCurrentVersion
-import org.sinou.pydia.client.core.utils.getTimestampAsENString
+import org.sinou.pydia.client.core.util.getOSCurrentVersion
+import org.sinou.pydia.client.core.util.getTimestampAsENString
 import org.sinou.pydia.sdk.transport.ClientData
 
 fun openExternalURL(urlStr: String): Intent {

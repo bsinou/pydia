@@ -5,8 +5,8 @@ import android.util.Log
 import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.core.db.auth.AuthDB
 import org.sinou.pydia.client.core.db.auth.ROAuthState
-import org.sinou.pydia.client.core.utils.AndroidCustomEncoder
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.AndroidCustomEncoder
+import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.sdk.api.CustomEncoder
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.ServerURL

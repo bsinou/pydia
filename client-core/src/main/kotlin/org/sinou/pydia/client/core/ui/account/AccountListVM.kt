@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 import org.sinou.pydia.client.core.db.accounts.RSessionView
 import org.sinou.pydia.client.core.services.AccountService
 import org.sinou.pydia.client.core.ui.core.AbstractCellsVM
-import org.sinou.pydia.client.core.utils.BackOffTicker
+import org.sinou.pydia.client.core.util.BackOffTicker
 import org.sinou.pydia.sdk.transport.StateID
 import java.util.concurrent.TimeUnit
 

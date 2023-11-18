@@ -10,7 +10,7 @@ import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.db.nodes.TransferDao
 import org.sinou.pydia.client.core.services.CoroutineService
 import org.sinou.pydia.client.core.services.FileService
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import kotlinx.coroutines.channels.Channel

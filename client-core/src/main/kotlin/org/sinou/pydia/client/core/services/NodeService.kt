@@ -13,9 +13,9 @@ import org.sinou.pydia.client.core.db.nodes.RLiveOfflineRoot
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.db.nodes.TreeNodeDB
 import org.sinou.pydia.client.core.transfer.TreeDiff
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.fromTreeNode
-import org.sinou.pydia.client.core.utils.parseOrder
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.fromTreeNode
+import org.sinou.pydia.client.core.util.parseOrder
 import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.ErrorCodes

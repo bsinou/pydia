@@ -6,7 +6,7 @@ import org.sinou.pydia.client.core.db.accounts.RSession
 import org.sinou.pydia.client.core.db.accounts.SessionDao
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.db.nodes.TreeNodeDB
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.sdk.transport.StateID
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

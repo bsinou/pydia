@@ -1,4 +1,4 @@
-package org.sinou.pydia.client.core.utils
+package org.sinou.pydia.client.core.util
 
 import org.sinou.pydia.sdk.api.SDKException
 import java.io.File

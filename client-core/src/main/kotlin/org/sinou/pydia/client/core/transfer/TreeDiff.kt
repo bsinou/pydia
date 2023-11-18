@@ -11,9 +11,9 @@ import org.sinou.pydia.client.core.services.CoroutineService
 import org.sinou.pydia.client.core.services.FileService
 import org.sinou.pydia.client.core.services.NetworkService
 import org.sinou.pydia.client.core.services.NodeService
-import org.sinou.pydia.client.core.utils.areNodeContentEquals
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.fromTreeNode
+import org.sinou.pydia.client.core.util.areNodeContentEquals
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.fromTreeNode
 import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.ErrorCodes

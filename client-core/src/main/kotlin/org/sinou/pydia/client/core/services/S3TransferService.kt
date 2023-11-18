@@ -18,11 +18,10 @@ import org.sinou.pydia.client.core.db.nodes.TransferDao
 import org.sinou.pydia.client.core.db.nodes.TreeNodeDB
 import org.sinou.pydia.client.core.transfer.CellsAuthProvider
 import org.sinou.pydia.client.core.transfer.CellsS3Client
-import org.sinou.pydia.client.core.transfer.CellsSigner
 import org.sinou.pydia.client.core.transfer.CellsTransferListener
 import org.sinou.pydia.client.core.transfer.DEFAULT_BUCKET_NAME
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.currentTimestampAsString
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestampAsString
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.CellsTransport
 import org.sinou.pydia.sdk.transport.ServerURLImpl

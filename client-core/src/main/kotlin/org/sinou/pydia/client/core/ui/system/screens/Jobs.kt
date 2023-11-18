@@ -42,9 +42,9 @@ import org.sinou.pydia.client.core.ui.system.models.JobListVM
 import org.sinou.pydia.client.core.ui.theme.CellsColor
 import org.sinou.pydia.client.core.ui.theme.CellsIcons
 import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
-import org.sinou.pydia.client.core.utils.asSinceString
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.timestampToString
+import org.sinou.pydia.client.core.util.asSinceString
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.timestampToString
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

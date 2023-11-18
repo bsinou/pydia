@@ -15,7 +15,7 @@ import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.di.allModules
 import org.sinou.pydia.client.core.services.JobService
 import org.sinou.pydia.client.core.services.WorkerService
-import org.sinou.pydia.client.core.utils.timestampForLogMessage
+import org.sinou.pydia.client.core.util.timestampForLogMessage
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.ClientData
 import org.sinou.pydia.sdk.utils.Log

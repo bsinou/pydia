@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.ui.core.AbstractCellsVM
-import org.sinou.pydia.client.core.utils.isPreViewable
+import org.sinou.pydia.client.core.util.isPreViewable
 import org.sinou.pydia.sdk.transport.StateID
 
 /** Hold the state for the carousel component */

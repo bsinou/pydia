@@ -6,10 +6,10 @@ import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.db.nodes.RLocalFile
 import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
-import org.sinou.pydia.client.core.utils.asFormattedString
-import org.sinou.pydia.client.core.utils.computeFileMd5
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.getCurrentDateTime
+import org.sinou.pydia.client.core.util.asFormattedString
+import org.sinou.pydia.client.core.util.computeFileMd5
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.getCurrentDateTime
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.StateID
 import kotlinx.coroutines.launch

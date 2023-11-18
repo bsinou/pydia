@@ -3,7 +3,7 @@ package org.sinou.pydia.client.core.db.nodes
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import org.sinou.pydia.client.core.AppNames
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.sdk.transport.StateID
 import java.io.File
 

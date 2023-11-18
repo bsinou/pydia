@@ -1,4 +1,4 @@
-package org.sinou.pydia.client.core.utils
+package org.sinou.pydia.client.core.util
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

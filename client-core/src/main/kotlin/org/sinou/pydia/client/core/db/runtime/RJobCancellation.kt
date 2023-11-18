@@ -3,7 +3,7 @@ package org.sinou.pydia.client.core.db.runtime
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestamp
 
 @Entity(tableName = "job_cancellation")
 data class RJobCancellation(

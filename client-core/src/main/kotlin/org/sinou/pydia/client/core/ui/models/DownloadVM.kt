@@ -16,7 +16,7 @@ import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.services.TransferService
 import org.sinou.pydia.client.core.ui.core.AbstractCellsVM
-import org.sinou.pydia.client.core.utils.getTsAsString
+import org.sinou.pydia.client.core.util.getTsAsString
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.StateID
 

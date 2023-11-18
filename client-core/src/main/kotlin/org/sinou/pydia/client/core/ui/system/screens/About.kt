@@ -26,7 +26,7 @@ import org.sinou.pydia.client.core.ui.core.nav.DefaultTopAppBar
 import org.sinou.pydia.client.core.ui.core.nav.openExternalURL
 import org.sinou.pydia.client.core.ui.core.nav.sendSupportEmail
 import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
-import org.sinou.pydia.client.core.utils.getTimestampAsString
+import org.sinou.pydia.client.core.util.getTimestampAsString
 import org.sinou.pydia.sdk.transport.ClientData
 
 @Composable

@@ -45,7 +45,7 @@ import org.sinou.pydia.client.core.ui.models.BrowseRemoteVM
 import org.sinou.pydia.client.core.ui.models.toErrorMessage
 import org.sinou.pydia.client.core.ui.share.models.ShareVM
 import org.sinou.pydia.client.core.ui.share.screens.SelectFolderScreen
-import org.sinou.pydia.client.core.utils.showMessage
+import org.sinou.pydia.client.core.util.showMessage
 import org.sinou.pydia.sdk.transport.StateID
 
 private const val LOG_TAG = "NodeWithActions.kt"

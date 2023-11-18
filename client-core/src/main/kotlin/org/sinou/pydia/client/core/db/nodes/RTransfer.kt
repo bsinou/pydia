@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import org.sinou.pydia.client.core.JobStatus
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.sdk.transport.StateID
 
 @Entity(tableName = "transfers")

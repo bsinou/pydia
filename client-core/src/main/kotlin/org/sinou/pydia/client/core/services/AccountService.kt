@@ -17,8 +17,8 @@ import org.sinou.pydia.client.core.db.accounts.SessionDao
 import org.sinou.pydia.client.core.db.accounts.SessionViewDao
 import org.sinou.pydia.client.core.db.accounts.WorkspaceDao
 import org.sinou.pydia.client.core.transfer.WorkspaceDiff
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.logException
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.logException
 import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.Credentials
 import org.sinou.pydia.sdk.api.ErrorCodes

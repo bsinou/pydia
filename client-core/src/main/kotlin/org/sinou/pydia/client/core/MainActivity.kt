@@ -33,7 +33,7 @@ import org.sinou.pydia.client.core.ui.core.screens.WhiteScreen
 import org.sinou.pydia.client.core.ui.login.models.OAuthProcessState
 import org.sinou.pydia.client.core.ui.login.models.OAuthVM
 import org.sinou.pydia.client.core.ui.login.screens.AuthScreen
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.sdk.transport.StateID
 
 /**

@@ -17,7 +17,7 @@ import org.sinou.pydia.client.core.ui.login.localLoginGraph
 import org.sinou.pydia.client.core.ui.login.models.LoginVM
 import org.sinou.pydia.client.core.ui.models.BrowseRemoteVM
 import org.sinou.pydia.client.core.ui.system.systemNavGraph
-import org.sinou.pydia.client.core.utils.rememberContentPaddingForScreen
+import org.sinou.pydia.client.core.util.rememberContentPaddingForScreen
 import org.sinou.pydia.sdk.utils.Log
 
 @Composable

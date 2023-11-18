@@ -3,7 +3,7 @@ package org.sinou.pydia.client.core.db.nodes
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import org.sinou.pydia.client.core.utils.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestamp
 
 @Entity(tableName = "transfer_cancellation")
 data class RTransferCancellation(

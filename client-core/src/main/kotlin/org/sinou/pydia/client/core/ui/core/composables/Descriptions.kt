@@ -3,9 +3,9 @@ package org.sinou.pydia.client.core.ui.core.composables
 import androidx.compose.runtime.Composable
 import org.sinou.pydia.client.core.JobStatus
 import org.sinou.pydia.client.core.db.runtime.RJob
-import org.sinou.pydia.client.core.utils.asSinceString
-import org.sinou.pydia.client.core.utils.currentTimestamp
-import org.sinou.pydia.client.core.utils.timestampToString
+import org.sinou.pydia.client.core.util.asSinceString
+import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.timestampToString
 import java.util.Locale
 
 @Composable

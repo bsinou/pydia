@@ -211,28 +211,29 @@ class MainActivity : ComponentActivity() {
                     oauthVM.launchCodeManagement(state, code)
                 }
 
-//            Intent.ACTION_SEND == intent.action -> {
-//                val clipData = intent.clipData
-//                Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
-//                clipData?.let {
-//                    startingState.route = ShareDestination.ChooseAccount.route
+                Intent.ACTION_SEND -> {
+                    val clipData = intent.clipData
+                    Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
+                    clipData?.let {
+                        TODO("Re implement me")
+                        //                    startingState.route = ShareDestination.ChooseAccount.route
 //                    clipData.getItemAt(0).uri?.let {
 //                        startingState.uris.add(it)
 //                    }
-//                }
-//            }
-//
-//            Intent.ACTION_SEND_MULTIPLE == intent.action -> {
-//                val tmpClipData = intent.clipData
-//                tmpClipData?.let { clipData ->
+                    }
+                }
+
+                Intent.ACTION_SEND_MULTIPLE -> {
+                    val tmpClipData = intent.clipData
+                    tmpClipData?.let { clipData ->
 //                    startingState.route = ShareDestination.ChooseAccount.route
 //                    for (i in 0 until clipData.itemCount) {
 //                        clipData.getItemAt(i).uri?.let {
 //                            startingState.uris.add(it)
 //                        }
 //                    }
-//                }
-//            }
+                    }
+                }
 
                 else -> {
                     val action = intent.action

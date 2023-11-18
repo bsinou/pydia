@@ -47,7 +47,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import org.sinou.pydia.client.R
-import org.sinou.pydia.client.core.ui.theme.UseCellsTheme
+import org.sinou.pydia.client.ui.theme.UseCellsTheme
 
 /**
  * Test new components should not be enabled when shipping to production

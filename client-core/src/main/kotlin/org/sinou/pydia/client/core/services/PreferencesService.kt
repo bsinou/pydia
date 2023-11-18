@@ -14,7 +14,7 @@ import org.sinou.pydia.client.core.db.preferences.ListPreferences
 import org.sinou.pydia.client.core.db.preferences.MeteredNetworkPreferences
 import org.sinou.pydia.client.core.db.preferences.SyncPreferences
 import org.sinou.pydia.client.core.db.preferences.defaultCellsPreferences
-import org.sinou.pydia.client.core.ui.core.ListLayout
+import org.sinou.pydia.client.ui.core.ListLayout
 import org.sinou.pydia.client.core.util.parseOrder
 import org.sinou.pydia.sdk.utils.Log
 import kotlinx.coroutines.flow.Flow

@@ -1,8 +1,8 @@
 package org.sinou.pydia.client.core.services
 
 import android.util.Log
-import org.sinou.pydia.client.core.ui.models.ErrorMessage
-import org.sinou.pydia.client.core.ui.models.fromException
+import org.sinou.pydia.client.ui.models.ErrorMessage
+import org.sinou.pydia.client.ui.models.fromException
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

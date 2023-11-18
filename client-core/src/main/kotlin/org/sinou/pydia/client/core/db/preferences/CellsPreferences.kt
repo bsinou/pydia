@@ -6,7 +6,7 @@ import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.JobStatus
-import org.sinou.pydia.client.core.ui.core.ListLayout
+import org.sinou.pydia.client.ui.core.ListLayout
 
 const val CELLS_PREFERENCES_NAME = "cells_preferences"
 

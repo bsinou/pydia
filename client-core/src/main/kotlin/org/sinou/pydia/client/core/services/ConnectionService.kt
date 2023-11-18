@@ -27,7 +27,7 @@ import org.sinou.pydia.client.core.NetworkStatus
 import org.sinou.pydia.client.core.ServerConnection
 import org.sinou.pydia.client.core.db.accounts.RSessionView
 import org.sinou.pydia.client.core.db.accounts.RWorkspace
-import org.sinou.pydia.client.core.ui.theme.CellsColor
+import org.sinou.pydia.client.ui.theme.CellsColor
 import org.sinou.pydia.client.core.util.BackOffTicker
 import org.sinou.pydia.client.core.util.CellsCancellation
 import org.sinou.pydia.client.core.util.currentTimestamp

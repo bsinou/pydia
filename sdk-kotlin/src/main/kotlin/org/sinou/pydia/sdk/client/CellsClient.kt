@@ -193,7 +193,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 
         val (url, client) = transport.apiConf()
         val api = TreeServiceApi(url, client)
-        val response = try {
+        try {
             api.createNodes(request)
         } catch (e: ServerException) {
             e.printStackTrace()
@@ -218,10 +218,9 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     @Throws(SDKException::class)
     override fun statNode(file: String): TreeNode? {
         try {
-            Log.d(logTag, "############# internal stat for [$file]");
             val (url, c) = transport.apiConf()
             val response = TreeServiceApi(url, c).headNode(file)
-            return response?.node
+            return response.node
         } catch (e: ServerException) {
             throw SDKException.fromServerException(e)
         } catch (e: Exception) {
@@ -240,11 +239,9 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         dim: Int
     ): String? {
 
-//        props.forEach { k, v -> Log.e(logTag, "- $k : $v") }
-
-        val filename = getThumbFilename(uuid, props, dim)!!
+        val filename = getThumbFilename(uuid, props, dim)
         if (filename.isNullOrEmpty()) {
-            Log.i(logTag, "No thumbnail is defined for $stateID")
+            Log.w(logTag, "No thumbnail is defined for $stateID")
             return null
         }
         var out: OutputStream? = null
@@ -280,7 +277,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         target: OutputStream,
         onProgress: ((Long) -> String?)?
     ): Long {
-        // Log.e(logTag, "about to download [" + file + "]");
         var input: InputStream? = null
         return try {
             val preSignedURL = s3Client.getDownloadPreSignedURL(ws, file)
@@ -327,7 +323,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 
         val imgThumbsStr = meta[SdkNames.META_KEY_THUMB_PARENT] as? String ?: return null
 
-        // FIXME centralize this
+        // TODO centralize this
         val objType = object : TypeToken<Map<String, Any>>() {}.type
         val thumbData: Map<String, *> = gson.fromJson(imgThumbsStr, objType)
         if (thumbData.containsKey(SdkNames.META_KEY_THUMB_PROCESSING)
@@ -337,14 +333,9 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             val thumbs = (thumbData[SdkNames.META_KEY_THUMBS] as? ArrayList<Map<String, Any>>)
                 ?: return null
             for (currThumb in thumbs) {
-                Log.e(logTag, "looping - $currThumb")
-
-                // Map<String, Object> currThumb = (Map<String, Object>) currThumbObj;
-                // val id = (meta[SdkNames.META_KEY_THUMB_ID] as? String).let{"$it-"} ?: ""
-                val sizeStr = currThumb[SdkNames.META_KEY_THUMB_SIZE] as? String ?: "299.0"
-                val size = sizeStr.toFloat().toInt()
+                val size = (currThumb[SdkNames.META_KEY_THUMB_SIZE] as? Double)?.toInt() ?: 0
                 val format = currThumb[SdkNames.META_KEY_THUMB_FORMAT] as? String ?: "jpg"
-                val currName = "$uid-${size.toInt()}.$format"
+                val currName = "$uid-$size.$format"
                 if (thumbName == null) {
                     thumbName = currName
                 }

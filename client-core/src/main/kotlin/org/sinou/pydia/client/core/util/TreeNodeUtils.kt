@@ -51,41 +51,6 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
         val size = sizeStr.toLong()
 
 
-        // Share info
-//        var shared = false
-//        var shareUUID: String? = null
-//        val wsSharesStr = treeNode.getProperty(SdkNames.META_KEY_WS_SHARES)?.let { json ->
-//            val gson = Gson()
-//            val sharesType = object : TypeToken<Array<Map<String, Any>>>() {}.type
-//            val shares: Array<Map<String, Any>> = gson.fromJson(json, sharesType)
-//
-//            shares.find { share ->
-//                val scope = share["Scope"]
-//                scope is Double && scope == 3.0
-//            }?.also { matchingShare ->
-//                shared = true
-//                shareUUID = matchingShare["UUID"] as? String
-//            }
-//        }
-
-        // Image specific info.
-
-        // Image specific info.
-//        val isImage = treeNode.getProperty("is_image") == "true"
-//TODO
-//            if (isImage) {
-//                fileNode.setProperty(SdkNames.NODE_PROPERTY_IMAGE_WIDTH, meta.get("image_width"))
-//                fileNode.setProperty(SdkNames.NODE_PROPERTY_IMAGE_HEIGHT, meta.get("image_height"))
-//            }
-//            // Also supports generated thumbs for other files (pdf, docs...) with recent Cells server
-//            // Also supports generated thumbs for other files (pdf, docs...) with recent Cells server
-//            if (meta.containsKey(SdkNames.META_KEY_IMG_THUMBS)) {
-//                fileNode.setProperty(SdkNames.NODE_PROPERTY_HAS_THUMB, true.toString())
-//            }
-//            if (isImage) {
-//                fileNode.setProperty(SdkNames.NODE_PROPERTY_IS_PRE_VIEWABLE, true.toString())
-//            }
-
         // Retrieve the MetaData and store it as properties for later use
         val metaProps = Properties()
         treeNode.metaStore?.let {
@@ -152,7 +117,7 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
         }
 
         // Also supports generated thumbs for other files (pdf, docs...) with recent Cells server
-        (metaProps[SdkNames.META_KEY_IMG_THUMBS] as? String)?.let {
+        (metaProps[SdkNames.META_KEY_THUMB_PARENT] as? String)?.let {
             props.setProperty(SdkNames.NODE_PROPERTY_HAS_THUMB, true.toString())
         }
 

@@ -166,7 +166,6 @@ class TransferService(
         stateId: StateID,
         transferID: Long,
         owner: String,
-        isRemoteLegacy: Boolean = false
     ) {
         s3TransferService.cancelTransfer(stateId, transferID, owner)
     }
@@ -175,7 +174,6 @@ class TransferService(
         stateId: StateID,
         transferID: Long,
         owner: String,
-        isRemoteLegacy: Boolean = false
     ) {
         s3TransferService.pauseTransfer(stateId, transferID, owner)
     }
@@ -183,7 +181,6 @@ class TransferService(
     suspend fun resumeTransfer(
         stateId: StateID,
         transferID: Long,
-        isRemoteLegacy: Boolean = false
     ) {
         s3TransferService.resumeTransfer(stateId, transferID)
     }
@@ -445,42 +442,35 @@ class TransferService(
         parPath: String,
         type: String
     ): String {
-        TODO("Reimplement")
+        try {
+            val client = accountService.getClient(state)
 
-//        val node = FileNode()
-//        node.properties = rNode.properties
-//        node.meta = rNode.meta
-//        try {
-//            val client = accountService.getClient(state)
-//
-//            val dim = when (type) {
-//                AppNames.LOCAL_FILE_TYPE_THUMB -> thumbDim
-//                else -> previewDim // AppNames.LOCAL_FILE_TYPE_PREVIEW
-//            }
-//            val filename = client.getThumbnail(state, node, File(parPath), dim)
-//            if (Str.empty(filename)) {
-//                throw SDKException(
-//                    ErrorCodes.not_found,
-//                    "Could not get thumb for $state, it is probably missing in the server"
-//                )
-//            }
-//
-//            val targetFile = File(parPath + File.separator + filename)
-//            if (!client.isLegacy) {
-//                handleOrientation(rNode, targetFile.absolutePath)
-//            }
-//
-//            fileService.registerLocalFile(state, rNode, type, targetFile)
-//            return filename
-//        } catch (e: Exception) {
-//            Log.e(logTag, "could not get thumb for $state: ${e.message}")
-//            // TODO improve At this point, if we had an error, the target file is most probably corrupted or missing
-//            //   Problem: if we are offline we might reach this point and and remove the record too fast.
-//            // fileService.unregisterLocalFile(state, type)
-//            // e.printStackTrace()
-//
-//            throw SDKException(ErrorCodes.not_found, "Get thumb for $state failed", e)
-//        }
+            val dim = when (type) {
+                AppNames.LOCAL_FILE_TYPE_THUMB -> thumbDim
+                else -> previewDim // AppNames.LOCAL_FILE_TYPE_PREVIEW
+            }
+            val filename = client.getThumbnail(state, rNode.uuid, rNode.meta, File(parPath), dim)
+            if (filename.isNullOrEmpty()) {
+                throw SDKException(
+                    ErrorCodes.not_found,
+                    "Could not get thumb for $state, it is probably missing in the server"
+                )
+            }
+
+            val targetFile = File(parPath + File.separator + filename)
+            handleOrientation(rNode, targetFile.absolutePath)
+
+            fileService.registerLocalFile(state, rNode, type, targetFile)
+            return filename
+        } catch (e: Exception) {
+            Log.e(logTag, "could not get thumb for $state: ${e.message}")
+            // TODO improve At this point, if we had an error, the target file is most probably corrupted or missing
+            //   Problem: if we are offline we might reach this point and and remove the record too fast.
+            // fileService.unregisterLocalFile(state, type)
+            // e.printStackTrace()
+
+            throw SDKException(ErrorCodes.not_found, "Get thumb for $state failed", e)
+        }
     }
 
     /**

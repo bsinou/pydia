@@ -12,12 +12,15 @@ import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.S3ClientOptions
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.core.JobStatus
 import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.db.nodes.TransferDao
 import org.sinou.pydia.client.core.db.nodes.TreeNodeDB
 import org.sinou.pydia.client.core.transfer.CellsAuthProvider
 import org.sinou.pydia.client.core.transfer.CellsS3Client
+import org.sinou.pydia.client.core.transfer.CellsSigner
 import org.sinou.pydia.client.core.transfer.CellsTransferListener
 import org.sinou.pydia.client.core.transfer.DEFAULT_BUCKET_NAME
 import org.sinou.pydia.client.core.util.currentTimestamp
@@ -26,9 +29,6 @@ import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.CellsTransport
 import org.sinou.pydia.sdk.transport.ServerURLImpl
 import org.sinou.pydia.sdk.transport.StateID
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.withContext
-import org.sinou.pydia.client.core.transfer.CellsSigner
 import java.io.File
 
 class S3TransferService(
@@ -205,11 +205,14 @@ class S3TransferService(
 
     private fun getS3Client(transport: CellsTransport, accountID: StateID): AmazonS3Client {
 
+        Log.e(logTag, "Trying to force load: ${CellsSigner.CELLS_SIGNER_ID}")
+        // val tmpSignerID = CellsSigner.CELLS_SIGNER_ID
+        val tmpSignerID = CellsSigner.CELLS_SIGNER_ID+"2"
         val chain = AWSCredentialsProviderChain(CellsAuthProvider(transport, accountID))
         // Register the Cells specific signers: we do not yet support the streaming signer on the server side
         SignerFactory.registerSigner(CellsSigner.CELLS_SIGNER_ID, CellsSigner::class.java)
         var conf = ClientConfiguration()
-            .withSignerOverride(CellsSigner.CELLS_SIGNER_ID)
+            .withSignerOverride(tmpSignerID)
             .withUserAgentOverride(transport.getUserAgent()) // default adds a prefix with the AWS SDK agent that we do not want to expose
 
         if (transport.server.isSSLUnverified) {

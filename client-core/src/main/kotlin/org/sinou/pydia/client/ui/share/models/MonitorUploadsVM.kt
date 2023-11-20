@@ -76,8 +76,7 @@ class MonitorUploadsVM(
                     transferService.pauseTransfer(
                         accountID,
                         transferID,
-                        AppNames.JOB_OWNER_USER,
-                        false
+                        AppNames.JOB_OWNER_USER
                     )
                 }
             } catch (e: Exception) {
@@ -94,8 +93,7 @@ class MonitorUploadsVM(
                 } else {
                     transferService.resumeTransfer(
                         accountID,
-                        transferID,
-                        false
+                        transferID
                     )
                 }
             } catch (e: Exception) {
@@ -110,8 +108,7 @@ class MonitorUploadsVM(
                 transferService.cancelTransfer(
                     accountID,
                     transferID,
-                    AppNames.JOB_OWNER_USER,
-                    isRemoteLegacy
+                    AppNames.JOB_OWNER_USER
                 )
 
             } catch (e: Exception) {

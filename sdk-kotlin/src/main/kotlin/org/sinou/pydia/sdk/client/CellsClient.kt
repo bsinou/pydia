@@ -1,5 +1,7 @@
 package org.sinou.pydia.sdk.client
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.sinou.pydia.openapi.api.TreeServiceApi
 import org.sinou.pydia.openapi.api.UserServiceApi
 import org.sinou.pydia.openapi.infrastructure.ClientException
@@ -14,6 +16,7 @@ import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.Registry
 import org.sinou.pydia.sdk.api.S3Client
+import org.sinou.pydia.sdk.api.S3Names
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.api.Transport
@@ -27,13 +30,20 @@ import org.sinou.pydia.sdk.utils.FileNodeUtils
 import org.sinou.pydia.sdk.utils.IoHelpers
 import org.sinou.pydia.sdk.utils.Log
 import org.xml.sax.SAXException
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 import java.net.HttpURLConnection
+import java.net.MalformedURLException
+import java.util.Properties
 import javax.xml.parsers.ParserConfigurationException
 
 class CellsClient(transport: Transport, private val s3Client: S3Client) : Client, SdkNames {
+
     private val transport: CellsTransport
+    private val gson = Gson()
 
     init {
         this.transport = transport as CellsTransport
@@ -221,82 +231,131 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
     }
 
+    @Throws(SDKException::class)
+    override fun getThumbnail(
+        stateID: StateID,
+        uuid: String,
+        props: Properties,
+        parentFolder: File,
+        dim: Int
+    ): String? {
 
+//        props.forEach { k, v -> Log.e(logTag, "- $k : $v") }
 
-    //    @Throws(SDKException::class)
-//    override fun getThumbnail(
-//        stateID: StateID,
-//        node: FileNode,
-//        parentFolder: File,
-//        dim: Int
-//    ): String {
-//        val filename = getThumbFilename(node, dim)!!
-//        if (Str.empty(filename)) {
-//            Log.i(logTag, "No thumbnail is defined for $stateID")
-//            return null
-//        }
-//        var out: OutputStream? = null
-//        try {
-//            if (!parentFolder.exists()) {
-//                if (!parentFolder.mkdirs()) {
-//                    throw SDKException(
-//                        ErrorCodes.internal_error,
-//                        "could not create folder for thumbs at " + parentFolder.absolutePath
-//                    )
-//                }
-//            }
-//            val targetFile = File(parentFolder.absolutePath + File.separator + filename)
-//            out = FileOutputStream(targetFile)
-//            // Download API expect a full path starting with a slash (a.k.a a file, not a filename)
-//            val file = "/$filename"
-//            download(S3Names.PYDIO_S3_THUMBSTORE_PREFIX, file, out, null)
-//        } catch (e: IOException) {
-//            throw SDKException.conReadFailed("could not get thumb for $stateID", e)
-//        } finally {
-//            IoHelpers.closeQuietly(out)
-//        }
-//        return filename
-//    }
-//
-//    /*
-//     * If no thumb is defined or if it is currently processing, we return null.
-//     * If we find only one thumb, we choose this one. Otherwise we return the smaller thumb that has at least required size.
-//     *
-//     * @param currNode
-//     * @param dim
-//     * @return
-//     * @throws SDKException
-//     */
-//    @Throws(SDKException::class)
-//    private fun getThumbFilename(currNode: FileNode, dim: Int): String? {
-//        var thumbName: String? = null
-//        val imgThumbsStr = currNode.meta[SdkNames.META_KEY_IMG_THUMBS] as String?
-//        if (Str.empty(imgThumbsStr)) {
-//            return null
-//        }
-//        val thumbData: Map<String, Any>? =
-//            Gson().fromJson<Map<*, *>>(imgThumbsStr, MutableMap::class.java)
-//        if (thumbData != null && thumbData.containsKey("Processing")
-//            && !(thumbData["Processing"] as Boolean)
-//            && thumbData.containsKey("thumbnails")
-//        ) {
-//            val thumbs = thumbData["thumbnails"] as ArrayList<Map<String, Any>>?
-//            for (currThumb in thumbs!!) {
-//                // Map<String, Object> currThumb = (Map<String, Object>) currThumbObj;
-//                val size = java.lang.Double.valueOf(currThumb["size"] as Double).toInt()
-//                val format = currThumb["format"] as String?
-//                val currName = currNode.id + "-" + size + "." + format
-//                if (thumbName == null) {
-//                    thumbName = currName
-//                }
-//                if (size > 0 && size >= dim) {
-//                    thumbName = currName
-//                    break
-//                }
-//            }
-//        }
-//        return thumbName
-//    }
+        val filename = getThumbFilename(uuid, props, dim)!!
+        if (filename.isNullOrEmpty()) {
+            Log.i(logTag, "No thumbnail is defined for $stateID")
+            return null
+        }
+        var out: OutputStream? = null
+        try {
+            if (!parentFolder.exists()) {
+                if (!parentFolder.mkdirs()) {
+                    throw SDKException(
+                        ErrorCodes.internal_error,
+                        "could not create folder for thumbs at " + parentFolder.absolutePath
+                    )
+                }
+            }
+            val targetFile = File(parentFolder.absolutePath + File.separator + filename)
+            out = FileOutputStream(targetFile)
+            // Download API expect a full path starting with a slash (a.k.a a file, not a filename)
+            val file = "/$filename"
+            download(S3Names.PYDIO_S3_THUMBSTORE_PREFIX, file, out, null)
+        } catch (e: IOException) {
+            throw SDKException.conReadFailed("could not get thumb for $stateID", e)
+        } finally {
+            IoHelpers.closeQuietly(out)
+        }
+        return filename
+    }
+
+    /**
+     * Warning, this expect a file (with a leading slash), not a file name
+     */
+    @Throws(SDKException::class)
+    override fun download(
+        ws: String,
+        file: String,
+        target: OutputStream,
+        onProgress: ((Long) -> String?)?
+    ): Long {
+        // Log.e(logTag, "about to download [" + file + "]");
+        var input: InputStream? = null
+        return try {
+            val preSignedURL = s3Client.getDownloadPreSignedURL(ws, file)
+            val serverUrl = try {
+                transport.server.newURL(preSignedURL.path).withQuery(preSignedURL.query)
+            } catch (e: MalformedURLException) { // This should never happen with a pre-signed.
+                throw SDKException(
+                    ErrorCodes.internal_error,
+                    "Invalid pre-signed path: " + preSignedURL.path,
+                    e
+                )
+            }
+            val con = transport.withUserAgent(serverUrl.openConnection())
+            con.connect()
+            input = con.inputStream
+            onProgress?.let {
+                IoHelpers.pipeReadWithIncrementalProgress(input, target, it)
+            } ?: run {
+                IoHelpers.pipeRead(input, target)
+            }
+        } catch (e: IOException) {
+            if (e.message!!.contains("ENOSPC")) { // no space left on device
+                throw SDKException.noSpaceLeft(e)
+            }
+            throw SDKException.conReadFailed("could not download from $ws$file", e)
+        } finally {
+            IoHelpers.closeQuietly(input)
+        }
+    }
+
+    /*
+     * If no thumb is defined or if it is currently processing, we return null.
+     * If we find only one thumb, we choose this one. Otherwise we return the smaller thumb that has at least required size.
+     *
+     * Thumb names follow a tacit standard that is: <node_uuid>-<size>.<type>
+     * @param currNode
+     * @param dim
+     * @return
+     * @throws SDKException
+     */
+    @Throws(SDKException::class)
+    private fun getThumbFilename(uid: String, meta: Properties, dim: Int): String? {
+        var thumbName: String? = null
+
+        val imgThumbsStr = meta[SdkNames.META_KEY_THUMB_PARENT] as? String ?: return null
+
+        // FIXME centralize this
+        val objType = object : TypeToken<Map<String, Any>>() {}.type
+        val thumbData: Map<String, *> = gson.fromJson(imgThumbsStr, objType)
+        if (thumbData.containsKey(SdkNames.META_KEY_THUMB_PROCESSING)
+            && !(thumbData[SdkNames.META_KEY_THUMB_PROCESSING] as Boolean)
+            && thumbData.containsKey(SdkNames.META_KEY_THUMBS)
+        ) {
+            val thumbs = (thumbData[SdkNames.META_KEY_THUMBS] as? ArrayList<Map<String, Any>>)
+                ?: return null
+            for (currThumb in thumbs) {
+                Log.e(logTag, "looping - $currThumb")
+
+                // Map<String, Object> currThumb = (Map<String, Object>) currThumbObj;
+                // val id = (meta[SdkNames.META_KEY_THUMB_ID] as? String).let{"$it-"} ?: ""
+                val sizeStr = currThumb[SdkNames.META_KEY_THUMB_SIZE] as? String ?: "299.0"
+                val size = sizeStr.toFloat().toInt()
+                val format = currThumb[SdkNames.META_KEY_THUMB_FORMAT] as? String ?: "jpg"
+                val currName = "$uid-${size.toInt()}.$format"
+                if (thumbName == null) {
+                    thumbName = currName
+                }
+                if (size > 0 && size >= dim) {
+                    thumbName = currName
+                    break
+                }
+            }
+        }
+        return thumbName
+    }
 //
 //    @Throws(SDKException::class)
 //    override fun getNodeMeta(ws: String, file: String): FileNode {
@@ -480,47 +539,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        throw RuntimeException("Unsupported method for cells client")
 //    }
 //
-//    /**
-//     * Warning, this expect a file (with a leading slash), not a file name
-//     */
-//    @Throws(SDKException::class)
-//    override fun download(
-//        ws: String,
-//        file: String,
-//        target: OutputStream,
-//        progressListener: ProgressListener
-//    ): Long {
-//        // Log.e(logTag, "about to download [" + file + "]");
-//        var `in`: InputStream? = null
-//        return try {
-//            val preSignedURL = s3Client.getDownloadPreSignedURL(ws, file)
-//            val serverUrl: ServerURL
-//            serverUrl = try {
-//                transport.server.newURL(preSignedURL.path).withQuery(preSignedURL.query)
-//            } catch (e: MalformedURLException) { // This should never happen with a pre-signed.
-//                throw SDKException(
-//                    ErrorCodes.internal_error,
-//                    "Invalid pre-signed path: " + preSignedURL.path,
-//                    e
-//                )
-//            }
-//            val con = transport.withUserAgent(serverUrl.openConnection())
-//            con.connect()
-//            `in` = con.inputStream
-//            if (progressListener == null) {
-//                IoHelpers.pipeRead(`in`, target)
-//            } else {
-//                IoHelpers.pipeReadWithIncrementalProgress(`in`, target, progressListener)
-//            }
-//        } catch (e: IOException) {
-//            if (e.message!!.contains("ENOSPC")) { // no space left on device
-//                throw SDKException.noSpaceLeft(e)
-//            }
-//            throw SDKException.conReadFailed("could not download from $ws$file", e)
-//        } finally {
-//            IoHelpers.closeQuietly(`in`)
-//        }
-//    }
 //
 //    @Throws(SDKException::class)
 //    override fun download(

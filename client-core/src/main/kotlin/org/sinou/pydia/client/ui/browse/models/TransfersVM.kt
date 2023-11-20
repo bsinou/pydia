@@ -2,17 +2,17 @@ package org.sinou.pydia.client.ui.browse.models
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import org.sinou.pydia.client.core.AppNames
-import org.sinou.pydia.client.core.db.nodes.RTransfer
-import org.sinou.pydia.client.core.services.TransferService
-import org.sinou.pydia.client.ui.core.AbstractCellsVM
-import org.sinou.pydia.sdk.transport.StateID
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.sinou.pydia.client.core.AppNames
+import org.sinou.pydia.client.core.db.nodes.RTransfer
+import org.sinou.pydia.client.core.services.TransferService
+import org.sinou.pydia.client.ui.core.AbstractCellsVM
+import org.sinou.pydia.sdk.transport.StateID
 
 /** Holds a list of recent file transfers for current session */
 class TransfersVM(
@@ -55,8 +55,7 @@ class TransfersVM(
                     transferService.pauseTransfer(
                         accountID,
                         transferID,
-                        AppNames.JOB_OWNER_USER,
-                        false
+                        AppNames.JOB_OWNER_USER
                     )
                 }
             } catch (e: Exception) {
@@ -71,11 +70,7 @@ class TransfersVM(
                 if (isRemoteServerLegacy) {
                     error("Cannot resume transfer when remote server is Pydio 8")
                 } else {
-                    transferService.resumeTransfer(
-                        accountID,
-                        transferID,
-                        false
-                    )
+                    transferService.resumeTransfer(accountID, transferID)
                 }
             } catch (e: Exception) {
                 done(e)
@@ -89,8 +84,7 @@ class TransfersVM(
                 transferService.cancelTransfer(
                     accountID,
                     transferID,
-                    AppNames.JOB_OWNER_USER,
-                    isRemoteServerLegacy
+                    AppNames.JOB_OWNER_USER
                 )
 
             } catch (e: Exception) {

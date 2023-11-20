@@ -3,6 +3,10 @@ package org.sinou.pydia.sdk.api
 import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.sdk.api.ui.PageOptions
 import org.sinou.pydia.sdk.api.ui.WorkspaceNode
+import org.sinou.pydia.sdk.transport.StateID
+import java.io.File
+import java.io.OutputStream
+import java.util.Properties
 
 interface Client {
 
@@ -19,7 +23,12 @@ interface Client {
     fun getWorkspaceList(handler: (WorkspaceNode) -> Unit)
 
     @Throws(SDKException::class)
-    fun ls(slug: String, path: String, options: PageOptions?, handler: (TreeNode) -> Unit): PageOptions
+    fun ls(
+        slug: String,
+        path: String,
+        options: PageOptions?,
+        handler: (TreeNode) -> Unit
+    ): PageOptions
 
     @Throws(SDKException::class)
     fun mkdir(ws: String, parent: String, name: String)
@@ -30,7 +39,33 @@ interface Client {
     @Throws(SDKException::class)
     fun statNode(file: String): TreeNode?
 
-//    /**
+
+    /**
+     * @param node         The local FileNode with current object meta-data
+     * @param parentFolder Must be writable for the current process
+     * @param dim          The expected thumbnail dimension
+     * @return the filename If a thumbnail has been correctly downloaded or generated or null otherwise
+     * @throws SDKException Wraps "known" exception with our error code
+     * and a local message to ease downstream management of the error.
+     */
+    @Throws(SDKException::class)
+    fun getThumbnail(
+        stateID: StateID,
+        uuid: String,
+        props: Properties,
+        parentFolder: File,
+        dim: Int
+    ): String?
+
+    @Throws(SDKException::class)
+    fun download(
+        ws: String,
+        file: String,
+        target: OutputStream,
+        onProgress: ((Long) -> String?)?
+    ): Long
+
+    //    /**
 //     * Temporary test before cleaning this part of the code
 //     * while testing both P8 and Cells
 //     */
@@ -41,16 +76,6 @@ interface Client {
 //    @Throws(SDKException::class)
 //    fun stats(ws: String, file: String?, withHash: Boolean): Stats?
 //
-//    /**
-//     * @param node         The local FileNode with current object meta-data
-//     * @param parentFolder Must be writable for the current process
-//     * @param dim          The expected thumbnail dimension
-//     * @return the filename If a thumbnail has been correctly downloaded or generated or null otherwise
-//     * @throws SDKException Wraps "known" exception with our error code
-//     * and a local message to ease downstream management of the error.
-//     */
-//    @Throws(SDKException::class)
-//    fun getThumbnail(stateID: StateID, node: FileNode?, parentFolder: File, dim: Int): String?
 //
 //    @Throws(SDKException::class)
 //    fun search(parentPath: String?, searchedText: String?, size: Int): List<FileNode>
@@ -103,13 +128,7 @@ interface Client {
 //    @Throws(SDKException::class)
 //    fun uploadURL(ws: String, folder: String, name: String, autoRename: Boolean): String
 //
-//    @Throws(SDKException::class)
-//    fun download(
-//        ws: String,
-//        file: String,
-//        target: OutputStream,
-//        progressListener: ProgressListener?
-//    ): Long
+
 //
 //    @Throws(SDKException::class)
 //    fun download(

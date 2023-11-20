@@ -96,6 +96,7 @@ plugins {
     id 'kotlin-parcelize'
 }
 
+
 android {
 
     namespace 'org.sinou.pydia.client'
@@ -152,6 +153,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    sourceSets {
+        main {
+            kotlin.srcDir 'src/main/kotlin'
+            // Include Java source dir if you have mixed Java and Kotlin code
+            java.srcDir 'src/main/java'
+        }
+    }
+
 
     kotlinOptions {
         jvmTarget = "17"

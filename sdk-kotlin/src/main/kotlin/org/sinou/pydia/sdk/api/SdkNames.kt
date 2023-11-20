@@ -76,7 +76,12 @@ interface SdkNames {
         const val NODE_PROPERTY_SHARE_LINK = "share_link"
         const val META_KEY_WS_SHARES = "workspaces_shares"
         const val NODE_PROPERTY_META_HASH = "meta_hash"
-        const val META_KEY_IMG_THUMBS = "ImageThumbnails"
+        const val META_KEY_THUMB_PARENT = "ImageThumbnails"
+        const val META_KEY_THUMBS = "thumbnails"
+        const val META_KEY_THUMB_PROCESSING = "Processing"
+        const val META_KEY_THUMB_FORMAT = "format"
+        const val META_KEY_THUMB_ID = "id"
+        const val META_KEY_THUMB_SIZE = "size"
 
         const val NODE_PROPERTY_UID = "uuid"
         const val NODE_PROPERTY_SHARE_UUID = "share_uuid"

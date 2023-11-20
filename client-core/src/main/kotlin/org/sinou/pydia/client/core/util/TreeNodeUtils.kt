@@ -16,6 +16,7 @@ private const val LOG_TAG = "TreeNodeUtils.kt"
 fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
 
     // Construct path & stateID
+    val uuid = treeNode.uuid ?: throw IllegalArgumentException("Cannot create a node without uuid")
     val path = treeNode.path
         ?: throw IllegalArgumentException("Cannot create a node with an empty path")
     val childStateID = StateID.safeFromId(stateID.accountId).withPath("/$path")
@@ -49,31 +50,28 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
         }
         val size = sizeStr.toLong()
 
-        // TODO
-        // Permissions
-        treeNode.getProperty(SdkNames.NODE_PROPERTY_FILE_PERMS)
 
         // Share info
-        var shared = false
-        var shareUUID: String? = null
-        val wsSharesStr = treeNode.getProperty(SdkNames.META_KEY_WS_SHARES)?.let { json ->
-            val gson = Gson()
-            val sharesType = object : TypeToken<Array<Map<String, Any>>>() {}.type
-            val shares: Array<Map<String, Any>> = gson.fromJson(json, sharesType)
-
-            shares.find { share ->
-                val scope = share["Scope"]
-                scope is Double && scope == 3.0
-            }?.also { matchingShare ->
-                shared = true
-                shareUUID = matchingShare["UUID"] as? String
-            }
-        }
-
-        // Image specific info.
+//        var shared = false
+//        var shareUUID: String? = null
+//        val wsSharesStr = treeNode.getProperty(SdkNames.META_KEY_WS_SHARES)?.let { json ->
+//            val gson = Gson()
+//            val sharesType = object : TypeToken<Array<Map<String, Any>>>() {}.type
+//            val shares: Array<Map<String, Any>> = gson.fromJson(json, sharesType)
+//
+//            shares.find { share ->
+//                val scope = share["Scope"]
+//                scope is Double && scope == 3.0
+//            }?.also { matchingShare ->
+//                shared = true
+//                shareUUID = matchingShare["UUID"] as? String
+//            }
+//        }
 
         // Image specific info.
-        val isImage = treeNode.getProperty("is_image") == "true"
+
+        // Image specific info.
+//        val isImage = treeNode.getProperty("is_image") == "true"
 //TODO
 //            if (isImage) {
 //                fileNode.setProperty(SdkNames.NODE_PROPERTY_IMAGE_WIDTH, meta.get("image_width"))
@@ -109,18 +107,66 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
         }
         val metaHash = builder.toString().hashCode()
 
+        val props = Properties()
+        props.setProperty(SdkNames.NODE_PROPERTY_UID, uuid)
+        if (!treeNode.etag.isNullOrEmpty()) {
+            props.setProperty(SdkNames.NODE_PROPERTY_ETAG, treeNode.etag)
+        }
+
+        // Permissions
+        props.setProperty(SdkNames.NODE_PROPERTY_FILE_PERMS, treeNode.mode.toString())
+
+        // Share info
+        metaProps[SdkNames.META_KEY_WS_SHARES]?.let {
+            val gson = Gson()
+            // Define the type for Gson deserialization
+            val objType = object : TypeToken<Array<Map<String, Any>>>() {}.type
+            val shares: Array<Map<String, *>> = gson.fromJson(it as String, objType)
+
+            for (currShare in shares) {
+                // Safely cast and check the values
+                val scope = currShare["Scope"] as? Double
+                val shareUid = currShare["UUID"] as? String
+
+                if (scope == 3.0) {
+                    props.setProperty(SdkNames.NODE_PROPERTY_SHARED, "true")
+                    shareUid?.let { su -> props.setProperty(SdkNames.NODE_PROPERTY_SHARE_UUID, su) }
+                    break
+                }
+            }
+        }
+
+        // Image specific info.
+
+        // Image specific info. TODO rework
+        val isImage = "true" == metaProps["is_image"]
+        props.setProperty(SdkNames.NODE_PROPERTY_IS_IMAGE, isImage.toString())
+        if (isImage) {
+            (metaProps["image_width"] as? String)?.let {
+                props.setProperty(SdkNames.NODE_PROPERTY_IMAGE_WIDTH, it)
+            }
+            (metaProps["image_height"] as? String)?.let {
+                props.setProperty(SdkNames.NODE_PROPERTY_IMAGE_HEIGHT, it)
+            }
+            props.setProperty(SdkNames.NODE_PROPERTY_IS_PRE_VIEWABLE, true.toString())
+        }
+
+        // Also supports generated thumbs for other files (pdf, docs...) with recent Cells server
+        (metaProps[SdkNames.META_KEY_IMG_THUMBS] as? String)?.let {
+            props.setProperty(SdkNames.NODE_PROPERTY_HAS_THUMB, true.toString())
+        }
+
         val node = RTreeNode(
             encodedState = childStateID.id,
             workspace = childStateID.slug!!,
             parentPath = childStateID.parentFile ?: "",
             name = name,
-            uuid = treeNode.uuid!!,
+            uuid = uuid,
             etag = treeNode.etag ?: "",
             mime = mimeType,
             size = size,
             remoteModificationTS = mTime,
-            // TODO
-            properties = Properties(),
+            properties = props,
             meta = metaProps,
             metaHash = metaHash,
         )
@@ -128,8 +174,7 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
         // Share and offline cache values are rather handled in the NodeService directly
         node.setBookmarked(treeNode.isBookmark())
         node.setHasThumb(treeNode.hasThumb())
-        // TODO
-        // node.setPreViewable(treeNode.isPreViewable())
+        node.setPreViewable(isImage)
 
         node.sortName = when (node.mime) {
             SdkNames.NODE_MIME_WS_ROOT -> "1_${node.name}"

@@ -103,7 +103,6 @@ fun M3NodeItem(
                 color = MaterialTheme.colorScheme.surfaceTint
             )
         } else {
-
             Thumbnail(stateID, sortName, name, mime, eTag, metaHash, hasThumb)
         }
         Column(

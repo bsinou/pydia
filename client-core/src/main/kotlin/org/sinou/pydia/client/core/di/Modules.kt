@@ -50,6 +50,7 @@ import org.sinou.pydia.client.ui.browse.models.TreeNodeVM
 import org.sinou.pydia.client.ui.login.models.LoginVM
 import org.sinou.pydia.client.ui.login.models.OAuthVM
 import org.sinou.pydia.client.ui.models.BrowseRemoteVM
+import org.sinou.pydia.client.ui.models.DownloadVM
 import org.sinou.pydia.client.ui.system.models.HouseKeepingVM
 import org.sinou.pydia.client.ui.system.models.JobListVM
 import org.sinou.pydia.client.ui.system.models.LandingVM
@@ -294,6 +295,7 @@ val viewModelModule = module {
     viewModelOf(::BookmarksVM)
     viewModelOf(::OfflineVM)
 
+    viewModelOf(::DownloadVM)
     viewModelOf(::TransfersVM)
     viewModelOf(::SingleTransferVM)
 

@@ -28,6 +28,7 @@ import org.sinou.pydia.sdk.transport.ServerURLImpl
 import org.sinou.pydia.sdk.transport.StateID
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withContext
+import org.sinou.pydia.client.core.transfer.CellsSigner
 import java.io.File
 
 class S3TransferService(
@@ -206,9 +207,9 @@ class S3TransferService(
 
         val chain = AWSCredentialsProviderChain(CellsAuthProvider(transport, accountID))
         // Register the Cells specific signers: we do not yet support the streaming signer on the server side
-        SignerFactory.registerSigner(org.sinou.pydia.client.core.transfer.CellsSigner.CELLS_SIGNER_ID, org.sinou.pydia.client.core.transfer.CellsSigner::class.java)
+        SignerFactory.registerSigner(CellsSigner.CELLS_SIGNER_ID, CellsSigner::class.java)
         var conf = ClientConfiguration()
-            .withSignerOverride(org.sinou.pydia.client.core.transfer.CellsSigner.CELLS_SIGNER_ID)
+            .withSignerOverride(CellsSigner.CELLS_SIGNER_ID)
             .withUserAgentOverride(transport.getUserAgent()) // default adds a prefix with the AWS SDK agent that we do not want to expose
 
         if (transport.server.isSSLUnverified) {

@@ -212,7 +212,10 @@ class TransferService(
         val currSettings = prefs.fetchPreferences()
         when (currNetwork.serverConnection) {
             ServerConnection.OK
-            -> return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
+            -> {
+                Log.e(logTag, "... Got a connection, about to DL thumb for $stateID")
+                return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
+            }
 
             ServerConnection.LIMITED -> {
                 // TODO further check if we can download

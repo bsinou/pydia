@@ -46,7 +46,6 @@ data class RTreeNode(
     @ColumnInfo(name = "properties") val properties: Properties,
 
     // Arbitrary Key - Values to locally store meta exposed by the remote server
-    // (being Cells or a Legacy P8)
     @ColumnInfo(name = "meta") val meta: Properties,
 
     // In the SDK Java layer, we compute a hash of the meta returned by the remote server

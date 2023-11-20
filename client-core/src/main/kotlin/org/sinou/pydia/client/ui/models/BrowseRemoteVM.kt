@@ -2,6 +2,8 @@ package org.sinou.pydia.client.ui.models
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.sinou.pydia.client.core.services.ConnectionService
 import org.sinou.pydia.client.core.services.ErrorService
@@ -24,7 +26,9 @@ class BrowseRemoteVM(
                 } else ""
             } refresh for $newStateID"
         )
-        connectionService.setCurrentStateID(newStateID)
+        viewModelScope.launch {
+            connectionService.setCurrentStateID(newStateID)
+        }
         if (isForceRefresh) {
             connectionService.forceRefresh()
         }

@@ -9,10 +9,18 @@ import androidx.navigation.compose.composable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sinou.pydia.client.ui.browse.models.AccountHomeVM
+import org.sinou.pydia.client.ui.browse.models.BookmarksVM
+import org.sinou.pydia.client.ui.browse.models.CarouselVM
 import org.sinou.pydia.client.ui.browse.models.FolderVM
+import org.sinou.pydia.client.ui.browse.models.OfflineVM
+import org.sinou.pydia.client.ui.browse.models.TransfersVM
 import org.sinou.pydia.client.ui.browse.screens.AccountHome
+import org.sinou.pydia.client.ui.browse.screens.Bookmarks
+import org.sinou.pydia.client.ui.browse.screens.Carousel
 import org.sinou.pydia.client.ui.browse.screens.Folder
 import org.sinou.pydia.client.ui.browse.screens.NoAccount
+import org.sinou.pydia.client.ui.browse.screens.OfflineRoots
+import org.sinou.pydia.client.ui.browse.screens.Transfers
 import org.sinou.pydia.client.ui.core.lazyStateID
 import org.sinou.pydia.client.ui.core.nav.CellsDestinations
 import org.sinou.pydia.client.ui.models.BrowseRemoteVM
@@ -85,73 +93,73 @@ fun NavGraphBuilder.browseNavGraph(
         }
     }
 
-//    composable(BrowseDestinations.OpenCarousel.route) { navBackStackEntry ->
-//        val stateID = lazyStateID(navBackStackEntry)
-//        val carouselVM: CarouselVM = koinViewModel(parameters = { parametersOf(stateID) })
-//        Carousel(
-//            stateID,
-//            // back = back,
-//            carouselVM,
-//        )
-//    }
-//
-//    composable(BrowseDestinations.OfflineRoots.route) { navBackStackEntry ->
-//        val stateID = lazyStateID(navBackStackEntry)
-//        LaunchedEffect(key1 = stateID) {
-//            Log.i(logTag, "## First Composition for: browse/offline/$stateID")
-//        }
-//        if (stateID == StateID.NONE) {
-//            Log.e(logTag, "Cannot open OfflineRoots with no ID")
-//            back()
-//        } else {
-//            val offlineVM: OfflineVM = koinViewModel(parameters = { parametersOf(stateID) })
-//            val helper = BrowseHelper(navController, offlineVM)
-//            OfflineRoots(
-//                isExpandedScreen = isExpandedScreen,
-//                openDrawer = openDrawer,
-//                offlineVM = offlineVM,
-//                browseHelper = helper,
-//            )
-//        }
-//    }
-//
-//    composable(BrowseDestinations.Bookmarks.route) { navBackStackEntry ->
-//        val stateID = lazyStateID(navBackStackEntry)
-//        LaunchedEffect(key1 = stateID) {
-//            Log.i(logTag, "## First Composition for: browse/bookmarks/$stateID")
-//        }
-//        if (stateID == StateID.NONE) {
-//            Log.e(logTag, "Cannot open bookmarks with no ID")
-//            back()
-//        } else {
-//            val bookmarksVM: BookmarksVM = koinViewModel(parameters = { parametersOf(stateID) })
-//            val helper = BrowseHelper(navController, bookmarksVM)
-//            Bookmarks(
-//                isExpandedScreen = isExpandedScreen,
-//                stateID,
-//                openDrawer = openDrawer,
-//                browseHelper = helper,
-//                bookmarksVM = bookmarksVM,
-//            )
-//        }
-//    }
-//
-//    composable(BrowseDestinations.Transfers.route) { navBackStackEntry ->
-//        val stateID = lazyStateID(navBackStackEntry)
-//        if (stateID == StateID.NONE) {
-//            Log.e(logTag, "Cannot open Transfers with no ID")
-//            back()
-//        } else {
-//            val transfersVM: TransfersVM =
-//                koinViewModel(parameters = { parametersOf(browseRemoteVM.isLegacy, stateID) })
-//            val helper = BrowseHelper(navController, transfersVM)
-//            Transfers(
-//                isExpandedScreen = isExpandedScreen,
-//                openDrawer = openDrawer,
-//                accountID = stateID.account(),
-//                transfersVM = transfersVM,
-//                browseHelper = helper,
-//            )
-//        }
-//    }
+    composable(BrowseDestinations.OpenCarousel.route) { navBackStackEntry ->
+        val stateID = lazyStateID(navBackStackEntry)
+        val carouselVM: CarouselVM = koinViewModel(parameters = { parametersOf(stateID) })
+        Carousel(
+            stateID,
+            // back = back,
+            carouselVM,
+        )
+    }
+
+    composable(BrowseDestinations.OfflineRoots.route) { navBackStackEntry ->
+        val stateID = lazyStateID(navBackStackEntry)
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## First Composition for: browse/offline/$stateID")
+        }
+        if (stateID == StateID.NONE) {
+            Log.e(logTag, "Cannot open OfflineRoots with no ID")
+            back()
+        } else {
+            val offlineVM: OfflineVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(navController, offlineVM)
+            OfflineRoots(
+                isExpandedScreen = isExpandedScreen,
+                openDrawer = openDrawer,
+                offlineVM = offlineVM,
+                browseHelper = helper,
+            )
+        }
+    }
+
+    composable(BrowseDestinations.Bookmarks.route) { navBackStackEntry ->
+        val stateID = lazyStateID(navBackStackEntry)
+        LaunchedEffect(key1 = stateID) {
+            Log.i(logTag, "## First Composition for: browse/bookmarks/$stateID")
+        }
+        if (stateID == StateID.NONE) {
+            Log.e(logTag, "Cannot open bookmarks with no ID")
+            back()
+        } else {
+            val bookmarksVM: BookmarksVM = koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(navController, bookmarksVM)
+            Bookmarks(
+                isExpandedScreen = isExpandedScreen,
+                stateID,
+                openDrawer = openDrawer,
+                browseHelper = helper,
+                bookmarksVM = bookmarksVM,
+            )
+        }
+    }
+
+    composable(BrowseDestinations.Transfers.route) { navBackStackEntry ->
+        val stateID = lazyStateID(navBackStackEntry)
+        if (stateID == StateID.NONE) {
+            Log.e(logTag, "Cannot open Transfers with no ID")
+            back()
+        } else {
+            val transfersVM: TransfersVM =
+                koinViewModel(parameters = { parametersOf(stateID) })
+            val helper = BrowseHelper(navController, transfersVM)
+            Transfers(
+                isExpandedScreen = isExpandedScreen,
+                openDrawer = openDrawer,
+                accountID = stateID.account(),
+                transfersVM = transfersVM,
+                browseHelper = helper,
+            )
+        }
+    }
 }

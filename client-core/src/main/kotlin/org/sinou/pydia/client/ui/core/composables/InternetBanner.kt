@@ -81,7 +81,6 @@ private fun InternetBanner(
         when {
             currState.isServerReachable && !currState.loginStatus.isConnected()
             -> {
-                Log.w(LOG_TAG, "... Server is reachable but we are not connected")
                 CredExpiredStatus(
                     icon = CellsIcons.NoValidCredentials,
                     desc = stringResource(R.string.auth_err_expired),
@@ -172,6 +171,7 @@ private fun CredExpiredStatus(
 
     val tint = CellsColor.warning
     val bg = CellsColor.warning.copy(alpha = .1f)
+    Log.w(LOG_TAG, "... Server is reachable but we are not connected")
 
     Row(
         verticalAlignment = Alignment.CenterVertically,

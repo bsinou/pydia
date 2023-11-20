@@ -27,11 +27,11 @@ import org.sinou.pydia.client.core.NetworkStatus
 import org.sinou.pydia.client.core.ServerConnection
 import org.sinou.pydia.client.core.db.accounts.RSessionView
 import org.sinou.pydia.client.core.db.accounts.RWorkspace
-import org.sinou.pydia.client.ui.theme.CellsColor
 import org.sinou.pydia.client.core.util.BackOffTicker
 import org.sinou.pydia.client.core.util.CellsCancellation
 import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.client.core.util.timestampToString
+import org.sinou.pydia.client.ui.theme.CellsColor
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames
@@ -249,7 +249,7 @@ class ConnectionService(
 
     private fun pausePollJob() {
         serviceScope.launch {
-            pollJob?.let{
+            pollJob?.let {
                 it.cancelAndJoin()
                 Log.i(logTag, "### PollJob paused, ID was: $it")
                 pollJob = null
@@ -330,17 +330,20 @@ class ConnectionService(
     private val backOffTicker = BackOffTicker()
 
     private fun setActive(active: Boolean) {
-        if (!active) {
-            Log.e(logTag, "#### Setting _isActive to false !!")
-        }
+//        if (!active) {
+        Log.e(logTag, "#### Setting _isActive to $active !!")
+//        }
         _isActive = active
     }
 
-    fun setCurrentStateID(newStateID: StateID) {
+    suspend fun setCurrentStateID(newStateID: StateID) {
         if (newStateID != currStateID) {
             currStateID = newStateID
-            setActive(true)
-            loadingFlag.value = LoadingState.STARTING
+            // TODO Also check network
+            if (isConnected() && accountService.isClientConnected(newStateID)) {
+                setActive(true)
+                loadingFlag.value = LoadingState.STARTING
+            }
             backOffTicker.resetIndex()
             delayJob?.cancel(CellsCancellation())
         }
@@ -361,7 +364,7 @@ class ConnectionService(
             Log.i(logTag, "... Pause remote watching for [${currStateID}]")
             setActive(false)
             loadingFlag.value = LoadingState.IDLE
-        } else {
+        } else if (_isActive) {
             Log.d(logTag, "Received pause for [$oldID] but currID is [${currStateID}]")
         }
     }

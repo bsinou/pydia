@@ -15,13 +15,12 @@ import org.sinou.pydia.client.core.JobStatus
 import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.services.TransferService
-import org.sinou.pydia.client.ui.core.AbstractCellsVM
 import org.sinou.pydia.client.core.util.getTsAsString
+import org.sinou.pydia.client.ui.core.AbstractCellsVM
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.StateID
 
 class DownloadVM(
-    val isRemoteLegacy: Boolean,
     private val stateID: StateID,
     private val transferService: TransferService
 ) : AbstractCellsVM() {
@@ -77,8 +76,7 @@ class DownloadVM(
                     transferService.cancelTransfer(
                         stateID,
                         _transferID.value,
-                        AppNames.JOB_OWNER_USER,
-                        isRemoteLegacy
+                        AppNames.JOB_OWNER_USER
                     )
                 } catch (e: Exception) {
                     done(e)

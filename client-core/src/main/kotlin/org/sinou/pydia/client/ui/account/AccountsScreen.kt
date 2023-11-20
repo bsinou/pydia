@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.db.accounts.RSessionView
@@ -39,7 +40,7 @@ private const val CONFIRM_DELETION_ROUTE = "$CONFIRM_DELETION_PREFIX/{${AppKeys.
 @Composable
 fun AccountsScreen(
     isExpandedScreen: Boolean,
-    accountListVM: AccountListVM,
+    accountListVM: AccountListVM = koinViewModel(),
     navigateTo: (String) -> Unit,
     openDrawer: () -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -50,8 +51,8 @@ fun AccountsScreen(
 
     val accounts = accountListVM.sessions.collectAsState(listOf())
     NavHost(navController, ACCOUNT_LIST) {
-        composable(ACCOUNT_LIST) {  // Fills the area provided to the NavHost
 
+        composable(ACCOUNT_LIST) {  // Fills the area provided to the NavHost
             AccountsScreen(
                 isExpandedScreen = isExpandedScreen,
                 accounts = accounts.value,
@@ -123,7 +124,6 @@ private fun AccountsScreen(
 ) {
 
     val confirmForget: (stateID: StateID) -> Unit = {
-        // TODO implement dialog validation
         forget(it)
     }
 

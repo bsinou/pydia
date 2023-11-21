@@ -3,6 +3,7 @@ package org.sinou.pydia.client.ui.browse
 import android.content.Context
 import android.util.Log
 import androidx.navigation.NavHostController
+import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.ListContext
 import org.sinou.pydia.client.ui.core.AbstractCellsVM
 import org.sinou.pydia.client.ui.core.lazyStateID
@@ -33,7 +34,13 @@ open class BrowseHelper(
         Log.d(logTag, "... Backstack b4 navigation from BROWSE HELPER")
         var i = 1
         for (bse in bseList) {
-            Log.d(logTag, " #$i: ${bse.destination.route}")
+            val currRoute = bse.destination.route ?: ""
+            val sID = if (currRoute.contains("{${AppKeys.STATE_ID}}")) {
+                lazyStateID(bse)
+            } else {
+                null
+            }
+            Log.d(logTag, " #$i: $currRoute for $stateID")
             i++
         }
         Log.e(logTag, "... Next [$callingContext] destination: $stateID")

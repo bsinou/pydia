@@ -9,6 +9,8 @@ import org.sinou.pydia.client.ui.core.composables.lists.LargeCardGenericIconThum
 import org.sinou.pydia.client.ui.core.composables.lists.LargeCardImageThumb
 import org.sinou.pydia.client.ui.models.TreeNodeItem
 
+//private const val LOG_TAG = "TreeNodeLargeCard.kt"
+
 @Composable
 fun TreeNodeLargeCard(
     nodeItem: TreeNodeItem,

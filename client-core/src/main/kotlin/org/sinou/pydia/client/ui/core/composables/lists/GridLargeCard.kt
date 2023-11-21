@@ -34,15 +34,15 @@ import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.R
+import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.transfer.glide.encodeModel
 import org.sinou.pydia.client.ui.theme.CellsIcons
 import org.sinou.pydia.client.ui.theme.getIconAndColorFromType
 import org.sinou.pydia.client.ui.theme.getIconTypeFromMime
 import org.sinou.pydia.sdk.transport.StateID
 
-// private const val logTag = "GridLargeCard"
+//private const val LOG_TAG = "GridLargeCard.kt"
 
 @Composable
 fun LargeCardWithImage(
@@ -224,8 +224,8 @@ fun LargeCardImageThumb(
 fun LargeCard(
     title: String,
     desc: String,
-    isSelected: Boolean = false,
     modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
     thumbContent: @Composable () -> Unit,
 ) {
     val titlePadding = PaddingValues(

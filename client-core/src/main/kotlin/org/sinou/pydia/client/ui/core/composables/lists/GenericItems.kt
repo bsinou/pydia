@@ -18,8 +18,8 @@ fun MultipleGridItem(
         title = item.name,
         desc = "Re-implement me",
 //        desc = getAppearsInDesc(item),
-        isSelected = isSelected,
-        modifier = modifier
+        modifier = modifier,
+        isSelected = isSelected
     ) {
         if (item.hasThumb) {
             LargeCardImageThumb(

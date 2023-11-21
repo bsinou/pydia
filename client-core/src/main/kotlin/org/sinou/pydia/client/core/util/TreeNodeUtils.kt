@@ -116,11 +116,6 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
             props.setProperty(SdkNames.NODE_PROPERTY_IS_PRE_VIEWABLE, true.toString())
         }
 
-        // Also supports generated thumbs for other files (pdf, docs...) with recent Cells server
-        (metaProps[SdkNames.META_KEY_THUMB_PARENT] as? String)?.let {
-            props.setProperty(SdkNames.NODE_PROPERTY_HAS_THUMB, true.toString())
-        }
-
         val node = RTreeNode(
             encodedState = childStateID.id,
             workspace = childStateID.slug!!,
@@ -136,10 +131,14 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
             metaHash = metaHash,
         )
 
-        // Share and offline cache values are rather handled in the NodeService directly
+        // Set flags
         node.setBookmarked(treeNode.isBookmark())
-        node.setHasThumb(treeNode.hasThumb())
         node.setPreViewable(isImage)
+        // Also supports generated thumbs for other files (pdf, docs...) with recent Cells server
+        (metaProps[SdkNames.META_KEY_THUMB_PARENT] as? String)?.let {
+            node.setHasThumb(true)
+        }
+        // Note that Share and offline cache values are rather handled in the NodeService directly
 
         node.sortName = when (node.mime) {
             SdkNames.NODE_MIME_WS_ROOT -> "1_${node.name}"
@@ -163,21 +162,13 @@ fun TreeNode.isBookmark(): Boolean {
     return "true" == getProperty(SdkNames.NODE_PROPERTY_BOOKMARK)
 }
 
-fun TreeNode.isShared(): Boolean {
-    return "true" == getProperty(SdkNames.NODE_PROPERTY_SHARED)
-}
-
-fun TreeNode.hasThumb(): Boolean {
-    return "true" == getProperty(SdkNames.NODE_PROPERTY_HAS_THUMB)
-}
-
 fun TreeNode.isFolder(): Boolean {
     return this.type != TreeNodeType.LEAF
 }
 
-fun TreeNode.modificationTS(): Long {
-    return mtime?.toLong() ?: -1
-}
+//fun TreeNode.modificationTS(): Long {
+//    return mtime?.toLong() ?: -1
+//}
 
 // TODO smelly codes
 fun extractJSONString(jsonStr: String): String {

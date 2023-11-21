@@ -50,7 +50,6 @@ fun M3BrowseUpListItem(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3BrowseUpLargeGridItem(
     parentDescription: String,

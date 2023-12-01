@@ -62,7 +62,7 @@
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
 ## This is also necessary as swagger generated code massively use Gson
--keep class com.pydio.cells.openapi.** { *; }
+-keep class org.sinou.pydia.openapi.** { *; }
 
 # Fix crash on release builds when trying to intantiate complex DB objects that use a converter
 -keep class org.sinou.pydia.client.core.db.CellsConverters { *; }

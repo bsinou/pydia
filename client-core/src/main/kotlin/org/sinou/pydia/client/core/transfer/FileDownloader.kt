@@ -5,6 +5,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -26,7 +28,7 @@ class FileDownloader(
     private val logTag = "FileDownloader"
 
     private val jobService: JobService by inject()
-    // private val transferService: TransferService by inject()
+    private val transferService: TransferService by inject()
 
     private var dlJob = Job()
     private val dlScope = CoroutineScope(Dispatchers.IO + dlJob)
@@ -110,7 +112,7 @@ class FileDownloader(
         val (stateId, type) = decodeModel(encoded)
         try {
             jobService.incrementProgress(parentJobID, 0, stateId.fileName)
-//            transferService.getFileForDiff(stateId, type, parentJobID, progressChannel)
+            transferService.getFileForDiff(stateId, type, parentJobID, progressChannel)
         } catch (e: SDKException) {
             val errMsg = "could not download $type for $stateId, error #${e.code}: ${e.message}"
             Log.w(logTag, errMsg)
@@ -177,18 +179,18 @@ class FileDownloader(
         for (msg in doneChannel) {
             Log.i(logTag, "Finished Walking the queue, waiting for the download to happen...")
             val waiter = dlScope.launch {
-//                var running = true
-//                while (this.isActive && running) {
-//                    delay(10000L)
-//                    val rTransfers =
-//                        transferService.getRunningTransfersForJob(stateID.account(), parentJobID)
-//                    running = rTransfers.isNotEmpty()
-//                    Log.d(
-//                        logTag,
-//                        "... Still waiting for the DL for JobID #${parentJobID}, we still have ${rTransfers.size} running transfers"
-//                    )
-//                }
-//                Log.i(logTag, "Finished processing the queue, exiting...")
+                var running = true
+                while (this.isActive && running) {
+                    delay(10000L)
+                    val rTransfers =
+                        transferService.getRunningTransfersForJob(stateID.account(), parentJobID)
+                    running = rTransfers.isNotEmpty()
+                    Log.d(
+                        logTag,
+                        "... Still waiting for the DL for JobID #${parentJobID}, we still have ${rTransfers.size} running transfers"
+                    )
+                }
+                Log.i(logTag, "Finished processing the queue, exiting...")
                 finalizeJob()
                 queue.close()
                 doneChannel.close()

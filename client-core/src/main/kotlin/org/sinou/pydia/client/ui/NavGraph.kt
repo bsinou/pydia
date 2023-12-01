@@ -1,5 +1,6 @@
 package org.sinou.pydia.client.ui
 
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -10,9 +11,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import org.sinou.pydia.client.core.services.AuthService
 import org.sinou.pydia.client.core.util.rememberContentPaddingForScreen
 import org.sinou.pydia.client.ui.account.AccountListVM
 import org.sinou.pydia.client.ui.account.AccountsScreen
+import org.sinou.pydia.client.ui.browse.BrowseDestinations
 import org.sinou.pydia.client.ui.browse.browseNavGraph
 import org.sinou.pydia.client.ui.browse.composables.Download
 import org.sinou.pydia.client.ui.core.lazyStateID
@@ -20,22 +23,28 @@ import org.sinou.pydia.client.ui.core.nav.CellsDestinations
 import org.sinou.pydia.client.ui.login.LoginHelper
 import org.sinou.pydia.client.ui.login.localLoginGraph
 import org.sinou.pydia.client.ui.login.models.LoginVM
+import org.sinou.pydia.client.ui.models.AppState
 import org.sinou.pydia.client.ui.models.BrowseRemoteVM
 import org.sinou.pydia.client.ui.models.DownloadVM
+import org.sinou.pydia.client.ui.share.ShareDestinations
 import org.sinou.pydia.client.ui.system.systemNavGraph
+import org.sinou.pydia.sdk.transport.StateID
 import org.sinou.pydia.sdk.utils.Log
 
 @Composable
 fun NavGraph(
+    initialAppState: AppState,
     isExpandedScreen: Boolean,
-    appState: AppState,
     navController: NavHostController,
-    openDrawer: () -> Unit,
     navigateTo: (String) -> Unit,
-    launchIntent: (Intent?, Boolean, Boolean) -> Unit,
-    browseRemoteVM: BrowseRemoteVM = koinViewModel(),
+    openDrawer: () -> Unit,
+    processSelectedTarget: (StateID?) -> Unit,
+    emitActivityResult: (Int) -> Unit,
     loginVM: LoginVM = koinViewModel(),
+    browseRemoteVM: BrowseRemoteVM = koinViewModel()
 ) {
+
+    val logTag = "NavGraph"
 
     val loginHelper = LoginHelper(
         navController = navController,
@@ -43,17 +52,51 @@ fun NavGraph(
         navigateTo = navigateTo
     )
 
-    val logTag = "NavGraph"
 
-    LaunchedEffect(key1 = appState.route) {
-        Log.i(logTag, "### Composing nav graph for ${appState.route}")
-        appState.route?.let { dest ->
-            Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
-            Log.e(logTag, "      newRoute: $dest")
-            navController.navigate(dest)
-        } ?: run {
-            Log.i(logTag, "### Forcing navigation to accounts")
-            navController.navigate(CellsDestinations.Accounts.route)
+//    LaunchedEffect(key1 = appState.route) {
+//        Log.i(logTag, "### Composing nav graph for ${appState.route}")
+//        appState.route?.let { dest ->
+//            Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
+//            Log.e(logTag, "      newRoute: $dest")
+//            navController.navigate(dest)
+//        } ?: run {
+//            Log.i(logTag, "### Forcing navigation to accounts")
+//            navController.navigate(CellsDestinations.Accounts.route)
+//        }
+//    }
+
+    LaunchedEffect(key1 = initialAppState.intentID, key2 = initialAppState.route) {
+        Log.i(logTag, "... new appState: ${initialAppState.route} - ${initialAppState.stateID}")
+        initialAppState.context?.let {
+            when (it) {
+                AuthService.LOGIN_CONTEXT_BROWSE, AuthService.LOGIN_CONTEXT_SHARE -> {
+                    // This should terminate the current task and fallback to where we were before re-launching the OAuth process
+                    emitActivityResult(Activity.RESULT_OK)
+                }
+
+                AuthService.LOGIN_CONTEXT_CREATE -> {
+                    navController.navigate(BrowseDestinations.Open.createRoute(initialAppState.stateID))
+                }
+
+                AuthService.LOGIN_CONTEXT_ACCOUNTS -> {
+                    // Do Nothing
+                }
+            }
+            return@LaunchedEffect
+        }
+
+        initialAppState.route?.let { dest ->
+            when {
+                ShareDestinations.UploadInProgress.isCurrent(dest) -> navController.navigate(dest) {
+                    popUpTo(ShareDestinations.ChooseAccount.route) { inclusive = true }
+                }
+
+                else -> {
+                    Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
+                    Log.e(logTag, "      newRoute: $dest")
+                    navController.navigate(dest)
+                }
+            }
         }
     }
 
@@ -97,7 +140,6 @@ fun NavGraph(
             isExpandedScreen = isExpandedScreen,
             navController = navController,
             openDrawer = openDrawer,
-            launchIntent = launchIntent,
             back = { navController.popBackStack() },
         )
 

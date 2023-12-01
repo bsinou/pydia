@@ -10,6 +10,7 @@ import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.db.nodes.TransferDao
 import org.sinou.pydia.client.core.services.CoroutineService
 import org.sinou.pydia.client.core.services.FileService
+import org.sinou.pydia.client.core.services.ErrorService
 import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
@@ -32,13 +33,14 @@ class CellsTransferListener(
 
     private val coroutineService: CoroutineService by inject()
     private val ioScope = coroutineService.cellsIoScope
-    private val ioDispatcher = coroutineService.ioDispatcher
+//    private val ioDispatcher = coroutineService.ioDispatcher
     private val fileService: FileService by inject()
+    private val errorService: ErrorService by inject()
 
     private var alreadyTransferred = 0L
 
     override fun onStateChanged(id: Int, state: TransferState?) {
-        ioScope.launch(context = ioDispatcher) {
+        ioScope.launch {
             try {
                 val transferRecord = getTransferRecord()
                 when (state) {
@@ -116,6 +118,10 @@ class CellsTransferListener(
         }
 
         ioScope.launch {
+            msg?.let {
+                Log.e(logTag, "... About to append error: $it")
+                errorService.asyncAppendError(it)
+            }
             try {
                 val transferRecord = getTransferRecord()
                 transferRecord.status = JobStatus.ERROR.id

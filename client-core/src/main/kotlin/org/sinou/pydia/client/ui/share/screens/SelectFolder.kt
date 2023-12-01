@@ -50,7 +50,7 @@ import androidx.navigation.compose.rememberNavController
 import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.R
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.composables.CreateFolder
 import org.sinou.pydia.client.ui.browse.composables.NodeAction
 import org.sinou.pydia.client.ui.browse.models.NodeActionsVM

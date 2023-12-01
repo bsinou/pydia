@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.db.accounts.RWorkspace
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.composables.NodeAction
 import org.sinou.pydia.client.ui.core.composables.DefaultTitleText
 import org.sinou.pydia.client.ui.core.composables.M3IconThumb

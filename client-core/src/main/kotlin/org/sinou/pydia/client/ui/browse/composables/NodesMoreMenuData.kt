@@ -11,7 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.menus.BookmarksMenu
 import org.sinou.pydia.client.ui.browse.menus.MultiNodeMenu
 import org.sinou.pydia.client.ui.browse.models.TreeNodeVM

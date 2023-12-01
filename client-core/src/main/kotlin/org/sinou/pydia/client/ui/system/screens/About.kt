@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import org.sinou.pydia.client.BuildConfig
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.ui.core.nav.DefaultTopAppBar
@@ -33,11 +34,9 @@ import org.sinou.pydia.sdk.transport.ClientData
 fun AboutScreen(
     isExpandedScreen: Boolean,
     openDrawer: () -> Unit,
-    launchIntent: (Intent, Boolean, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val data = ClientData.getInstance()
-
     val pydioSiteUrl = stringResource(R.string.main_website)
 
     Scaffold(
@@ -51,7 +50,7 @@ fun AboutScreen(
         modifier = modifier
     ) { innerPadding ->
 
-        val resources = LocalContext.current.resources
+        val context = LocalContext.current
         val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
@@ -65,7 +64,7 @@ fun AboutScreen(
                 code = BuildConfig.VERSION_CODE.toString(),
                 onUriClick = {
                     val intent = openExternalURL(pydioSiteUrl)
-                    launchIntent(intent, false, false)
+                    ContextCompat.startActivity(context, intent, null)
                 },
                 lastUpdateTime = getTimestampAsString(data.lastUpdateTime),
             )
@@ -73,8 +72,8 @@ fun AboutScreen(
                 stringResource(R.string.about_page_get_help),
                 stringResource(R.string.help_button_support),
                 onEmailClick = {
-                    val intent = sendSupportEmail(resources)
-                    launchIntent(intent, false, false)
+                    val intent = sendSupportEmail(context.resources)
+                    ContextCompat.startActivity(context, intent, null)
                 },
             )
         }
@@ -193,7 +192,7 @@ private fun TroubleShootingCard(
 @Composable
 private fun AboutScreenPreview() {
     UseCellsTheme {
-        AboutScreen(false, {}, { _, _, _ -> })
+        AboutScreen(false, {})
     }
 }
 
@@ -206,7 +205,7 @@ private fun AboutScreenPreview() {
 @Composable
 private fun AboutExtendedScreenPreview() {
     UseCellsTheme {
-        AboutScreen(true, {}, { _, _, _ -> })
+        AboutScreen(true, {})
     }
 }
 

@@ -22,7 +22,6 @@ fun NavGraphBuilder.systemNavGraph(
     isExpandedScreen: Boolean,
     navController: NavHostController,
     openDrawer: () -> Unit = {},
-    launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     back: () -> Unit,
 ) {
 
@@ -32,7 +31,6 @@ fun NavGraphBuilder.systemNavGraph(
         AboutScreen(
             isExpandedScreen = isExpandedScreen,
             openDrawer = openDrawer,
-            launchIntent = launchIntent,
         )
     }
 

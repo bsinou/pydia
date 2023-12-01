@@ -13,7 +13,7 @@ import org.sinou.pydia.client.ui.core.lazySkipVerify
 import org.sinou.pydia.client.ui.core.lazyStateID
 import org.sinou.pydia.client.ui.login.models.LoginVM
 import org.sinou.pydia.client.ui.login.screens.AskServerUrl
-import org.sinou.pydia.client.ui.login.screens.LaunchAuthProcessing
+import org.sinou.pydia.client.ui.login.screens.LaunchOAuthFlow
 import org.sinou.pydia.client.ui.login.screens.SkipVerify
 import org.sinou.pydia.client.ui.login.screens.StartingLoginProcess
 
@@ -81,7 +81,7 @@ fun NavGraphBuilder.localLoginGraph(
         LaunchedEffect(key1 = stateID, key2 = skipVerify) {
             Log.e(logTag, "... 1st compo login/launch-auth/$stateID/$skipVerify/$lContext")
         }
-        LaunchAuthProcessing(
+        LaunchOAuthFlow(
             stateID = stateID,
             skipVerify = skipVerify,
             loginContext = lContext,
@@ -89,16 +89,4 @@ fun NavGraphBuilder.localLoginGraph(
             helper = helper,
         )
     }
-
-//        composable(LoginDestinations.ProcessAuthCallback.route) { nbsEntry ->
-//            val stateID = lazyStateID(nbsEntry)
-//            LaunchedEffect(key1 = stateID) {
-//                Log.i(logTag, "## 1st compo login/process-auth/$stateID")
-//            }
-//            ProcessAuth(
-//                stateID = stateID,
-//                loginVM = loginVM,
-//                helper = helper,
-//            )
-//        }
 }

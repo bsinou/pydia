@@ -18,11 +18,14 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.RequestState
 import com.bumptech.glide.integration.compose.placeholder
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.transfer.glide.encodeModel
+import org.sinou.pydia.client.ui.core.composables.animations.LoadingAnimation
 import org.sinou.pydia.client.ui.models.TreeNodeItem
 import org.sinou.pydia.client.ui.theme.CellsIcons
 import org.sinou.pydia.client.ui.theme.getIconAndColorFromType
@@ -71,18 +74,38 @@ fun Thumbnail(
             modifier = Modifier
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.glide_thumb_radius)))
         ) {
-            GlideImage(
-                model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
-                contentDescription = "$name thumbnail",
-                contentScale = ContentScale.Crop,
-                // TODO Since 4.1.16 - these cannot be a composable nor a callback
-                // This is deprecated and has glitches on glide 4.1.16
-                //        failure = placeholder { IconThumb(mime = mime, sortName = sortName) },
-                //        laoding = placeholder { LoadingAnimation() },
-                failure = placeholder(R.drawable.image_no_thumb_small),
-                loading = placeholder(R.drawable.loading),
-                modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
-            )
+            GlideSubcomposition(
+                encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
+                Modifier.size(dimensionResource(R.dimen.list_thumb_size)), { it },
+            ) {
+                when (state) {
+                    RequestState.Loading -> LoadingAnimation()
+                    RequestState.Failure -> IconThumb(mime = mime, sortName = sortName)
+                    else -> {
+                        Image(
+                            painter,
+                            "$name thumbnail",
+                            Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.Crop,
+                            alpha = 1f,
+                            colorFilter = null,
+                        )
+                    }
+                }
+            }
+//            GlideImage(
+//                model = encodeModel(AppNames.LOCAL_FILE_TYPE_THUMB, stateID, eTag, metaHash),
+//                contentDescription = "$name thumbnail",
+//                contentScale = ContentScale.Crop,
+//                // TODO Since 4.1.16 - these cannot be a composable nor a callback
+//                // This is deprecated and has glitches on glide 4.1.16
+//                //        failure = placeholder { IconThumb(mime = mime, sortName = sortName) },
+//                //        laoding = placeholder { LoadingAnimation() },
+//                failure = placeholder(R.drawable.image_no_thumb_small),
+//                loading = placeholder(R.drawable.loading),
+//                modifier = Modifier.size(dimensionResource(R.dimen.list_thumb_size)),
+//            )
         }
     } else {
         IconThumb(mime, sortName)
@@ -171,7 +194,7 @@ fun M3IconThumb(@DrawableRes id: Int, color: Color, modifier: Modifier = Modifie
 
 //fun getDrawableFromMime(originalMime: String, sortName: String?, iconSize: Dp = 24.dp): Int {
 //
-//    // TODO enrich with more specific icons for files depending on the mime
+//    // To do enrich with more specific icons for files depending on the mime
 //    val mime = betterMime(originalMime, sortName)
 //
 //    return when {

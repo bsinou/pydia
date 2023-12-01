@@ -296,7 +296,7 @@ private fun TransferListItemPreview() {
     val dummyTransfer = RTransfer.fromState(
         encodedState = "alice@https%3A%2F%2Fexample.com@%2Fpersonal-files%2FTest%2FIMG_202172836.jpg",
         type = AppNames.TRANSFER_TYPE_UPLOAD,
-        path = "/data/user/0/com.pydio.android.Client/files/example.com/local/personal-files/Test/IMG_202172836.jpg",
+        path = "/data/user/0/org.sinou.pydia.client.next/files/example.com/local/personal-files/Test/IMG_202172836.jpg",
         byteSize = 13551193L,
         mime = "image/jpeg",
         parentJobId = 0L,
@@ -320,7 +320,7 @@ private fun TransferListItemNightPreview() {
     val dummyTransfer = RTransfer.fromState(
         encodedState = "alice@https%3A%2F%2Fexample.com@%2Fpersonal-files%2FTest%2FIMG_202172836.jpg",
         type = AppNames.TRANSFER_TYPE_UPLOAD,
-        path = "/data/user/0/com.pydio.android.Client/files/example.com/local/personal-files/Test/IMG_202172836.jpg",
+        path = "/data/user/0/org.sinou.pydia.client.next/files/example.com/local/personal-files/Test/IMG_202172836.jpg",
         byteSize = 13551193L,
         mime = "image/jpeg",
         parentJobId = 0L,

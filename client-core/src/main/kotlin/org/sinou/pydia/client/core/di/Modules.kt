@@ -14,13 +14,13 @@ import org.koin.dsl.module
 import org.sinou.pydia.client.core.db.accounts.AccountDB
 import org.sinou.pydia.client.core.db.auth.AuthDB
 import org.sinou.pydia.client.core.db.preferences.CELLS_PREFERENCES_NAME
-import org.sinou.pydia.client.core.db.preferences.legacyMigrations
 import org.sinou.pydia.client.core.db.runtime.RuntimeDB
 import org.sinou.pydia.client.core.services.AccountService
 import org.sinou.pydia.client.core.services.AppCredentialService
 import org.sinou.pydia.client.core.services.AuthService
 import org.sinou.pydia.client.core.services.ConnectionService
 import org.sinou.pydia.client.core.services.CoroutineService
+import org.sinou.pydia.client.core.services.CredentialWatcher
 import org.sinou.pydia.client.core.services.ErrorService
 import org.sinou.pydia.client.core.services.FileService
 import org.sinou.pydia.client.core.services.JobService
@@ -28,6 +28,7 @@ import org.sinou.pydia.client.core.services.NetworkService
 import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.client.core.services.OfflineService
 import org.sinou.pydia.client.core.services.PasswordStore
+import org.sinou.pydia.client.core.services.PollService
 import org.sinou.pydia.client.core.services.PreferencesService
 import org.sinou.pydia.client.core.services.SessionFactory
 import org.sinou.pydia.client.core.services.TokenStore
@@ -48,13 +49,16 @@ import org.sinou.pydia.client.ui.browse.models.SortByMenuVM
 import org.sinou.pydia.client.ui.browse.models.TransfersVM
 import org.sinou.pydia.client.ui.browse.models.TreeNodeVM
 import org.sinou.pydia.client.ui.login.models.LoginVM
-import org.sinou.pydia.client.ui.login.models.OAuthVM
 import org.sinou.pydia.client.ui.models.BrowseRemoteVM
 import org.sinou.pydia.client.ui.models.DownloadVM
+import org.sinou.pydia.client.ui.search.SearchVM
+import org.sinou.pydia.client.ui.share.models.MonitorUploadsVM
+import org.sinou.pydia.client.ui.share.models.ShareVM
 import org.sinou.pydia.client.ui.system.models.HouseKeepingVM
 import org.sinou.pydia.client.ui.system.models.JobListVM
 import org.sinou.pydia.client.ui.system.models.LandingVM
 import org.sinou.pydia.client.ui.system.models.LogListVM
+import org.sinou.pydia.client.ui.system.models.PreLaunchVM
 import org.sinou.pydia.client.ui.system.models.PrefReadOnlyVM
 import org.sinou.pydia.client.ui.system.models.SettingsVM
 import org.sinou.pydia.sdk.api.Server
@@ -87,7 +91,7 @@ private const val ACCOUNT_DB_NAME = "accountdb"
 val appModule = module {
     single {
         PreferenceDataStoreFactory.create(
-            migrations = legacyMigrations(androidContext().applicationContext)
+//            migrations = legacyMigrations(androidContext().applicationContext)
         ) {
             androidContext().applicationContext.preferencesDataStoreFile(CELLS_PREFERENCES_NAME)
         }
@@ -105,8 +109,6 @@ val dbModule = module {
             RuntimeDB::class.java,
             RUNTIME_DB_NAME
         )
-//            .addMigrations(RuntimeDB.MIGRATION_1_2)
-//            .fallbackToDestructiveMigrationOnDowngrade()
             .build()
     }
 
@@ -230,10 +232,12 @@ val serviceModule = module {
         )
     }
     single { AccountService(get(), get(), get(), get(), get(), get(), get()) }
+    single { CredentialWatcher(get(), get(), get(), get()) }
+    single { PollService(get(), get(), get(), get()) }
 
     // Business services
     single { NodeService(androidContext().applicationContext, get(), get(), get(), get(), get()) }
-    single { ConnectionService(get(), get(), get(), get(), get()) }
+    single { ConnectionService(get(), get(), get(), get(), get(), get()) }
 
     single {
         OfflineService(
@@ -271,34 +275,34 @@ val serviceModule = module {
 val viewModelModule = module {
 
     viewModelOf(::LandingVM)
-
-    viewModelOf(::SettingsVM)
-    viewModelOf(::PrefReadOnlyVM)
-
-    viewModelOf(::OAuthVM)
+    viewModelOf(::PreLaunchVM)
     viewModelOf(::LoginVM)
+    viewModelOf(::AccountListVM)
 
     viewModelOf(::BrowseRemoteVM)
-
-    viewModelOf(::AccountListVM)
     viewModelOf(::AccountHomeVM)
-    viewModelOf(::HouseKeepingVM)
-
-    viewModelOf(::SortByMenuVM)
-    viewModelOf(::FilterTransferByMenuVM)
-
     viewModelOf(::FolderVM)
-    viewModelOf(::TreeNodeVM)
-    viewModelOf(::NodeActionsVM)
-
     viewModelOf(::CarouselVM)
     viewModelOf(::BookmarksVM)
     viewModelOf(::OfflineVM)
 
-    viewModelOf(::DownloadVM)
-    viewModelOf(::TransfersVM)
-    viewModelOf(::SingleTransferVM)
+    viewModelOf(::NodeActionsVM)
+    viewModelOf(::TreeNodeVM)
+    viewModelOf(::SortByMenuVM)
 
+    viewModelOf(::ShareVM)
+    viewModelOf(::TransfersVM)
+    viewModelOf(::DownloadVM)
+    viewModelOf(::SingleTransferVM)
+    viewModelOf(::MonitorUploadsVM)
+    viewModelOf(::FilterTransferByMenuVM)
+
+    viewModelOf(::SearchVM)
+
+    viewModelOf(::SettingsVM)
+    viewModelOf(::PrefReadOnlyVM)
+
+    viewModelOf(::HouseKeepingVM)
     viewModelOf(::JobListVM)
     viewModelOf(::LogListVM)
 }

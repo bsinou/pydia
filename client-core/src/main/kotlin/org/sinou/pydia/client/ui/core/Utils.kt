@@ -145,3 +145,23 @@ fun lazyUID(
     }
     return 0L
 }
+
+
+fun dumpNavigationStack(
+    logTag: String,
+    context: String,
+    bseList: List<NavBackStackEntry>,
+    nextRoute: String?
+) {
+    val builder = StringBuilder("... Dumping backstack from $context")
+    nextRoute?.let {
+        builder.append(" B4 nav to: $nextRoute")
+    }
+    builder.append("\n")
+    var i = 1
+    for (bse in bseList) {
+        builder.append("\t #$i: ${bse.destination.route} - ${lazyStateID(bse, verbose = false)}\n")
+        i++
+    }
+    Log.i(logTag, builder.toString())
+}

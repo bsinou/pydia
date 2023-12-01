@@ -11,7 +11,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.db.accounts.RWorkspace
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.composables.NodeAction
 import org.sinou.pydia.client.ui.core.composables.Thumbnail
 import org.sinou.pydia.client.ui.core.composables.menus.BottomSheetHeader

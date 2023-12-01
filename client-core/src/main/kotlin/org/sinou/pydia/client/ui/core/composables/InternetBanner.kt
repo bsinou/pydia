@@ -25,12 +25,9 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.sinou.pydia.client.R
-import org.sinou.pydia.client.core.LoginStatus
-import org.sinou.pydia.client.core.NetworkStatus
 import org.sinou.pydia.client.core.services.AuthService
 import org.sinou.pydia.client.core.services.ConnectionService
 import org.sinou.pydia.client.core.services.ErrorService
-import org.sinou.pydia.client.core.services.SessionState
 import org.sinou.pydia.client.ui.login.LoginDestinations
 import org.sinou.pydia.client.ui.theme.CellsColor
 import org.sinou.pydia.client.ui.theme.CellsIcons
@@ -39,18 +36,18 @@ private const val LOG_TAG = "InternetBanner.kt"
 
 @Composable
 fun WithInternetBanner(
-    contentPadding: PaddingValues,
     connectionService: ConnectionService,
-    navigateTo: (String) -> Unit,
     errorService: ErrorService = koinInject(),
+    navigateTo: (String) -> Unit,
+    contentPadding: PaddingValues,
     content: @Composable () -> Unit
 ) {
 
-    val localNavigateTo: (String) -> Unit =
-        {    // clean error stack before launching the re-log process
-            errorService.clearStack()
-            navigateTo(it)
-        }
+    val localNavigateTo: (String) -> Unit = {
+        // clean error stack before launching the re-log process
+        errorService.clearStack()
+        navigateTo(it)
+    }
 
     // TODO add bottom sheet
     Column(
@@ -71,9 +68,7 @@ private fun InternetBanner(
 
     val scope = rememberCoroutineScope()
     val currSession = connectionService.sessionView.collectAsState(initial = null)
-    val currStatus = connectionService.sessionStateFlow.collectAsState(
-        SessionState(NetworkStatus.OK, true, LoginStatus.Connected)
-    )
+    val currStatus = connectionService.sessionStateFlow.collectAsState()
 
     currSession.value?.let {
         val currState = currStatus.value
@@ -108,58 +103,6 @@ private fun InternetBanner(
             }
         }
     }
-
-//    Old options that are useless for the time being, kept here for a while
-//        when {
-//            currState.isOK() -> {
-//                // No header
-//            }
-//
-//            currState.networkStatus == NetworkStatus.UNAVAILABLE
-//            -> ConnectionStatus(
-//                icon = CellsIcons.NoInternet,
-//                desc = stringResource(R.string.no_internet)
-//            )
-//
-//            currState.networkStatus == NetworkStatus.CAPTIVE
-//            -> ConnectionStatus(
-//                icon = CellsIcons.CaptivePortal,
-//                desc = stringResource(R.string.captive_portal)
-//            )
-//
-//            !currState.isServerReachable -> {
-//                if (knownSessions.value.isEmpty()) {
-//                    ConnectionStatus(
-//                        icon = CellsIcons.ServerUnreachable,
-//                        desc = stringResource(R.string.no_account)
-//                    )
-//                } else {
-//                    ConnectionStatus(
-//                        icon = CellsIcons.ServerUnreachable,
-//                        desc = stringResource(R.string.server_unreachable)
-//                    )
-//                }
-//            }
-//
-//            // TODO also handle preferences on limited networks
-//            currState.networkStatus == NetworkStatus.METERED
-//                    || currState.networkStatus == NetworkStatus.ROAMING
-//            -> ConnectionStatus(
-//                icon = CellsIcons.Metered,
-//                desc = stringResource(R.string.metered_connection),
-//                type = ServerConnection.LIMITED
-//            )
-//
-//            else -> {
-//                Log.e(LOG_TAG, "Unexpected status: $currState")
-//
-//                ConnectionStatus(
-//                    icon = CellsIcons.NoValidCredentials,
-//                    desc = stringResource(id = R.string.auth_err_no_token),
-//                    type = ServerConnection.UNREACHABLE
-//                )
-//            }
-//        }
 }
 
 @Composable

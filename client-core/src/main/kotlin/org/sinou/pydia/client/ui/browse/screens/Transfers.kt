@@ -40,7 +40,7 @@ import org.sinou.pydia.client.core.ListType
 import org.sinou.pydia.client.core.LoadingState
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.db.nodes.RTransfer
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.BrowseHelper
 import org.sinou.pydia.client.ui.browse.menus.FilterTransfersByMenu
 import org.sinou.pydia.client.ui.browse.menus.SortByMenu

@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import org.sinou.pydia.client.R
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.composables.NodeAction
 import org.sinou.pydia.client.ui.browse.models.TreeNodeVM
 import org.sinou.pydia.client.ui.core.composables.DefaultTitleText

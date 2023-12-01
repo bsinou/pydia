@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.sinou.pydia.client.core.ListType
 import org.sinou.pydia.client.core.db.accounts.RWorkspace
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.menus.BookmarkMenu
 import org.sinou.pydia.client.ui.browse.menus.CreateOrImportMenu
 import org.sinou.pydia.client.ui.browse.menus.OfflineMenu

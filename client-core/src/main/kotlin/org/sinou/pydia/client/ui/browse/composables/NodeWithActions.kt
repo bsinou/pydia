@@ -33,7 +33,7 @@ import org.koin.core.parameter.parametersOf
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.AppNames
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.models.NodeActionsVM
 import org.sinou.pydia.client.ui.core.composables.menus.CellsModalBottomSheetLayout
 import org.sinou.pydia.client.ui.core.composables.modal.ModalBottomSheetState

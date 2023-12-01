@@ -61,7 +61,7 @@ class LandingVM(
         return newVersion > 100 && newVersion == currInstalled
     }
 
-    suspend fun isAuthStateValid(state: String): Pair<Boolean, StateID> {
+    suspend fun isAuthStateValid(state: String): Boolean {
         return authService.isAuthStateValid(state)
     }
 

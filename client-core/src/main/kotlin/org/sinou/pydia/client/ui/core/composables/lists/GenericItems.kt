@@ -16,8 +16,7 @@ fun MultipleGridItem(
 ) {
     LargeCard(
         title = item.name,
-        desc = "Re-implement me",
-//        desc = getAppearsInDesc(item),
+        desc = getAppearsInDesc(item),
         modifier = modifier,
         isSelected = isSelected
     ) {
@@ -27,6 +26,7 @@ fun MultipleGridItem(
                 eTag = item.eTag,
                 metaHash = item.metaHash,
                 title = item.name,
+                mime = item.mime,
                 openMoreMenu = if (!isSelectionMode) more else null
             )
         } else {
@@ -41,7 +41,7 @@ fun MultipleGridItem(
 }
 
 @Composable
-public fun getAppearsInDesc(item: MultipleItem): String {
+fun getAppearsInDesc(item: MultipleItem): String {
     val suffix = item.appearsIn
         .joinToString(", ") { item.appearsInWorkspace[it.slug] ?: it.slug ?: "" }
     return stringResource(R.string.appears_in_prefix, suffix)

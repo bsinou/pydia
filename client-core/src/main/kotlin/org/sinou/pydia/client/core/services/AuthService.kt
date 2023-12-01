@@ -43,6 +43,11 @@ class AuthService(
         tokenDao.deleteToken(accountID.id)
     }
 
+    suspend fun clearOAuthStates() =
+        withContext(ioDispatcher) {
+            authStateDao.deleteAll()
+        }
+
     /** Cells' Credentials flow management */
     suspend fun generateOAuthFlowUri(
         sessionFactory: SessionFactory,
@@ -72,8 +77,7 @@ class AuthService(
             return@withContext uri
         } catch (e: SDKException) {
             Log.e(
-                logTag,
-                "could not create intent for ${url.url.host}," +
+                logTag, "could not create intent for ${url.url.host}," +
                         " cause: ${e.code} - ${e.message}"
             )
             e.printStackTrace()
@@ -85,12 +89,9 @@ class AuthService(
         }
     }
 
-    suspend fun isAuthStateValid(authState: String): Pair<Boolean, StateID> =
-        withContext(ioDispatcher) {
-            val rState = authStateDao.get(authState)
-                ?: return@withContext false to StateID.NONE
-            return@withContext true to StateID(rState.serverURL.id)
-        }
+    suspend fun isAuthStateValid(authState: String): Boolean = withContext(ioDispatcher) {
+        return@withContext authStateDao.get(authState) != null
+    }
 
     /**
      * Returns the target session's account StateID and a login context when the process is successful,

@@ -1,6 +1,5 @@
 package org.sinou.pydia.client.ui
 
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.layout.Row
@@ -20,50 +19,54 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.services.ConnectionService
+import org.sinou.pydia.client.core.util.rememberContentPaddingForScreen
+import org.sinou.pydia.client.ui.browse.BrowseNavigationActions
 import org.sinou.pydia.client.ui.core.composables.WithInternetBanner
+import org.sinou.pydia.client.ui.core.dumpNavigationStack
 import org.sinou.pydia.client.ui.core.lazyStateID
 import org.sinou.pydia.client.ui.core.nav.AppDrawer
 import org.sinou.pydia.client.ui.core.nav.AppPermanentDrawer
 import org.sinou.pydia.client.ui.core.nav.CellsNavigationActions
+import org.sinou.pydia.client.ui.models.AppState
 import org.sinou.pydia.client.ui.system.SystemNavigationActions
 import org.sinou.pydia.client.ui.theme.UseCellsTheme
-import org.sinou.pydia.client.core.util.rememberContentPaddingForScreen
 import org.sinou.pydia.sdk.transport.StateID
 
 private const val LOG_TAG = "MainHost.kt"
 
-class AppState(
-    val stateID: StateID,
-    val route: String?
+@Composable
+fun MainApp(
+    initialAppState: AppState,
+    processSelectedTarget: (StateID?) -> Unit,
+    emitActivityResult: (Int) -> Unit,
+    widthSizeClass: WindowWidthSizeClass,
 ) {
-    companion object {
-        val NONE = AppState(
-            StateID.NONE,
-            null
-        )
-    }
+    MainController(
+        initialAppState = initialAppState,
+        processSelectedTarget = processSelectedTarget,
+        emitActivityResult = emitActivityResult,
+        widthSizeClass = widthSizeClass,
+    )
 }
 
 @Composable
 fun MainController(
+    initialAppState: AppState,
+    processSelectedTarget: (StateID?) -> Unit,
+    emitActivityResult: (Int) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
-    appState: AppState,
-    launchIntent: (Intent?, Boolean, Boolean) -> Unit,
     connectionService: ConnectionService = koinInject(),
 ) {
     val scope = rememberCoroutineScope()
-
     val mainNavController = rememberNavController()
+
     val cellsNavActions = remember(mainNavController) {
         CellsNavigationActions(mainNavController)
     }
-
-    val currAppState = remember {
-        mutableStateOf(appState)
+    val browseNavActions = remember(mainNavController) {
+        BrowseNavigationActions(mainNavController)
     }
-
     val systemNavActions = remember(mainNavController) {
         SystemNavigationActions(mainNavController)
     }
@@ -76,41 +79,13 @@ fun MainController(
         if (route == lastRoute.value) {
             Log.w(LOG_TAG, "[WARNING] Same route called twice: $route")
         }
-
         // FIXME remove
-        val bseList = mainNavController.currentBackStack.value
-        Log.e(LOG_TAG, "... Backstack b4 navigation from DRAWER")
-        var i = 1
-        for (bse in bseList) {
-            Log.e(LOG_TAG, " #$i: ${bse.destination.route}")
-            i++
-        }
-        Log.e(LOG_TAG, "... Next destination $route")
-
-        val oldRoute = mainNavController.previousBackStackEntry?.destination?.route
-        val oldState: StateID? = oldRoute?.let {
-            Log.i(LOG_TAG, "... Got an old route: $oldRoute")
-            if (it.endsWith("{${AppKeys.STATE_ID}}")) {
-                Log.i(LOG_TAG, "... with state id suffix ")
-                lazyStateID(mainNavController.previousBackStackEntry)
-            } else {
-                null
-            }
-        }
-        val currRoute = mainNavController.currentBackStackEntry?.destination?.route
-        val currState: StateID? = currRoute?.let {
-            if (it.contains("{${AppKeys.STATE_ID}}")) {
-                lazyStateID(entry = mainNavController.currentBackStackEntry)
-            } else {
-                null
-            }
-        }
-
-        Log.i(LOG_TAG, "... Navigate to $route")
-        Log.d(LOG_TAG, "      - Penultimate Entry route: $oldRoute, stateID: $oldState")
-        Log.d(LOG_TAG, "      - Current Entry route: $currRoute, stateID: $currState")
-        Log.d(LOG_TAG, "      - Local last route: ${lastRoute.value}")
-        lastRoute.value = route
+        dumpNavigationStack(
+            LOG_TAG,
+            "Main NavigateTo in WithDrawer",
+            mainNavController.currentBackStack.value,
+            route
+        )
         scope.launch {
             mainNavController.navigate(route)
         }
@@ -126,14 +101,13 @@ fun MainController(
         ModalNavigationDrawer(
             drawerContent = {
                 AppDrawer(
-//                    currRoute = navBackStackEntry?.destination?.route,
-//                    currSelectedID = lazyStateID(entry = navBackStackEntry, verbose = false),
-                    appState = currAppState.value,
+                    currRoute = navBackStackEntry?.destination?.route,
+                    currSelectedID = lazyStateID(entry = navBackStackEntry, verbose = false),
                     closeDrawer = { scope.launch { sizeAwareDrawerState.close() } },
                     connectionService = connectionService,
                     cellsNavActions = cellsNavActions,
                     systemNavActions = systemNavActions,
-//                    browseNavActions = browseNavActions,
+                    browseNavActions = browseNavActions,
                 )
             },
             drawerState = sizeAwareDrawerState,
@@ -143,13 +117,12 @@ fun MainController(
             Row {
                 if (isExpandedScreen) { // When we are on a tablet
                     AppPermanentDrawer(
-                        appState = currAppState.value,
-//                        currRoute = navBackStackEntry?.destination?.route,
-//                        currSelectedID = lazyStateID(navBackStackEntry),
+                        currRoute = navBackStackEntry?.destination?.route,
+                        currSelectedID = lazyStateID(navBackStackEntry),
                         connectionService = connectionService,
                         cellsNavActions = cellsNavActions,
                         systemNavActions = systemNavActions,
-//                        browseNavActions = browseNavActions,
+                        browseNavActions = browseNavActions,
                     )
                 }
                 WithInternetBanner(
@@ -161,16 +134,17 @@ fun MainController(
                     )
                 ) {
                     NavGraph(
+                        initialAppState = initialAppState,
                         isExpandedScreen = isExpandedScreen,
-                        appState = currAppState.value,
                         navController = mainNavController,
+                        navigateTo = navigateTo,
+                        processSelectedTarget = processSelectedTarget,
+                        emitActivityResult = emitActivityResult,
                         openDrawer = {
                             if (!isExpandedScreen) {
                                 scope.launch { sizeAwareDrawerState.open() }
                             }
-                        },
-                        navigateTo = navigateTo,
-                        launchIntent = launchIntent,
+                        }
                     )
                 }
             }

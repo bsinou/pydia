@@ -60,7 +60,7 @@ import org.sinou.pydia.client.core.LoadingState
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.db.nodes.RLiveOfflineRoot
 import org.sinou.pydia.client.core.db.runtime.RJob
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.BrowseHelper
 import org.sinou.pydia.client.ui.browse.composables.NodeAction
 import org.sinou.pydia.client.ui.browse.composables.NodeMoreMenuData

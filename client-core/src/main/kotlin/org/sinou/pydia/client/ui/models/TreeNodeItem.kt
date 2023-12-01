@@ -2,7 +2,7 @@ package org.sinou.pydia.client.ui.models
 
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.transport.StateID

@@ -2,7 +2,6 @@ package org.sinou.pydia.client.core.db.preferences
 
 import android.content.Context
 import androidx.datastore.core.DataMigration
-import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.JobStatus
@@ -75,13 +74,4 @@ fun defaultCellsPreferences(): CellsPreferences {
         onIdle = true
     )
     return CellsPreferences(currVersion, showDebug, disablePoll, listPref, meteredPref, syncPref)
-}
-
-// Migration from legacy SharedPreference system
-
-const val LEGACY_PREFERENCES_KEY = "unsupported"
-
-val legacyMigrations: (Context) -> List<DataMigration<Preferences>> = { context ->
-    // Since we're migrating from SharedPreferences, add a migration based on the SharedPreferences name
-    listOf(SharedPreferencesMigration(context, LEGACY_PREFERENCES_KEY))
 }

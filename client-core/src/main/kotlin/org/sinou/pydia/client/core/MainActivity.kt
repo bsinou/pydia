@@ -2,8 +2,6 @@ package org.sinou.pydia.client.core
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -19,21 +17,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
+import org.koin.core.parameter.parametersOf
 import org.sinou.pydia.client.core.services.ConnectionService
-import org.sinou.pydia.client.ui.AppState
-import org.sinou.pydia.client.ui.MainController
-import org.sinou.pydia.client.ui.core.screens.WhiteScreen
-import org.sinou.pydia.client.ui.login.models.OAuthProcessState
-import org.sinou.pydia.client.ui.login.models.OAuthVM
-import org.sinou.pydia.client.ui.login.screens.AuthScreen
 import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.ui.MainApp
+import org.sinou.pydia.client.ui.core.screens.WhiteScreen
+import org.sinou.pydia.client.ui.core.screens.AuthScreen
+import org.sinou.pydia.client.ui.system.models.PreLaunchState
+import org.sinou.pydia.client.ui.system.models.PreLaunchVM
 import org.sinou.pydia.sdk.transport.StateID
 
 /**
@@ -62,7 +61,6 @@ class MainActivity : ComponentActivity() {
                     activity = mainActivity,
                     sBundle = savedInstanceState,
                     intentID = intentIdentifier(),
-                    launchIntent = mainActivity::launchIntent
                 ) {
                     appIsReady = true
                 }
@@ -79,7 +77,6 @@ class MainActivity : ComponentActivity() {
                         // Content is ready: Start drawing.
                         content.viewTreeObserver.removeOnPreDrawListener(this)
                     }
-                    Log.d(logTag, "... In onPreDraw(), ready: $appIsReady")
                     return appIsReady
                 }
             }
@@ -92,13 +89,32 @@ class MainActivity : ComponentActivity() {
         activity: Activity,
         sBundle: Bundle?,
         intentID: String,
-        launchIntent: (Intent?, Boolean, Boolean) -> Unit,
         readyCallback: () -> Unit,
     ) {
+
+        val scope = rememberCoroutineScope()
+        val preLaunchVM: PreLaunchVM = koinViewModel(parameters = { parametersOf(intentID) })
+
         val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
-        val appState = remember { mutableStateOf(AppState.NONE) }
-        val oauthVM by viewModel<OAuthVM>()
-        val processState by oauthVM.processState.collectAsState()
+        val appState by preLaunchVM.appState.collectAsState()
+        val processState by preLaunchVM.processState.collectAsState()
+
+        val emitActivityResult: (Int) -> Unit = { res ->
+            setResult(res)
+            when (res) {
+                RESULT_CANCELED -> finishAndRemoveTask()
+                RESULT_OK -> finish()
+                else -> {} // Do nothing
+            }
+        }
+
+        val processSelectedTarget: (StateID?) -> Unit = { stateID ->
+            scope.launch {
+                stateID?.let {
+                    // preLaunchVM.shareAt(it)
+                }
+            }
+        }
 
         LaunchedEffect(key1 = intentID) {
             val msg = "... First composition for AppBinding with:" +
@@ -106,9 +122,9 @@ class MainActivity : ComponentActivity() {
             Log.e(logTag, msg)
             if (intentHasBeenProcessed.value) {
                 Log.w(logTag, "intent has already been processed...")
-                oauthVM.skip()
+                preLaunchVM.skip()
             } else {
-                appState.value = handleIntent(sBundle, oauthVM) ?: AppState(StateID.NONE, null)
+                handleIntent(preLaunchVM, sBundle)
             }
             readyCallback()
             intentHasBeenProcessed.value = true
@@ -118,37 +134,40 @@ class MainActivity : ComponentActivity() {
         val widthSizeClass = calculateWindowSizeClass(activity).widthSizeClass
 
         Box {
-
             when (processState) {
-                // FIXME Handle the case where we have to explicitly navigate to a new page (e.G: new account...)
-                OAuthProcessState.DONE,
-                OAuthProcessState.SKIP ->
-                    MainController(
-                        appState = appState.value,
-                        launchIntent = launchIntent,
+                PreLaunchState.TERMINATE -> {
+                    LaunchedEffect(Unit) {
+                        emitActivityResult(Activity.RESULT_OK)
+                    }
+                }
+
+                PreLaunchState.DONE,
+                PreLaunchState.SKIP ->
+                    MainApp(
+                        initialAppState = appState,
+                        processSelectedTarget = processSelectedTarget,
+                        emitActivityResult = emitActivityResult,
                         widthSizeClass = widthSizeClass,
                     )
 
-                OAuthProcessState.PROCESSING -> ProcessAuth(oauthVM)
+                PreLaunchState.PROCESSING,
+                PreLaunchState.ERROR -> {
+                    val message = preLaunchVM.message.collectAsState()
+                    val errMsg = preLaunchVM.errorMessage.collectAsState()
+                    AuthScreen(
+                        isProcessing = errMsg.value.isNullOrEmpty(),
+                        message = message.value,
+                        errMsg = errMsg.value,
+                        cancel = { emitActivityResult(RESULT_CANCELED) }
+                    )
+                }
 
-                OAuthProcessState.NEW -> {
+                PreLaunchState.NEW -> {
                     Log.d(logTag, "... At Compose root, not yet ready")
                     WhiteScreen()
                 }
             }
         }
-    }
-
-    @Composable
-    fun ProcessAuth(loginVM: OAuthVM) {
-        val message = loginVM.message.collectAsState()
-        val errMsg = loginVM.errorMessage.collectAsState()
-        AuthScreen(
-            isProcessing = errMsg.value.isNullOrEmpty(),
-            message = message.value,
-            errMsg = errMsg.value,
-            cancel = { TODO("Reimplement") }
-        )
     }
 
     override fun onPause() {
@@ -161,30 +180,12 @@ class MainActivity : ComponentActivity() {
         super.onResume()
     }
 
-    private fun intentIdentifier(): String {
-        var id: String? = null
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            id = intent.identifier
-        }
-        id = id ?: run {// tmp hack: compute a local ID based on a few variables
-            "${intent.categories}/${intent.action}/${intent.component}"
-        }
-//        Log.e(logTag, "#### Got an intent identifier: $id")
-        return id
-    }
-
-    /**
-     * This should not throw any error
-     */
-    private suspend fun handleIntent(
-        sBundle: Bundle?,
-        oauthVM: OAuthVM
-    ): AppState? {
+    private suspend fun handleIntent(preLaunchVM: PreLaunchVM, sBundle: Bundle?) {
         try {
             val msg = "... Processing intent ($intent):\n" +
                     "\t- cmp: ${intent.component}\n\t- action${intent.action}" +
                     "\n\t- categories: ${intent.categories}" //+
-            Log.e(logTag, msg)
+            Log.i(logTag, msg)
             if (sBundle != null) {
                 TODO("Handle non-null saved bundle state")
             }
@@ -192,7 +193,7 @@ class MainActivity : ComponentActivity() {
             // Handle various supported events
             when (intent.action) {
                 Intent.ACTION_MAIN -> {
-                    oauthVM.skip()
+                    preLaunchVM.launchApp()
                 }
 
                 Intent.ACTION_VIEW -> {
@@ -203,88 +204,48 @@ class MainActivity : ComponentActivity() {
                         throw IllegalArgumentException("Received an unexpected VIEW intent: $intent")
                     }
 
-                    val (isValid, targetStateID) = oauthVM.isAuthStateValid(state)
-                    if (!isValid) {
+                    if (!preLaunchVM.isAuthStateValid(state)) {
                         throw IllegalArgumentException("Passed state is wrong or already consumed: $intent")
                     }
 
-                    oauthVM.launchCodeManagement(state, code)
+                    preLaunchVM.handleOAuthCode(state, code)
                 }
 
                 Intent.ACTION_SEND -> {
-                    val clipData = intent.clipData
-                    Log.d(logTag, "ACTION_SEND received, clipData: $clipData")
-                    clipData?.let {
-                        TODO("Re implement me")
-                        //                    startingState.route = ShareDestination.ChooseAccount.route
-//                    clipData.getItemAt(0).uri?.let {
-//                        startingState.uris.add(it)
-//                    }
+                    val clipData = intent.clipData ?: run {
+                        throw IllegalArgumentException("Cannot share with no clip data: $intent")
                     }
+                    preLaunchVM.handleShare(clipData)
                 }
 
                 Intent.ACTION_SEND_MULTIPLE -> {
-                    val tmpClipData = intent.clipData
-                    tmpClipData?.let { clipData ->
-//                    startingState.route = ShareDestination.ChooseAccount.route
-//                    for (i in 0 until clipData.itemCount) {
-//                        clipData.getItemAt(i).uri?.let {
-//                            startingState.uris.add(it)
-//                        }
-//                    }
+                    val clipData = intent.clipData ?: run {
+                        throw IllegalArgumentException("Cannot share with no clip data: $intent")
                     }
+                    preLaunchVM.handleShares(clipData)
                 }
 
-                else -> {
-                    val action = intent.action
-                    var categories = ""
-                    intent.categories?.forEach { categories += "$it, " }
-                    Log.w(logTag, "... Unexpected intent: $action - $categories")
-                }
+                else -> throw IllegalArgumentException("Unexpected intent: $intent")
             }
-            // FIXME Handle errors here.
-        } catch (e: Exception) {
-            Log.e(logTag, "Could not handle intent, doing nothing...")
+        } catch (e: IllegalArgumentException) {
+            Log.e(logTag, "Misconfigured intent $intent, cannot start the app: ${e.message}")
             e.printStackTrace()
-//                if (e is SDKException) {
-//                    Log.e(logTag, "After handleIntent, error thrown: ${e.code} - ${e.message}")
-//                    if (e.code == ErrorCodes.unexpected_content) { // We should never have received this
-//                        Log.e(logTag, "Launch activity with un-valid state, ignoring...")
-//                        activity.finishAndRemoveTask()
-//                        return@LaunchedEffect
-//                    }
-//                }
-//                Log.e(logTag, "Could not handle intent, aborting....")
-//                throw e
+            preLaunchVM.skip()
+        } catch (e: Exception) {
+            Log.e(logTag, "Unexpected Error while handling main intent: ${e.message}")
+            e.printStackTrace()
+            preLaunchVM.skip()
         }
-        return null
     }
 
-    private fun launchIntent(
-        intent: Intent?,
-        checkIfKnown: Boolean,
-        alsoFinishCurrentActivity: Boolean
-    ) {
-        if (intent == null) {
-            finishAndRemoveTask()
-        } else if (checkIfKnown) {
-            val resolvedActivity =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val flag = PackageManager.ResolveInfoFlags
-                        .of(MATCH_DEFAULT_ONLY.toLong())
-                    packageManager.resolveActivity(intent, flag)
-                } else {
-                    packageManager.resolveActivity(intent, MATCH_DEFAULT_ONLY)
-                }
-            // TODO better error handling
-            if (resolvedActivity == null) {
-                Log.e(logTag, "No Matching handler found for $intent")
-            }
-        } else {
-            startActivity(intent)
-            if (alsoFinishCurrentActivity) {
-                finishAndRemoveTask()
-            }
+    private fun intentIdentifier(): String {
+        var id: String? = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            id = intent.identifier
         }
+        id = id ?: run {// tmp hack: compute a local ID based on a few variables
+            "${intent.categories}/${intent.action}/${intent.component}"
+        }
+        return id
     }
 }

@@ -3,6 +3,8 @@ package org.sinou.pydia.client.ui.core.nav
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -19,9 +21,11 @@ import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.services.ConnectionService
-import org.sinou.pydia.client.ui.AppState
+import org.sinou.pydia.client.ui.browse.BrowseDestinations
+import org.sinou.pydia.client.ui.browse.BrowseNavigationActions
 import org.sinou.pydia.client.ui.core.composables.ConnectionStatus
 import org.sinou.pydia.client.ui.core.composables.MenuTitleText
+import org.sinou.pydia.client.ui.core.composables.getWsThumbVector
 import org.sinou.pydia.client.ui.core.composables.menus.BottomSheetDivider
 import org.sinou.pydia.client.ui.system.SystemDestinations
 import org.sinou.pydia.client.ui.system.SystemNavigationActions
@@ -35,20 +39,19 @@ import org.sinou.pydia.sdk.transport.StateID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppDrawer(
-    appState: AppState,
-//    currRoute: String?,
-//    currSelectedID: StateID?,
+    currRoute: String?,
+    currSelectedID: StateID?,
     closeDrawer: () -> Unit,
     prefReadOnlyVM: PrefReadOnlyVM = koinViewModel(),
     connectionService: ConnectionService,
     cellsNavActions: CellsNavigationActions,
     systemNavActions: SystemNavigationActions,
-//    browseNavActions: BrowseNavigationActions
+    browseNavActions: BrowseNavigationActions
 ) {
 
-    val currRoute = appState.route
-
     val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
+    // FIXME understand why this dos not work ?
+    // val accountID by connectionService.currAccountID.collectAsState(StateID.NONE)
     val accountID = connectionService.currAccountID.collectAsState(StateID.NONE)
     val wss = connectionService.wss.collectAsState(listOf())
     val cells = connectionService.cells.collectAsState(listOf())
@@ -77,8 +80,8 @@ fun AppDrawer(
             ConnectionStatus()
 
             AccountHeader(
-                username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
-                address = accountID.value?.serverUrl ?: "",
+                username = accountID.value.username ?: stringResource(R.string.ask_url_title),
+                address = accountID.value.serverUrl,
                 openAccounts = { cellsNavActions.navigateToAccounts(); closeDrawer() },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -86,61 +89,63 @@ fun AppDrawer(
                     .padding(vertical = dimensionResource(id = R.dimen.margin_medium))
             )
 
-            // Offline, Bookmark, Transfers and Workspace roots accesses:
-            // This section is only relevant when we have a defined account
-//            accountID.value?.let { currAccountID ->
-//
-//                MyNavigationDrawerItem(
-//                    label = stringResource(R.string.action_open_offline_roots),
-//                    icon = CellsIcons.KeepOffline,
-//                    selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
-//                    onClick = { browseNavActions.toOfflineRoots(currAccountID); closeDrawer() },
-//                )
-//                MyNavigationDrawerItem(
-//                    label = stringResource(R.string.action_open_bookmarks),
-//                    icon = CellsIcons.Bookmark,
-//                    selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
-//                    onClick = { browseNavActions.toBookmarks(currAccountID);closeDrawer() },
-//                )
-//                MyNavigationDrawerItem(
-//                    label = stringResource(R.string.action_open_transfers),
-//                    icon = CellsIcons.Transfers,
-//                    selected = BrowseDestinations.Transfers.isCurrent(currRoute),
-//                    onClick = { browseNavActions.toTransfers(currAccountID); closeDrawer() },
-//                )
-//
-//                BottomSheetDivider()
-//
-//                MenuTitleText(stringResource(R.string.my_workspaces), defaultTitleModifier)
-//                wss.value.listIterator().forEach {
-//                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
-//                            && it.getStateID() == currSelectedID
-//                    MyNavigationDrawerItem(
-//                        label = it.label ?: it.slug,
-//                        icon = getWsThumbVector(it.sortName ?: ""),
-//                        selected = selected,
-//                        onClick = { browseNavActions.toBrowse(it.getStateID());closeDrawer() },
-//                    )
-//                }
-//                cells.value.listIterator().forEach {
-//                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
-//                            && it.getStateID() == currSelectedID
-//                    MyNavigationDrawerItem(
-//                        label = it.label ?: it.slug,
-//                        icon = getWsThumbVector(it.sortName ?: ""),
-//                        selected = selected,
-//                        onClick = { browseNavActions.toBrowse(it.getStateID()); closeDrawer() },
-//                    )
-//                }
-//            } ?: run { // Temporary fallback when no account is defined
-//                // until all routes are hardened for all corner cases
-//                MyNavigationDrawerItem(
-//                    label = stringResource(id = R.string.choose_account),
-//                    icon = Icons.Filled.Group,
-//                    selected = CellsDestinations.Accounts.route == currRoute,
-//                    onClick = { cellsNavActions.navigateToAccounts();closeDrawer() },
-//                )
-//            }
+//             Offline, Bookmark, Transfers and Workspace roots accesses:
+//             This section is only relevant when we have a defined account
+// FIXME
+            val accID = accountID.value
+
+            if (accID != StateID.NONE) {
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_offline_roots),
+                    icon = CellsIcons.KeepOffline,
+                    selected = BrowseDestinations.OfflineRoots.isCurrent(currRoute),
+                    onClick = { browseNavActions.toOfflineRoots(accID); closeDrawer() },
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_bookmarks),
+                    icon = CellsIcons.Bookmark,
+                    selected = BrowseDestinations.Bookmarks.isCurrent(currRoute),
+                    onClick = { browseNavActions.toBookmarks(accID);closeDrawer() },
+                )
+                MyNavigationDrawerItem(
+                    label = stringResource(R.string.action_open_transfers),
+                    icon = CellsIcons.Transfers,
+                    selected = BrowseDestinations.Transfers.isCurrent(currRoute),
+                    onClick = { browseNavActions.toTransfers(accID); closeDrawer() },
+                )
+
+                BottomSheetDivider()
+
+                MenuTitleText(stringResource(R.string.my_workspaces), defaultTitleModifier)
+                wss.value.listIterator().forEach {
+                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
+                            && it.getStateID() == currSelectedID
+                    MyNavigationDrawerItem(
+                        label = it.label ?: it.slug,
+                        icon = getWsThumbVector(it.sortName ?: ""),
+                        selected = selected,
+                        onClick = { browseNavActions.toBrowse(it.getStateID());closeDrawer() },
+                    )
+                }
+                cells.value.listIterator().forEach {
+                    val selected = BrowseDestinations.Open.isCurrent(currRoute)
+                            && it.getStateID() == currSelectedID
+                    MyNavigationDrawerItem(
+                        label = it.label ?: it.slug,
+                        icon = getWsThumbVector(it.sortName ?: ""),
+                        selected = selected,
+                        onClick = { browseNavActions.toBrowse(it.getStateID()); closeDrawer() },
+                    )
+                }
+            } else { // Temporary fallback when no account is defined
+                // until all routes are hardened for all corner cases
+                MyNavigationDrawerItem(
+                    label = stringResource(id = R.string.choose_account),
+                    icon = Icons.Filled.Group,
+                    selected = CellsDestinations.Accounts.route == currRoute,
+                    onClick = { cellsNavActions.navigateToAccounts();closeDrawer() },
+                )
+            }
 
             BottomSheetDivider()
 
@@ -148,10 +153,11 @@ fun AppDrawer(
             MyNavigationDrawerItem(
                 label = stringResource(R.string.action_settings),
                 icon = CellsIcons.Settings,
-                selected = SystemDestinations.Settings.route == appState.route,
+                selected = SystemDestinations.Settings.route == currRoute,
                 onClick = { systemNavActions.navigateToSettings(); closeDrawer() },
             )
-            accountID.value?.let { accID -> // We also temporarily disable this when no account is defined
+
+            if (accID != StateID.NONE) {
                 // TODO Remove the check once the "clear cache" / housekeeping strategy has been refined
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_house_keeping),

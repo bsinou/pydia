@@ -19,7 +19,7 @@ import org.sinou.pydia.client.core.LoadingState
 import org.sinou.pydia.client.core.ServerConnection
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.services.ConnectionService
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.core.services.ErrorService
 import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.client.core.services.PreferencesService

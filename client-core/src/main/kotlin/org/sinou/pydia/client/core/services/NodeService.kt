@@ -2,6 +2,8 @@ package org.sinou.pydia.client.core.services
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.bumptech.glide.Glide
 import kotlinx.coroutines.flow.Flow
@@ -599,6 +601,10 @@ class NodeService(
             throw SDKException("Could not delete $stateID", se)
         }
     }
+
+    // Dirty tweak, we store the last search here so it survives navigation
+    private var _lastQuery = mutableStateOf("")
+    val lastQuery: State<String> = _lastQuery
 
     /* Directly communicate with the distant server */
     @Throws(SDKException::class)

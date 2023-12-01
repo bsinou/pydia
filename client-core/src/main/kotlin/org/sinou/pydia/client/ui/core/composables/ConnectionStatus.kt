@@ -24,12 +24,12 @@ import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.Status
 import org.sinou.pydia.client.core.services.AccountService
 import org.sinou.pydia.client.core.services.ConnectionService
-import org.sinou.pydia.client.core.services.SessionState
-import org.sinou.pydia.client.core.services.isOK
+import org.sinou.pydia.client.core.services.models.SessionState
 import org.sinou.pydia.client.ui.theme.CellsColor
 import org.sinou.pydia.client.ui.theme.CellsIcons
 import org.sinou.pydia.client.ui.theme.UseCellsTheme
 import org.koin.compose.koinInject
+import org.sinou.pydia.client.core.services.models.isOK
 
 private const val LOG_TAG = "ConnectionStatus.kt"
 
@@ -39,9 +39,7 @@ fun ConnectionStatus(
     connectionService: ConnectionService = koinInject(),
 ) {
     val currSession = connectionService.sessionView.collectAsState(initial = null)
-    val sessionStatus = connectionService.sessionStateFlow.collectAsState(
-        SessionState(NetworkStatus.OK, true, LoginStatus.Connected)
-    )
+    val sessionStatus = connectionService.sessionStateFlow.collectAsState()
     val knownSessions = accountService.getLiveSessions().collectAsState(listOf())
 
     currSession.value?.let {

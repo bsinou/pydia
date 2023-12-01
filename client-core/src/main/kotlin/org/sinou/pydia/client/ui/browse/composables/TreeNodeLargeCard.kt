@@ -35,6 +35,7 @@ fun TreeNodeLargeCard(
                 eTag = nodeItem.eTag,
                 metaHash = nodeItem.metaHash,
                 title = getNodeTitle(name = nodeItem.name, mime = nodeItem.mime),
+                mime = nodeItem.mime,
                 openMoreMenu = more
             )
         } else {

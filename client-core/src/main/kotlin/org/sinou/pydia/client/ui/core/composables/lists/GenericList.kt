@@ -17,10 +17,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.ListContext
 import org.sinou.pydia.client.core.LoadingState
-import org.sinou.pydia.client.R
-import org.sinou.pydia.client.core.services.ConnectionState
+import org.sinou.pydia.client.core.ServerConnection
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.theme.CellsIcons
 import org.sinou.pydia.client.ui.theme.CellsListTypography
 
@@ -35,13 +36,15 @@ fun WithLoadingListBackground(
     showProgressAtStartup: Boolean = true,
     startingDesc: String = stringResource(R.string.loading_message),
     emptyRefreshableDesc: String = stringResource(R.string.empty_folder),
-    emptyNoConnDesc: String = stringResource(R.string.empty_cache) + "\n" + stringResource(R.string.server_unreachable),
+    emptyNoConnDesc: String = stringResource(R.string.empty_cache) + ":\n" + stringResource(R.string.server_unreachable),
     content: @Composable () -> Unit,
 ) {
     Box(modifier = modifier) {
         if (isEmpty) {
             Box(modifier = Modifier.fillMaxSize()) {
-                if (connectionState.loading == LoadingState.STARTING) {
+                if (connectionState.loading == LoadingState.STARTING
+                    && connectionState.serverConnection != ServerConnection.UNREACHABLE
+                ) {
                     StartingBackground(
                         desc = startingDesc,
                         showProgressAtStartup = showProgressAtStartup,

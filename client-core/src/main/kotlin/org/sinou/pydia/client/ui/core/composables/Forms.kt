@@ -25,7 +25,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.ui.theme.UseCellsTheme
-import org.sinou.pydia.sdk.utils.Str
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -34,14 +33,7 @@ fun FormInput(
     description: String,
     onValueChanged: (String) -> Unit,
     isProcessing: Boolean,
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .padding(
-            start = dimensionResource(R.dimen.form_input_horizontal_padding),
-            end = dimensionResource(R.dimen.form_input_horizontal_padding),
-            top = dimensionResource(R.dimen.form_input_vertical_padding),
-            bottom = dimensionResource(R.dimen.form_input_vertical_padding),
-        ),
+    modifier: Modifier = Modifier,
     isPassword: Boolean = false,
     errorMessage: String?,
     imeAction: ImeAction = ImeAction.Default,
@@ -51,15 +43,23 @@ fun FormInput(
         value = value,
         label = { Text(text = description) },
         supportingText = {
-            if (Str.notEmpty(errorMessage)) {
-                Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error)
+            if (!errorMessage.isNullOrEmpty()) {
+                Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
             }
         },
         enabled = !isProcessing,
         keyboardOptions = KeyboardOptions(imeAction = imeAction),
         keyboardActions = keyboardActions,
         onValueChange = { newValue -> onValueChanged(newValue) },
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                start = dimensionResource(R.dimen.form_input_horizontal_padding),
+                end = dimensionResource(R.dimen.form_input_horizontal_padding),
+                top = dimensionResource(R.dimen.form_input_vertical_padding),
+                bottom = dimensionResource(R.dimen.form_input_vertical_padding),
+            ),
+
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None
     )
 }

@@ -67,6 +67,7 @@ class LoginHelper(
         }
         intent?.let {
             ContextCompat.startActivity(context, intent, null)
+            navController.popBackStack()
         }
     }
 

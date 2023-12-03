@@ -2,16 +2,35 @@ package org.sinou.pydia.sdk.client
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.sinou.pydia.openapi.api.JobsServiceApi
+import org.sinou.pydia.openapi.api.SearchServiceApi
+import org.sinou.pydia.openapi.api.ShareServiceApi
 import org.sinou.pydia.openapi.api.TreeServiceApi
+import org.sinou.pydia.openapi.api.UserMetaServiceApi
 import org.sinou.pydia.openapi.api.UserServiceApi
 import org.sinou.pydia.openapi.infrastructure.ClientException
 import org.sinou.pydia.openapi.infrastructure.ServerException
+import org.sinou.pydia.openapi.model.IdmSearchUserMetaRequest
+import org.sinou.pydia.openapi.model.IdmUpdateUserMetaRequest
+import org.sinou.pydia.openapi.model.IdmUserMeta
 import org.sinou.pydia.openapi.model.RestBulkMetaResponse
 import org.sinou.pydia.openapi.model.RestCreateNodesRequest
 import org.sinou.pydia.openapi.model.RestDeleteNodesRequest
 import org.sinou.pydia.openapi.model.RestGetBulkMetaRequest
+import org.sinou.pydia.openapi.model.RestPutShareLinkRequest
+import org.sinou.pydia.openapi.model.RestRestoreNodesRequest
+import org.sinou.pydia.openapi.model.RestSearchResults
+import org.sinou.pydia.openapi.model.RestShareLink
+import org.sinou.pydia.openapi.model.RestShareLinkAccessType
+import org.sinou.pydia.openapi.model.RestUserBookmarksRequest
+import org.sinou.pydia.openapi.model.RestUserJobRequest
+import org.sinou.pydia.openapi.model.ServiceResourcePolicy
+import org.sinou.pydia.openapi.model.ServiceResourcePolicyAction
 import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.openapi.model.TreeNodeType
+import org.sinou.pydia.openapi.model.TreeQuery
+import org.sinou.pydia.openapi.model.TreeSearchRequest
+import org.sinou.pydia.openapi.model.UpdateUserMetaRequestUserMetaOp
 import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.Registry
@@ -26,6 +45,7 @@ import org.sinou.pydia.sdk.client.model.DocumentRegistry
 import org.sinou.pydia.sdk.client.model.TreeNodeInfo
 import org.sinou.pydia.sdk.transport.CellsTransport
 import org.sinou.pydia.sdk.transport.StateID
+import org.sinou.pydia.sdk.utils.CellsPath
 import org.sinou.pydia.sdk.utils.FileNodeUtils
 import org.sinou.pydia.sdk.utils.IoHelpers
 import org.sinou.pydia.sdk.utils.Log
@@ -37,6 +57,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
+import java.net.URL
 import java.util.Properties
 import javax.xml.parsers.ParserConfigurationException
 
@@ -45,6 +66,37 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     private val transport: CellsTransport
     private val gson = Gson()
 
+    private fun userServiceApi(): UserServiceApi {
+        val (u, c) = transport.apiConf()
+        return UserServiceApi(u, c)
+    }
+
+    private fun userMetaServiceApi(): UserMetaServiceApi {
+        val (u, c) = transport.apiConf()
+        return UserMetaServiceApi(u, c)
+    }
+
+    private fun treeServiceApi(): TreeServiceApi {
+        val (u, c) = transport.apiConf()
+        return TreeServiceApi(u, c)
+    }
+
+    private fun jobsServiceApi(): JobsServiceApi {
+        val (u, c) = transport.apiConf()
+        return JobsServiceApi(u, c)
+    }
+
+    private fun searchServiceApi(): SearchServiceApi {
+        val (u, c) = transport.apiConf()
+        return SearchServiceApi(u, c)
+    }
+
+    private fun shareServiceApi(): ShareServiceApi {
+        val (u, c) = transport.apiConf()
+        return ShareServiceApi(u, c)
+    }
+
+
     init {
         this.transport = transport as CellsTransport
     }
@@ -52,9 +104,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     @Throws(SDKException::class)
     override fun stillAuthenticated(): Boolean {
         return try {
-            val (u, c) = transport.apiConf()
-            val api = UserServiceApi(u, c)
-            api.getUser(transport.username)
+            userServiceApi().getUser(transport.username)
             true
         } catch (e: ClientException) {
             Log.e(
@@ -142,12 +192,10 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             limit = options?.limit,
             offset = options?.offset,
         )
-        val (url, okClient) = transport.apiConf()
-        val api = TreeServiceApi(url, okClient)
         val response: RestBulkMetaResponse
         // var nextPageOptions: PageOptions
         try {
-            response = api.bulkStatNodes(request)
+            response = treeServiceApi().bulkStatNodes(request)
             val nextPageOptions = response.pagination?.let { pag ->
                 PageOptions(
                     limit = pag.limit ?: 0,
@@ -191,10 +239,8 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             nodes = listOf(node)
         )
 
-        val (url, client) = transport.apiConf()
-        val api = TreeServiceApi(url, client)
         try {
-            api.createNodes(request)
+            treeServiceApi().createNodes(request)
         } catch (e: ServerException) {
             e.printStackTrace()
             throw SDKException.fromServerException(e)
@@ -205,10 +251,8 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     override fun delete(slug: String, paths: Array<String>, removePermanently: Boolean) {
         val nodes = paths.map { TreeNode(path = FileNodeUtils.toTreeNodePath(slug, it)) }
         val request = RestDeleteNodesRequest(nodes = nodes, removePermanently = removePermanently)
-        val (url, okClient) = transport.apiConf()
-        val api = TreeServiceApi(url, okClient)
         try {
-            api.deleteNodes(request)
+            treeServiceApi().deleteNodes(request)
         } catch (e: ServerException) {
             e.printStackTrace()
             throw SDKException.fromServerException(e)
@@ -218,8 +262,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     @Throws(SDKException::class)
     override fun statNode(file: String): TreeNode? {
         try {
-            val (url, c) = transport.apiConf()
-            val response = TreeServiceApi(url, c).headNode(file)
+            val response = treeServiceApi().headNode(file)
             return response.node
         } catch (e: ServerException) {
             throw SDKException.fromServerException(e)
@@ -347,27 +390,27 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
         return thumbName
     }
-//
-//    @Throws(SDKException::class)
-//    override fun getNodeMeta(ws: String, file: String): FileNode {
-//        val request = RestGetBulkMetaRequest()
-//        request.addNodePathsItem(FileNodeUtils.toTreeNodePath(ws, file))
-//        request.setAllMetaProviders(true)
-//        val api = TreeServiceApi(authenticatedClient())
-//        val response: RestBulkMetaResponse
-//        response = try {
-//            api.bulkStatNodes(request)
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException.fromApiException(e)
-//        }
-//        if (response.nodes == null || response.nodes.isEmpty()) {
-//            Log.w(logTag, "No node found for " + PathUtils.getPath(ws, file))
-//            return null
-//        }
-//        return FileNodeUtils.toFileNode(response.nodes[0])
-//    }
-//
+
+    @Throws(SDKException::class)
+    override fun getNodeMeta(ws: String, file: String): TreeNode? {
+        val request = RestGetBulkMetaRequest(
+            allMetaProviders = true,
+            nodePaths = listOf(FileNodeUtils.toTreeNodePath(ws, file))
+        )
+        val response: RestBulkMetaResponse = try {
+            treeServiceApi().bulkStatNodes(request)
+        } catch (e: ClientException) {
+            e.printStackTrace()
+            throw SDKException(e)
+        }
+        if (response.nodes.isNullOrEmpty()) {
+            Log.w(logTag, "No node found for " + FileNodeUtils.toTreeNodePath(ws, file))
+            return null
+        }
+        return response.nodes?.let { it[0] }
+    }
+
+    //
 //    @Throws(SDKException::class)
 //    override fun stats(ws: String, file: String, withHash: Boolean): Stats {
 //        val request = RestGetBulkMetaRequest()
@@ -396,40 +439,30 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        return stats!!
 //    }
 //
-//    @Throws(SDKException::class)
-//    override fun search(ws: String, dir: String, searchedText: String, h: NodeHandler) {
-//        val query = TreeQuery()
-//        query.setFileName(searchedText)
-//        val prefix = ws + dir
-//        query.addPathPrefixItem(prefix)
-//        val request = TreeSearchRequest()
-//        request.setSize(50)
-//        request.setQuery(query)
-//        val api = SearchServiceApi(authenticatedClient())
-//        val results: RestSearchResults
-//        results = try {
-//            api.nodes(request)
-//        } catch (e: ApiException) {
-//            throw SDKException.fromApiException(e)
-//        }
-//        val nodes = results.results
-//        if (nodes != null) {
-//            for (treeNode in nodes) {
-//                toMultipleNode(h, treeNode)
-//                //                FileNode fileNode;
-////                try {
-////                    fileNode = toFileNode(treeNode);
-////                } catch (NullPointerException ignored) {
-////                    continue;
-////                }
-////
-////                if (fileNode != null) {
-////                    h.onNode(fileNode);
-////                }
-//            }
-//        }
-//    }
-//
+    @Throws(SDKException::class)
+    override fun search(ws: String, dir: String, searchedText: String, h: (TreeNode) -> Unit) {
+        val query = TreeQuery(
+            fileName = searchedText,
+            pathPrefix = listOf(ws + dir)
+        )
+        val request = TreeSearchRequest(
+            propertySize = 50,
+            query = query
+        )
+        val results: RestSearchResults = try {
+            searchServiceApi().nodes(request)
+        } catch (e: ClientException) {
+            throw SDKException(e)
+        }
+        val nodes = results.results
+        if (nodes != null) {
+            for (treeNode in nodes) {
+                h(treeNode)
+            }
+        }
+    }
+
+    //
 //    @Throws(SDKException::class)
 //    override fun search(parentPath: String, searchedText: String, size: Int): List<FileNode> {
 //        return try {
@@ -570,112 +603,112 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        return fromURL(s3Client.getDownloadPreSignedURL(ws, file))
 //    }
 //
-//    @Throws(SDKException::class)
-//    override fun copy(ws: String, files: Array<String>, folder: String) {
-//        val nodes = JSONArray()
-//        for (file in files) {
-//            // String path = "/" + ws + file;
-//            val path = ws + file
-//            nodes.put(path)
-//        }
-//        val o = JSONObject()
-//        o.put("nodes", nodes)
-//        // o.put("target", "/" + ws + folder);
-//        o.put("target", ws + folder)
-//        o.put("targetParent", true)
-//        val request = RestUserJobRequest()
-//        request.setJobName(CellsNames.JOB_ID_COPY)
-//        request.setJsonParameters(o.toString())
-//        val api = JobsServiceApi(authenticatedClient())
-//        try {
-//            api.userCreateJob(CellsNames.JOB_ID_COPY, request)
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun move(ws: String, files: Array<String>, dstFolder: String) {
-//        val nodes = JSONArray()
-//        for (file in files) {
-//            //String path = "/" + ws + file;
-//            val path = ws + file
-//            nodes.put(path)
-//        }
-//        val o = JSONObject()
-//        o.put("nodes", nodes)
-//        // o.put("target", "/" + ws + dstFolder);
-//        o.put("target", ws + dstFolder)
-//        o.put("targetParent", true)
-//        val request = RestUserJobRequest()
-//        request.setJobName(CellsNames.JOB_ID_MOVE)
-//        request.setJsonParameters(o.toString())
-//        val api = JobsServiceApi(authenticatedClient())
-//        try {
-//            api.userCreateJob(CellsNames.JOB_ID_MOVE, request)
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun rename(ws: String, srcFile: String, newName: String) {
-//        val nodes = JSONArray()
-//        // In Cells, paths directly start with the WS slug (**NO** leading slash)
-//        // String path = "/" + ws + srcFile;
-//        val path = ws + srcFile
-//        nodes.put(path)
-//        val parent = File(srcFile).parentFile.path
-//        val dstFile: String
-//        dstFile = if ("/" == parent) {
-//            parent + newName
-//        } else {
-//            "$parent/$newName"
-//        }
-//        // String targetFile ="/" + ws + dstFile;
-//        val targetFile = ws + dstFile
-//        val o = JSONObject()
-//        o.put("nodes", nodes)
-//        o.put("target", targetFile)
-//        o.put("targetParent", false)
-//        val request = RestUserJobRequest()
-//        request.setJobName(CellsNames.JOB_ID_MOVE)
-//        request.setJsonParameters(o.toString())
-//        val api = JobsServiceApi(authenticatedClient())
-//        try {
-//            api.userCreateJob(CellsNames.JOB_ID_MOVE, request)
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
+    @Throws(SDKException::class)
+    override fun copy(ws: String, files: Array<String>, folder: String) {
+        val nodes = mutableListOf<String>()
+        for (file in files) {
+            // String path = "/" + ws + file;
+            val path = ws + file
+            nodes.add(path)
+        }
+        val o = mutableMapOf<String, Any>()
+        o["nodes"] = nodes.toTypedArray()
+        o["target"] = ws + folder
+        o["targetParent"] = true
+        val request = RestUserJobRequest(
+            jsonParameters = gson.toJson(o)
+        )
+        // request.setJobName(CellsNames.JOB_ID_COPY)
+        try {
+            jobsServiceApi().userCreateJob(SdkNames.JOB_ID_COPY, request)
+        } catch (e: ClientException) {
+            e.printStackTrace()
+            throw SDKException(e)
+        }
+    }
 
-    //
-//    @Throws(SDKException::class)
-//    override fun restore(ws: String, files: Array<FileNode>) {
-//        val nodes: MutableList<TreeNode> = ArrayList()
-//        for (file in files) {
-//            val node: TreeNode = TreeNode().uuid(file.id).path(file.path)
-//            nodes.add(node)
-//        }
-//        val request = RestRestoreNodesRequest()
-//        request.setNodes(nodes)
-//        val api = TreeServiceApi(authenticatedClient())
-//        try {
-//            api.restoreNodes(request)
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun emptyRecycleBin(ws: String) {
-//        delete(ws, arrayOf("/recycle_bin"))
-//    }
+    @Throws(SDKException::class)
+    override fun move(ws: String, files: Array<String>, dstFolder: String) {
+
+        val nodes = mutableListOf<String>()
+        for (file in files) {
+            // String path = "/" + ws + file;
+            val path = ws + file
+            nodes.add(path)
+        }
+        val o = mutableMapOf<String, Any>()
+        o["nodes"] = nodes.toTypedArray()
+        o["target"] = ws + dstFolder
+        o["targetParent"] = true
+        val request = RestUserJobRequest(
+            jsonParameters = gson.toJson(o)
+        )
+
+        // request.setJobName(CellsNames.JOB_ID_MOVE)
+        try {
+            jobsServiceApi().userCreateJob(SdkNames.JOB_ID_MOVE, request)
+        } catch (e: ClientException) {
+            e.printStackTrace()
+            throw SDKException(e)
+        }
+    }
+
+    @Throws(SDKException::class)
+    override fun rename(ws: String, srcFile: String, newName: String) {
+        val nodes = listOf("ws + srcFile")
+
+        val parent = File(srcFile).parentFile.path
+        val dstFile = if ("/" == parent) {
+            parent + newName
+        } else {
+            "$parent/$newName"
+        }
+        // String targetFile ="/" + ws + dstFile;
+        val targetFile = ws + dstFile
+        val o = mutableMapOf<String, Any>()
+        o["nodes"] = nodes.toTypedArray()
+        o["target"] = targetFile
+        o["targetParent"] = false
+        val request = RestUserJobRequest(
+            jsonParameters = gson.toJson(o)
+        )
+
+        try {
+            jobsServiceApi().userCreateJob(SdkNames.JOB_ID_MOVE, request)
+        } catch (e: ClientException) {
+            e.printStackTrace()
+            throw SDKException(e)
+        }
+    }
+
+
+    /**
+     * val nodes: MutableList<TreeNode> = ArrayList()
+     *         for (file in files) {
+     *             val node: TreeNode = TreeNode(
+     *                 uuid = ,
+     *                 path = ,
+     *             ).uuid(file.id).path(file.path)
+     *             nodes.add(node)
+     *         }
+     */
+    @Throws(SDKException::class)
+    override fun restore(ws: String, nodes: List<TreeNode>?) {
+        val request = RestRestoreNodesRequest(
+            nodes = nodes
+        )
+        try {
+            treeServiceApi().restoreNodes(request)
+        } catch (e: ClientException) {
+            e.printStackTrace()
+            throw SDKException(e)
+        }
+    }
+
+    @Throws(SDKException::class)
+    override fun emptyRecycleBin(ws: String) {
+        delete(ws, arrayOf("/recycle_bin"), true)
+    }
 //
 //    @Throws(SDKException::class)
 //    override fun streamingAudioURL(slug: String, file: String): String {
@@ -687,25 +720,25 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        return fromURL(s3Client.getStreamingPreSignedURL(slug, file, S3Names.S3_CONTENT_TYPE_MP4))
 //    }
 //
-//    @Throws(SDKException::class)
-//    override fun getBookmarks(h: NodeHandler) {
-//        val request = RestUserBookmarksRequest()
-//        val api = UserMetaServiceApi(authenticatedClient())
-//        try {
-//            val (nodes) = api.userBookmarks(request)
-//            if (nodes == null) {
-//                return
-//            }
-//            for (node in nodes) {
-//                toMultipleNode(h, node)
-//            }
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
-//    private fun toMultipleNode(nodes: MutableList<FileNode>, treeNode: TreeNode) {
+
+    @Throws(SDKException::class)
+    override fun getBookmarks(h: (TreeNode) -> Unit) {
+        val request = RestUserBookmarksRequest()
+        try {
+            val (nodes) = userMetaServiceApi().userBookmarks(request)
+            if (nodes == null) {
+                return
+            }
+            for (node in nodes) {
+                toMultipleNode(h, node)
+            }
+        } catch (e: ClientException) {
+            e.printStackTrace()
+            throw SDKException(e)
+        }
+    }
+
+    //    private fun toMultipleNode(nodes: MutableList<FileNode>, treeNode: TreeNode) {
 //        toMultipleNode({ node: Node? ->
 //            if (node is FileNode) nodes.add(
 //                node
@@ -713,172 +746,188 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        }, treeNode)
 //    }
 //
-//    private fun toMultipleNode(h: NodeHandler, node: TreeNode) {
-//        try {
-//            val fileNode = FileNodeUtils.toFileNode(node)
-//            if (fileNode != null) {
-//                val sources = node.appearsIn
-//                if (sources != null) {
-//                    // A node can appear in various workspaces (typically when referenced in a cell)
-//                    // Yet the server sends back only one node with the specific "appears in" property,
-//                    // We then have to return a node for each bookmark to the local cache
-//                    for (twrp in sources) {
-//                        var path = twrp.path
-//                        if (Str.empty(path)) {
-//                            Log.i(logTag, "Got an empty path for: " + fileNode.path)
-//                            path = "/"
-//                        } else if (!path!!.startsWith("/")) {
-//                            path = "/$path"
-//                        }
+    private fun toMultipleNode(h: (TreeNode) -> Unit, node: TreeNode) {
+        try {
+            val sources = node.appearsIn
+            if (sources != null) {
+                // A node can appear in various workspaces (typically when referenced in a cell)
+                // Yet the server sends back only one node with the specific "appears in" property,
+                // We then have to return a node for each bookmark to the local cache
+                for (twrp in sources) {
+                    var path = twrp.path
+                    if (path.isNullOrEmpty()) {
+                        Log.i(logTag, "Got an empty path for: " + node.path)
+                        path = "/"
+                    } else if (!path.startsWith("/")) {
+                        path = "/$path"
+                    }
+// FIXME this has been broken when moving to kotlin
 //                        fileNode.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, twrp.wsSlug)
 //                        fileNode.setProperty(SdkNames.NODE_PROPERTY_PATH, path)
 //                        fileNode.setProperty(
 //                            SdkNames.NODE_PROPERTY_FILENAME,
 //                            FileNodeUtils.getNameFromPath(path)
 //                        )
-//                        h.onNode(fileNode)
-//                    }
-//                }
-//            }
-//        } catch (e: NullPointerException) {
-//            Log.e(logTag, "###############################################################")
-//            Log.e(logTag, "###############################################################")
-//            Log.e(logTag, "###############################################################")
-//            Log.e(logTag, "###############################################################")
-//            Log.e(logTag, "Could node create FileNode for " + node.path + ", skipping")
-//            e.printStackTrace()
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun bookmark(slug: String, file: String, isBookmarked: Boolean) {
-//        if (isBookmarked) {
-//            bookmark(slug, file)
-//        } else {
-//            unbookmark(slug, file)
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun bookmark(ws: String, file: String) {
-//        bookmark(getNodeUuid(ws, file))
-//    }
-//
-//    @Throws(SDKException::class)
-//    fun bookmark(uuid: String?) {
-//        val userMeta = IdmUserMeta()
-//        userMeta.setNodeUuid(uuid)
-//        userMeta.setNamespace("bookmark")
-//        userMeta.setJsonValue("true")
-//        val ownerPolicy = newPolicy(uuid, ServiceResourcePolicyAction.OWNER)
-//        val readPolicy = newPolicy(uuid, ServiceResourcePolicyAction.READ)
-//        val writePolicy = newPolicy(uuid, ServiceResourcePolicyAction.WRITE)
-//        userMeta.addPoliciesItem(ownerPolicy)
-//        userMeta.addPoliciesItem(readPolicy)
-//        userMeta.addPoliciesItem(writePolicy)
-//        val metas: MutableList<IdmUserMeta> = ArrayList()
-//        metas.add(userMeta)
-//        val request = IdmUpdateUserMetaRequest()
-//        request.setMetaDatas(metas)
-//        request.setOperation(UpdateUserMetaRequestUserMetaOp.PUT)
-//        val api = UserMetaServiceApi(authenticatedClient())
-//        try {
-//            api.updateUserMeta(request)
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException(
-//                ErrorCodes.api_error,
-//                "could not update bookmark user-meta: " + e.message,
-//                e
-//            )
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun unbookmark(ws: String, file: String) {
-//        try {
-//            val api = UserMetaServiceApi(authenticatedClient())
-//
-//            // Retrieve bookmark user meta with node UUID
-//            val searchRequest = IdmSearchUserMetaRequest()
-//            searchRequest.setNamespace("bookmark")
-//            searchRequest.addNodeUuidsItem(getNodeUuid(ws, file))
-//            val (metadatas) = api.searchUserMeta(searchRequest)
-//
-//            // Delete corresponding user meta
-//            val request = IdmUpdateUserMetaRequest()
-//            request.setOperation(UpdateUserMetaRequestUserMetaOp.DELETE)
-//            request.setMetaDatas(metadatas)
-//            api.updateUserMeta(request)
-//        } catch (e: ApiException) {
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun share(
-//        workspace: String,
-//        file: String,
-//        wsLabel: String,
-//        isFolder: Boolean,
-//        wsDescription: String,
-//        password: String,
-//        expiration: Int,
-//        download: Int,
-//        canPreview: Boolean,
-//        canDownload: Boolean
-//    ): String {
-//        val uuid = getNodeUuid(workspace, file)
-//        val request = RestPutShareLinkRequest()
-//        request.createPassword(password)
-//        request.setCreatePassword(password)
-//        request.setPasswordEnabled(java.lang.Boolean.parseBoolean(password))
-//        val sl = RestShareLink()
-//        val n = TreeNode()
-//        n.setUuid(uuid)
-//        val permissions: MutableList<RestShareLinkAccessType> = ArrayList()
-//        if (canPreview) {
-//            permissions.add(RestShareLinkAccessType.PREVIEW)
-//        }
-//        if (canDownload) {
-//            permissions.add(RestShareLinkAccessType.DOWNLOAD)
-//        }
-//        val rootNodes: MutableList<TreeNode> = ArrayList()
-//        rootNodes.add(n)
-//        sl.setPoliciesContextEditable(true)
-//        sl.setPermissions(permissions)
-//        sl.setRootNodes(rootNodes)
-//        sl.setPoliciesContextEditable(true)
-//        sl.setDescription(wsDescription)
-//        sl.setLabel(wsLabel)
-//        sl.setViewTemplateName("pydio_unique_strip")
-//        request.setShareLink(sl)
-//        val api = ShareServiceApi(authenticatedClient())
-//        return try {
-//            val (_, _, _, _, _, _, linkUrl) = api.putShareLink(request)
-//            transport.server.url() + linkUrl
-//        } catch (e: ApiException) {
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun share(
-//        workspace: String, file: String, ws_label: String, ws_description: String,
-//        password: String, canPreview: Boolean, canDownload: Boolean
-//    ): String {
-//        val targetRemote = internalStatNode(workspace, file)
+                    h(node)
+                }
+            }
+        } catch (e: NullPointerException) {
+            Log.e(logTag, "###############################################################")
+            Log.e(logTag, "###############################################################")
+            Log.e(logTag, "###############################################################")
+            Log.e(logTag, "###############################################################")
+            Log.e(logTag, "Could node create FileNode for " + node.path + ", skipping")
+            e.printStackTrace()
+        }
+    }
+
+    //
+    @Throws(SDKException::class)
+    override fun bookmark(slug: String, file: String, isBookmarked: Boolean) {
+        if (isBookmarked) {
+            bookmark(slug, file)
+        } else {
+            unbookmark(slug, file)
+        }
+    }
+
+    @Throws(SDKException::class)
+    override fun bookmark(ws: String, file: String) {
+        bookmark(getNodeUuid(ws, file))
+    }
+
+    @Throws(SDKException::class)
+    fun bookmark(uuid: String?) {
+
+        val userMeta = IdmUserMeta(
+            uuid = uuid,
+            namespace = "bookmark",
+            jsonValue = "true",
+            policies = listOf(
+                ServiceResourcePolicy(action = ServiceResourcePolicyAction.rEAD),
+                ServiceResourcePolicy(action = ServiceResourcePolicyAction.wRITE),
+                ServiceResourcePolicy(action = ServiceResourcePolicyAction.oWNER),
+            )
+        )
+
+        val request = IdmUpdateUserMetaRequest(
+            operation = UpdateUserMetaRequestUserMetaOp.pUT,
+            metaDatas = listOf(userMeta)
+        )
+        try {
+            userMetaServiceApi().updateUserMeta(request)
+        } catch (e: ClientException) {
+            e.printStackTrace()
+            throw SDKException(
+                ErrorCodes.api_error,
+                "could not update bookmark user-meta: " + e.message,
+                e
+            )
+        }
+    }
+
+    @Throws(SDKException::class)
+    override fun unbookmark(ws: String, file: String) {
+        try {
+            val api = userMetaServiceApi()
+
+            // Retrieve bookmark user meta with node UUID
+            val searchRequest = IdmSearchUserMetaRequest(
+                namespace = "bookmark",
+                nodeUuids = getNodeUuid(ws, file)?.let{listOf(it)}
+            )
+
+            val (metadatas) = api.searchUserMeta(searchRequest)
+
+            // Delete corresponding user meta
+            val request = IdmUpdateUserMetaRequest(
+                operation = UpdateUserMetaRequestUserMetaOp.dELETE,
+                metaDatas = metadatas
+            )
+            api.updateUserMeta(request)
+        } catch (e: ClientException) {
+            throw SDKException(e)
+        }
+    }
+
+    //
+    @Throws(SDKException::class)
+    override fun share(
+        workspace: String,
+        file: String,
+        wsLabel: String,
+        isFolder: Boolean,
+        wsDescription: String,
+        password: String,
+        expiration: Int,
+        download: Int,
+        canPreview: Boolean,
+        canDownload: Boolean
+    ): String {
+        val uuid = getNodeUuid(workspace, file)
+
+        val n = TreeNode(
+            uuid = uuid
+        )
+        val permissions: MutableList<RestShareLinkAccessType> = ArrayList()
+        if (canPreview) {
+            permissions.add(RestShareLinkAccessType.preview)
+        }
+        if (canDownload) {
+            permissions.add(RestShareLinkAccessType.download)
+        }
+        val sl = RestShareLink(
+            policiesContextEditable = true,
+            permissions = permissions,
+            rootNodes = listOf(n),
+            description = wsDescription,
+            label = wsLabel,
+            viewTemplateName = "pydio_unique_strip"
+        )
+
+        val request = RestPutShareLinkRequest(
+            createPassword = password,
+            passwordEnabled = !password.isNullOrEmpty(),
+            shareLink = sl,
+        )
+
+        return try {
+            val restShareLink = shareServiceApi().putShareLink(request)
+            transport.server.url() + restShareLink.linkUrl
+        } catch (e: ClientException) {
+            throw SDKException.fromClientException(e)
+        }
+    }
+
+    @Throws(SDKException::class)
+    override fun share(
+        workspace: String,
+        file: String,
+        wsLabel: String,
+        wsDesc: String,
+        password: String,
+        canPreview: Boolean,
+        canDownload: Boolean
+    ): String {
+        TODO("implement")
+        return "do it"
+//        val targetRemote = statNode(CellsPath.fullPath(workspace, file))
 //            ?: throw SDKException("Cannot share node $workspace/$file: it has disappeared on remote")
 //        val request = RestPutShareLinkRequest()
-//        val hasPwd = java.lang.Boolean.parseBoolean(password)
+//        val hasPwd = !password.isNullOrEmpty()
 //        if (hasPwd) {
 //            request.setCreatePassword(password)
 //            request.setPasswordEnabled(true)
 //        }
-//        val shareLink = RestShareLink()
-//        shareLink.setLabel(ws_label)
-//        shareLink.setDescription(ws_description)
-//        shareLink.setPoliciesContextEditable(true)
+//        val shareLink = RestShareLink(
+//            policiesContextEditable = true,
+//            permissions = permissions,
+//            rootNodes = listOf(n),
+//            description = wsDesc,
+//            label = wsLabel,
+//            viewTemplateName = "pydio_unique_strip"
+//        )
+//
 //        var meta: Map<String?, String>? = targetRemote.metaStore
 //        if (meta == null) {
 //            meta = HashMap()
@@ -909,47 +958,47 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        } catch (e: ApiException) {
 //            throw SDKException.fromApiException(e)
 //        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun unshare(workspace: String, shareUuid: String) {
-//        val api = ShareServiceApi(authenticatedClient())
-//        try {
-//            api.deleteShareLink(shareUuid)
-//        } catch (e: ApiException) {
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    override fun getShareAddress(ws: String, shareID: String): String {
-//        val api = ShareServiceApi(authenticatedClient())
-//        return try {
-//            val (_, _, _, _, _, _, linkUrl) = api.getShareLink(shareID)
-//            getFullLinkAddress(linkUrl, transport.server.url())
-//        } catch (e: ApiException) {
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    private fun getFullLinkAddress(linkUrl: String?, defaultPrefix: String): String {
-//        return try {
-//            val url = URL(linkUrl)
-//            // Passed URL is valid we directly use this
-//            url.toString()
-//        } catch (e: MalformedURLException) {
-//            if (!linkUrl!!.startsWith("/")) {
-//                // Log.e(logTag, "Could not parse link URL: [" + linkUrl + "]");
-//                throw SDKException(
-//                    ErrorCodes.unexpected_response,
-//                    "Public link [$linkUrl] is not valid",
-//                    e
-//                )
-//            }
-//            defaultPrefix + linkUrl
-//        }
-//    }
+    }
+
+    @Throws(SDKException::class)
+    override fun unshare(workspace: String, shareUuid: String) {
+        try {
+            shareServiceApi().deleteShareLink(shareUuid)
+        } catch (e: ClientException) {
+            throw SDKException.fromClientException(e)
+        }
+    }
+
+    @Throws(SDKException::class)
+    override fun getShareAddress(ws: String, shareID: String): String {
+        return try {
+            val (_, _, _, _, _, _, linkUrl) = shareServiceApi().getShareLink(shareID)
+            getFullLinkAddress(linkUrl, transport.server.url())
+        } catch (e: ClientException) {
+            throw SDKException.fromClientException(e)
+        }
+    }
+
+    @Throws(SDKException::class)
+    private fun getFullLinkAddress(linkUrl: String?, defaultPrefix: String): String {
+        return try {
+
+            // FIXME we should not use java.net package
+            val url = URL(linkUrl)
+            // Passed URL is valid we directly use this
+            url.toString()
+        } catch (e: MalformedURLException) {
+            if (!linkUrl!!.startsWith("/")) {
+                // Log.e(logTag, "Could not parse link URL: [" + linkUrl + "]");
+                throw SDKException(
+                    ErrorCodes.unexpected_response,
+                    "Public link [$linkUrl] is not valid",
+                    e
+                )
+            }
+            defaultPrefix + linkUrl
+        }
+    }
 //
 //    override fun isLegacy(): Boolean {
 //        return false
@@ -1124,16 +1173,14 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //        }
 //    }
 //
-//    @Throws(SDKException::class)
-//    private fun getNodeUuid(ws: String, file: String): String? {
-//        val api = TreeServiceApi(authenticatedClient())
-//        return try {
-//            val (node) = api.headNode(FileNodeUtils.toTreeNodePath(ws, file))
-//            node!!.uuid
-//        } catch (e: ApiException) {
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
+    @Throws(SDKException::class)
+    private fun getNodeUuid(ws: String, file: String): String? {
+        return try {
+            treeServiceApi().headNode(FileNodeUtils.toTreeNodePath(ws, file)).node?.uuid
+        } catch (e: ClientException) {
+            throw SDKException(e)
+        }
+    }
 //
 //    @Throws(SDKException::class)
 //    private fun authenticatedClient(): ApiClient {

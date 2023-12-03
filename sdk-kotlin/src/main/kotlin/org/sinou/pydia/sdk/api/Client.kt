@@ -65,7 +65,71 @@ interface Client {
         onProgress: ((Long) -> String?)?
     ): Long
 
-    //    /**
+
+    @Throws(SDKException::class)
+    fun getNodeMeta(ws: String, file: String): TreeNode?
+
+    @Throws(SDKException::class)
+    fun search(ws: String, dir: String, searchedText: String, h: (TreeNode) -> Unit)
+
+    @Throws(SDKException::class)
+    fun copy(ws: String, files: Array<String>, folder: String)
+
+    @Throws(SDKException::class)
+    fun move(ws: String, files: Array<String>, dstFolder: String)
+
+    @Throws(SDKException::class)
+    fun rename(ws: String, srcFile: String, newName: String)
+
+    @Throws(SDKException::class)
+    fun restore(ws: String, nodes: List<TreeNode>?)
+
+    @Throws(SDKException::class)
+    fun emptyRecycleBin(ws: String)
+
+    @Throws(SDKException::class)
+    fun bookmark(slug: String, file: String, isBookmarked: Boolean)
+
+    @Throws(SDKException::class)
+    fun bookmark(ws: String, file: String)
+
+    @Throws(SDKException::class)
+    fun unbookmark(ws: String, file: String)
+
+    @Throws(SDKException::class)
+    fun getBookmarks(h: (TreeNode) -> Unit)
+
+    @Throws(SDKException::class)
+    fun share(
+        workspace: String,
+        file: String,
+        wsLabel: String,
+        wsDesc: String,
+        password: String,
+        canPreview: Boolean,
+        canDownload: Boolean
+    ): String
+
+    @Throws(SDKException::class)
+    fun share(
+        workspace: String,
+        file: String,
+        wsLabel: String,
+        isFolder: Boolean,
+        wsDescription: String,
+        password: String,
+        expiration: Int,
+        download: Int,
+        canPreview: Boolean,
+        canDownload: Boolean
+    ): String
+
+
+    fun unshare(workspace: String, shareUuid: String)
+    fun getShareAddress(ws: String, shareID: String): String
+
+
+            //    /**
 //     * Temporary test before cleaning this part of the code
 //     * while testing both P8 and Cells
 //     */

@@ -1,5 +1,6 @@
 package org.sinou.pydia.sdk.api
 
+import org.sinou.pydia.openapi.infrastructure.ClientException
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.sdk.api.ErrorCodes.Companion.toMessage
 import java.io.IOException
@@ -97,6 +98,10 @@ open class SDKException : Exception {
 //                    cause
 //                )
 //            }
+        }
+
+        fun fromClientException(cause: ClientException): SDKException {
+            return SDKException(cause.statusCode, "Unexpected Client Exception", cause)
         }
 
         /* Boiler plate shortcuts */

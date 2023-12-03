@@ -85,5 +85,8 @@ interface SdkNames {
 
         const val NODE_PROPERTY_UID = "uuid"
         const val NODE_PROPERTY_SHARE_UUID = "share_uuid"
+
+        var JOB_ID_MOVE = "move"
+        var JOB_ID_COPY = "copy"
     }
 }

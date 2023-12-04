@@ -43,38 +43,54 @@ class NodeActionsVM(
     // Fire and forget in viewModelScope
     fun createFolder(parentID: StateID, name: String) {
         viewModelScope.launch {
-            TODO("Re-implement")
-//            val errMsg = nodeService.createFolder(parentID, name)
-//            localDone(errMsg, "Could not create folder $name at $parentID")
+            try {
+                nodeService.createFolder(parentID, name)
+            } catch (e: SDKException) {
+                localDone("#${e.code} - ${e.message}", "Could not create folder $name node at $parentID")
+                return@launch
+            }
+            done()
         }
     }
 
     fun rename(srcID: StateID, name: String) {
         viewModelScope.launch {
-            TODO("Re-implement")
-//            val errMsg = nodeService.rename(srcID, name)
-//            localDone(errMsg, "Could not rename $srcID to $name")
+            try {
+                nodeService.rename(srcID, name)
+            } catch (e: SDKException) {
+                localDone("#${e.code} - ${e.message}", "Could not rename $srcID to $name")
+                return@launch
+            }
+            done()
         }
     }
 
     fun copyTo(stateID: StateID, targetParentID: StateID) {
-        coroutineService.cellsIoScope.launch {
-            TODO("Re-implement")
-//            val errMsg = nodeService.copy(listOf(stateID), targetParentID)
-//            localDone(errMsg, "Could not copy node $stateID to $targetParentID")
+        viewModelScope.launch {
+            try {
+                nodeService.copy(listOf(stateID), targetParentID)
+            } catch (e: SDKException) {
+                localDone("#${e.code} - ${e.message}", "Could not copy node $stateID to $targetParentID")
+                return@launch
+            }
+            done()
         }
     }
 
     fun moveTo(stateID: StateID, targetParentID: StateID) {
-        coroutineService.cellsIoScope.launch {
-            TODO("Re-implement")
-//            val errMsg = nodeService.move(listOf(stateID), targetParentID)
-//            localDone(errMsg, "Could not move node [$stateID] to [$targetParentID]")
+        viewModelScope.launch {
+            try {
+                nodeService.move(listOf(stateID), targetParentID)
+            } catch (e: SDKException) {
+                localDone("#${e.code} - ${e.message}", "Could not move node [$stateID] to [$targetParentID]")
+                return@launch
+            }
+            done()
         }
     }
 
     fun delete(stateIDs: Set<StateID>) {
-        coroutineService.cellsIoScope.launch {
+        viewModelScope.launch {
             for (stateID in stateIDs) {
                 try {
                     nodeService.delete(stateID)
@@ -88,7 +104,7 @@ class NodeActionsVM(
     }
 
     fun delete(stateID: StateID) {
-        coroutineService.cellsIoScope.launch {
+        viewModelScope.launch {
             try {
                 nodeService.delete(stateID)
             } catch (e: SDKException) {
@@ -99,9 +115,8 @@ class NodeActionsVM(
         }
     }
 
-
     fun emptyRecycle(stateID: StateID) {
-        coroutineService.cellsIoScope.launch {
+        viewModelScope.launch {
             try {
                 nodeService.delete(stateID)
             } catch (e: SDKException) {
@@ -113,7 +128,7 @@ class NodeActionsVM(
     }
 
     fun restoreFromTrash(stateID: StateID) {
-        coroutineService.cellsIoScope.launch {
+        viewModelScope.launch {
             try {
                 nodeService.restoreNode(stateID)
             } catch (e: SDKException) {
@@ -125,7 +140,7 @@ class NodeActionsVM(
     }
 
     fun restoreFromTrash(stateIDs: Set<StateID>) {
-        coroutineService.cellsIoScope.launch {
+        viewModelScope.launch {
             for (stateID in stateIDs) {
                 try {
                     nodeService.restoreNode(stateID)
@@ -139,7 +154,7 @@ class NodeActionsVM(
     }
 
     fun download(stateID: StateID, uri: Uri) {
-        coroutineService.cellsIoScope.launch {
+        viewModelScope.launch {
             try {
                 transferService.saveToSharedStorage(stateID, uri)
                 done()
@@ -150,8 +165,7 @@ class NodeActionsVM(
     }
 
     fun downloadMultiple(stateIDs: Set<StateID>, uri: Uri) {
-        coroutineService.cellsIoScope.launch {
-
+        viewModelScope.launch {
             var ok = true
             for (stateID in stateIDs) {
                 try {
@@ -173,7 +187,7 @@ class NodeActionsVM(
     }
 
     fun importFiles(stateID: StateID, uris: List<Uri>) {
-        coroutineService.cellsIoScope.launch {
+        viewModelScope.launch {
             try {
                 for (uri in uris) {
                     if (this.isActive) {
@@ -190,7 +204,7 @@ class NodeActionsVM(
     private var _targetForPhoto: Pair<StateID, Uri>? = null
 
     suspend fun preparePhoto(context: Context, parentID: StateID): Uri? =
-        withContext(Dispatchers.IO) {
+        withContext(coroutineService.ioDispatcher) {
             val photoFile: File? = try {
                 fileService.createImageFile(parentID)
             } catch (ex: IOException) {
@@ -267,7 +281,7 @@ class NodeActionsVM(
     }
 
     fun removeShare(stateID: StateID) {
-        coroutineService.cellsIoScope.launch {
+        viewModelScope.launch {
             nodeService.removeShare(stateID)
         }
     }

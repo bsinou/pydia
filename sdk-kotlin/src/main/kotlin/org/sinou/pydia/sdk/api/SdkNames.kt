@@ -31,9 +31,9 @@ interface SdkNames {
         const val WS_XML_KEY_ACL = "acl"
         const val WS_XML_KEY_LABEL = "label"
         const val WS_XML_KEY_DESC = "description"
-        const val WS_XML_KEY_OWNER ="owner"
-        const val WS_XML_KEY_CROSS_COPY ="allowCrossRepositoryCopy"
-        const val WS_XML_KEY_META_SYNC ="meta_syncable_REPO_SYNCABLE"
+        const val WS_XML_KEY_OWNER = "owner"
+        const val WS_XML_KEY_CROSS_COPY = "allowCrossRepositoryCopy"
+        const val WS_XML_KEY_META_SYNC = "meta_syncable_REPO_SYNCABLE"
 
         // The Registry also list technical pages together with the workspaces, we must manually ignore them
         private const val WORKSPACE_DIRECTORY = "directory"
@@ -86,7 +86,9 @@ interface SdkNames {
         const val NODE_PROPERTY_UID = "uuid"
         const val NODE_PROPERTY_SHARE_UUID = "share_uuid"
 
-        var JOB_ID_MOVE = "move"
-        var JOB_ID_COPY = "copy"
+        const val JOB_ID_MOVE = "move"
+        const val JOB_ID_COPY = "copy"
+        const val SHARE_TEMPLATE_FOLDER_LIST = "pydio_shared_folder"
+        const val SHARE_TEMPLATE_GALLERY = "pydio_unique_strip"
     }
 }

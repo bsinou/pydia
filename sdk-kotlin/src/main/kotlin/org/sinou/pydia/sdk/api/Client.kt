@@ -105,7 +105,7 @@ interface Client {
         file: String,
         wsLabel: String,
         wsDesc: String,
-        password: String,
+        password: String?,
         canPreview: Boolean,
         canDownload: Boolean
     ): String
@@ -117,7 +117,7 @@ interface Client {
         wsLabel: String,
         isFolder: Boolean,
         wsDescription: String,
-        password: String,
+        password: String?,
         expiration: Int,
         download: Int,
         canPreview: Boolean,

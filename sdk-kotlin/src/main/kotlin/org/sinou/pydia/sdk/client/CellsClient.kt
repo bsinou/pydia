@@ -858,7 +858,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         wsLabel: String,
         isFolder: Boolean,
         wsDescription: String,
-        password: String,
+        password: String?,
         expiration: Int,
         download: Int,
         canPreview: Boolean,
@@ -905,59 +905,52 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         file: String,
         wsLabel: String,
         wsDesc: String,
-        password: String,
+        password: String?,
         canPreview: Boolean,
         canDownload: Boolean
     ): String {
-        TODO("implement")
-        return "do it"
-//        val targetRemote = statNode(CellsPath.fullPath(workspace, file))
-//            ?: throw SDKException("Cannot share node $workspace/$file: it has disappeared on remote")
-//        val request = RestPutShareLinkRequest()
-//        val hasPwd = !password.isNullOrEmpty()
-//        if (hasPwd) {
-//            request.setCreatePassword(password)
-//            request.setPasswordEnabled(true)
-//        }
-//        val shareLink = RestShareLink(
-//            policiesContextEditable = true,
-//            permissions = permissions,
-//            rootNodes = listOf(n),
-//            description = wsDesc,
-//            label = wsLabel,
-//            viewTemplateName = "pydio_unique_strip"
-//        )
-//
-//        var meta: Map<String?, String>? = targetRemote.metaStore
-//        if (meta == null) {
-//            meta = HashMap()
-//        }
-//        if ("true" == meta["is_image"]) {
-//            shareLink.setViewTemplateName(CellsNames.SHARE_TEMPLATE_GALLERY)
-//        } else {
-//            shareLink.setViewTemplateName(CellsNames.SHARE_TEMPLATE_FOLDER_LIST)
-//        }
-//        val n = TreeNode()
-//        n.setUuid(getNodeUuid(workspace, file))
-//        val rootNodes: MutableList<TreeNode> = ArrayList()
-//        rootNodes.add(n)
-//        shareLink.setRootNodes(rootNodes)
-//        val permissions: MutableList<RestShareLinkAccessType> = ArrayList()
-//        if (canPreview) {
-//            permissions.add(RestShareLinkAccessType.PREVIEW)
-//        }
-//        if (canDownload) {
-//            permissions.add(RestShareLinkAccessType.DOWNLOAD)
-//        }
-//        shareLink.setPermissions(permissions)
-//        request.setShareLink(shareLink)
-//        val api = ShareServiceApi(authenticatedClient())
-//        return try {
-//            val (_, _, _, _, _, _, linkUrl) = api.putShareLink(request)
-//            transport.server.url() + linkUrl
-//        } catch (e: ApiException) {
-//            throw SDKException.fromApiException(e)
-//        }
+
+        val targetRemote = statNode(CellsPath.fullPath(workspace, file))
+            ?: throw SDKException("Cannot share node $workspace/$file: it has disappeared on remote")
+        val meta: Map<String, String> = targetRemote.metaStore ?: HashMap()
+        val templateName = if ("true" == meta["is_image"]) {
+            SdkNames.SHARE_TEMPLATE_GALLERY
+        } else {
+            SdkNames.SHARE_TEMPLATE_FOLDER_LIST
+        }
+        val permissions: MutableList<RestShareLinkAccessType> = ArrayList()
+        if (canPreview) {
+            permissions.add(RestShareLinkAccessType.preview)
+        }
+        if (canDownload) {
+            permissions.add(RestShareLinkAccessType.download)
+        }
+
+        val n = TreeNode(
+            uuid =getNodeUuid(workspace, file)
+        )
+        val shareLink = RestShareLink(
+            policiesContextEditable = true,
+            permissions = permissions,
+            rootNodes = listOf(n),
+            description = wsDesc,
+            label = wsLabel,
+            viewTemplateName = "pydio_unique_strip"
+        )
+
+        val hasPwd = !password.isNullOrEmpty()
+        val request = RestPutShareLinkRequest(
+                createPassword =  if (hasPwd) password else null,
+                passwordEnabled = hasPwd,
+                shareLink = shareLink
+            )
+
+        return try {
+            val (_, _, _, _, _, _, linkUrl) = shareServiceApi().putShareLink(request)
+            transport.server.url() + linkUrl
+        } catch (e: ClientException) {
+            throw SDKException.fromClientException(e)
+        }
     }
 
     @Throws(SDKException::class)

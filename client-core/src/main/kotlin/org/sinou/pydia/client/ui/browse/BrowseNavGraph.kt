@@ -150,8 +150,7 @@ fun NavGraphBuilder.browseNavGraph(
             Log.e(logTag, "Cannot open Transfers with no ID")
             back()
         } else {
-            val transfersVM: TransfersVM =
-                koinViewModel(parameters = { parametersOf(stateID) })
+            val transfersVM: TransfersVM = koinViewModel(parameters = { parametersOf(stateID) })
             val helper = BrowseHelper(navController, transfersVM)
             Transfers(
                 isExpandedScreen = isExpandedScreen,

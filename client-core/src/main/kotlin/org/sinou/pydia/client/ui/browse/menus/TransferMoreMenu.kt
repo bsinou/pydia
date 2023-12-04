@@ -8,9 +8,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
+import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.JobStatus
-import org.sinou.pydia.client.R
 import org.sinou.pydia.client.ui.browse.models.SingleTransferVM
 import org.sinou.pydia.client.ui.core.composables.menus.BottomSheetContent
 import org.sinou.pydia.client.ui.core.composables.menus.BottomSheetHeader
@@ -19,8 +21,6 @@ import org.sinou.pydia.client.ui.core.composables.modal.ModalBottomSheetState
 import org.sinou.pydia.client.ui.share.composables.buildStatusString
 import org.sinou.pydia.client.ui.theme.CellsIcons
 import org.sinou.pydia.sdk.transport.StateID
-import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 // private const val logTag = "TransferMoreMenuData"
 
@@ -43,7 +43,6 @@ class TransferMoreMenuState @OptIn(
 
 @Composable
 fun TransferMoreMenu(
-    isRemoteServerLegacy: Boolean,
     accountID: StateID,
     transferID: Long,
     onClick: (String, Long) -> Unit
@@ -55,7 +54,7 @@ fun TransferMoreMenu(
     liveItem.value?.let { item ->
         val simpleMenuItems: MutableList<SimpleMenuItem> = mutableListOf()
 
-        if (JobStatus.PROCESSING.id == item.status && !isRemoteServerLegacy) {
+        if (JobStatus.PROCESSING.id == item.status) {
             simpleMenuItems.add(
                 SimpleMenuItem(
                     CellsIcons.Pause,

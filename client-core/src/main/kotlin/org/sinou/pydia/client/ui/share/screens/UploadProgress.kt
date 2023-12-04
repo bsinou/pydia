@@ -23,9 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import kotlinx.coroutines.launch
+import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.JobStatus
-import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.db.runtime.RJob
 import org.sinou.pydia.client.ui.core.composables.DefaultTopBar
@@ -35,9 +36,8 @@ import org.sinou.pydia.client.ui.core.composables.modal.rememberModalBottomSheet
 import org.sinou.pydia.client.ui.share.composables.TransferBottomSheet
 import org.sinou.pydia.client.ui.share.composables.TransferListItem
 import org.sinou.pydia.client.ui.share.models.MonitorUploadsVM
-import kotlinx.coroutines.launch
 
-private const val logTag = "UploadProgressList"
+private const val LOG_TAG = "UploadProgressList"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +54,7 @@ fun UploadProgressList(
     val currTransfers = uploadsVM.currRecords.collectAsState(listOf())
 
     UploadProgressList(
-        isExpandedScreen =isExpandedScreen ,
+        isExpandedScreen = isExpandedScreen,
         uploadsVM = uploadsVM,
         openParentLocation = openParentLocation,
         currJob = currJob.value,
@@ -104,7 +104,7 @@ fun UploadProgressList(
     val openMenu: (Long) -> Unit = { transferId ->
         scope.launch {
             val currTransfer = uploadsVM.get(transferId) ?: run {
-                Log.e(logTag, "No transfer found with ID $transferId, aborting")
+                Log.e(LOG_TAG, "No transfer found with ID $transferId, aborting")
                 return@launch
             }
             transferState.value = currTransfer
@@ -138,13 +138,12 @@ fun UploadProgressList(
     }
 
     ModalBottomSheetLayout(
-        isExpandedScreen =isExpandedScreen ,
+        isExpandedScreen = isExpandedScreen,
         sheetContent = { TransferBottomSheet(transferState.value, doAction) },
         modifier = Modifier,
         sheetState = state,
     ) {
         WithScaffold(
-            isRemoteServerLegacy = uploadsVM.isRemoteLegacy,
             jobStatus = jobStatus.value,
             uploads = uploads,
             runInBackground = runInBackground,
@@ -159,10 +158,8 @@ fun UploadProgressList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WithScaffold(
-    isRemoteServerLegacy: Boolean,
     jobStatus: JobStatus,
     uploads: List<RTransfer>,
     runInBackground: () -> Unit,
@@ -185,7 +182,6 @@ private fun WithScaffold(
         },
     ) { innerPadding ->
         UploadList(
-            isRemoteServerLegacy,
             jobStatus,
             uploads = uploads,
             runInBackground = runInBackground,
@@ -202,7 +198,6 @@ private fun WithScaffold(
 
 @Composable
 fun UploadList(
-    isRemoteServerLegacy: Boolean,
     jobStatus: JobStatus,
     uploads: List<RTransfer>,
     runInBackground: () -> Unit,
@@ -222,7 +217,6 @@ fun UploadList(
         ) {
             items(uploads) { upload ->
                 TransferListItem(
-                    isRemoteServerLegacy,
                     upload,
                     pause = { pauseOne(upload.transferId) },
                     cancel = { cancelOne(upload.transferId) },

@@ -16,7 +16,6 @@ import org.sinou.pydia.sdk.transport.StateID
 
 /** Holds a list of recent file transfers for current session */
 class TransfersVM(
-    legacy: Boolean,
     private val accountID: StateID,
     private val transferService: TransferService,
 ) : AbstractCellsVM() {
@@ -31,7 +30,6 @@ class TransfersVM(
         cellsPreferences.list.transferFilter
     }
 
-    val isRemoteServerLegacy = legacy
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val transfers: Flow<List<RTransfer>> =
@@ -49,15 +47,11 @@ class TransfersVM(
     fun pauseOne(transferID: Long) {
         viewModelScope.launch {
             try {
-                if (isRemoteServerLegacy) {
-                    error("Cannot pause transfer when remote server is Pydio 8")
-                } else {
-                    transferService.pauseTransfer(
-                        accountID,
-                        transferID,
-                        AppNames.JOB_OWNER_USER
-                    )
-                }
+                transferService.pauseTransfer(
+                    accountID,
+                    transferID,
+                    AppNames.JOB_OWNER_USER
+                )
             } catch (e: Exception) {
                 done(e)
             }
@@ -67,11 +61,7 @@ class TransfersVM(
     fun resumeOne(transferID: Long) {
         viewModelScope.launch {
             try {
-                if (isRemoteServerLegacy) {
-                    error("Cannot resume transfer when remote server is Pydio 8")
-                } else {
-                    transferService.resumeTransfer(accountID, transferID)
-                }
+                transferService.resumeTransfer(accountID, transferID)
             } catch (e: Exception) {
                 done(e)
             }
@@ -97,7 +87,7 @@ class TransfersVM(
         Log.i(logTag, "About to delete $transferID @ $accountID")
         viewModelScope.launch {
             try {
-                transferService.forgetTransfer(accountID, transferID, isRemoteServerLegacy)
+                transferService.forgetTransfer(accountID, transferID)
             } catch (e: Exception) {
                 done(e)
             }

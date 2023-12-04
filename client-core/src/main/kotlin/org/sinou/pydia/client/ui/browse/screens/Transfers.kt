@@ -33,12 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.JobStatus
 import org.sinou.pydia.client.core.ListContext
 import org.sinou.pydia.client.core.ListType
 import org.sinou.pydia.client.core.LoadingState
-import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.BrowseHelper
@@ -56,7 +57,6 @@ import org.sinou.pydia.client.ui.core.composables.modal.rememberModalBottomSheet
 import org.sinou.pydia.client.ui.share.composables.TransferListItem
 import org.sinou.pydia.client.ui.theme.CellsIcons
 import org.sinou.pydia.sdk.transport.StateID
-import kotlinx.coroutines.launch
 
 private const val LOG_TAG = "Transfers.kt"
 
@@ -78,7 +78,6 @@ fun Transfers(
         isExpandedScreen = isExpandedScreen,
         connectionState = connectionState.value,
         forceRefresh = transfersVM::forceRefresh,
-        isRemoteLegacy = transfersVM.isRemoteServerLegacy,
         accountID = accountID,
         currFilter = currFilter.value,
         transfers = currTransfers.value,
@@ -99,7 +98,6 @@ private fun WithState(
     connectionState: ConnectionState,
     forceRefresh: () -> Unit,
     currFilter: String,
-    isRemoteLegacy: Boolean,
     accountID: StateID,
     transfers: List<RTransfer>,
     transfersVM: TransfersVM,
@@ -178,7 +176,6 @@ private fun WithState(
         connectionState = connectionState,
         forceRefresh = forceRefresh,
         currFilter = currFilter,
-        isRemoteLegacy = isRemoteLegacy,
         accountID = accountID,
         transfers = transfers,
         moreMenuState = TransferMoreMenuState(
@@ -201,7 +198,6 @@ private fun WithBottomSheet(
     connectionState: ConnectionState,
     forceRefresh: () -> Unit,
     currFilter: String,
-    isRemoteLegacy: Boolean,
     accountID: StateID,
     transfers: List<RTransfer>,
     moreMenuState: TransferMoreMenuState,
@@ -227,7 +223,6 @@ private fun WithBottomSheet(
 
                 TransferMoreMenuType.MORE -> {
                     TransferMoreMenu(
-                        isRemoteServerLegacy = isRemoteLegacy,
                         accountID = accountID,
                         transferID = moreMenuState.transferID,
                         onClick = { action, transferID ->
@@ -251,7 +246,6 @@ private fun WithBottomSheet(
             isExpandedScreen = isExpandedScreen,
             forceRefresh = forceRefresh,
             currFilter = currFilter,
-            isRemoteLegacy = isRemoteLegacy,
             transfers = transfers,
             doAction = doAction,
             openDrawer = openDrawer,
@@ -269,7 +263,6 @@ private fun WithScaffold(
     forceRefresh: () -> Unit,
     doAction: (String, Long) -> Unit,
     currFilter: String,
-    isRemoteLegacy: Boolean,
     transfers: List<RTransfer>,
     moreMenuState: TransferMoreMenuState,
     openDrawer: () -> Unit,
@@ -341,7 +334,6 @@ private fun WithScaffold(
         modifier = modifier
     ) { innerPadding ->
         TransferList(
-            isRemoteLegacy,
             connectionState,
             forceRefresh,
             currFilter,
@@ -355,7 +347,6 @@ private fun WithScaffold(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun TransferList(
-    isRemoteLegacy: Boolean,
     connectionState: ConnectionState,
     forceRefresh: () -> Unit,
     currFilter: String,
@@ -392,7 +383,6 @@ private fun TransferList(
             ) {
                 items(transfers, key = { it.transferId }) { transfer ->
                     TransferListItem(
-                        isRemoteLegacy,
                         transfer,
                         pause = { doAction(AppNames.ACTION_PAUSE, transfer.transferId) },
                         cancel = { doAction(AppNames.ACTION_CANCEL, transfer.transferId) },

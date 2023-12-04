@@ -28,9 +28,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.JobStatus
-import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.ui.core.composables.Decorated
 import org.sinou.pydia.client.ui.core.composables.Type
@@ -43,7 +43,6 @@ import org.sinou.pydia.sdk.utils.Str
 
 @Composable
 fun TransferListItem(
-    isRemoteLegacy: Boolean,
     item: RTransfer,
     pause: () -> Unit,
     cancel: () -> Unit,
@@ -62,7 +61,6 @@ fun TransferListItem(
     val fName = item.getStateID()?.fileName ?: run { "Processing..." }
 
     TransferListItem(
-        isRemoteLegacy = isRemoteLegacy,
         type = item.type,
         status = item.status ?: JobStatus.NEW.id,
         title = fName,
@@ -99,7 +97,6 @@ fun isDone(item: RTransfer): Boolean {
 
 @Composable
 private fun TransferListItem(
-    isRemoteLegacy: Boolean,
     type: String,
     status: String,
     title: String,
@@ -172,13 +169,8 @@ private fun TransferListItem(
 
         when (status) {
             JobStatus.PROCESSING.id -> {
-                if (isRemoteLegacy) {
-                    btnVectorImg = CellsIcons.Cancel
-                    btnModifier = Modifier.clickable { cancel() }
-                } else {
-                    btnVectorImg = CellsIcons.Pause
-                    btnModifier = Modifier.clickable { pause() }
-                }
+                btnVectorImg = CellsIcons.Pause
+                btnModifier = Modifier.clickable { pause() }
             }
 
             JobStatus.PAUSED.id -> {
@@ -198,13 +190,8 @@ private fun TransferListItem(
             }
 
             else -> {
-                if (isRemoteLegacy) {
-                    btnVectorImg = CellsIcons.Cancel
-                    btnModifier = Modifier.clickable { cancel() }
-                } else {
-                    btnVectorImg = CellsIcons.Pause
-                    btnModifier = Modifier.clickable { pause() }
-                }
+                btnVectorImg = CellsIcons.Pause
+                btnModifier = Modifier.clickable { pause() }
             }
         }
 
@@ -304,7 +291,7 @@ private fun TransferListItemPreview() {
     )
 
     UseCellsTheme {
-        TransferListItem(false, dummyTransfer, { }, { }, { }, { }, { }, Modifier)
+        TransferListItem(dummyTransfer, { }, { }, { }, { }, { }, Modifier)
     }
 }
 
@@ -329,7 +316,6 @@ private fun TransferListItemNightPreview() {
 
     UseCellsTheme {
         TransferListItem(
-            isRemoteLegacy = false,
             type = AppNames.TRANSFER_TYPE_UPLOAD,
             status = JobStatus.PROCESSING.id,
             title = "Title",

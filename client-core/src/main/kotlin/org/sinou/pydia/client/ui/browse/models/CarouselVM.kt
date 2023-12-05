@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
-import org.sinou.pydia.client.ui.core.AbstractCellsVM
 import org.sinou.pydia.client.core.util.isPreViewable
+import org.sinou.pydia.client.ui.core.AbstractCellsVM
 import org.sinou.pydia.sdk.transport.StateID
 
 /** Hold the state for the carousel component */
@@ -21,14 +21,9 @@ class CarouselVM(
 
     // Observe current folder children
     @OptIn(ExperimentalCoroutinesApi::class)
-    val allOrdered: Flow<List<RTreeNode>> = defaultOrderPair.flatMapLatest { currPair ->
+    val allOrdered: Flow<List<RTreeNode>> = defaultOrderPair.flatMapLatest { (orderBy, direction) ->
         try {
-            nodeService.listLiveChildren(
-                initialStateID.parent(),
-                "",
-                currPair.first,
-                currPair.second
-            )
+            nodeService.listLiveChildren(initialStateID.parent(), "", orderBy, direction)
         } catch (e: Exception) {
             // This should never happen but it has been seen in prod
             // Adding a failsafe to avoid crash

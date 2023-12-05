@@ -11,6 +11,7 @@ import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.services.AuthService
+import org.sinou.pydia.client.ui.browse.composables.NodeAction
 import org.sinou.pydia.sdk.transport.StateID
 import org.sinou.pydia.sdk.utils.Str
 import java.net.URLDecoder
@@ -30,11 +31,22 @@ fun getMessageFromLocalModifStatus(status: String): String? {
     }
 }
 
+/* Helpers for navigation */
+
 fun getFloatResource(context: Context, @DimenRes id: Int): Float {
     val outValue = TypedValue()
     context.resources.getValue(id, outValue, true)
     return outValue.float
 }
+
+fun actionRoute(action: NodeAction, stateID: StateID): String {
+    return "${action.id}/${encodeStateForRoute(stateID)}"
+}
+
+fun actionRouteTemplate(action: NodeAction): String {
+    return "${action.id}/{${AppKeys.STATE_ID}}"
+}
+
 
 fun encodeStateForRoute(stateID: StateID): String {
     return URLEncoder.encode(stateID.id, "UTF-8")

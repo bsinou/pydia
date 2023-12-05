@@ -8,14 +8,11 @@ import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,7 +31,10 @@ import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.services.models.ConnectionState
+import org.sinou.pydia.client.core.util.showMessage
 import org.sinou.pydia.client.ui.browse.models.NodeActionsVM
+import org.sinou.pydia.client.ui.core.actionRoute
+import org.sinou.pydia.client.ui.core.actionRouteTemplate
 import org.sinou.pydia.client.ui.core.composables.menus.CellsModalBottomSheetLayout
 import org.sinou.pydia.client.ui.core.composables.modal.ModalBottomSheetState
 import org.sinou.pydia.client.ui.core.encodeStateForRoute
@@ -42,18 +42,12 @@ import org.sinou.pydia.client.ui.core.encodeStateSetForRoute
 import org.sinou.pydia.client.ui.core.lazyStateID
 import org.sinou.pydia.client.ui.core.lazyStateIDs
 import org.sinou.pydia.client.ui.models.BrowseRemoteVM
-import org.sinou.pydia.client.ui.models.toErrorMessage
 import org.sinou.pydia.client.ui.share.models.ShareVM
 import org.sinou.pydia.client.ui.share.screens.SelectFolderScreen
-import org.sinou.pydia.client.core.util.showMessage
 import org.sinou.pydia.sdk.transport.StateID
 
 private const val LOG_TAG = "NodeWithActions.kt"
-private const val FOLDER_MAIN_CONTENT = "folder-main-content"
-
-private fun route(action: NodeAction): String {
-    return "${action.id}/{${AppKeys.STATE_ID}}"
-}
+private const val MAIN_CONTENT = "folder-main-content"
 
 private fun routeMulti(action: NodeAction): String {
     return "${action.id}/{${AppKeys.STATE_IDS}}"
@@ -70,35 +64,6 @@ fun WrapWithActions(
     subjectIDs: Set<StateID>,
     sheetState: ModalBottomSheetState,
     snackBarHostState: SnackbarHostState,
-    content: @Composable () -> Unit,
-) {
-    LaunchedEffect(key1 = subjectIDs.toString()) {
-        Log.d(LOG_TAG, "## Recomposing Wrap with actions for $subjectIDs")
-    }
-
-    FolderWithDialogs(
-        actionDone = actionDone,
-        isExpandedScreen = isExpandedScreen,
-        connectionState = connectionState,
-        type = type,
-        subjectIDs = subjectIDs,
-        sheetState = sheetState,
-        snackBarHostState = snackBarHostState,
-        content = content
-    )
-}
-
-/** Add the more menu **/
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun FolderWithDialogs(
-    actionDone: (Boolean, Boolean) -> Unit,
-    isExpandedScreen: Boolean,
-    connectionState: ConnectionState,
-    type: NodeMoreMenuType,
-    subjectIDs: Set<StateID>,
-    sheetState: ModalBottomSheetState,
-    snackBarHostState: SnackbarHostState,
     nodeActionsVM: NodeActionsVM = koinViewModel(),
     browseRemoteVM: BrowseRemoteVM = koinViewModel(),
     content: @Composable () -> Unit,
@@ -110,31 +75,31 @@ private fun FolderWithDialogs(
         mutableStateOf(null)
     }
 
-    val errMsg = nodeActionsVM.errorMessage.collectAsState(null)
-
-    errMsg.value?.let {
-        LaunchedEffect(key1 = it) {
-            // TODO finalise this
-            val snackBarResult = snackBarHostState.showSnackbar(
-                message = toErrorMessage(context, it),
-                withDismissAction = false,
-                duration = SnackbarDuration.Short
-            )
-            when (snackBarResult) {
-                SnackbarResult.ActionPerformed -> {
-                    Log.e(LOG_TAG, "Action Performed for err: $it")
-                }
-
-                else -> {
-                    Log.e(LOG_TAG, "Snack-bar dismissed for err: $it")
-                }
-            }
-        }
-    }
+//    val errMsg = nodeActionsVM.errorMessage.collectAsState(null)
+//
+//    errMsg.value?.let {
+//        LaunchedEffect(key1 = it) {
+//            // TODO finalise this
+//            val snackBarResult = snackBarHostState.showSnackbar(
+//                message = toErrorMessage(context, it),
+//                withDismissAction = false,
+//                duration = SnackbarDuration.Short
+//            )
+//            when (snackBarResult) {
+//                SnackbarResult.ActionPerformed -> {
+//                    Log.e(LOG_TAG, "Action Performed for err: $it")
+//                }
+//
+//                else -> {
+//                    Log.e(LOG_TAG, "Snack-bar dismissed for err: $it")
+//                }
+//            }
+//        }
+//    }
 
     // This introduce a small delay before closing the menu to e.G let the end-user see the toggle animation before closing the bottom menu
     val delayedDone: (Boolean) -> Unit = { done ->
-        navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+        navController.popBackStack(MAIN_CONTENT, false)
         scope.launch {
             delay(400)
             actionDone(done, true)
@@ -142,55 +107,35 @@ private fun FolderWithDialogs(
     }
 
     val closeDialog: (Boolean, Boolean) -> Unit = { done, doRefresh ->
-        navController.popBackStack(FOLDER_MAIN_CONTENT, false)
+        navController.popBackStack(MAIN_CONTENT, false)
         if (done) {
             actionDone(true, doRefresh)
         }
     }
 
-    val launchMulti: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
-        if (stateIDs.size < 2) {
-            Log.e(LOG_TAG, "Cannot launch $action without at least 2 items ")
-            Log.d(LOG_TAG, "Currently we have only ${stateIDs.size}.")
-        } else when (action) {
-
-            is NodeAction.CopyTo -> {
-                currentAction.value = AppNames.ACTION_COPY
-                val suffix = encodeStateForRoute(stateIDs.first().parentFolder())
-                val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
-                navController.navigate(initialRoute)
-            }
-
-            is NodeAction.MoveTo -> {
-                currentAction.value = AppNames.ACTION_MOVE
-                val suffix = encodeStateForRoute(stateIDs.first().parentFolder())
-                val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
-                navController.navigate(initialRoute)
-            }
-
-            // TODO still not working
-            is NodeAction.DownloadMultipleToDevice -> {
-                val suffix = encodeStateSetForRoute(stateIDs)
-                val initialRoute = "${NodeAction.DownloadMultipleToDevice.id}/$suffix"
-                navController.navigate(initialRoute)
-            }
-
-            is NodeAction.Delete, NodeAction.PermanentlyRemove -> {
-                nodeActionsVM.delete(stateIDs)
-                delayedDone(true)
-            }
-
-            is NodeAction.RestoreFromTrash -> {
-                nodeActionsVM.restoreFromTrash(stateIDs)
-                delayedDone(true)
-            }
-
-            is NodeAction.UnSelectAll -> {
-                delayedDone(true)
+    val copyMoveAction: (String, StateID) -> Unit = { action, targetStateID ->
+        Log.i(LOG_TAG, "... Launching $action action for $targetStateID")
+        when (action) {
+            AppNames.ACTION_CANCEL -> {
+                closeDialog(false, false)
+                currentAction.value = null
             }
 
             else -> {
-                Log.e(LOG_TAG, "unexpected action: $action")
+                scope.launch {
+                    for (currID in subjectIDs) {
+                        when (currentAction.value) {
+                            AppNames.ACTION_MOVE -> {
+                                nodeActionsVM.moveTo(currID, targetStateID)
+                            }
+
+                            AppNames.ACTION_COPY -> {
+                                nodeActionsVM.copyTo(currID, targetStateID)
+                            }
+                        }
+                    }
+                }
+                closeDialog(true, true)
             }
         }
     }
@@ -280,40 +225,74 @@ private fun FolderWithDialogs(
                 actionDone(true, false)
             }
 
-            else -> navController.navigate("${action.id}/${encodeStateForRoute(passedStateID)}")
+            else -> {
+                Log.e(
+                    LOG_TAG, "... Un-explicit action, " +
+                            "about to navigate to: [${actionRoute(action, passedStateID)}]"
+                )
+                navController.navigate(actionRoute(action, passedStateID))
+            }
         }
     }
 
-    val copyMoveAction: (String, StateID) -> Unit = { action, targetStateID ->
-        Log.i(LOG_TAG, "... Launching $action action for $targetStateID")
+    val launchMulti: (NodeAction, Set<StateID>) -> Unit = { action, stateIDs ->
+//        if (stateIDs.size < 2) {
+//            Log.e(LOG_TAG, "Cannot launch $action without at least 2 items ")
+//            Log.d(LOG_TAG, "Currently we have only ${stateIDs.size}.")
+//        } else
         when (action) {
-            AppNames.ACTION_CANCEL -> {
-                closeDialog(false, false)
-                currentAction.value = null
+
+            is NodeAction.CopyTo -> {
+                currentAction.value = AppNames.ACTION_COPY
+                val suffix = encodeStateForRoute(stateIDs.first().parentFolder())
+                val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
+                navController.navigate(initialRoute)
+            }
+
+            is NodeAction.MoveTo -> {
+                currentAction.value = AppNames.ACTION_MOVE
+                val suffix = encodeStateForRoute(stateIDs.first().parentFolder())
+                val initialRoute = "${NodeAction.SelectTargetFolder.id}/$suffix"
+                navController.navigate(initialRoute)
+            }
+
+            // TODO still not working
+            is NodeAction.DownloadMultipleToDevice -> {
+                val suffix = encodeStateSetForRoute(stateIDs)
+                val initialRoute = "${NodeAction.DownloadMultipleToDevice.id}/$suffix"
+                navController.navigate(initialRoute)
+            }
+
+            is NodeAction.Delete, NodeAction.PermanentlyRemove -> {
+                nodeActionsVM.delete(stateIDs)
+                delayedDone(true)
+            }
+
+            is NodeAction.RestoreFromTrash -> {
+                nodeActionsVM.restoreFromTrash(stateIDs)
+                delayedDone(true)
+            }
+
+            is NodeAction.UnSelectAll -> {
+                delayedDone(true)
+            }
+
+            is NodeAction.ToggleBookmark -> {
+                for (stateID in stateIDs) {
+                    nodeActionsVM.removeBookmark(stateID)
+                }
+                delayedDone(true)
             }
 
             else -> {
-                scope.launch {
-                    for (currID in subjectIDs) {
-                        when (currentAction.value) {
-                            AppNames.ACTION_MOVE -> {
-                                nodeActionsVM.moveTo(currID, targetStateID)
-                            }
-
-                            AppNames.ACTION_COPY -> {
-                                nodeActionsVM.copyTo(currID, targetStateID)
-                            }
-                        }
-                    }
-                }
-                closeDialog(true, true)
+                Log.e(LOG_TAG, "unexpected action: $action")
             }
         }
     }
 
-    NavHost(navController, FOLDER_MAIN_CONTENT) {
+    NavHost(navController, MAIN_CONTENT) {
 
-        composable(FOLDER_MAIN_CONTENT) {  // Fills the area provided to the NavHost
+        composable(MAIN_CONTENT) {  // Fills the area provided to the NavHost
             CellsModalBottomSheetLayout(
                 isExpandedScreen = isExpandedScreen,
 
@@ -341,7 +320,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        composable(route(NodeAction.SelectTargetFolder)) { nbsEntry ->
+        composable(actionRouteTemplate(NodeAction.SelectTargetFolder)) { nbsEntry ->
             val stateID = lazyStateID(nbsEntry)
             if (stateID == StateID.NONE) {
                 Log.e(LOG_TAG, "... cannot navigate with no state ID")
@@ -393,7 +372,7 @@ private fun FolderWithDialogs(
             }
         }
 
-        dialog(route(NodeAction.Rename)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.Rename)) { entry ->
             val stateID = lazyStateID(entry)
             if (stateID == StateID.NONE) {
                 Log.e(LOG_TAG, "... cannot navigate with no state ID")
@@ -406,7 +385,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.ShowQRCode)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.ShowQRCode)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... ShowQRCode with no ID - Abort")
@@ -419,7 +398,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.Delete)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.Delete)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... Delete with no ID - Abort")
@@ -431,7 +410,7 @@ private fun FolderWithDialogs(
             ) { closeDialog(it, it) }
         }
 
-        dialog(route(NodeAction.PermanentlyRemove)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.PermanentlyRemove)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... PermanentlyRemove with no ID")
@@ -443,7 +422,7 @@ private fun FolderWithDialogs(
             ) { closeDialog(it, it) }
         }
 
-        dialog(route(NodeAction.EmptyRecycle)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.EmptyRecycle)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... EmptyRecycle with no ID")
@@ -455,7 +434,7 @@ private fun FolderWithDialogs(
             ) { closeDialog(it, it) }
         }
 
-        dialog(route(NodeAction.CreateFolder)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.CreateFolder)) { entry ->
             val currID = lazyStateID(entry)
             if (currID == StateID.NONE) {
                 Log.w(LOG_TAG, "... CreateFolder with no ID")
@@ -468,7 +447,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.DownloadToDevice)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.DownloadToDevice)) { entry ->
             val stateID = lazyStateID(entry)
             if (stateID == StateID.NONE) {
                 Log.w(LOG_TAG, "... CreateFolder with no ID")
@@ -494,7 +473,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.ImportFile)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.ImportFile)) { entry ->
             val stateID = lazyStateID(entry)
             ImportFile(
                 nodeActionsVM,
@@ -503,7 +482,7 @@ private fun FolderWithDialogs(
             )
         }
 
-        dialog(route(NodeAction.TakePicture)) { entry ->
+        dialog(actionRouteTemplate(NodeAction.TakePicture)) { entry ->
             val stateID = lazyStateID(entry)
             TakePicture(
                 nodeActionsVM,

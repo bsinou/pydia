@@ -162,9 +162,10 @@ class PollService(
 //    }
 
     private fun setActive(active: Boolean) {
-        if (!active) {
-            Log.e(logTag, "#### Setting _isActive to false !!")
-        }
+//        if (!active) {
+//            Log.e(logTag, "#### Setting _isActive to false !!")
+//        }
+        Log.w(logTag, "#### Setting _isActive to $active")
         _isActive = active
     }
 

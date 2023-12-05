@@ -204,22 +204,18 @@ class S3TransferService(
         }
 
     private fun getS3Client(transport: CellsTransport, accountID: StateID): AmazonS3Client {
-
-        Log.e(logTag, "Trying to force load: ${CellsSigner.CELLS_SIGNER_ID}")
-        // val tmpSignerID = CellsSigner.CELLS_SIGNER_ID
-        val tmpSignerID = CellsSigner.CELLS_SIGNER_ID+"2"
-        val chain = AWSCredentialsProviderChain(CellsAuthProvider(transport, accountID))
-        // Register the Cells specific signers: we do not yet support the streaming signer on the server side
+//        val sign = CellsSigner()
+//        Log.d(logTag, "[DEBUG] force loading the signer class: $sign")
         SignerFactory.registerSigner(CellsSigner.CELLS_SIGNER_ID, CellsSigner::class.java)
         var conf = ClientConfiguration()
-            .withSignerOverride(tmpSignerID)
+            .withSignerOverride(CellsSigner.CELLS_SIGNER_ID)
             .withUserAgentOverride(transport.getUserAgent()) // default adds a prefix with the AWS SDK agent that we do not want to expose
-
         if (transport.server.isSSLUnverified) {
             conf = conf.withTrustManager(ServerURLImpl.SKIP_VERIFY_TRUST_MANAGER[0])
         }
 
         val region = Region.getRegion(Regions.fromName(Regions.US_EAST_1.getName()))
+        val chain = AWSCredentialsProviderChain(CellsAuthProvider(transport, accountID))
         val s3Client = AmazonS3Client(chain, region, conf)
         s3Client.endpoint = transport.server.url()
         s3Client.setS3ClientOptions(

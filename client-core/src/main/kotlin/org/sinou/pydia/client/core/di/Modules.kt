@@ -35,6 +35,7 @@ import org.sinou.pydia.client.core.services.TransferService
 import org.sinou.pydia.client.core.services.TreeNodeRepository
 import org.sinou.pydia.client.core.services.WorkerService
 import org.sinou.pydia.client.core.services.workers.OfflineSyncWorker
+import org.sinou.pydia.client.core.util.MemoryPasswordStore
 import org.sinou.pydia.client.ui.account.AccountListVM
 import org.sinou.pydia.client.ui.browse.models.AccountHomeVM
 import org.sinou.pydia.client.ui.browse.models.BookmarksVM
@@ -119,6 +120,7 @@ val dbModule = module {
             AUTH_DB_NAME
         )
             .fallbackToDestructiveMigrationFrom(1)
+            .fallbackToDestructiveMigrationFrom(2)
             .fallbackToDestructiveMigrationOnDowngrade()
             .build()
     }
@@ -190,6 +192,7 @@ val serviceModule = module {
 
     // Authentication
     single<Store<Token>>(named(DiNames.tokenStore)) { TokenStore(get()) }
+    single<Store<String>>(named(DiNames.passwordStore)) { MemoryPasswordStore() }
 
     single<Store<Server>>(named(DiNames.serverStore)) { MemoryStore() }
     single<Store<Transport>>(named(DiNames.transportStore)) { MemoryStore() }

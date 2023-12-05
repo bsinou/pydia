@@ -1,10 +1,15 @@
 package org.sinou.pydia.client.ui
 
 import android.app.Activity
-import android.content.Intent
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,7 +22,9 @@ import org.sinou.pydia.client.ui.account.AccountListVM
 import org.sinou.pydia.client.ui.account.AccountsScreen
 import org.sinou.pydia.client.ui.browse.BrowseDestinations
 import org.sinou.pydia.client.ui.browse.browseNavGraph
+import org.sinou.pydia.client.ui.browse.composables.ConfirmDownloadOnLimitedConnection
 import org.sinou.pydia.client.ui.browse.composables.Download
+import org.sinou.pydia.client.ui.core.lazyQueryContext
 import org.sinou.pydia.client.ui.core.lazyStateID
 import org.sinou.pydia.client.ui.core.nav.CellsDestinations
 import org.sinou.pydia.client.ui.login.LoginHelper
@@ -26,7 +33,12 @@ import org.sinou.pydia.client.ui.login.models.LoginVM
 import org.sinou.pydia.client.ui.models.AppState
 import org.sinou.pydia.client.ui.models.BrowseRemoteVM
 import org.sinou.pydia.client.ui.models.DownloadVM
+import org.sinou.pydia.client.ui.search.Search
+import org.sinou.pydia.client.ui.search.SearchHelper
+import org.sinou.pydia.client.ui.search.SearchVM
 import org.sinou.pydia.client.ui.share.ShareDestinations
+import org.sinou.pydia.client.ui.share.ShareHelper
+import org.sinou.pydia.client.ui.share.shareNavGraph
 import org.sinou.pydia.client.ui.system.systemNavGraph
 import org.sinou.pydia.sdk.transport.StateID
 import org.sinou.pydia.sdk.utils.Log
@@ -51,19 +63,6 @@ fun NavGraph(
         loginVM = loginVM,
         navigateTo = navigateTo
     )
-
-
-//    LaunchedEffect(key1 = appState.route) {
-//        Log.i(logTag, "### Composing nav graph for ${appState.route}")
-//        appState.route?.let { dest ->
-//            Log.e(logTag, "      currRoute: ${navController.currentDestination?.route}")
-//            Log.e(logTag, "      newRoute: $dest")
-//            navController.navigate(dest)
-//        } ?: run {
-//            Log.i(logTag, "### Forcing navigation to accounts")
-//            navController.navigate(CellsDestinations.Accounts.route)
-//        }
-//    }
 
     LaunchedEffect(key1 = initialAppState.intentID, key2 = initialAppState.route) {
         Log.i(logTag, "... new appState: ${initialAppState.route} - ${initialAppState.stateID}")
@@ -126,7 +125,7 @@ fun NavGraph(
             }
         }
 
-        localLoginGraph(loginHelper, loginVM)
+        localLoginGraph(helper = loginHelper, loginVM = loginVM)
 
         browseNavGraph(
             isExpandedScreen = isExpandedScreen,
@@ -136,6 +135,17 @@ fun NavGraph(
             browseRemoteVM = browseRemoteVM,
         )
 
+        shareNavGraph(
+            isExpandedScreen = isExpandedScreen,
+            browseRemoteVM = browseRemoteVM,
+            helper = ShareHelper(
+                navController,
+                processSelectedTarget,
+                emitActivityResult,
+            ),
+            back = { navController.popBackStack() },
+        )
+
         systemNavGraph(
             isExpandedScreen = isExpandedScreen,
             navController = navController,
@@ -143,40 +153,65 @@ fun NavGraph(
             back = { navController.popBackStack() },
         )
 
-//        shareNavGraph(
-//            isExpandedScreen = isExpandedScreen,
-//            browseRemoteVM = browseRemoteVM,
-//            helper = ShareHelper(
-//                navController,
-//                launchTaskFor,
-//                startingState,
-//                ackStartStateProcessing
-//            ),
-//            back = { navController.popBackStack() },
-//        )
 
-//        composable(CellsDestinations.Search.route) { entry ->
-//            val searchVM: SearchVM =
-//                koinViewModel(parameters = { parametersOf(lazyStateID(entry)) })
-//            Search(
-//                isExpandedScreen = isExpandedScreen,
-//                queryContext = lazyQueryContext(entry),
-//                stateID = lazyStateID(entry),
-//                searchVM = searchVM,
-//                SearchHelper(
-//                    navController = navController,
-//                    searchVM = searchVM
-//                ),
-//            )
-//        }
+        composable(CellsDestinations.Search.route) { entry ->
+            val searchVM: SearchVM =
+                koinViewModel(parameters = { parametersOf(lazyStateID(entry)) })
+            Search(
+                isExpandedScreen = isExpandedScreen,
+                queryContext = lazyQueryContext(entry),
+                stateID = lazyStateID(entry),
+                searchVM = searchVM,
+                SearchHelper(
+                    navController = navController,
+                    searchVM = searchVM
+                ),
+            )
+        }
 
         dialog(CellsDestinations.Download.route) { entry ->
+//            val downloadVM: DownloadVM =
+//                koinViewModel(parameters = { parametersOf(lazyStateID(entry)) })
+//            Download(
+//                stateID = lazyStateID(entry),
+//                downloadVM = downloadVM
+//            ) { navController.popBackStack() }
+            val stateID = lazyStateID(entry)
+            val canDL = remember {
+                mutableStateOf(false)
+            }
+            val mustConfirm = remember {
+                mutableStateOf(false)
+            }
             val downloadVM: DownloadVM =
-                koinViewModel(parameters = { parametersOf(lazyStateID(entry)) })
-            Download(
-                stateID = lazyStateID(entry),
-                downloadVM = downloadVM
-            ) { navController.popBackStack() }
+                koinViewModel(parameters = { parametersOf(stateID) })
+
+            LaunchedEffect(key1 = stateID) {
+                android.util.Log.i(logTag, "## First Composition for: download/${stateID}")
+                if (!downloadVM.mustConfirmDL(stateID)) {
+                    canDL.value = true
+                } else {
+                    mustConfirm.value = true
+                }
+            }
+
+            if (canDL.value) {
+                Download(
+                    stateID = stateID,
+                    downloadVM = downloadVM
+                ) { navController.popBackStack() }
+            } else if (mustConfirm.value) {
+                ConfirmDownloadOnLimitedConnection(stateID = stateID) {
+                    if (it) {
+                        canDL.value = true
+                    } else {
+                        navController.popBackStack()
+                    }
+                }
+            } else {
+                Spacer(modifier = Modifier.height(1.dp))
+            }
+
         }
     }
 }

@@ -33,7 +33,7 @@ class NetworkService(
 
     private val networkStatusFlowCold: Flow<NetworkStatus> = callbackFlow {
         connectivityManagerCallback = CellsNetworkCallback {
-            Log.d(LOG_TAG, ".. Updating current network status to $it")
+            Log.d(LOG_TAG, "\t-> Updating current network status to $it")
             trySendBlocking(it)
                 .onFailure { throwable ->
                     Log.e(LOG_TAG, "Could not emit in flow: ${throwable?.message}")

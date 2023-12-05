@@ -1,10 +1,9 @@
 package org.sinou.pydia.client.ui.share
 
+import android.app.Activity
 import android.util.Log
 import androidx.navigation.NavHostController
-import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.services.AuthService
-import org.sinou.pydia.client.ui.StartingState
 import org.sinou.pydia.client.ui.login.LoginDestinations
 import org.sinou.pydia.client.ui.share.models.ShareVM
 import org.sinou.pydia.sdk.transport.StateID
@@ -12,9 +11,8 @@ import org.sinou.pydia.sdk.utils.Str
 
 class ShareHelper(
     private val navController: NavHostController,
-    val launchTaskFor: (String, StateID) -> Unit,
-    private val startingState: StartingState?,
-    private val startingStateHasBeenProcessed: (String?, StateID) -> Unit,
+    private val processSelectedTarget: (StateID?) -> Unit,
+    private val emitActivityResult: (Int) -> Unit,
 ) {
     private val logTag = "ShareHelper"
     private val navigation = ShareNavigation(navController)
@@ -58,38 +56,24 @@ class ShareHelper(
 //        }
     }
 
-    fun cancel(stateID: StateID) {
-        launchTaskFor(AppNames.ACTION_CANCEL, stateID)
+    fun cancel() {
+        emitActivityResult(Activity.RESULT_CANCELED)
     }
 
-    fun done(stateID: StateID) {
-        launchTaskFor(AppNames.ACTION_DONE, stateID)
+    fun done() {
+        emitActivityResult(Activity.RESULT_OK)
     }
 
-    fun runInBackground(stateID: StateID) {
-        launchTaskFor(AppNames.ACTION_DONE, stateID)
+    fun runInBackground() {
+        emitActivityResult(Activity.RESULT_OK)
     }
 
     fun openParentLocation(stateID: StateID) {
         navigation.toParentLocation(stateID)
     }
 
-    fun startUpload(shareVM: ShareVM, stateID: StateID) {
-        startingState?.let {
-            shareVM.launchPost(
-                stateID,
-                it.uris
-            ) { jobID -> afterLaunchUpload(stateID, jobID) }
-        } ?: run {
-            Log.e(logTag, "... No defined URIs, cannot post at $stateID")
-        }
-    }
-
-    private val afterLaunchUpload: (StateID, Long) -> Unit = { stateID, jobID ->
-        // Prevent double upload of the same file
-        startingStateHasBeenProcessed(null, stateID)
-        // then display the upload list
-        navigation.toTransfers(stateID, jobID)
+    fun startUpload(stateID: StateID) {
+        processSelectedTarget(stateID)
     }
 
     fun canPost(stateID: StateID): Boolean {

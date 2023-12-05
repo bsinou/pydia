@@ -49,18 +49,17 @@ fun NavGraphBuilder.shareNavGraph(
                 canPost = helper::canPost,
                 doAction = { action, currID ->
                     if (AppNames.ACTION_UPLOAD == action) {
-                        helper.startUpload(shareVM, currID)
+                        helper.startUpload(currID)
+                    } else if (AppNames.ACTION_CANCEL == action) {
+                        helper.cancel()
                     } else {
-                        helper.launchTaskFor(action, currID)
+                        throw IllegalArgumentException("Unexpected action: $action for $currID")
+                        // helper.launchTaskFor(action, currID)
                     }
                 },
             )
             DisposableEffect(key1 = stateID) {
-                if (stateID == StateID.NONE) {
-                    browseRemoteVM.pause(StateID.NONE)
-                } else {
-                    browseRemoteVM.watch(stateID, false)
-                }
+                browseRemoteVM.watch(stateID, false)
                 onDispose {
                     browseRemoteVM.pause(stateID)
                 }
@@ -79,9 +78,9 @@ fun NavGraphBuilder.shareNavGraph(
         UploadProgressList(
             isExpandedScreen = isExpandedScreen,
             monitorUploadsVM,
-            { helper.runInBackground(stateID) },
-            { helper.done(stateID) },
-            { helper.cancel(stateID) },
+            { helper.runInBackground() },
+            { helper.done() },
+            { helper.cancel() },
             { helper.openParentLocation(stateID) },
         )
     }

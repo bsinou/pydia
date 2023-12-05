@@ -46,6 +46,11 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     // Expose a flow of error messages for the end-user
     val errorMessage: Flow<ErrorMessage?> = errorService.userMessages
 
+    fun errorReceived() {
+        // Remove the message from the queue
+        errorService.appendError()
+    }
+
     // Loading data from server state
     private val _loadingState = MutableStateFlow(LoadingState.STARTING)
     val connectionState: StateFlow<ConnectionState> =
@@ -98,6 +103,28 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
         }
     }
 
+    suspend fun mustConfirmDL(stateID: StateID): Boolean {
+        val serverConnection = connectionService.liveConnectionState.value.serverConnection
+        Log.d(logTag, "... must confirm dl 4 $stateID, connection: $serverConnection")
+        if (serverConnection == ServerConnection.OK) {
+            return false
+        } else if (serverConnection == ServerConnection.LIMITED) {
+            nodeService.getNode(stateID)?.let {
+                val limitedPrefs = prefs.fetchPreferences().meteredNetwork
+                val fSize = it.size
+                return when {
+                    !limitedPrefs.applyLimits -> false
+                    !limitedPrefs.askBeforeDL -> false
+                    limitedPrefs.sizeThreshold <= 0 -> false
+                    else -> {
+                        fSize >= limitedPrefs.sizeThreshold * 1024 * 1024
+                    }
+                }
+            }
+        }
+        return false
+    }
+
     @Throws(SDKException::class)
     suspend fun viewFile(context: Context, stateID: StateID, skipUpToDateCheck: Boolean = false) {
         getNode(stateID)?.let { node ->
@@ -124,7 +151,6 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
 
     protected fun done(e: Exception) {
         _loadingState.value = LoadingState.IDLE
-        Log.e(logTag, "Error for user received: ${e.message}")
         errorService.appendError(e)
     }
 

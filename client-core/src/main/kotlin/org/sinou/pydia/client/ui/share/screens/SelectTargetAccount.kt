@@ -14,13 +14,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import org.sinou.pydia.client.core.AppNames
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.sinou.pydia.client.ui.account.AccountListVM
 import org.sinou.pydia.client.ui.share.ShareHelper
 import org.sinou.pydia.client.ui.share.composables.TargetAccountList
 import org.sinou.pydia.sdk.transport.StateID
-import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SelectTargetAccount(
@@ -32,7 +31,7 @@ fun SelectTargetAccount(
     SelectTargetAccount(
         accountListVM = accountListVM,
         openAccount = { scope.launch { helper.open(it) } },
-        cancel = { scope.launch { helper.launchTaskFor(AppNames.ACTION_CANCEL, StateID.NONE) } },
+        cancel = { scope.launch { helper.cancel() } },
         login = { s, skip -> scope.launch { helper.login(s, skip) } },
     )
 
@@ -41,7 +40,6 @@ fun SelectTargetAccount(
         onDispose { accountListVM.pause() }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

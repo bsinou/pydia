@@ -20,9 +20,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,6 +42,8 @@ import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.JobStatus
+import org.sinou.pydia.client.core.db.nodes.RTreeNode
+import org.sinou.pydia.client.core.util.formatBytesToMB
 import org.sinou.pydia.client.ui.browse.models.NodeActionsVM
 import org.sinou.pydia.client.ui.core.composables.DialogTitle
 import org.sinou.pydia.client.ui.core.composables.animations.SmoothLinearProgressIndicator
@@ -315,6 +319,46 @@ fun TreeNodeRename(
         },
         dismiss = { dismiss(false) },
     )
+}
+
+@Composable
+fun ConfirmDownloadOnLimitedConnection(
+    nodeActionsVM: NodeActionsVM = koinViewModel(),
+    stateID: StateID,
+    dismiss: (Boolean) -> Unit,
+) {
+    var ready by remember { mutableStateOf(false) }
+    var node: RTreeNode? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(key1 = stateID) {
+        node = nodeActionsVM.getNode(stateID)
+        ready = true
+    }
+
+    if (ready) {
+        node?.let {
+            AskForConfirmation(
+                // icon = CellsIcons.Delete,
+                title = stringResource(R.string.confirm_dl_on_metered_title),
+                desc = stringResource(
+                    R.string.confirm_dl_on_metered_desc,
+                    stateID.fileName ?: "NaN",
+                    formatBytesToMB(it.size)
+                ),
+                confirm = { dismiss(true) },
+                dismiss = { dismiss(false) },
+            )
+        } ?: run {
+            Log.w(LOG_TAG, "Cannot get node for $stateID, aborting download")
+            dismiss(false)
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.02f)
+        )
+    }
 }
 
 @Composable

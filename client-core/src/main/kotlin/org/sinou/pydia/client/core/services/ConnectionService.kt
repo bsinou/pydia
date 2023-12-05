@@ -2,11 +2,13 @@ package org.sinou.pydia.client.core.services
 
 import android.util.Log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -26,6 +28,9 @@ import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.transport.StateID
 import java.util.UUID
 
+/**
+ * Centralises session flow management for all other services and models.
+ */
 class ConnectionService(
     coroutineService: CoroutineService,
     networkService: NetworkService,
@@ -146,6 +151,8 @@ class ConnectionService(
     val currAccountID: Flow<StateID> = sessionStateFlow.map { it.accountID }
 
     private var wasReachable = true
+
+    @OptIn(FlowPreview::class)
     val liveConnectionState: StateFlow<ConnectionState> =
         sessionStateFlow.combine(loadingFlag) { connection, loading ->
             appliedConnectionState(loading, connection)
@@ -154,11 +161,12 @@ class ConnectionService(
                 pollService.relaunchMonitoring(true)
             }
             wasReachable = it.serverConnection.isConnected()
-        }.stateIn(
-            scope = serviceScope,
-            started = SharingStarted.WhileSubscribed(30000L),
-            initialValue = appliedConnectionState(LoadingState.STARTING, SessionState.NONE)
-        )
+        }.debounce(1000L)
+            .stateIn(
+                scope = serviceScope,
+                started = SharingStarted.WhileSubscribed(30000L),
+                initialValue = appliedConnectionState(LoadingState.STARTING, SessionState.NONE)
+            )
 
     fun appliedConnectionState(
         loading: LoadingState,

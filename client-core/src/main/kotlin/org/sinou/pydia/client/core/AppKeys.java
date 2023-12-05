@@ -13,7 +13,7 @@ public interface AppKeys {
     String LOGIN_CONTEXT = "login-context";
     String QUERY_CONTEXT = "query-context";
     // Intent keys
-    String EXTRA_STATE = AppNames.KEY_PREFIX_ + "state";
+//    String EXTRA_STATE = AppNames.KEY_PREFIX_ + "state";
     // OAuth Code Flow when remote is Cells
     String QUERY_KEY_CODE = "code";
     String QUERY_KEY_STATE = "state";

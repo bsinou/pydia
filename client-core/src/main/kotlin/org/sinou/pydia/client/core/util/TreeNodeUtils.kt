@@ -63,7 +63,7 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
         treeNode.metaStore?.let {
             map.putAll(it)
         }
-        val sorted = map.toSortedMap(compareBy<String> { it })
+        val sorted = map.toSortedMap(compareBy { it })
         val builder = StringBuilder()
         sorted.forEach {
             // We build a local hash after sorting the map because e.G workspace shares

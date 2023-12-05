@@ -156,8 +156,7 @@ class TransferService(
 
     suspend fun forgetTransfer(
         stateID: StateID,
-        transferID: Long,
-        isRemoteLegacy: Boolean = false
+        transferID: Long
     ) {
         s3TransferService.forgetTransfer(stateID, transferID)
     }

@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.db.CellsConverters
+import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.api.ui.WorkspaceNode
 import org.sinou.pydia.sdk.transport.StateID
@@ -105,21 +106,19 @@ data class RTreeNode(
         return flags and flag == flag
     }
 
-//    fun toFileNode(): FileNode {
-//        // TODO double check: we might drop some info that we have missed on first draft implementation
-//        //   Rather directly use the properties
-//        val fn = FileNode()
-//        fn.setProperty(SdkNames.NODE_PROPERTY_UID, uuid)
-//        fn.setProperty(SdkNames.NODE_PROPERTY_ETAG, etag)
-//        fn.setProperty(SdkNames.NODE_PROPERTY_MTIME, "$remoteModificationTS")
-//        fn.setProperty(SdkNames.NODE_PROPERTY_PATH, getStateID().path)
-//        fn.setProperty(SdkNames.NODE_PROPERTY_WORKSPACE_SLUG, workspace)
-//        fn.setProperty(SdkNames.NODE_PROPERTY_FILENAME, name)
-//        fn.setProperty(SdkNames.NODE_PROPERTY_IS_FILE, "${isFile()}")
-//        fn.setProperty(SdkNames.NODE_PROPERTY_MIME, mime)
-//        fn.setProperty(SdkNames.NODE_PROPERTY_BYTESIZE, "$size")
-//        return fn
-//    }
+    /**
+     * Recreates an API TreeNode from the info that have been stored in the local DB,
+     * to communicate with the API when we only need most important info e.g: path & UUID.
+     */
+    fun toMinimalTreeNode(): TreeNode {
+        // TODO double check: we might drop some info that we have missed on first draft implementation
+        //   Rather directly use the properties
+        return TreeNode(
+            uuid = uuid,
+            etag = etag,
+            path = getStateID().path,
+        )
+    }
 
     companion object {
         private const val logTag = "RTreeNode"

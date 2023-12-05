@@ -6,7 +6,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.ListType
@@ -16,6 +19,7 @@ import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.db.nodes.TreeNodeDB
 import org.sinou.pydia.client.core.transfer.TreeDiff
 import org.sinou.pydia.client.core.util.currentTimestamp
+import org.sinou.pydia.client.core.util.currentTimestampAsString
 import org.sinou.pydia.client.core.util.fromTreeNode
 import org.sinou.pydia.client.core.util.parseOrder
 import org.sinou.pydia.openapi.model.TreeNode
@@ -26,6 +30,7 @@ import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.transport.StateID
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 
 class NodeService(
     private val appContext: Context,
@@ -62,7 +67,7 @@ class NodeService(
         sortByOrder: String
     ): Flow<List<RTreeNode>> {
 
-     // TODO double check this
+        // TODO double check this
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
                     " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
@@ -150,7 +155,7 @@ class NodeService(
 
             val state = newNode.getStateID()
 //            val currSession =
-                treeNodeRepository.sessions[newNode.getStateID().accountId]
+            treeNodeRepository.sessions[newNode.getStateID().accountId]
                 ?: throw IllegalArgumentException("No session found in cache for ${newNode.getStateID().accountId}")
             val ndb = nodeDB(state)
 
@@ -204,133 +209,118 @@ class NodeService(
 
     @Throws(SDKException::class)
     suspend fun toggleBookmark(stateID: StateID, newState: Boolean) = withContext(ioDispatcher) {
-        TODO("Re-implement")
-        return@withContext
-        //        try {
-//            val node1 = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
-//                ?: return@withContext // TODO throw an error ?
-//
-//            getNodesByUuid(stateID, node1.uuid).forEach { curr ->
-//                getClient(stateID).bookmark(stateID.slug, stateID.file, newState)
-//                curr.setBookmarked(newState)
-//                treeNodeRepository.persistLocallyModified(curr, AppNames.LOCAL_MODIF_UPDATE)
-////                curr.localModificationTS = currentTimestamp()
-////                nodeDB(stateID).treeNodeDao().update(curr)
-//            }
-//        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-//            handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
-//            throw SDKException(se.code, "could not toggle bookmark for $stateID", se)
-//        }
+        try {
+            val node1 = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+                ?: return@withContext // TODO throw an error ?
+
+            // TODO check nullity of slug and file
+            getNodesByUuid(stateID, node1.uuid).forEach { curr ->
+                getClient(stateID).bookmark(stateID.slug!!, stateID.file!!, newState)
+                curr.setBookmarked(newState)
+                treeNodeRepository.persistLocallyModified(curr, AppNames.LOCAL_MODIF_UPDATE)
+            }
+        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
+            handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
+            throw SDKException(se.code, "could not toggle bookmark for $stateID", se)
+        }
     }
 
     suspend fun removeShare(stateID: StateID) = withContext(ioDispatcher) {
-        TODO("Re-implement")
-        return@withContext
-//
-//        try {
-//            val client = getClient(stateID)
-//            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
-//            if (client.isLegacy) {
-//                client.unshare(stateID.slug, stateID.file)
-//            } else {
-//                node.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
-//                    client.unshare(stateID.slug, it)
-//                }
-//            }
-//        } catch (se: SDKException) {
-//            Log.e(logTag, "could remove link for " + stateID.id)
-//        } catch (ioe: IOException) {
-//            Log.e(logTag, "could remove link for ${stateID}: ${ioe.message}")
-//            return@withContext
-//        }
+        try {
+            val client = getClient(stateID)
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id) ?: return@withContext
+            node.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
+                client.unshare(stateID.slug!!, it)
+            }
+        } catch (se: SDKException) {
+            Log.e(logTag, "could remove link for " + stateID.id)
+        } catch (ioe: Exception) {
+            Log.e(logTag, "could remove link for ${stateID}: ${ioe.message}")
+            return@withContext
+        }
     }
 
     @Throws(SDKException::class)
-    suspend fun createShare(stateID: StateID): String? = withContext(ioDispatcher) {
-        TODO("Re-implement")
-        return@withContext null
-//
-//        val client = getClient(stateID)
-//
-//        // We do not want to cancel share creation even if user navigates away.
-//        return@withContext serviceScope.async {
-//            // We still put default values. TODO implement user defined details
-//            try {
-//                client.share(
-//                    stateID.slug, stateID.file, stateID.fileName,
-//                    "Created on ${currentTimestampAsString()}",
-//                    null, true, true
-//                )
-//            } catch (se: SDKException) {
-//                throw SDKException(se.code, "could create link for $stateID", se)
-//            } catch (ioe: IOException) {
-//                throw SDKException(ErrorCodes.internal_error, "could create link for $stateID", ioe)
-//            }
-//        }.await()
+    suspend fun createShare(stateID: StateID): String = withContext(ioDispatcher) {
+
+        val client = getClient(stateID)
+
+        // We do not want to cancel share creation even if user navigates away.
+        return@withContext serviceScope.async {
+            // We still put default values. TODO implement user defined details
+            try {
+                client.share(
+                    workspace = stateID.slug!!,
+                    file = stateID.file!!,
+                    wsLabel = stateID.fileName!!,
+                    wsDesc = "Created on ${currentTimestampAsString()}",
+                    password = null,
+                    canPreview = true,
+                    canDownload = true,
+                )
+            } catch (se: SDKException) {
+                throw SDKException(se.code, "could create link for $stateID", se)
+            } catch (ioe: Exception) {
+                throw SDKException(ErrorCodes.internal_error, "could create link for $stateID", ioe)
+            }
+        }.await()
     }
 
     suspend fun createFolder(parentID: StateID, folderName: String) {
-        TODO("Re-implement")
-        return
-
-//        withContext(ioDispatcher) {
-//            try {
-//                getClient(parentID).mkdir(parentID.slug, parentID.file, folderName)
-//            } catch (e: SDKException) {
-//                val msg = "could not create folder at ${parentID.path}"
-//                handleSdkException(parentID, msg, e)
-//                return@withContext msg
-//            }
-//            return@withContext null
-//        }
+        withContext(ioDispatcher) {
+            try {
+                getClient(parentID).mkdir(parentID.slug!!, parentID.file!!, folderName)
+            } catch (e: SDKException) {
+                val msg = "could not create folder at ${parentID.path}"
+                handleSdkException(parentID, msg, e)
+                return@withContext msg
+            }
+            return@withContext null
+        }
     }
 
     suspend fun copy(sources: List<StateID>, targetParent: StateID) =
         withContext(ioDispatcher) {
-            TODO("Re-implement")
-            return@withContext
-//            try {
-//                val srcFiles = mutableListOf<String>()
-//                for (source in sources) {
-//                    source.file?.let {
-//                        srcFiles.add(it)
-//                    }
-//                }
-//                getClient(targetParent).copy(
-//                    targetParent.slug,
-//                    srcFiles.toTypedArray(),
-//                    targetParent.file
-//                )
-//            } catch (e: SDKException) {
-//                val msg = "could not copy to $targetParent"
-//                handleSdkException(targetParent, msg, e)
-//                return@withContext msg
-//            }
-//            return@withContext null
+            try {
+                val srcFiles = mutableListOf<String>()
+                for (source in sources) {
+                    source.file?.let {
+                        srcFiles.add(it)
+                    }
+                }
+                getClient(targetParent).copy(
+                    targetParent.slug!!,
+                    srcFiles.toTypedArray(),
+                    targetParent.file!!
+                )
+            } catch (e: SDKException) {
+                val msg = "could not copy to $targetParent"
+                handleSdkException(targetParent, msg, e)
+                return@withContext msg
+            }
+            return@withContext null
         }
 
     suspend fun move(sources: List<StateID>, targetParent: StateID) =
         withContext(ioDispatcher) {
-            TODO("Re-implement")
-            return@withContext
-//            try {
-//                val srcFiles = mutableListOf<String>()
-//                for (source in sources) {
-//                    source.file?.let {
-//                        srcFiles.add(it)
-//                    }
-//                }
-//                getClient(targetParent).move(
-//                    targetParent.slug,
-//                    srcFiles.toTypedArray(),
-//                    targetParent.file
-//                )
-//            } catch (e: SDKException) {
-//                val msg = "could not move to $targetParent"
-//                handleSdkException(targetParent, msg, e)
-//                return@withContext msg
-//            }
-//            return@withContext null
+            try {
+                val srcFiles = mutableListOf<String>()
+                for (source in sources) {
+                    source.file?.let {
+                        srcFiles.add(it)
+                    }
+                }
+                getClient(targetParent).move(
+                    targetParent.slug!!,
+                    srcFiles.toTypedArray(),
+                    targetParent.file!!
+                )
+            } catch (e: SDKException) {
+                val msg = "could not move to $targetParent"
+                handleSdkException(targetParent, msg, e)
+                return@withContext msg
+            }
+            return@withContext null
         }
 
 
@@ -612,49 +602,43 @@ class NodeService(
     /* Directly communicate with the distant server */
     @Throws(SDKException::class)
     suspend fun remoteQuery(stateID: StateID, query: String) = withContext(ioDispatcher) {
-        TODO("Re-implement")
-        return@withContext null
-//        try {
-//            val remotes = getClient(stateID).search(stateID.path ?: "/", query, 20)
-//            var updateCount = 0
-//            // We already insert found nodes in the cache to ease following user action
-//            for (remote in remotes) {
-//                if (!this.isActive) return@withContext
-//                // Log.e(logTag, "handling query result for ${node.getStateID()} ")
-//                val tmp = RTreeNode.fromFileNode(stateID, remote)
-//                getNode(tmp.getStateID())?.let {
-//                    if (!isNodeUpToDate(it, remote)) {
-//                        upsertNode(tmp)
-//                        updateCount++
-//                    }
-//                    // Log.e(logTag, "found ${it.getStateID()}, doing nothing")
-//                } ?: run {
-//                    upsertNode(tmp)
-//                    updateCount++
-//                }
-//            }
-//            Log.e(logTag, "After remote query, we have updated $updateCount nodes")
-//        } catch (se: SDKException) {
-//            se.printStackTrace()
-//        }
+        try {
+            val updateCount = AtomicInteger()
+            getClient(stateID).search(stateID.slug!!, stateID.file ?: "/", query) { currNode ->
+                if (!this.isActive) return@search
+                val tmp = fromTreeNode(stateID, currNode)
+                serviceScope.launch {
+                    getNode(tmp.getStateID())?.let {
+                        if (!isNodeUpToDate(it, tmp)) {
+                            upsertNode(tmp)
+                            updateCount.incrementAndGet()
+                        }
+                        // Log.e(logTag, "found ${it.getStateID()}, doing nothing")
+                    } ?: run {
+                        upsertNode(tmp)
+                        updateCount.incrementAndGet()
+                    }
+                }
+            }
+            Log.e(logTag, "After remote query, we have updated ${updateCount.get()} nodes")
+        } catch (se: SDKException) {
+            se.printStackTrace()
+        }
     }
 
-    private suspend fun remoteRestore(stateID: StateID): String? = withContext(ioDispatcher) {
-        TODO("Re-implement")
-//        try {
-//            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
-//                ?: return@withContext "No node found at $stateID, could not restore"
-//
-//            val nodes = arrayOf(node.toFileNode())
-//            getClient(stateID).restore(stateID.slug, nodes)
-//
-//            remoteDelete(stateID)
-//            treeNodeRepository.persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
-//        } catch (se: SDKException) {
-//            se.printStackTrace()
-//            return@withContext "Could not restore $stateID: ${se.message}"
-//        }
-//        return@withContext null
+    @Throws(SDKException::class)
+    private suspend fun remoteRestore(stateID: StateID) = withContext(ioDispatcher) {
+        try {
+            val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+                ?: return@withContext "No node found at $stateID, could not restore"
+            val nodes = listOf(node.toMinimalTreeNode())
+            getClient(stateID).restore(stateID.slug!!, nodes)
+            remoteDelete(stateID)
+            treeNodeRepository.persistLocallyModified(node, AppNames.LOCAL_MODIF_DELETE)
+        } catch (se: SDKException) {
+            se.printStackTrace()
+            throw SDKException("Could not restore $stateID", se)
+        }
     }
 
 //    @Throws(SDKException::class)
@@ -664,45 +648,35 @@ class NodeService(
 
     @Throws(SDKException::class)
     suspend fun remoteRename(stateID: StateID, newName: String) = withContext(ioDispatcher) {
-        TODO("Re-implement")
-        return@withContext null
-//        getClient(stateID).rename(stateID.slug, stateID.file, newName)
+        getClient(stateID).rename(stateID.slug!!, stateID.file!!, newName)
     }
 
     @Throws(SDKException::class)
     suspend fun remoteDelete(stateID: StateID) = withContext(ioDispatcher) {
-        TODO("Re-implement")
-        return@withContext null
-//        getClient(stateID).delete(stateID.slug, arrayOf<String>(stateID.file))
+        getClient(stateID).delete(stateID.slug!!, arrayOf(stateID.file!!), false)
     }
 
     suspend fun refreshBookmarks(stateID: StateID) = withContext(ioDispatcher) {
-        TODO("Reimplement")
-        return@withContext null
-//        try {
-//            val dao = nodeDB(stateID).treeNodeDao()
-//            val nodes = mutableListOf<FileNode>()
-//            getClient(stateID).getBookmarks { node: Node? ->
-//                if (node !is FileNode) {
-//                    Log.w(logTag, "could not store node: $node")
-//                } else {
-//                    nodes.add(node)
-//                    val currNode = RTreeNode.fromFileNode(stateID, node)
-//                    currNode.setBookmarked(true)
-//                    val oldNode = dao.getNode(currNode.encodedState)
-//                    if (oldNode == null) {
-//                        dao.insert(currNode)
-//                    } else if (!oldNode.isBookmarked()) {
-//                        oldNode.setBookmarked(true)
-//                        dao.update(oldNode)
-//                    }
-//                }
-//            }
-//        } catch (se: SDKException) {
-//            val msg = "Could not refresh bookmarks from server: ${se.message}"
-//            handleSdkException(stateID, msg, se)
-//            throw SDKException(ErrorCodes.api_error, "Could not refresh bookmarks for $stateID", se)
-//        }
+        try {
+            val dao = nodeDB(stateID).treeNodeDao()
+            val nodes = mutableListOf<TreeNode>()
+            getClient(stateID).getBookmarks { node: TreeNode ->
+                nodes.add(node)
+                val currNode = fromTreeNode(stateID, node)
+                currNode.setBookmarked(true)
+                val oldNode = dao.getNode(currNode.encodedState)
+                if (oldNode == null) {
+                    dao.insert(currNode)
+                } else if (!oldNode.isBookmarked()) {
+                    oldNode.setBookmarked(true)
+                    dao.update(oldNode)
+                }
+            }
+        } catch (se: SDKException) {
+            val msg = "Could not refresh bookmarks from server: ${se.message}"
+            handleSdkException(stateID, msg, se)
+            throw SDKException(ErrorCodes.api_error, "Could not refresh bookmarks for $stateID", se)
+        }
     }
 
 

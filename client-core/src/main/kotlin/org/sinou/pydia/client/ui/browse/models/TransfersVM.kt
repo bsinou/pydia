@@ -30,7 +30,6 @@ class TransfersVM(
         cellsPreferences.list.transferFilter
     }
 
-
     @OptIn(ExperimentalCoroutinesApi::class)
     val transfers: Flow<List<RTransfer>> =
         liveFilter.combine(transferOrder) { filter, order -> filter to order }

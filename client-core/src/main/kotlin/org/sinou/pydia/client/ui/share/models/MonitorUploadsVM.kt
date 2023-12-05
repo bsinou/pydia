@@ -1,6 +1,8 @@
 package org.sinou.pydia.client.ui.share.models
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.JobStatus
 import org.sinou.pydia.client.core.db.nodes.RTransfer
@@ -9,12 +11,9 @@ import org.sinou.pydia.client.core.services.JobService
 import org.sinou.pydia.client.core.services.TransferService
 import org.sinou.pydia.client.ui.core.AbstractCellsVM
 import org.sinou.pydia.sdk.transport.StateID
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
 /** Hold a list of file uploads for the given accountID and JobID */
 class MonitorUploadsVM(
-    val isRemoteLegacy: Boolean,
     val accountID: StateID,
     val jobID: Long,
     val jobService: JobService,
@@ -70,15 +69,7 @@ class MonitorUploadsVM(
     fun pauseOne(transferID: Long) {
         viewModelScope.launch {
             try {
-                if (isRemoteLegacy) {
-                    error("Cannot pause transfer when remote server is Pydio 8")
-                } else {
-                    transferService.pauseTransfer(
-                        accountID,
-                        transferID,
-                        AppNames.JOB_OWNER_USER
-                    )
-                }
+                transferService.pauseTransfer(accountID, transferID, AppNames.JOB_OWNER_USER)
             } catch (e: Exception) {
                 done(e)
             }
@@ -88,14 +79,7 @@ class MonitorUploadsVM(
     fun resumeOne(transferID: Long) {
         viewModelScope.launch {
             try {
-                if (isRemoteLegacy) {
-                    error("Cannot resume transfer when remote server is Pydio 8")
-                } else {
-                    transferService.resumeTransfer(
-                        accountID,
-                        transferID
-                    )
-                }
+                transferService.resumeTransfer(accountID, transferID)
             } catch (e: Exception) {
                 done(e)
             }
@@ -105,12 +89,7 @@ class MonitorUploadsVM(
     fun cancelOne(transferID: Long) {
         viewModelScope.launch {
             try {
-                transferService.cancelTransfer(
-                    accountID,
-                    transferID,
-                    AppNames.JOB_OWNER_USER
-                )
-
+                transferService.cancelTransfer(accountID, transferID, AppNames.JOB_OWNER_USER)
             } catch (e: Exception) {
                 done(e)
             }
@@ -120,7 +99,7 @@ class MonitorUploadsVM(
     fun removeOne(transferID: Long) {
         viewModelScope.launch {
             try {
-                transferService.forgetTransfer(accountID, transferID, isRemoteLegacy)
+                transferService.forgetTransfer(accountID, transferID)
             } catch (e: Exception) {
                 done(e)
             }

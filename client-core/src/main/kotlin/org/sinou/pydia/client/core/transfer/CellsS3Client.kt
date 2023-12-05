@@ -15,7 +15,7 @@ import org.sinou.pydia.sdk.transport.CellsTransport
 import org.sinou.pydia.sdk.transport.StateID
 import java.net.URL
 
-private const val logTag = "CellsS3Client"
+private const val LOG_TAG = "CellsS3Client.kt"
 
 private const val DEFAULT_GATEWAY_SECRET = "gatewaysecret"
 private const val DEFAULT_S3_REGION_NAME = "us-east-1"
@@ -85,7 +85,7 @@ class CellsS3Client(private val transport: CellsTransport) : S3Client {
             var path = slug + file
             if (path.contains("//")) {
                 // This should not happen anymore
-                Log.w(logTag, "Found a double slash in $path, this is most probably a bug:")
+                Log.w(LOG_TAG, "Found a double slash in $path, this is most probably a bug:")
                 Thread.dumpStack()
                 path = path.replace("//", "/")
             }

@@ -640,6 +640,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         o["nodes"] = nodes.toTypedArray()
         o["target"] = ws + dstFolder
         o["targetParent"] = true
+
         val request = RestUserJobRequest(
             jsonParameters = gson.toJson(o)
         )
@@ -655,7 +656,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 
     @Throws(SDKException::class)
     override fun rename(ws: String, srcFile: String, newName: String) {
-        val nodes = listOf("ws + srcFile")
+        val nodes = listOf(ws + srcFile)
 
         val parent = File(srcFile).parentFile.path
         val dstFile = if ("/" == parent) {
@@ -663,7 +664,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         } else {
             "$parent/$newName"
         }
-        // String targetFile ="/" + ws + dstFile;
         val targetFile = ws + dstFile
         val o = mutableMapOf<String, Any>()
         o["nodes"] = nodes.toTypedArray()
@@ -773,15 +773,11 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             }
         } catch (e: NullPointerException) {
             Log.e(logTag, "###############################################################")
-            Log.e(logTag, "###############################################################")
-            Log.e(logTag, "###############################################################")
-            Log.e(logTag, "###############################################################")
             Log.e(logTag, "Could node create FileNode for " + node.path + ", skipping")
             e.printStackTrace()
         }
     }
 
-    //
     @Throws(SDKException::class)
     override fun bookmark(slug: String, file: String, isBookmarked: Boolean) {
         if (isBookmarked) {
@@ -820,7 +816,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             e.printStackTrace()
             throw SDKException(
                 ErrorCodes.api_error,
-                "could not update bookmark user-meta: " + e.message,
+                "could not update bookmark user-meta for uuid $uuid: " + e.message,
                 e
             )
         }
@@ -834,7 +830,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             // Retrieve bookmark user meta with node UUID
             val searchRequest = IdmSearchUserMetaRequest(
                 namespace = "bookmark",
-                nodeUuids = getNodeUuid(ws, file)?.let{listOf(it)}
+                nodeUuids = getNodeUuid(ws, file)?.let { listOf(it) }
             )
 
             val (metadatas) = api.searchUserMeta(searchRequest)
@@ -927,7 +923,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
 
         val n = TreeNode(
-            uuid =getNodeUuid(workspace, file)
+            uuid = getNodeUuid(workspace, file)
         )
         val shareLink = RestShareLink(
             policiesContextEditable = true,
@@ -935,15 +931,16 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             rootNodes = listOf(n),
             description = wsDesc,
             label = wsLabel,
-            viewTemplateName = "pydio_unique_strip"
+//            viewTemplateName = "pydio_unique_strip"
+            viewTemplateName = templateName
         )
 
         val hasPwd = !password.isNullOrEmpty()
         val request = RestPutShareLinkRequest(
-                createPassword =  if (hasPwd) password else null,
-                passwordEnabled = hasPwd,
-                shareLink = shareLink
-            )
+            createPassword = if (hasPwd) password else null,
+            passwordEnabled = hasPwd,
+            shareLink = shareLink
+        )
 
         return try {
             val (_, _, _, _, _, _, linkUrl) = shareServiceApi().putShareLink(request)
@@ -1171,7 +1168,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         return try {
             treeServiceApi().headNode(FileNodeUtils.toTreeNodePath(ws, file)).node?.uuid
         } catch (e: ClientException) {
-            throw SDKException(e)
+            throw SDKException("Cannot get UUID for $ws$file", e)
         }
     }
 //

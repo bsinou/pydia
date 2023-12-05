@@ -4,11 +4,10 @@ import android.util.Log
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.ui.models.ErrorMessage
 import org.sinou.pydia.client.ui.models.fromException
@@ -35,10 +34,15 @@ class ErrorService(
 
     // We rather use a shared flow to be able to see messages only once
     // otherwise, each view model will show latest error message when starting to listen
-    val userMessages: SharedFlow<ErrorMessage?> = _userMessages.buffer(0).shareIn(
+//    val userMessages: SharedFlow<ErrorMessage?> = _userMessages.buffer(0).shareIn(
+//        scope = uiScope,
+//        started = SharingStarted.WhileSubscribed(5000),
+//        replay = 0
+//    )
+    val userMessages: StateFlow<ErrorMessage?> = _allMessages.stateIn(
         scope = uiScope,
         started = SharingStarted.WhileSubscribed(5000),
-        replay = 0
+        initialValue = null
     )
 
     fun appendError(errorMsg: ErrorMessage? = null) {

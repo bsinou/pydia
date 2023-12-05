@@ -27,10 +27,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -71,11 +73,13 @@ import org.sinou.pydia.client.ui.core.composables.modal.ModalBottomSheetValue
 import org.sinou.pydia.client.ui.core.composables.modal.rememberModalBottomSheetState
 import org.sinou.pydia.client.ui.core.getFloatResource
 import org.sinou.pydia.client.ui.models.BrowseRemoteVM
+import org.sinou.pydia.client.ui.models.ErrorMessage
 import org.sinou.pydia.client.ui.models.TreeNodeItem
+import org.sinou.pydia.client.ui.models.toErrorMessage
 import org.sinou.pydia.client.ui.theme.CellsIcons
 import org.sinou.pydia.sdk.transport.StateID
 
-private const val LOG_TAG = "Folder"
+private const val LOG_TAG = "Folder.kt"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,19 +98,37 @@ fun Folder(
     val scope = rememberCoroutineScope()
     val connectionState = browseRemoteVM.connectionState.collectAsState()
     val listLayout by folderVM.layout.collectAsState(ListLayout.LIST)
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val snackBarHostState = remember { SnackbarHostState() }
     val multiSelectData: MutableState<Set<StateID>> = rememberSaveable {
         mutableStateOf(setOf())
     }
     // State for the more Menus
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, Set<StateID>>> = remember {
         mutableStateOf(NodeMoreMenuType.NONE to setOf())
     }
 
     val setMoreMenuData: (NodeMoreMenuType, Set<StateID>) -> Unit = { t, ids ->
-        Log.e(LOG_TAG, "set data for $t: $ids")
         nodeMoreMenuData.value = t to ids
+    }
+
+    val errMessage by folderVM.errorMessage.collectAsState()
+    var oldErr: ErrorMessage? = null
+    LaunchedEffect(key1 = errMessage?.defaultMessage) {
+        if (oldErr == errMessage) {
+            // do nothing
+        } else {
+            Log.e(LOG_TAG, "Received a new message...")
+            errMessage?.let {
+                snackBarHostState.showSnackbar(
+                    message = toErrorMessage(context, it),
+                    withDismissAction = false,
+                    duration = SnackbarDuration.Short
+                )
+                folderVM.errorReceived()
+            }
+            oldErr = errMessage
+        }
     }
 
     // Business States
@@ -309,7 +331,10 @@ private fun FolderScaffold(
                     isMoreMenuShown = moreMenuState.sheetState.isVisible,
                     showMenu = {
                         if (it) {
-                            moreMenuState.openMoreMenu(NodeMoreMenuType.MORE, selectedItems)
+                            moreMenuState.openMoreMenu(
+                                NodeMoreMenuType.MORE,
+                                selectedItems
+                            )
                         }
                     },
                 )
@@ -400,19 +425,15 @@ private fun FolderList(
             else -> stringResource(R.string.parent_folder)
         }
 
-        Box(
-            Modifier
-//                 .fillMaxHeight(.8f)
-                .pullRefresh(state)
-        ) {
+        Box(Modifier.pullRefresh(state)) {
             when (listLayout) {
                 ListLayout.GRID -> {
                     val listPadding = PaddingValues(
-                        top = dimensionResource(id = R.dimen.margin_medium),
+                        top = dimensionResource(R.dimen.margin_medium),
                         bottom = padding.calculateBottomPadding()
                             .plus(dimensionResource(R.dimen.list_bottom_fab_padding)),
-                        start = dimensionResource(id = R.dimen.margin_medium),
-                        end = dimensionResource(id = R.dimen.margin_medium),
+                        start = dimensionResource(R.dimen.margin_medium),
+                        end = dimensionResource(R.dimen.margin_medium),
                     )
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = dimensionResource(R.dimen.grid_large_col_min_width)),
@@ -490,10 +511,9 @@ private fun FolderList(
             }
 
             PullRefreshIndicator(
-                loadingState.loading == LoadingState.PROCESSING,
-                state,
-//                Modifier.align(Alignment.BottomCenter)
-                Modifier.align(Alignment.TopCenter)
+                refreshing = loadingState.loading == LoadingState.PROCESSING,
+                state = state,
+                modifier = Modifier.align(Alignment.TopCenter)
             )
         }
     }
@@ -509,28 +529,23 @@ fun getClickableModifier(
     onTap: (StateID, Boolean) -> Unit,
     alpha: Float,
 ): Modifier {
-    var tmpModifier = Modifier.fillMaxWidth()
-//    tmpModifier = if (!connectionState.serverConnection.isConnected() && item.lastCheckTS < 1) {
-//        // Folder has not yet been loaded and we have no connection to the server
-//        // Do not react to click and make less visible
-//        tmpModifier.alpha(alpha)
-//    } else
-    tmpModifier = if (!connectionState.serverConnection.isConnected() && !item.isCached) {
+    var modifier = Modifier.fillMaxWidth()
+    modifier = if (!connectionState.serverConnection.isConnected() && !item.isCached) {
         // Folder has not yet been loaded and we have no connection to the server
         // Do not react to click and make less visible
-        tmpModifier.alpha(alpha)
+        modifier.alpha(alpha)
     } else if (item.isRecycle) {
         if (isSelectionMode) { // Cannot include the recycle in multiple selection
             // Do not react to click and make less visible
-            tmpModifier.alpha(alpha)
+            modifier.alpha(alpha)
         } else { // Recycle bin does not support multi selection
-            tmpModifier.clickable { onTap(item.defaultStateID(), false) }
+            modifier.clickable { onTap(item.defaultStateID(), false) }
         }
     } else {
-        tmpModifier.combinedClickable(
+        modifier.combinedClickable(
             onClick = { onTap(item.defaultStateID(), false) },
             onLongClick = { onTap(item.defaultStateID(), true) },
         )
     }
-    return tmpModifier
+    return modifier
 }

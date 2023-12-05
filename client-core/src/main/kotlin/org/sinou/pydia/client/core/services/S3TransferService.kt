@@ -204,8 +204,6 @@ class S3TransferService(
         }
 
     private fun getS3Client(transport: CellsTransport, accountID: StateID): AmazonS3Client {
-//        val sign = CellsSigner()
-//        Log.d(logTag, "[DEBUG] force loading the signer class: $sign")
         SignerFactory.registerSigner(CellsSigner.CELLS_SIGNER_ID, CellsSigner::class.java)
         var conf = ClientConfiguration()
             .withSignerOverride(CellsSigner.CELLS_SIGNER_ID)

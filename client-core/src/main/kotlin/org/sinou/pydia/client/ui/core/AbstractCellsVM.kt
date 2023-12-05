@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,12 +18,12 @@ import org.sinou.pydia.client.core.LoadingState
 import org.sinou.pydia.client.core.ServerConnection
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.services.ConnectionService
-import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.core.services.ErrorService
 import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.client.core.services.PreferencesService
-import org.sinou.pydia.client.ui.models.ErrorMessage
+import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.core.util.externallyView
+import org.sinou.pydia.client.ui.models.ErrorMessage
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.transport.StateID
@@ -44,7 +43,7 @@ open class AbstractCellsVM : ViewModel(), KoinComponent {
     // private val applicationContext: Context by inject()
 
     // Expose a flow of error messages for the end-user
-    val errorMessage: Flow<ErrorMessage?> = errorService.userMessages
+    val errorMessage = errorService.userMessages
 
     fun errorReceived() {
         // Remove the message from the queue

@@ -27,7 +27,6 @@ import org.sinou.pydia.client.core.services.JobService
 import org.sinou.pydia.client.core.services.NetworkService
 import org.sinou.pydia.client.core.services.NodeService
 import org.sinou.pydia.client.core.services.OfflineService
-import org.sinou.pydia.client.core.services.PasswordStore
 import org.sinou.pydia.client.core.services.PollService
 import org.sinou.pydia.client.core.services.PreferencesService
 import org.sinou.pydia.client.core.services.SessionFactory
@@ -143,7 +142,6 @@ val daoModule = module {
     single { get<RuntimeDB>().logDao() }
 
     single { get<AuthDB>().tokenDao() }
-    single { get<AuthDB>().legacyCredentialsDao() }
     single { get<AuthDB>().authStateDao() }
 
     single { get<AccountDB>().accountDao() }
@@ -192,7 +190,6 @@ val serviceModule = module {
 
     // Authentication
     single<Store<Token>>(named(DiNames.tokenStore)) { TokenStore(get()) }
-    single<Store<String>>(named(DiNames.passwordStore)) { PasswordStore(get()) }
 
     single<Store<Server>>(named(DiNames.serverStore)) { MemoryStore() }
     single<Store<Transport>>(named(DiNames.transportStore)) { MemoryStore() }

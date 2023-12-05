@@ -61,10 +61,13 @@ class NodeService(
         sortByCol: String,
         sortByOrder: String
     ): Flow<List<RTreeNode>> {
+
+     // TODO double check this
         val lsQuery = SimpleSQLiteQuery(
             "SELECT * FROM tree_nodes WHERE flags & " + AppNames.FLAG_BOOKMARK +
                     " = " + AppNames.FLAG_BOOKMARK + " ORDER BY $sortByCol $sortByOrder"
         )
+        Log.e(logTag, "Querying to get bookmark flow, query: $lsQuery.")
         return nodeDB(accountID).treeNodeDao().searchQueryFlow(lsQuery)
     }
 
@@ -146,8 +149,9 @@ class NodeService(
         withContext(ioDispatcher) {
 
             val state = newNode.getStateID()
-            val currSession = treeNodeRepository.sessions[newNode.getStateID().accountId]
-                ?: throw java.lang.IllegalStateException("No session found in cache for ${newNode.getStateID().accountId}")
+//            val currSession =
+                treeNodeRepository.sessions[newNode.getStateID().accountId]
+                ?: throw IllegalArgumentException("No session found in cache for ${newNode.getStateID().accountId}")
             val ndb = nodeDB(state)
 
             // Also cache offline status and public link URL locally
@@ -160,16 +164,15 @@ class NodeService(
                     newNode.setOfflineRoot(true)
                 }
             }
-            val address: String? = null
+            var address: String? = null
+
             val isShared =
                 newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARED, "false") == "true"
             if (isShared) {
-                // FIXME re-implement
-//                val client = accountService.getClient(state)
-//                newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
-//                    address = client.getShareAddress(state.slug, it)
-//                }
-
+                val client = accountService.getClient(state)
+                newNode.properties.getProperty(SdkNames.NODE_PROPERTY_SHARE_UUID)?.let {
+                    address = client.getShareAddress(state.slug!!, it)
+                }
             }
             newNode.setShared(isShared, address)
 

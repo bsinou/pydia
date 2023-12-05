@@ -8,18 +8,15 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 @Database(
     entities = [
         RToken::class,
-        RLegacyCredentials::class,
         ROAuthState::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 
 abstract class AuthDB : RoomDatabase() {
 
     abstract fun tokenDao(): TokenDao
-
-    abstract fun legacyCredentialsDao(): LegacyCredentialsDao
 
     abstract fun authStateDao(): OAuthStateDao
 }

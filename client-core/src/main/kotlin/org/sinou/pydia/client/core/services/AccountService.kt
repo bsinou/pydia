@@ -135,7 +135,7 @@ class AccountService(
         return registerAccount(credentials.getUsername(), server, LoginStatus.Connected.id)
     }
 
-    suspend fun registerAccount(
+    private suspend fun registerAccount(
         username: String,
         server: Server,
         authStatus: String
@@ -302,8 +302,8 @@ class AccountService(
     suspend fun forgetAccount(accountID: StateID): String? = withContext(ioDispatcher) {
         Log.i(logTag, "... About to forget $accountID")
         try {
-            val oldAccount = accountDao.getAccount(accountID.id)
-                ?: return@withContext null // nothing to forget
+            // val oldAccount =
+            accountDao.getAccount(accountID.id) ?: return@withContext null // nothing to forget
 
             // Downloaded files
             fileService.cleanAllLocalFiles(accountID)
@@ -383,7 +383,7 @@ class AccountService(
         }
 
 
-    /** Returns the number of changed applied or throws an exception if something bad happened */
+    /** Returns the number of changed applied or throws an exception */
     @Throws(SDKException::class)
     suspend fun refreshWorkspaces(accountID: StateID): Int = withContext(ioDispatcher) {
         try {
@@ -396,7 +396,6 @@ class AccountService(
             throw e
         }
     }
-
 
     suspend fun refreshWorkspaceList(accountID: StateID): Pair<Int, String?> =
         withContext(ioDispatcher) {
@@ -433,11 +432,6 @@ class AccountService(
                     }
                     return@withContext
                 }
-
-//                if (currAccount.isLegacy) {
-//                    Log.w(logTag, "Error while connecting to remote P8 server, ignoring")
-//                    return@withContext
-//                }
 
                 if (se.isAuthorizationError) {
                     serviceScope.launch {

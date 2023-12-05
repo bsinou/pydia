@@ -29,7 +29,6 @@ class AuthService(
     private val ioDispatcher = coroutineService.ioDispatcher
 
     private val tokenDao = authDB.tokenDao()
-    private val legacyCredentialsDao = authDB.legacyCredentialsDao()
     private val authStateDao = authDB.authStateDao()
 
     companion object {

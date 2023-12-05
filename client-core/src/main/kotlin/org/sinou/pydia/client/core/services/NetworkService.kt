@@ -31,7 +31,7 @@ class NetworkService(
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
 
-    val networkStatusFlowCold: Flow<NetworkStatus> = callbackFlow {
+    private val networkStatusFlowCold: Flow<NetworkStatus> = callbackFlow {
         connectivityManagerCallback = CellsNetworkCallback {
             Log.d(LOG_TAG, ".. Updating current network status to $it")
             trySendBlocking(it)

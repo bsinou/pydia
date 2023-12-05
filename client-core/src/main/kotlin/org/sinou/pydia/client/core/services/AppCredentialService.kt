@@ -93,7 +93,7 @@ class AppCredentialService(
     }
 
     suspend fun getToken(stateID: StateID): Token? = withContext(ioDispatcher) {
-        tokenStore.get(stateID.id)
+        tokenStore[stateID.id]
     }
 
     /**
@@ -126,7 +126,7 @@ class AppCredentialService(
         }
 
         synchronized(lock) {
-            val token: Token = tokenStore.get(stateID.id) ?: run {
+            val token: Token = tokenStore[stateID.id] ?: run {
                 Log.e(logTag, "Cannot refresh, no token for $stateID")
                 return@withContext
             }
@@ -153,7 +153,7 @@ class AppCredentialService(
             }
 
             // Insure we have a transport already defined in the store
-            val transport = transportStore.get(stateID.accountId)
+            val transport = transportStore[stateID.accountId]
             if (transport == null) {
                 Log.e(logTag, "Cannot refresh, no transport defined for $stateID")
                 return@withContext

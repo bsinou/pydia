@@ -93,10 +93,17 @@ fun fromTreeNode(stateID: StateID, treeNode: TreeNode): RTreeNode {
                 val scope = currShare["Scope"] as? Double
                 val shareUid = currShare["UUID"] as? String
 
+                // FIXME reswitch to non debug code
+//                if (scope == 3.0) {
+//                    props.setProperty(SdkNames.NODE_PROPERTY_SHARED, "true")
+//                    shareUid?.let { su -> props.setProperty(SdkNames.NODE_PROPERTY_SHARE_UUID, su) }
+//                    break
+//                }
                 if (scope == 3.0) {
                     props.setProperty(SdkNames.NODE_PROPERTY_SHARED, "true")
                     shareUid?.let { su -> props.setProperty(SdkNames.NODE_PROPERTY_SHARE_UUID, su) }
-                    break
+                } else {
+                    Log.w(LOG_TAG, "Unexpected scope while handling shares: $scope")
                 }
             }
         }

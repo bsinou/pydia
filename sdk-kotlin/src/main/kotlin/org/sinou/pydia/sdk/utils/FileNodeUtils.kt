@@ -1,13 +1,9 @@
 package org.sinou.pydia.sdk.utils
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import org.sinou.pydia.openapi.model.TreeNode
-import org.sinou.pydia.openapi.model.TreeNodeType
-import org.sinou.pydia.sdk.api.SdkNames
+import org.sinou.pydia.sdk.api.ErrorCodes
+import org.sinou.pydia.sdk.api.SDKException
+import org.sinou.pydia.sdk.transport.StateID
 import org.sinou.pydia.sdk.transport.StateID.Companion.utf8Encode
-import java.util.Properties
-import java.util.TreeMap
 
 /**
  * Simply converts a Cells API TreeNode to our local FileNode object.
@@ -193,6 +189,19 @@ object FileNodeUtils {
             }
             pathBuilder.toString()
         }
+    }
+
+    @Throws(SDKException::class)
+    fun toTreeNodePath(stateID: StateID): String {
+        val path = if (stateID.slug.isNullOrEmpty()) {
+            throw SDKException(ErrorCodes.illegal_argument, "cannot stat at $stateID, define a WS")
+        } else if (stateID.file.isNullOrEmpty()) {
+            "${stateID.slug}/"
+        } else {
+            "${stateID.slug}/${stateID.file}"
+        }
+
+        return path
     }
 
     fun toTreeNodePath(ws: String, path: String): String {

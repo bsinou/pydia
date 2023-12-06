@@ -66,7 +66,7 @@ class TreeDiff(
         // First insure node has not been erased on the server since last visit
         val local = dao.getNode(baseStateID.id)
         val treeNode: TreeNode? = try {
-            client.statNode(baseStateID.path!!)
+            client.statNode(baseStateID)
         } catch (e: SDKException) {
             val msg = "Stat failed at $baseStateID with error ${e.code}: ${e.message}"
             Log.e(logTag, msg)

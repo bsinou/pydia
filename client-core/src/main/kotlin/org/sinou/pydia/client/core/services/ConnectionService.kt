@@ -161,7 +161,7 @@ class ConnectionService(
                 pollService.relaunchMonitoring(true)
             }
             wasReachable = it.serverConnection.isConnected()
-        }.debounce(1000L)
+        }.debounce(400L)
             .stateIn(
                 scope = serviceScope,
                 started = SharingStarted.WhileSubscribed(30000L),

@@ -250,10 +250,9 @@ class NodeService(
             // We still put default values. TODO implement user defined details
             try {
                 client.share(
-                    workspace = stateID.slug!!,
-                    file = stateID.file!!,
-                    wsLabel = stateID.fileName!!,
-                    wsDesc = "Created on ${currentTimestampAsString()}",
+                    stateID = stateID,
+                    label = stateID.fileName!!,
+                    desc = "Created on ${currentTimestampAsString()}",
                     password = null,
                     canPreview = true,
                     canDownload = true,
@@ -349,7 +348,7 @@ class NodeService(
 
     @Throws(SDKException::class)
     suspend fun tryToCacheNode(stateID: StateID): RTreeNode? = withContext(ioDispatcher) {
-        getClient(stateID).statNode(stateID.path!!)?.let {
+        getClient(stateID).statNode(stateID)?.let {
             val treeNode = fromTreeNode(stateID, it)
             upsertNode(treeNode)
             treeNode
@@ -361,13 +360,14 @@ class NodeService(
             return@withContext true
         }
         try {
-            stateID.path?.let {
-                getClient(stateID).statNode(it)
-            } ?: run {
-                Log.w(logTag, "Node at $stateID has disappeared. About to delete from local cache")
-                removeFromCache(stateID)
-                return@withContext false
-            }
+            getClient(stateID).statNode(stateID)
+//            stateID.path?.let {
+//                getClient(stateID).statNode(it)
+//            } ?: run {
+//                Log.w(logTag, "Node at $stateID has disappeared. About to delete from local cache")
+//                removeFromCache(stateID)
+//                return@withContext false
+//            }
             return@withContext true
         } catch (e: SDKException) {
             if (e.code == HttpStatus.NOT_FOUND.value) {
@@ -419,8 +419,8 @@ class NodeService(
 
     private suspend fun getNodeInfo(stateID: StateID): TreeNode? {
         try {
-            return stateID.path?.let {
-                getClient(stateID).statNode(it)
+            return stateID.file?.let {
+                getClient(stateID).statNode(stateID)
             }
         } catch (e: SDKException) {
             handleSdkException(stateID, "could not getNodeInfo for $stateID", e)

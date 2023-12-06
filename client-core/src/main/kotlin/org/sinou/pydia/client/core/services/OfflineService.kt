@@ -353,7 +353,7 @@ class OfflineService(
 
                 val treeNode = treeNodeDao.getNode(offlineRoot.encodedState)
                     ?: run {
-                        val nodeInfo = client.statNode(stateID.path!!)
+                        val nodeInfo = client.statNode(stateID)
                             ?: run {
                                 // Remote node has also disappeared on server
                                 offlineRoot.status = AppNames.OFFLINE_STATUS_LOST

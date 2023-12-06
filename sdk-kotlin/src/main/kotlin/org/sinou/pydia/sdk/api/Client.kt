@@ -36,9 +36,11 @@ interface Client {
     @Throws(SDKException::class)
     fun delete(slug: String, paths: Array<String>, removePermanently: Boolean)
 
-    @Throws(SDKException::class)
-    fun statNode(file: String): TreeNode?
+//    @Throws(SDKException::class)
+//    fun statNode(file: String): TreeNode?
 
+    @Throws(SDKException::class)
+    fun statNode(stateID: StateID): TreeNode?
 
     /**
      * @param node         The local FileNode with current object meta-data
@@ -99,12 +101,22 @@ interface Client {
     @Throws(SDKException::class)
     fun getBookmarks(h: (TreeNode) -> Unit)
 
+//    @Throws(SDKException::class)
+//    fun share(
+//        workspace: String,
+//        file: String,
+//        wsLabel: String,
+//        wsDesc: String,
+//        password: String?,
+//        canPreview: Boolean,
+//        canDownload: Boolean
+//    ): String
+
     @Throws(SDKException::class)
     fun share(
-        workspace: String,
-        file: String,
-        wsLabel: String,
-        wsDesc: String,
+        stateID: StateID,
+        label: String,
+        desc: String,
         password: String?,
         canPreview: Boolean,
         canDownload: Boolean
@@ -129,7 +141,7 @@ interface Client {
     fun getShareAddress(ws: String, shareID: String): String
 
 
-            //    /**
+    //    /**
 //     * Temporary test before cleaning this part of the code
 //     * while testing both P8 and Cells
 //     */

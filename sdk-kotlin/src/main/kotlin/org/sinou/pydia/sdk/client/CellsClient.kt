@@ -45,8 +45,8 @@ import org.sinou.pydia.sdk.client.model.DocumentRegistry
 import org.sinou.pydia.sdk.client.model.TreeNodeInfo
 import org.sinou.pydia.sdk.transport.CellsTransport
 import org.sinou.pydia.sdk.transport.StateID
-import org.sinou.pydia.sdk.utils.CellsPath
 import org.sinou.pydia.sdk.utils.FileNodeUtils
+import org.sinou.pydia.sdk.utils.FileNodeUtils.toTreeNodePath
 import org.sinou.pydia.sdk.utils.IoHelpers
 import org.sinou.pydia.sdk.utils.Log
 import org.xml.sax.SAXException
@@ -259,17 +259,37 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
     }
 
+    //    @Throws(SDKException::class)
+//    override fun statNode(file: String): TreeNode? {
+//        try {
+//            val response = treeServiceApi().headNode(file)
+//            return response.node
+//        } catch (e: ServerException) {
+//            throw SDKException.fromServerException(e)
+//        } catch (e: Exception) {
+//            Log.e(logTag, "unexpected error when doing stat node for [$file]")
+//            e.printStackTrace()
+//            throw SDKException(ErrorCodes.internal_error, "Cannot stat $file", e)
+//        }
+//    }
     @Throws(SDKException::class)
-    override fun statNode(file: String): TreeNode? {
+    override fun statNode(stateID: StateID): TreeNode? {
+        val path = if (stateID.slug.isNullOrEmpty()) {
+            throw SDKException(ErrorCodes.illegal_argument, "cannot stat at $stateID, define a WS")
+        } else if (stateID.file.isNullOrEmpty()) {
+            "${stateID.slug}/"
+        } else {
+            "${stateID.slug}/${stateID.file}"
+        }
         try {
-            val response = treeServiceApi().headNode(file)
+            val response = treeServiceApi().headNode(path)
             return response.node
         } catch (e: ServerException) {
             throw SDKException.fromServerException(e)
         } catch (e: Exception) {
-            Log.e(logTag, "unexpected error when doing stat node for $file")
+            Log.e(logTag, "unexpected error when doing stat node for [$path]")
             e.printStackTrace()
-            throw SDKException(ErrorCodes.internal_error, "Cannot stat $file", e)
+            throw SDKException(ErrorCodes.internal_error, "Cannot stat $path", e)
         }
     }
 
@@ -897,17 +917,16 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 
     @Throws(SDKException::class)
     override fun share(
-        workspace: String,
-        file: String,
-        wsLabel: String,
-        wsDesc: String,
+        stateID: StateID,
+        label: String,
+        desc: String,
         password: String?,
         canPreview: Boolean,
         canDownload: Boolean
     ): String {
 
-        val targetRemote = statNode(CellsPath.fullPath(workspace, file))
-            ?: throw SDKException("Cannot share node $workspace/$file: it has disappeared on remote")
+        val targetRemote = statNode(stateID)
+            ?: throw SDKException("Cannot share node $stateID: it has disappeared on remote")
         val meta: Map<String, String> = targetRemote.metaStore ?: HashMap()
         val templateName = if ("true" == meta["is_image"]) {
             SdkNames.SHARE_TEMPLATE_GALLERY
@@ -922,15 +941,13 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             permissions.add(RestShareLinkAccessType.download)
         }
 
-        val n = TreeNode(
-            uuid = getNodeUuid(workspace, file)
-        )
+        val n = TreeNode(uuid = getNodeUuid(stateID))
         val shareLink = RestShareLink(
             policiesContextEditable = true,
             permissions = permissions,
             rootNodes = listOf(n),
-            description = wsDesc,
-            label = wsLabel,
+            description = desc,
+            label = label,
 //            viewTemplateName = "pydio_unique_strip"
             viewTemplateName = templateName
         )
@@ -1171,20 +1188,15 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             throw SDKException("Cannot get UUID for $ws$file", e)
         }
     }
-//
-//    @Throws(SDKException::class)
-//    private fun authenticatedClient(): ApiClient {
-//        return transport.authenticatedClient()
-//    }
-//
-//    /**
-//     * This is necessary until min version is 24: we cannot use the consumer pattern:
-//     * public void listChildren(String fullPath, Consumer&lt;TreeNode&gt; consumer) throws SDKException {
-//     * ... consumer.onNode(nodes.next());
-//     */
-//    interface TreeNodeHandler {
-//        fun onNode(node: TreeNode?)
-//    }
+
+    @Throws(SDKException::class)
+    private fun getNodeUuid(stateID: StateID): String? {
+        return try {
+            treeServiceApi().headNode(toTreeNodePath(stateID)).node?.uuid
+        } catch (e: ClientException) {
+            throw SDKException("Cannot get UUID for $stateID", e)
+        }
+    }
 
     companion object {
         private const val logTag = "CellsClient"

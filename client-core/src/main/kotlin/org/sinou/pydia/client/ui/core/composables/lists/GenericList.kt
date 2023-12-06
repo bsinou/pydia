@@ -24,8 +24,9 @@ import org.sinou.pydia.client.core.ServerConnection
 import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.theme.CellsIcons
 import org.sinou.pydia.client.ui.theme.CellsListTypography
+import org.sinou.pydia.sdk.utils.Log
 
-// private const val logTag = "GenericList "
+private const val LOG_TAG = "GenericList.kt"
 
 @Composable
 fun WithLoadingListBackground(
@@ -39,6 +40,8 @@ fun WithLoadingListBackground(
     emptyNoConnDesc: String = stringResource(R.string.empty_cache) + ":\n" + stringResource(R.string.server_unreachable),
     content: @Composable () -> Unit,
 ) {
+
+    Log.e(LOG_TAG, "... Composing for $connectionState")
     Box(modifier = modifier) {
         if (isEmpty) {
             Box(modifier = Modifier.fillMaxSize()) {

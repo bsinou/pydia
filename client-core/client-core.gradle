@@ -1,7 +1,6 @@
 buildscript {
 
     ext {
-
         // Define dependency packages that are then used as shortcuts by the various modules.
         librariesKapt = [
                 "androidx.room:room-compiler:2.6.0",
@@ -14,7 +13,7 @@ buildscript {
 
         libraries = [
                 // Kotlin standard library and coroutines
-                "org.jetbrains.kotlin:kotlin-stdlib:1.9.20",
+                "org.jetbrains.kotlin:kotlin-stdlib:1.9.22",
                 "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3",
                 "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3",
 
@@ -162,7 +161,6 @@ android {
         }
     }
 
-
     kotlinOptions {
         jvmTarget = "17"
     }
@@ -172,7 +170,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     kapt {

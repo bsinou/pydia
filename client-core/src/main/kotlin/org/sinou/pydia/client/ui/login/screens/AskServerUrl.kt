@@ -39,7 +39,6 @@ fun AskServerUrl(
     helper: LoginHelper,
     loginVM: LoginVM,
 ) {
-
     val scope = rememberCoroutineScope()
     val isProcessing = loginVM.isProcessing.collectAsState()
     val message = loginVM.message.collectAsState()

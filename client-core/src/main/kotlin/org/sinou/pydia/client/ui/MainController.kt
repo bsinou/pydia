@@ -1,6 +1,6 @@
 package org.sinou.pydia.client.ui
 
-import android.net.Uri
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.DrawerState
@@ -42,6 +42,7 @@ fun MainApp(
     emitActivityResult: (Int) -> Unit,
     widthSizeClass: WindowWidthSizeClass,
 ) {
+    //Twister()
     MainController(
         initialAppState = initialAppState,
         processSelectedTarget = processSelectedTarget,
@@ -50,6 +51,7 @@ fun MainApp(
     )
 }
 
+@SuppressLint("RestrictedApi")
 @Composable
 fun MainController(
     initialAppState: AppState,
@@ -80,6 +82,7 @@ fun MainController(
             Log.w(LOG_TAG, "[WARNING] Same route called twice: $route")
         }
         // FIXME remove
+        //  also remove method annotation to suppress the error
         dumpNavigationStack(
             LOG_TAG,
             "Main NavigateTo in WithDrawer",
@@ -178,5 +181,5 @@ class StartingState(var stateID: StateID) {
     var state: String? = null
 
     // Share with Pydio
-    var uris: MutableList<Uri> = mutableListOf()
+//     var uris: MutableList<Uri> = mutableListOf()
 }

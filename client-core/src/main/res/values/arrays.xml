@@ -11,10 +11,6 @@
         <item>Size (largest first)</item>
     </string-array>
 
-    <!-- Mime type ordering does not mean anything for the time  being. -->
-    <!--        <item>Type (A to Z)</item>-->
-    <!--        <item>Type (Z to A)</item>-->
-
     <string-array name="order_by_values" translatable="false">
         <item>sort_name||ASC</item>
         <item>name||ASC</item>

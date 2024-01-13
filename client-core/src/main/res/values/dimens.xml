@@ -55,9 +55,7 @@
     <dimen name="form_input_horizontal_padding">16dp</dimen>
     <dimen name="form_input_vertical_padding">8dp</dimen>
 
-
     <!-- **** SCAFFOLD **** -->
-
     <!-- TopBar -->
     <dimen name="expanded_screen_extra_top_padding">8dp</dimen>
     <dimen name="topbar_horizontal_padding">8dp</dimen>

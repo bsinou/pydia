@@ -53,7 +53,7 @@ fun AuthScreen(
                     .size(240.dp)
             ) {
                 Image(
-                    painterResource(R.drawable.pydio_logo),
+                    painterResource(R.drawable.loading),
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                     contentDescription = null,
                     modifier = Modifier

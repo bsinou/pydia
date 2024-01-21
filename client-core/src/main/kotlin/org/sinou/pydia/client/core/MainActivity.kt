@@ -11,6 +11,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,8 +20,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
@@ -29,8 +32,8 @@ import org.koin.core.parameter.parametersOf
 import org.sinou.pydia.client.core.services.ConnectionService
 import org.sinou.pydia.client.core.util.currentTimestamp
 import org.sinou.pydia.client.ui.MainApp
-import org.sinou.pydia.client.ui.core.screens.WhiteScreen
 import org.sinou.pydia.client.ui.core.screens.AuthScreen
+import org.sinou.pydia.client.ui.core.screens.WhiteScreen
 import org.sinou.pydia.client.ui.system.models.PreLaunchState
 import org.sinou.pydia.client.ui.system.models.PreLaunchVM
 import org.sinou.pydia.sdk.transport.StateID
@@ -46,30 +49,71 @@ class MainActivity : ComponentActivity() {
     private val logTag = "MainActivity"
     private val connectionService: ConnectionService by inject()
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        installSplashScreen()
+        var appIsReady = false
+        val splashTimeout = currentTimestamp() + 1
+
+        // Keep the splash screen visible while loading
+        installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                // Logic to determine if the splash screen should still be shown
+                // Return true to keep it, false to hide it
+                currentTimestamp() > splashTimeout
+            }
+        }
+
         Log.i(logTag, "... onCreate for main activity, bundle: $savedInstanceState")
         super.onCreate(savedInstanceState)
-
+        if (savedInstanceState != null) {
+            TODO("Handle non-null saved bundle state")
+        }
         WindowCompat.setDecorFitsSystemWindows(window, true)
-        var appIsReady = false
+
         val mainActivity = this
+
         setContent {
+            // Prepare the BaseUiState: should probably not be handled here
+            val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
             KoinContext {
-                AppBinding(
-                    activity = mainActivity,
-                    sBundle = savedInstanceState,
-                    intentID = intentIdentifier(),
-                ) {
-                    appIsReady = true
+                val showContent = rememberSaveable { mutableStateOf(false) }
+                LaunchedEffect(key1 = true) {
+                    // Launch your animation
+                    Log.e(logTag, "Before sleep")
+                    delay(1200L)
+                    Log.e(logTag, "After sleep")
+                    showContent.value = true
                 }
+                if (showContent.value) {
+                    AppBinding(
+                        intentID = intentIdentifier(),
+                        widthSizeClass = widthSizeClass,
+                    ) {
+                        appIsReady = true
+                    }
+                }
+//                val showSplash = rememberSaveable { mutableStateOf(true) }
+//                if (showSplash.value){
+//                    UseCellsTheme {
+//                        AnimatedSplashScreen {
+//                            showSplash.value = false
+//                        }
+//                    }
+//                } else {
+//                    AppBinding(
+//                        intentID = intentIdentifier(),
+//                        widthSizeClass = widthSizeClass,
+//                    ) {
+//                        appIsReady = true
+//                    }
+//                }
             }
         }
 
         // Set up an OnPreDrawListener to the root view.
-        val content: View = findViewById(android.R.id.content)
         val timeout = currentTimestamp() + 120
+        val content: View = findViewById(android.R.id.content)
         content.viewTreeObserver.addOnPreDrawListener(
             object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
@@ -83,19 +127,17 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @Composable
     fun AppBinding(
-        activity: Activity,
-        sBundle: Bundle?,
         intentID: String,
+        widthSizeClass: WindowWidthSizeClass,
         readyCallback: () -> Unit,
     ) {
 
         val scope = rememberCoroutineScope()
         val preLaunchVM: PreLaunchVM = koinViewModel(parameters = { parametersOf(intentID) })
 
-        val intentHasBeenProcessed = rememberSaveable { mutableStateOf(false) }
+        var intentHasBeenProcessed by rememberSaveable { mutableStateOf(false) }
         val appState by preLaunchVM.appState.collectAsState()
         val processState by preLaunchVM.processState.collectAsState()
 
@@ -118,20 +160,18 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(key1 = intentID) {
             val msg = "... First composition for AppBinding with:" +
-                    "\n\tintent: [$intentID]\n\tbundle: $sBundle "
+                    "\n\tintent: [$intentID]"
             Log.e(logTag, msg)
-            if (intentHasBeenProcessed.value) {
+            if (intentHasBeenProcessed) {
                 Log.w(logTag, "intent has already been processed...")
                 preLaunchVM.skip()
             } else {
-                handleIntent(preLaunchVM, sBundle)
+                handleIntent(preLaunchVM)
             }
             readyCallback()
-            intentHasBeenProcessed.value = true
+            intentHasBeenProcessed = true
         }
 
-        // Prepare the BaseUiState
-        val widthSizeClass = calculateWindowSizeClass(activity).widthSizeClass
 
         Box {
             when (processState) {
@@ -180,15 +220,12 @@ class MainActivity : ComponentActivity() {
         super.onResume()
     }
 
-    private suspend fun handleIntent(preLaunchVM: PreLaunchVM, sBundle: Bundle?) {
+    private suspend fun handleIntent(preLaunchVM: PreLaunchVM) {
         try {
             val msg = "... Processing intent ($intent):\n" +
                     "\t- cmp: ${intent.component}\n\t- action${intent.action}" +
                     "\n\t- categories: ${intent.categories}" //+
             Log.i(logTag, msg)
-            if (sBundle != null) {
-                TODO("Handle non-null saved bundle state")
-            }
 
             // Handle various supported events
             when (intent.action) {

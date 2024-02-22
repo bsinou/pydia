@@ -26,4 +26,4 @@ An complete list can be found in the main [build.gradle](https://github.com/bsin
 
 The code is licensed under [Apache2](https://github.com/bsinou/pydia/blob/main/LICENSE) and offers no guaranty, _not even the fact that is might be useful for any particular purpose_. 
 
-Copyright 2022 Bruno SINOU and Abstrium SAS.
+(C) Copyright 2024 Bruno SINOU and Abstrium SAS.

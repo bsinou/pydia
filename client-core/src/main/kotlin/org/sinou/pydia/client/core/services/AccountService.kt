@@ -112,11 +112,7 @@ class AccountService(
         }
     }
 
-    // Direct communication with the backend
-
-//    suspend fun isLegacy(stateId: StateID): Boolean = withContext(ioDispatcher) {
-//        return@withContext accountDao.getAccount(stateId.accountId)?.isLegacy ?: false
-//    }
+    /* Direct communication with the backend */
 
     suspend fun getActiveSession(): RSessionView? = withContext(ioDispatcher) {
         return@withContext sessionViewDao.getActiveSession(AppNames.LIFECYCLE_STATE_FOREGROUND)

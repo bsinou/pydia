@@ -103,7 +103,7 @@ android {
     compileSdk 34
 
     // Gather overrides in a distinct folder for easier maintenance
-    sourceSets.main.res.srcDir 'src/main/res-overrides      '
+    sourceSets.main.res.srcDir 'src/main/res-overrides'
 
     defaultConfig {
         applicationId "org.sinou.pydia.client.next"

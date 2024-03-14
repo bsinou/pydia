@@ -159,8 +159,7 @@ class MainActivity : ComponentActivity() {
         }
 
         LaunchedEffect(key1 = intentID) {
-            val msg = "... First composition for AppBinding with:" +
-                    "\n\tintent: [$intentID]"
+            val msg = "... Launching effect for new intent:\n\t$intentID"
             Log.e(logTag, msg)
             if (intentHasBeenProcessed) {
                 Log.w(logTag, "intent has already been processed...")

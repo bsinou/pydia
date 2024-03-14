@@ -115,7 +115,7 @@ class PreLaunchVM(
         viewModelScope.launch {
 
             delay(smoothActionDelay)
-            val (accID, lc) =
+            val (accID, loginContext) =
                 authService.handleOAuthResponse(accountService, sessionFactory, state, code)
                     ?: run {// Nothing to do, we simply ignore the call
                         _processState.value = PreLaunchState.SKIP
@@ -128,7 +128,8 @@ class PreLaunchVM(
                 delay(smoothActionDelay)
                 accountService.refreshWorkspaceList(accID)
 
-                if (lc == AuthService.LOGIN_CONTEXT_BROWSE || lc == AuthService.LOGIN_CONTEXT_SHARE) {
+                if (loginContext == AuthService.LOGIN_CONTEXT_SHARE) {
+                    // lc == AuthService.LOGIN_CONTEXT_BROWSE ||
                     _processState.value = PreLaunchState.TERMINATE
                 } else {
                     _appState.value = AppState(
@@ -136,7 +137,7 @@ class PreLaunchVM(
                         intentID = intentID,
                         // TODO maybe also insure here that we have a first correct destination.
                         route = null,
-                        context = lc
+                        context = loginContext
                     )
                     _processState.value = PreLaunchState.DONE
                 }

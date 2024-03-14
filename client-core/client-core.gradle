@@ -45,7 +45,7 @@ buildscript {
                 "io.insert-koin:koin-androidx-navigation",
 
                 // Files
-                "com.amazonaws:aws-android-sdk-s3:2.73.0",
+                "com.amazonaws:aws-android-sdk-s3:2.75.0",
                 "com.github.bumptech.glide:glide:5.0.0-rc01",
 
                 // Preferences
@@ -115,6 +115,11 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
+    composeOptions {
+        // See https://developer.android.com/jetpack/androidx/releases/compose-kotlin
+        kotlinCompilerExtensionVersion = "1.5.10"
+    }
+
     buildTypes {
 
 //        release {
@@ -168,10 +173,6 @@ android {
     buildFeatures {
         compose true
         buildConfig true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     kapt {

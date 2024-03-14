@@ -15,7 +15,7 @@ You can find the code on [GitHub](https://github.com/bsinou/pydia), don't hesita
 
 Main libraries are: 
 
-- The Pydio Cells SDK for Java
+- The Cells SDK for Kotlin, generated from the swagger spec
 - AndroidX and JetPack
 - AWS S3 Client for Android
 - Glide

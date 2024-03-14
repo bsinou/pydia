@@ -22,17 +22,17 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: oR,aND
+ * Values: OR,AND
  */
 
 @JsonClass(generateAdapter = false)
 enum class ServiceOperationType(val value: kotlin.String) {
 
     @Json(name = "OR")
-    oR("OR"),
+    OR("OR"),
 
     @Json(name = "AND")
-    aND("AND");
+    AND("AND");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

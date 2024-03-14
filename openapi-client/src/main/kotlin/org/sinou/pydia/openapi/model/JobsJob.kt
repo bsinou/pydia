@@ -16,6 +16,7 @@
 package org.sinou.pydia.openapi.model
 
 import org.sinou.pydia.openapi.model.JobsAction
+import org.sinou.pydia.openapi.model.JobsChatEventFilter
 import org.sinou.pydia.openapi.model.JobsContextMetaFilter
 import org.sinou.pydia.openapi.model.JobsDataSourceSelector
 import org.sinou.pydia.openapi.model.JobsIdmSelector
@@ -37,6 +38,7 @@ import com.squareup.moshi.JsonClass
  * @param autoClean 
  * @param autoRestart 
  * @param autoStart 
+ * @param chatEventFilter 
  * @param contextMetaFilter 
  * @param createdAt 
  * @param custom 
@@ -78,6 +80,9 @@ data class JobsJob (
 
     @Json(name = "AutoStart")
     val autoStart: kotlin.Boolean? = null,
+
+    @Json(name = "ChatEventFilter")
+    val chatEventFilter: JobsChatEventFilter? = null,
 
     @Json(name = "ContextMetaFilter")
     val contextMetaFilter: JobsContextMetaFilter? = null,

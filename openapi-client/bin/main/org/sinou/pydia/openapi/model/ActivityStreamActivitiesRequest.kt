@@ -46,7 +46,7 @@ data class ActivityStreamActivitiesRequest (
     val boxName: kotlin.String? = null,
 
     @Json(name = "Context")
-    val context: ActivityStreamContext? = ActivityStreamContext.mYFEED,
+    val context: ActivityStreamContext? = ActivityStreamContext.MYFEED,
 
     @Json(name = "ContextData")
     val contextData: kotlin.String? = null,
@@ -62,7 +62,7 @@ data class ActivityStreamActivitiesRequest (
     val offset: kotlin.String? = null,
 
     @Json(name = "PointOfView")
-    val pointOfView: ActivitySummaryPointOfView? = ActivitySummaryPointOfView.gENERIC,
+    val pointOfView: ActivitySummaryPointOfView? = ActivitySummaryPointOfView.GENERIC,
 
     @Json(name = "StreamFilter")
     val streamFilter: kotlin.String? = null,

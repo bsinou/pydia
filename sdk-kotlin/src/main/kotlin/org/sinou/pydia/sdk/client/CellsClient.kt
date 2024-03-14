@@ -820,14 +820,14 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             namespace = "bookmark",
             jsonValue = "true",
             policies = listOf(
-                ServiceResourcePolicy(action = ServiceResourcePolicyAction.rEAD),
-                ServiceResourcePolicy(action = ServiceResourcePolicyAction.wRITE),
-                ServiceResourcePolicy(action = ServiceResourcePolicyAction.oWNER),
+                ServiceResourcePolicy(action = ServiceResourcePolicyAction.READ),
+                ServiceResourcePolicy(action = ServiceResourcePolicyAction.WRITE),
+                ServiceResourcePolicy(action = ServiceResourcePolicyAction.OWNER),
             )
         )
 
         val request = IdmUpdateUserMetaRequest(
-            operation = UpdateUserMetaRequestUserMetaOp.pUT,
+            operation = UpdateUserMetaRequestUserMetaOp.PUT,
             metaDatas = listOf(userMeta)
         )
         try {
@@ -857,7 +857,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 
             // Delete corresponding user meta
             val request = IdmUpdateUserMetaRequest(
-                operation = UpdateUserMetaRequestUserMetaOp.dELETE,
+                operation = UpdateUserMetaRequestUserMetaOp.DELETE,
                 metaDatas = metadatas
             )
             api.updateUserMeta(request)
@@ -887,10 +887,10 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         )
         val permissions: MutableList<RestShareLinkAccessType> = ArrayList()
         if (canPreview) {
-            permissions.add(RestShareLinkAccessType.preview)
+            permissions.add(RestShareLinkAccessType.Preview)
         }
         if (canDownload) {
-            permissions.add(RestShareLinkAccessType.download)
+            permissions.add(RestShareLinkAccessType.Download)
         }
         val sl = RestShareLink(
             policiesContextEditable = true,
@@ -935,10 +935,10 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
         val permissions: MutableList<RestShareLinkAccessType> = ArrayList()
         if (canPreview) {
-            permissions.add(RestShareLinkAccessType.preview)
+            permissions.add(RestShareLinkAccessType.Preview)
         }
         if (canDownload) {
-            permissions.add(RestShareLinkAccessType.download)
+            permissions.add(RestShareLinkAccessType.Download)
         }
 
         val n = TreeNode(uuid = getNodeUuid(stateID))

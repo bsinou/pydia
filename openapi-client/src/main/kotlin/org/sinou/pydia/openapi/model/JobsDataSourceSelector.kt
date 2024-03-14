@@ -63,7 +63,7 @@ data class JobsDataSourceSelector (
     val timeout: kotlin.String? = null,
 
     @Json(name = "Type")
-    val type: JobsDataSourceSelectorType? = JobsDataSourceSelectorType.dataSource
+    val type: JobsDataSourceSelectorType? = JobsDataSourceSelectorType.DataSource
 
 )
 

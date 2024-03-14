@@ -22,47 +22,47 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: aLL,eDGE,nODE,sERVICE,sERVER,dAO,gENERIC,aDDRESS,tAG,pROCESS,eNDPOINT,sTATS
+ * Values: ALL,EDGE,NODE,SERVICE,SERVER,DAO,GENERIC,ADDRESS,TAG,PROCESS,ENDPOINT,STATS
  */
 
 @JsonClass(generateAdapter = false)
 enum class RegistryItemType(val value: kotlin.String) {
 
     @Json(name = "ALL")
-    aLL("ALL"),
+    ALL("ALL"),
 
     @Json(name = "EDGE")
-    eDGE("EDGE"),
+    EDGE("EDGE"),
 
     @Json(name = "NODE")
-    nODE("NODE"),
+    NODE("NODE"),
 
     @Json(name = "SERVICE")
-    sERVICE("SERVICE"),
+    SERVICE("SERVICE"),
 
     @Json(name = "SERVER")
-    sERVER("SERVER"),
+    SERVER("SERVER"),
 
     @Json(name = "DAO")
-    dAO("DAO"),
+    DAO("DAO"),
 
     @Json(name = "GENERIC")
-    gENERIC("GENERIC"),
+    GENERIC("GENERIC"),
 
     @Json(name = "ADDRESS")
-    aDDRESS("ADDRESS"),
+    ADDRESS("ADDRESS"),
 
     @Json(name = "TAG")
-    tAG("TAG"),
+    TAG("TAG"),
 
     @Json(name = "PROCESS")
-    pROCESS("PROCESS"),
+    PROCESS("PROCESS"),
 
     @Json(name = "ENDPOINT")
-    eNDPOINT("ENDPOINT"),
+    ENDPOINT("ENDPOINT"),
 
     @Json(name = "STATS")
-    sTATS("STATS");
+    STATS("STATS");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

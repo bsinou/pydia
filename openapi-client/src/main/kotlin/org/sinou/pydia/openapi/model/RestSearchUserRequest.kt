@@ -51,7 +51,7 @@ data class RestSearchUserRequest (
     val offset: kotlin.String? = null,
 
     @Json(name = "Operation")
-    val operation: ServiceOperationType? = ServiceOperationType.oR,
+    val operation: ServiceOperationType? = ServiceOperationType.OR,
 
     @Json(name = "Queries")
     val queries: kotlin.collections.List<IdmUserSingleQuery>? = null,

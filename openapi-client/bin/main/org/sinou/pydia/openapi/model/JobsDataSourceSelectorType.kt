@@ -22,17 +22,17 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: dataSource,`object`
+ * Values: DataSource,Object
  */
 
 @JsonClass(generateAdapter = false)
 enum class JobsDataSourceSelectorType(val value: kotlin.String) {
 
     @Json(name = "DataSource")
-    dataSource("DataSource"),
+    DataSource("DataSource"),
 
     @Json(name = "Object")
-    `object`("Object");
+    Object("Object");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

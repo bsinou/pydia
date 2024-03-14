@@ -22,32 +22,32 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: cREATE,rEAD,uPDATEPATH,uPDATECONTENT,uPDATEMETA,uPDATEUSERMETA,dELETE
+ * Values: CREATE,READ,UPDATE_PATH,UPDATE_CONTENT,UPDATE_META,UPDATE_USER_META,DELETE
  */
 
 @JsonClass(generateAdapter = false)
 enum class TreeNodeChangeEventEventType(val value: kotlin.String) {
 
     @Json(name = "CREATE")
-    cREATE("CREATE"),
+    CREATE("CREATE"),
 
     @Json(name = "READ")
-    rEAD("READ"),
+    READ("READ"),
 
     @Json(name = "UPDATE_PATH")
-    uPDATEPATH("UPDATE_PATH"),
+    UPDATE_PATH("UPDATE_PATH"),
 
     @Json(name = "UPDATE_CONTENT")
-    uPDATECONTENT("UPDATE_CONTENT"),
+    UPDATE_CONTENT("UPDATE_CONTENT"),
 
     @Json(name = "UPDATE_META")
-    uPDATEMETA("UPDATE_META"),
+    UPDATE_META("UPDATE_META"),
 
     @Json(name = "UPDATE_USER_META")
-    uPDATEUSERMETA("UPDATE_USER_META"),
+    UPDATE_USER_META("UPDATE_USER_META"),
 
     @Json(name = "DELETE")
-    dELETE("DELETE");
+    DELETE("DELETE");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

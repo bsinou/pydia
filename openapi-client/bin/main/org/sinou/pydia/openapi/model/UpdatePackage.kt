@@ -95,7 +95,7 @@ data class UpdatePackage (
     val serviceName: kotlin.String? = null,
 
     @Json(name = "Status")
-    val status: PackagePackageStatus? = PackagePackageStatus.draft,
+    val status: PackagePackageStatus? = PackagePackageStatus.Draft,
 
     @Json(name = "Version")
     val version: kotlin.String? = null

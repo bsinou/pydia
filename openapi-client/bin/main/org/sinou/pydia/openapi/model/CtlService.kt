@@ -53,7 +53,7 @@ data class CtlService (
     val runningPeers: kotlin.collections.List<CtlPeer>? = null,
 
     @Json(name = "Status")
-    val status: CtlServiceStatus? = CtlServiceStatus.aNY,
+    val status: CtlServiceStatus? = CtlServiceStatus.ANY,
 
     @Json(name = "Tag")
     val tag: kotlin.String? = null,

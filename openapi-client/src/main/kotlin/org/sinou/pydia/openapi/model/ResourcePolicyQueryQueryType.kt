@@ -22,23 +22,23 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: cONTEXT,aNY,nONE,uSER
+ * Values: CONTEXT,ANY,NONE,USER
  */
 
 @JsonClass(generateAdapter = false)
 enum class ResourcePolicyQueryQueryType(val value: kotlin.String) {
 
     @Json(name = "CONTEXT")
-    cONTEXT("CONTEXT"),
+    CONTEXT("CONTEXT"),
 
     @Json(name = "ANY")
-    aNY("ANY"),
+    ANY("ANY"),
 
     @Json(name = "NONE")
-    nONE("NONE"),
+    NONE("NONE"),
 
     @Json(name = "USER")
-    uSER("USER");
+    USER("USER");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

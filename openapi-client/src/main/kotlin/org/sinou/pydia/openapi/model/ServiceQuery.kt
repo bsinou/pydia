@@ -29,6 +29,8 @@ import com.squareup.moshi.JsonClass
  * @param offset 
  * @param operation 
  * @param resourcePolicyQuery 
+ * @param sortDesc 
+ * @param sortField 
  * @param subQueries 
  * @param groupBy 
  */
@@ -43,10 +45,16 @@ data class ServiceQuery (
     val offset: kotlin.String? = null,
 
     @Json(name = "Operation")
-    val operation: ServiceOperationType? = ServiceOperationType.oR,
+    val operation: ServiceOperationType? = ServiceOperationType.OR,
 
     @Json(name = "ResourcePolicyQuery")
     val resourcePolicyQuery: ServiceResourcePolicyQuery? = null,
+
+    @Json(name = "SortDesc")
+    val sortDesc: kotlin.Boolean? = null,
+
+    @Json(name = "SortField")
+    val sortField: kotlin.String? = null,
 
     @Json(name = "SubQueries")
     val subQueries: kotlin.collections.List<ProtobufAny>? = null,

@@ -22,29 +22,29 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: aNY,fULLDIFF,fULLLIST,cREATE,uPDATE,dELETE
+ * Values: ANY,FULL_DIFF,FULL_LIST,CREATE,UPDATE,DELETE
  */
 
 @JsonClass(generateAdapter = false)
 enum class RegistryActionType(val value: kotlin.String) {
 
     @Json(name = "ANY")
-    aNY("ANY"),
+    ANY("ANY"),
 
     @Json(name = "FULL_DIFF")
-    fULLDIFF("FULL_DIFF"),
+    FULL_DIFF("FULL_DIFF"),
 
     @Json(name = "FULL_LIST")
-    fULLLIST("FULL_LIST"),
+    FULL_LIST("FULL_LIST"),
 
     @Json(name = "CREATE")
-    cREATE("CREATE"),
+    CREATE("CREATE"),
 
     @Json(name = "UPDATE")
-    uPDATE("UPDATE"),
+    UPDATE("UPDATE"),
 
     @Json(name = "DELETE")
-    dELETE("DELETE");
+    DELETE("DELETE");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

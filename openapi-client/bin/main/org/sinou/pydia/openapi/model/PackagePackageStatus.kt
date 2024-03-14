@@ -22,20 +22,20 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: draft,pending,released
+ * Values: Draft,Pending,Released
  */
 
 @JsonClass(generateAdapter = false)
 enum class PackagePackageStatus(val value: kotlin.String) {
 
     @Json(name = "Draft")
-    draft("Draft"),
+    Draft("Draft"),
 
     @Json(name = "Pending")
-    pending("Pending"),
+    Pending("Pending"),
 
     @Json(name = "Released")
-    released("Released");
+    Released("Released");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

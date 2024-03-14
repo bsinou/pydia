@@ -22,23 +22,23 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: noAccess,preview,download,upload
+ * Values: NoAccess,Preview,Download,Upload
  */
 
 @JsonClass(generateAdapter = false)
 enum class RestShareLinkAccessType(val value: kotlin.String) {
 
     @Json(name = "NoAccess")
-    noAccess("NoAccess"),
+    NoAccess("NoAccess"),
 
     @Json(name = "Preview")
-    preview("Preview"),
+    Preview("Preview"),
 
     @Json(name = "Download")
-    download("Download"),
+    Download("Download"),
 
     @Json(name = "Upload")
-    upload("Upload");
+    Upload("Upload");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

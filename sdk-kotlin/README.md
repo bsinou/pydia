@@ -20,7 +20,7 @@ cd /tmp/forSwagger
 git clone https://github.com/bsinou/pydia.git
 cd pydia
 git checkout $branch
-cd sdk-kotlin
+cd openapi-client
 
 cp ../../openapi-generator-cli.jar .
 # or
@@ -45,15 +45,15 @@ Then generate the SDK
 # WARNING: Update
 SDK_DEFAULT_AGENT="PydioCells/v4.4.0-alpha2/KotlinSDK/v0.1.2"
 
-java -jar openapi-generator-cli.jar generate -g kotlin -i ./cellsapi-rest.swagger.yml -o /tmp/forSwagger/pydia/sdk-kotlin     --invoker-package org.sinou.pydia.openapi     --api-package org.sinou.pydia.openapi.api     --model-package org.sinou.pydia.openapi.model     --http-user-agent ${SDK_DEFAULT_AGENT}
+java -jar openapi-generator-cli.jar generate -g kotlin -i ./cellsapi-rest.swagger.yml -o /tmp/forSwagger/pydia/openapi-client --invoker-package org.sinou.pydia.openapi     --api-package org.sinou.pydia.openapi.api     --model-package org.sinou.pydia.openapi.model     --http-user-agent ${SDK_DEFAULT_AGENT}
 
-cd $GITPATH/github.com/bsinou/pydia/sdk-kotlin/src/main/kotlin/org/sinou/pydia/
+cd $GITPATH/github.com/bsinou/pydia/openapi-client/src/main/kotlin/org/sinou/pydia/
 rm -rf ./openapi/{model,api}
-mv /tmp/forSwagger/pydia/sdk-kotlin/src/main/kotlin/org/sinou/pydia/openapi/ .
+mv /tmp/forSwagger/pydia/openapi-client/src/main/kotlin/org/sinou/pydia/openapi/{model,api} ./openapi/
 
 # Also copy used sagger file for later references
 export CELLS_VERSION=4.4.0-alpha2
-cp /tmp/forSwagger/pydia/sdk-kotlin/cellsapi-rest.swagger.yml $GITPATH/github.com/bsinou/pydia/sdk-kotlin/src/main/kotlin/org/sinou/pydia/openapi/cellsapi-rest-${CELLS_VERSION}.swagger.yml
+cp /tmp/forSwagger/pydia/openapi-client/cellsapi-rest.swagger.yml $GITPATH/github.com/bsinou/pydia/openapi-client/src/main/kotlin/org/sinou/pydia/openapi/cellsapi-rest-${CELLS_VERSION}.swagger.yml
 
 # For the record, more details about the possible options:
 java -jar swagger-codegen-cli.jar help generate
@@ -66,8 +66,8 @@ In nov 2023, we must also:
 - retrieve infrastructure package and rename it:
 
 ```sh
-cd $GITPATH/github.com/bsinou/pydia/sdk-kotlin/src/main/kotlin/org
+cd $GITPATH/github.com/bsinou/pydia/openapi-client/src/main/kotlin/org
 mv /tmp/forSwagger/pydia/sdk-kotlin/src/main/kotlin/org/openapitools .
 ```
 
-- refactor in our package
+- refactor in our package: we must rename package `org/openapitools/infrastructure` to `org/sinou/pydia/openapi/infrastructure`

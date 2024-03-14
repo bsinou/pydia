@@ -69,7 +69,7 @@ data class JobsTask (
     val startTime: kotlin.Int? = null,
 
     @Json(name = "Status")
-    val status: JobsTaskStatus? = JobsTaskStatus.unknown,
+    val status: JobsTaskStatus? = JobsTaskStatus.Unknown,
 
     @Json(name = "StatusMessage")
     val statusMessage: kotlin.String? = null,

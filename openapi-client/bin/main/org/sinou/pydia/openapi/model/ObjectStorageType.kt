@@ -22,38 +22,38 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: lOCAL,s3,sMB,cELLS,aZURE,gCS,b2,mANTA,sIA
+ * Values: LOCAL,S3,SMB,CELLS,AZURE,GCS,B2,MANTA,SIA
  */
 
 @JsonClass(generateAdapter = false)
 enum class ObjectStorageType(val value: kotlin.String) {
 
     @Json(name = "LOCAL")
-    lOCAL("LOCAL"),
+    LOCAL("LOCAL"),
 
     @Json(name = "S3")
-    s3("S3"),
+    S3("S3"),
 
     @Json(name = "SMB")
-    sMB("SMB"),
+    SMB("SMB"),
 
     @Json(name = "CELLS")
-    cELLS("CELLS"),
+    CELLS("CELLS"),
 
     @Json(name = "AZURE")
-    aZURE("AZURE"),
+    AZURE("AZURE"),
 
     @Json(name = "GCS")
-    gCS("GCS"),
+    GCS("GCS"),
 
     @Json(name = "B2")
-    b2("B2"),
+    B2("B2"),
 
     @Json(name = "MANTA")
-    mANTA("MANTA"),
+    MANTA("MANTA"),
 
     @Json(name = "SIA")
-    sIA("SIA");
+    SIA("SIA");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

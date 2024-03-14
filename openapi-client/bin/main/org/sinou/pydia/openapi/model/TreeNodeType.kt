@@ -22,16 +22,19 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: uNKNOWN,lEAF,cOLLECTION
+ * Values: UNKNOWN,LEAF,COLLECTION
  */
 
 @JsonClass(generateAdapter = false)
-enum class TreeNodeType(val value: String) {
+enum class TreeNodeType(val value: kotlin.String) {
 
+    @Json(name = "UNKNOWN")
     UNKNOWN("UNKNOWN"),
 
+    @Json(name = "LEAF")
     LEAF("LEAF"),
 
+    @Json(name = "COLLECTION")
     COLLECTION("COLLECTION");
 
     /**
@@ -41,7 +44,7 @@ enum class TreeNodeType(val value: String) {
      * This solves a problem when the variable name and its value are different, and ensures that
      * the client sends the correct enum values to the server always.
      */
-    override fun toString(): String = value
+    override fun toString(): kotlin.String = value
 
     companion object {
         /**
@@ -60,3 +63,4 @@ enum class TreeNodeType(val value: String) {
         }
     }
 }
+

@@ -22,191 +22,191 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: baseObject,activity,link,mention,collection,orderedCollection,collectionPage,orderedCollectionPage,application,group,organization,person,service,article,audio,document,event,image,note,page,place,profile,relationship,tombstone,video,accept,add,announce,arrive,block,create,delete,dislike,flag,follow,ignore,invite,join,leave,like,listen,move,offer,question,reject,read,remove,tentativeReject,tentativeAccept,travel,undo,update,updateComment,updateMeta,view,workspace,digest,folder,cell,share
+ * Values: BaseObject,Activity,Link,Mention,Collection,OrderedCollection,CollectionPage,OrderedCollectionPage,Application,Group,Organization,Person,Service,Article,Audio,Document,Event,Image,Note,Page,Place,Profile,Relationship,Tombstone,Video,Accept,Add,Announce,Arrive,Block,Create,Delete,Dislike,Flag,Follow,Ignore,Invite,Join,Leave,Like,Listen,Move,Offer,Question,Reject,Read,Remove,TentativeReject,TentativeAccept,Travel,Undo,Update,UpdateComment,UpdateMeta,View,Workspace,Digest,Folder,Cell,Share
  */
 
 @JsonClass(generateAdapter = false)
 enum class ActivityObjectType(val value: kotlin.String) {
 
     @Json(name = "BaseObject")
-    baseObject("BaseObject"),
+    BaseObject("BaseObject"),
 
     @Json(name = "Activity")
-    activity("Activity"),
+    Activity("Activity"),
 
     @Json(name = "Link")
-    link("Link"),
+    Link("Link"),
 
     @Json(name = "Mention")
-    mention("Mention"),
+    Mention("Mention"),
 
     @Json(name = "Collection")
-    collection("Collection"),
+    Collection("Collection"),
 
     @Json(name = "OrderedCollection")
-    orderedCollection("OrderedCollection"),
+    OrderedCollection("OrderedCollection"),
 
     @Json(name = "CollectionPage")
-    collectionPage("CollectionPage"),
+    CollectionPage("CollectionPage"),
 
     @Json(name = "OrderedCollectionPage")
-    orderedCollectionPage("OrderedCollectionPage"),
+    OrderedCollectionPage("OrderedCollectionPage"),
 
     @Json(name = "Application")
-    application("Application"),
+    Application("Application"),
 
     @Json(name = "Group")
-    group("Group"),
+    Group("Group"),
 
     @Json(name = "Organization")
-    organization("Organization"),
+    Organization("Organization"),
 
     @Json(name = "Person")
-    person("Person"),
+    Person("Person"),
 
     @Json(name = "Service")
-    service("Service"),
+    Service("Service"),
 
     @Json(name = "Article")
-    article("Article"),
+    Article("Article"),
 
     @Json(name = "Audio")
-    audio("Audio"),
+    Audio("Audio"),
 
     @Json(name = "Document")
-    document("Document"),
+    Document("Document"),
 
     @Json(name = "Event")
-    event("Event"),
+    Event("Event"),
 
     @Json(name = "Image")
-    image("Image"),
+    Image("Image"),
 
     @Json(name = "Note")
-    note("Note"),
+    Note("Note"),
 
     @Json(name = "Page")
-    page("Page"),
+    Page("Page"),
 
     @Json(name = "Place")
-    place("Place"),
+    Place("Place"),
 
     @Json(name = "Profile")
-    profile("Profile"),
+    Profile("Profile"),
 
     @Json(name = "Relationship")
-    relationship("Relationship"),
+    Relationship("Relationship"),
 
     @Json(name = "Tombstone")
-    tombstone("Tombstone"),
+    Tombstone("Tombstone"),
 
     @Json(name = "Video")
-    video("Video"),
+    Video("Video"),
 
     @Json(name = "Accept")
-    accept("Accept"),
+    Accept("Accept"),
 
     @Json(name = "Add")
-    add("Add"),
+    Add("Add"),
 
     @Json(name = "Announce")
-    announce("Announce"),
+    Announce("Announce"),
 
     @Json(name = "Arrive")
-    arrive("Arrive"),
+    Arrive("Arrive"),
 
     @Json(name = "Block")
-    block("Block"),
+    Block("Block"),
 
     @Json(name = "Create")
-    create("Create"),
+    Create("Create"),
 
     @Json(name = "Delete")
-    delete("Delete"),
+    Delete("Delete"),
 
     @Json(name = "Dislike")
-    dislike("Dislike"),
+    Dislike("Dislike"),
 
     @Json(name = "Flag")
-    flag("Flag"),
+    Flag("Flag"),
 
     @Json(name = "Follow")
-    follow("Follow"),
+    Follow("Follow"),
 
     @Json(name = "Ignore")
-    ignore("Ignore"),
+    Ignore("Ignore"),
 
     @Json(name = "Invite")
-    invite("Invite"),
+    Invite("Invite"),
 
     @Json(name = "Join")
-    join("Join"),
+    Join("Join"),
 
     @Json(name = "Leave")
-    leave("Leave"),
+    Leave("Leave"),
 
     @Json(name = "Like")
-    like("Like"),
+    Like("Like"),
 
     @Json(name = "Listen")
-    listen("Listen"),
+    Listen("Listen"),
 
     @Json(name = "Move")
-    move("Move"),
+    Move("Move"),
 
     @Json(name = "Offer")
-    offer("Offer"),
+    Offer("Offer"),
 
     @Json(name = "Question")
-    question("Question"),
+    Question("Question"),
 
     @Json(name = "Reject")
-    reject("Reject"),
+    Reject("Reject"),
 
     @Json(name = "Read")
-    read("Read"),
+    Read("Read"),
 
     @Json(name = "Remove")
-    remove("Remove"),
+    Remove("Remove"),
 
     @Json(name = "TentativeReject")
-    tentativeReject("TentativeReject"),
+    TentativeReject("TentativeReject"),
 
     @Json(name = "TentativeAccept")
-    tentativeAccept("TentativeAccept"),
+    TentativeAccept("TentativeAccept"),
 
     @Json(name = "Travel")
-    travel("Travel"),
+    Travel("Travel"),
 
     @Json(name = "Undo")
-    undo("Undo"),
+    Undo("Undo"),
 
     @Json(name = "Update")
-    update("Update"),
+    Update("Update"),
 
     @Json(name = "UpdateComment")
-    updateComment("UpdateComment"),
+    UpdateComment("UpdateComment"),
 
     @Json(name = "UpdateMeta")
-    updateMeta("UpdateMeta"),
+    UpdateMeta("UpdateMeta"),
 
     @Json(name = "View")
-    view("View"),
+    View("View"),
 
     @Json(name = "Workspace")
-    workspace("Workspace"),
+    Workspace("Workspace"),
 
     @Json(name = "Digest")
-    digest("Digest"),
+    Digest("Digest"),
 
     @Json(name = "Folder")
-    folder("Folder"),
+    Folder("Folder"),
 
     @Json(name = "Cell")
-    cell("Cell"),
+    Cell("Cell"),
 
     @Json(name = "Share")
-    share("Share");
+    Share("Share");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

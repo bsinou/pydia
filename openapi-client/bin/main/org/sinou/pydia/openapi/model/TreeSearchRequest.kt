@@ -27,6 +27,8 @@ import com.squareup.moshi.JsonClass
  * @param from 
  * @param query 
  * @param propertySize 
+ * @param sortDirDesc 
+ * @param sortField 
  * @param statFlags 
  */
 
@@ -44,6 +46,12 @@ data class TreeSearchRequest (
 
     @Json(name = "Size")
     val propertySize: kotlin.Int? = null,
+
+    @Json(name = "SortDirDesc")
+    val sortDirDesc: kotlin.Boolean? = null,
+
+    @Json(name = "SortField")
+    val sortField: kotlin.String? = null,
 
     @Json(name = "StatFlags")
     val statFlags: kotlin.collections.List<kotlin.Long>? = null

@@ -36,7 +36,7 @@ import com.squareup.moshi.JsonClass
 data class ServiceResourcePolicy (
 
     @Json(name = "Action")
-    val action: ServiceResourcePolicyAction? = ServiceResourcePolicyAction.aNY,
+    val action: ServiceResourcePolicyAction? = ServiceResourcePolicyAction.ANY,
 
     @Json(name = "Effect")
     val effect: ServiceResourcePolicyPolicyEffect? = ServiceResourcePolicyPolicyEffect.deny,

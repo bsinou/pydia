@@ -22,20 +22,20 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: uNKNOWN,uSER,gROUP
+ * Values: UNKNOWN,USER,GROUP
  */
 
 @JsonClass(generateAdapter = false)
 enum class IdmNodeType(val value: kotlin.String) {
 
     @Json(name = "UNKNOWN")
-    uNKNOWN("UNKNOWN"),
+    UNKNOWN("UNKNOWN"),
 
     @Json(name = "USER")
-    uSER("USER"),
+    USER("USER"),
 
     @Json(name = "GROUP")
-    gROUP("GROUP");
+    GROUP("GROUP");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

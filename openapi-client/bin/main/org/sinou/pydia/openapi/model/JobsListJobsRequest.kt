@@ -42,7 +42,7 @@ data class JobsListJobsRequest (
     val jobIDs: kotlin.collections.List<kotlin.String>? = null,
 
     @Json(name = "LoadTasks")
-    val loadTasks: JobsTaskStatus? = JobsTaskStatus.unknown,
+    val loadTasks: JobsTaskStatus? = JobsTaskStatus.Unknown,
 
     @Json(name = "Owner")
     val owner: kotlin.String? = null,

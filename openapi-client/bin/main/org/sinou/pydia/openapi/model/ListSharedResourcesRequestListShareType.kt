@@ -22,20 +22,20 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: aNY,lINKS,cELLS
+ * Values: ANY,LINKS,CELLS
  */
 
 @JsonClass(generateAdapter = false)
 enum class ListSharedResourcesRequestListShareType(val value: kotlin.String) {
 
     @Json(name = "ANY")
-    aNY("ANY"),
+    ANY("ANY"),
 
     @Json(name = "LINKS")
-    lINKS("LINKS"),
+    LINKS("LINKS"),
 
     @Json(name = "CELLS")
-    cELLS("CELLS");
+    CELLS("CELLS");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

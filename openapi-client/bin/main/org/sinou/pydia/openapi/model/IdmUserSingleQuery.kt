@@ -70,7 +70,7 @@ data class IdmUserSingleQuery (
     val login: kotlin.String? = null,
 
     @Json(name = "NodeType")
-    val nodeType: IdmNodeType? = IdmNodeType.uNKNOWN,
+    val nodeType: IdmNodeType? = IdmNodeType.UNKNOWN,
 
     @Json(name = "Password")
     val password: kotlin.String? = null,

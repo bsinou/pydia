@@ -22,20 +22,20 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: mYFEED,uSERID,nODEID
+ * Values: MYFEED,USER_ID,NODE_ID
  */
 
 @JsonClass(generateAdapter = false)
 enum class ActivityStreamContext(val value: kotlin.String) {
 
     @Json(name = "MYFEED")
-    mYFEED("MYFEED"),
+    MYFEED("MYFEED"),
 
     @Json(name = "USER_ID")
-    uSERID("USER_ID"),
+    USER_ID("USER_ID"),
 
     @Json(name = "NODE_ID")
-    nODEID("NODE_ID");
+    NODE_ID("NODE_ID");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

@@ -32,7 +32,7 @@ import com.squareup.moshi.JsonClass
 data class RestControlServiceRequest (
 
     @Json(name = "Command")
-    val command: CtlServiceCommand? = CtlServiceCommand.sTART,
+    val command: CtlServiceCommand? = CtlServiceCommand.START,
 
     @Json(name = "NodeName")
     val nodeName: kotlin.String? = null,

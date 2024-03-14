@@ -43,7 +43,7 @@ data class JobsContextMetaFilter (
     val query: ServiceQuery? = null,
 
     @Json(name = "Type")
-    val type: JobsContextMetaFilterType? = JobsContextMetaFilterType.requestMeta
+    val type: JobsContextMetaFilterType? = JobsContextMetaFilterType.RequestMeta
 
 )
 

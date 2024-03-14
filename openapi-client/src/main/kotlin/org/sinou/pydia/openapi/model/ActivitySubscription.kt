@@ -39,7 +39,7 @@ data class ActivitySubscription (
     val objectId: kotlin.String? = null,
 
     @Json(name = "ObjectType")
-    val objectType: ActivityOwnerType? = ActivityOwnerType.nODE,
+    val objectType: ActivityOwnerType? = ActivityOwnerType.NODE,
 
     @Json(name = "UserId")
     val userId: kotlin.String? = null

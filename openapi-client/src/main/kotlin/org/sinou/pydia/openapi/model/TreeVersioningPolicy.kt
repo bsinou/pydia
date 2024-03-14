@@ -58,7 +58,7 @@ data class TreeVersioningPolicy (
     val name: kotlin.String? = null,
 
     @Json(name = "NodeDeletedStrategy")
-    val nodeDeletedStrategy: TreeVersioningNodeDeletedStrategy? = TreeVersioningNodeDeletedStrategy.keepAll,
+    val nodeDeletedStrategy: TreeVersioningNodeDeletedStrategy? = TreeVersioningNodeDeletedStrategy.KeepAll,
 
     @Json(name = "Uuid")
     val uuid: kotlin.String? = null,

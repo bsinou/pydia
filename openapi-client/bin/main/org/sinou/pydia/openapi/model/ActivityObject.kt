@@ -148,7 +148,7 @@ data class ActivityObject (
     val first: ActivityObject? = null,
 
     @Json(name = "formerType")
-    val formerType: ActivityObjectType? = ActivityObjectType.baseObject,
+    val formerType: ActivityObjectType? = ActivityObjectType.BaseObject,
 
     @Json(name = "generator")
     val generator: ActivityObject? = null,
@@ -262,7 +262,7 @@ data class ActivityObject (
     val totalItems: kotlin.Int? = null,
 
     @Json(name = "type")
-    val type: ActivityObjectType? = ActivityObjectType.baseObject,
+    val type: ActivityObjectType? = ActivityObjectType.BaseObject,
 
     @Json(name = "units")
     val units: kotlin.String? = null,

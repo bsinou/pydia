@@ -35,7 +35,7 @@ data class IdmUpdateUserMetaNamespaceRequest (
     val namespaces: kotlin.collections.List<IdmUserMetaNamespace>? = null,
 
     @Json(name = "Operation")
-    val operation: UpdateUserMetaNamespaceRequestUserMetaNsOp? = UpdateUserMetaNamespaceRequestUserMetaNsOp.pUT
+    val operation: UpdateUserMetaNamespaceRequestUserMetaNsOp? = UpdateUserMetaNamespaceRequestUserMetaNsOp.PUT
 
 )
 

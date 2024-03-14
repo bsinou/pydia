@@ -22,20 +22,20 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: gENERIC,aCTOR,sUBJECT
+ * Values: GENERIC,ACTOR,SUBJECT
  */
 
 @JsonClass(generateAdapter = false)
 enum class ActivitySummaryPointOfView(val value: kotlin.String) {
 
     @Json(name = "GENERIC")
-    gENERIC("GENERIC"),
+    GENERIC("GENERIC"),
 
     @Json(name = "ACTOR")
-    aCTOR("ACTOR"),
+    ACTOR("ACTOR"),
 
     @Json(name = "SUBJECT")
-    sUBJECT("SUBJECT");
+    SUBJECT("SUBJECT");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

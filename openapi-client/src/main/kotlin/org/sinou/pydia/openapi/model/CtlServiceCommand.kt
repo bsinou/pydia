@@ -22,17 +22,17 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: sTART,sTOP
+ * Values: START,STOP
  */
 
 @JsonClass(generateAdapter = false)
 enum class CtlServiceCommand(val value: kotlin.String) {
 
     @Json(name = "START")
-    sTART("START"),
+    START("START"),
 
     @Json(name = "STOP")
-    sTOP("STOP");
+    STOP("STOP");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

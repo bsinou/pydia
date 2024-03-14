@@ -22,23 +22,23 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: aNY,aDMIN,rOOM,lINK
+ * Values: ANY,ADMIN,ROOM,LINK
  */
 
 @JsonClass(generateAdapter = false)
 enum class IdmWorkspaceScope(val value: kotlin.String) {
 
     @Json(name = "ANY")
-    aNY("ANY"),
+    ANY("ANY"),
 
     @Json(name = "ADMIN")
-    aDMIN("ADMIN"),
+    ADMIN("ADMIN"),
 
     @Json(name = "ROOM")
-    rOOM("ROOM"),
+    ROOM("ROOM"),
 
     @Json(name = "LINK")
-    lINK("LINK");
+    LINK("LINK");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

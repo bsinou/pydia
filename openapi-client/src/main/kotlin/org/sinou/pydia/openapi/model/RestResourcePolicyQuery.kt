@@ -31,7 +31,7 @@ import com.squareup.moshi.JsonClass
 data class RestResourcePolicyQuery (
 
     @Json(name = "Type")
-    val type: ResourcePolicyQueryQueryType? = ResourcePolicyQueryQueryType.cONTEXT,
+    val type: ResourcePolicyQueryQueryType? = ResourcePolicyQueryQueryType.CONTEXT,
 
     @Json(name = "UserId")
     val userId: kotlin.String? = null

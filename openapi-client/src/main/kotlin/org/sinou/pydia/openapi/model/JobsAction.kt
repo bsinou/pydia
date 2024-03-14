@@ -16,6 +16,7 @@
 package org.sinou.pydia.openapi.model
 
 import org.sinou.pydia.openapi.model.JobsActionOutputFilter
+import org.sinou.pydia.openapi.model.JobsChatEventFilter
 import org.sinou.pydia.openapi.model.JobsContextMetaFilter
 import org.sinou.pydia.openapi.model.JobsDataSelector
 import org.sinou.pydia.openapi.model.JobsDataSourceSelector
@@ -34,6 +35,7 @@ import com.squareup.moshi.JsonClass
  * @param breakAfter 
  * @param bypass 
  * @param chainedActions 
+ * @param chatEventFilter 
  * @param contextMetaFilter 
  * @param dataFilter 
  * @param dataSelector 
@@ -69,6 +71,9 @@ data class JobsAction (
 
     @Json(name = "ChainedActions")
     val chainedActions: kotlin.collections.List<JobsAction>? = null,
+
+    @Json(name = "ChatEventFilter")
+    val chatEventFilter: JobsChatEventFilter? = null,
 
     @Json(name = "ContextMetaFilter")
     val contextMetaFilter: JobsContextMetaFilter? = null,

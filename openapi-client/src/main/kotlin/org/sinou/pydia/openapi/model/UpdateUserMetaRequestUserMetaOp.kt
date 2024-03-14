@@ -22,17 +22,17 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: pUT,dELETE
+ * Values: PUT,DELETE
  */
 
 @JsonClass(generateAdapter = false)
 enum class UpdateUserMetaRequestUserMetaOp(val value: kotlin.String) {
 
     @Json(name = "PUT")
-    pUT("PUT"),
+    PUT("PUT"),
 
     @Json(name = "DELETE")
-    dELETE("DELETE");
+    DELETE("DELETE");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

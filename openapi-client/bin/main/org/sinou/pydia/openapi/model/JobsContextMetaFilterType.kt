@@ -22,17 +22,17 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: requestMeta,contextUser
+ * Values: RequestMeta,ContextUser
  */
 
 @JsonClass(generateAdapter = false)
 enum class JobsContextMetaFilterType(val value: kotlin.String) {
 
     @Json(name = "RequestMeta")
-    requestMeta("RequestMeta"),
+    RequestMeta("RequestMeta"),
 
     @Json(name = "ContextUser")
-    contextUser("ContextUser");
+    ContextUser("ContextUser");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

@@ -22,23 +22,23 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: user,role,workspace,acl
+ * Values: User,Role,Workspace,Acl
  */
 
 @JsonClass(generateAdapter = false)
 enum class JobsIdmSelectorType(val value: kotlin.String) {
 
     @Json(name = "User")
-    user("User"),
+    User("User"),
 
     @Json(name = "Role")
-    role("Role"),
+    Role("Role"),
 
     @Json(name = "Workspace")
-    workspace("Workspace"),
+    Workspace("Workspace"),
 
     @Json(name = "Acl")
-    acl("Acl");
+    Acl("Acl");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

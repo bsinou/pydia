@@ -65,7 +65,7 @@ data class PutWorkspaceRequest (
     val rootUUIDs: kotlin.collections.List<kotlin.String>? = null,
 
     @Json(name = "Scope")
-    val scope: IdmWorkspaceScope? = IdmWorkspaceScope.aNY,
+    val scope: IdmWorkspaceScope? = IdmWorkspaceScope.ANY,
 
     @Json(name = "UUID")
     val UUID: kotlin.String? = null

@@ -22,38 +22,38 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: unknown,idle,running,finished,interrupted,paused,any,error,queued
+ * Values: Unknown,Idle,Running,Finished,Interrupted,Paused,Any,Error,Queued
  */
 
 @JsonClass(generateAdapter = false)
 enum class JobsTaskStatus(val value: kotlin.String) {
 
     @Json(name = "Unknown")
-    unknown("Unknown"),
+    Unknown("Unknown"),
 
     @Json(name = "Idle")
-    idle("Idle"),
+    Idle("Idle"),
 
     @Json(name = "Running")
-    running("Running"),
+    Running("Running"),
 
     @Json(name = "Finished")
-    finished("Finished"),
+    Finished("Finished"),
 
     @Json(name = "Interrupted")
-    interrupted("Interrupted"),
+    Interrupted("Interrupted"),
 
     @Json(name = "Paused")
-    paused("Paused"),
+    Paused("Paused"),
 
     @Json(name = "Any")
-    any("Any"),
+    Any("Any"),
 
     @Json(name = "Error")
-    error("Error"),
+    Error("Error"),
 
     @Json(name = "Queued")
-    queued("Queued");
+    Queued("Queued");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

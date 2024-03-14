@@ -22,6 +22,7 @@ import okhttp3.HttpUrl
 import org.sinou.pydia.openapi.model.IdmWorkspace
 import org.sinou.pydia.openapi.model.PutWorkspaceRequest
 import org.sinou.pydia.openapi.model.RestDeleteResponse
+import org.sinou.pydia.openapi.model.RestError
 import org.sinou.pydia.openapi.model.RestSearchWorkspaceRequest
 import org.sinou.pydia.openapi.model.RestWorkspaceCollection
 
@@ -34,6 +35,7 @@ import org.sinou.pydia.openapi.infrastructure.ClientError
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.infrastructure.ServerError
 import org.sinou.pydia.openapi.infrastructure.MultiValueMap
+import org.sinou.pydia.openapi.infrastructure.PartConfig
 import org.sinou.pydia.openapi.infrastructure.RequestConfig
 import org.sinou.pydia.openapi.infrastructure.RequestMethod
 import org.sinou.pydia.openapi.infrastructure.ResponseType
@@ -52,10 +54,10 @@ class WorkspaceServiceApi(basePath: kotlin.String = defaultBasePath, client: OkH
      * enum for parameter scope
      */
      enum class ScopeDeleteWorkspace(val value: kotlin.String) {
-         @Json(name = "ANY") aNY("ANY"),
-         @Json(name = "ADMIN") aDMIN("ADMIN"),
-         @Json(name = "ROOM") rOOM("ROOM"),
-         @Json(name = "LINK") lINK("LINK")
+         @Json(name = "ANY") ANY("ANY"),
+         @Json(name = "ADMIN") ADMIN("ADMIN"),
+         @Json(name = "ROOM") ROOM("ROOM"),
+         @Json(name = "LINK") LINK("LINK")
      }
 
     /**
@@ -79,7 +81,7 @@ class WorkspaceServiceApi(basePath: kotlin.String = defaultBasePath, client: OkH
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun deleteWorkspace(slug: kotlin.String, UUID: kotlin.String? = null, label: kotlin.String? = null, description: kotlin.String? = null, scope: ScopeDeleteWorkspace? = ScopeDeleteWorkspace.aNY, lastUpdated: kotlin.Int? = null, attributes: kotlin.String? = null, rootUUIDs: kotlin.collections.List<kotlin.String>? = null, policiesContextEditable: kotlin.Boolean? = null) : RestDeleteResponse {
+    fun deleteWorkspace(slug: kotlin.String, UUID: kotlin.String? = null, label: kotlin.String? = null, description: kotlin.String? = null, scope: ScopeDeleteWorkspace? = ScopeDeleteWorkspace.ANY, lastUpdated: kotlin.Int? = null, attributes: kotlin.String? = null, rootUUIDs: kotlin.collections.List<kotlin.String>? = null, policiesContextEditable: kotlin.Boolean? = null) : RestDeleteResponse {
         val localVarResponse = deleteWorkspaceWithHttpInfo(slug = slug, UUID = UUID, label = label, description = description, scope = scope, lastUpdated = lastUpdated, attributes = attributes, rootUUIDs = rootUUIDs, policiesContextEditable = policiesContextEditable)
 
         return when (localVarResponse.responseType) {

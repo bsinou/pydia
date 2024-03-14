@@ -60,7 +60,7 @@ data class IdmWorkspaceSingleQuery (
     val not: kotlin.Boolean? = null,
 
     @Json(name = "scope")
-    val scope: IdmWorkspaceScope? = IdmWorkspaceScope.aNY,
+    val scope: IdmWorkspaceScope? = IdmWorkspaceScope.ANY,
 
     @Json(name = "slug")
     val slug: kotlin.String? = null,

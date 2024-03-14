@@ -22,20 +22,20 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: keepAll,keepLast,keepNone
+ * Values: KeepAll,KeepLast,KeepNone
  */
 
 @JsonClass(generateAdapter = false)
 enum class TreeVersioningNodeDeletedStrategy(val value: kotlin.String) {
 
     @Json(name = "KeepAll")
-    keepAll("KeepAll"),
+    KeepAll("KeepAll"),
 
     @Json(name = "KeepLast")
-    keepLast("KeepLast"),
+    KeepLast("KeepLast"),
 
     @Json(name = "KeepNone")
-    keepNone("KeepNone");
+    KeepNone("KeepNone");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

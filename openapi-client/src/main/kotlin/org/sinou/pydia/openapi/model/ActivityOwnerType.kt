@@ -22,17 +22,17 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: nODE,uSER
+ * Values: NODE,USER
  */
 
 @JsonClass(generateAdapter = false)
 enum class ActivityOwnerType(val value: kotlin.String) {
 
     @Json(name = "NODE")
-    nODE("NODE"),
+    NODE("NODE"),
 
     @Json(name = "USER")
-    uSER("USER");
+    USER("USER");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

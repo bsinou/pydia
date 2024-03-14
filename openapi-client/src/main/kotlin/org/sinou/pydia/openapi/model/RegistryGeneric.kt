@@ -30,7 +30,7 @@ import com.squareup.moshi.JsonClass
 data class RegistryGeneric (
 
     @Json(name = "type")
-    val type: RegistryItemType? = RegistryItemType.aLL
+    val type: RegistryItemType? = RegistryItemType.ALL
 
 )
 

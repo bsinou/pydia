@@ -66,7 +66,7 @@ data class ObjectDataSource (
     val encryptionKey: kotlin.String? = null,
 
     @Json(name = "EncryptionMode")
-    val encryptionMode: ObjectEncryptionMode? = ObjectEncryptionMode.cLEAR,
+    val encryptionMode: ObjectEncryptionMode? = ObjectEncryptionMode.CLEAR,
 
     @Json(name = "FlatStorage")
     val flatStorage: kotlin.Boolean? = null,
@@ -105,7 +105,7 @@ data class ObjectDataSource (
     val storageConfiguration: kotlin.collections.Map<kotlin.String, kotlin.String>? = null,
 
     @Json(name = "StorageType")
-    val storageType: ObjectStorageType? = ObjectStorageType.lOCAL,
+    val storageType: ObjectStorageType? = ObjectStorageType.LOCAL,
 
     @Json(name = "VersioningPolicyName")
     val versioningPolicyName: kotlin.String? = null,

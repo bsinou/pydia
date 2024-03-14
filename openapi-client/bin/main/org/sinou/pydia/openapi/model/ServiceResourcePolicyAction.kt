@@ -22,26 +22,26 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: aNY,oWNER,rEAD,wRITE,eDITRULES
+ * Values: ANY,OWNER,READ,WRITE,EDIT_RULES
  */
 
 @JsonClass(generateAdapter = false)
 enum class ServiceResourcePolicyAction(val value: kotlin.String) {
 
     @Json(name = "ANY")
-    aNY("ANY"),
+    ANY("ANY"),
 
     @Json(name = "OWNER")
-    oWNER("OWNER"),
+    OWNER("OWNER"),
 
     @Json(name = "READ")
-    rEAD("READ"),
+    READ("READ"),
 
     @Json(name = "WRITE")
-    wRITE("WRITE"),
+    WRITE("WRITE"),
 
     @Json(name = "EDIT_RULES")
-    eDITRULES("EDIT_RULES");
+    EDIT_RULES("EDIT_RULES");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

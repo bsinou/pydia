@@ -23,6 +23,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
+ * 
  *
  * @param appearsIn 
  * @param commits 
@@ -40,22 +41,22 @@ import com.squareup.moshi.JsonClass
 data class TreeNode (
 
     @Json(name = "AppearsIn")
-    val appearsIn: List<TreeWorkspaceRelativePath>? = null,
+    val appearsIn: kotlin.collections.List<TreeWorkspaceRelativePath>? = null,
 
     @Json(name = "Commits")
-    val commits: List<TreeChangeLog>? = null,
+    val commits: kotlin.collections.List<TreeChangeLog>? = null,
 
     @Json(name = "Etag")
-    val etag: String? = null,
+    val etag: kotlin.String? = null,
 
     @Json(name = "MTime")
-    val mtime: String? = null,
+    val mtime: kotlin.String? = null,
 
     @Json(name = "MetaStore")
-    val metaStore: Map<kotlin.String, kotlin.String>? = null,
+    val metaStore: kotlin.collections.Map<kotlin.String, kotlin.String>? = null,
 
     @Json(name = "Mode")
-    val mode: Int? = null,
+    val mode: kotlin.Int? = null,
 
     @Json(name = "Path")
     val path: kotlin.String? = null,

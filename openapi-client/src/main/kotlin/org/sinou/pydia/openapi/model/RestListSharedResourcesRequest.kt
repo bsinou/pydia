@@ -43,7 +43,7 @@ data class RestListSharedResourcesRequest (
     val ownedBySubject: kotlin.Boolean? = null,
 
     @Json(name = "ShareType")
-    val shareType: ListSharedResourcesRequestListShareType? = ListSharedResourcesRequestListShareType.aNY,
+    val shareType: ListSharedResourcesRequestListShareType? = ListSharedResourcesRequestListShareType.ANY,
 
     @Json(name = "Subject")
     val subject: kotlin.String? = null

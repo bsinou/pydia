@@ -22,23 +22,23 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: cLEAR,mASTER,uSER,uSERPWD
+ * Values: CLEAR,MASTER,USER,USER_PWD
  */
 
 @JsonClass(generateAdapter = false)
 enum class ObjectEncryptionMode(val value: kotlin.String) {
 
     @Json(name = "CLEAR")
-    cLEAR("CLEAR"),
+    CLEAR("CLEAR"),
 
     @Json(name = "MASTER")
-    mASTER("MASTER"),
+    MASTER("MASTER"),
 
     @Json(name = "USER")
-    uSER("USER"),
+    USER("USER"),
 
     @Json(name = "USER_PWD")
-    uSERPWD("USER_PWD");
+    USER_PWD("USER_PWD");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

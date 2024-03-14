@@ -35,7 +35,7 @@ data class IdmUpdateUserMetaRequest (
     val metaDatas: kotlin.collections.List<IdmUserMeta>? = null,
 
     @Json(name = "Operation")
-    val operation: UpdateUserMetaRequestUserMetaOp? = UpdateUserMetaRequestUserMetaOp.pUT
+    val operation: UpdateUserMetaRequestUserMetaOp? = UpdateUserMetaRequestUserMetaOp.PUT
 
 )
 

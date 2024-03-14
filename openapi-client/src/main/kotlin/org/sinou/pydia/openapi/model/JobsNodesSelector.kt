@@ -15,6 +15,7 @@
 
 package org.sinou.pydia.openapi.model
 
+import org.sinou.pydia.openapi.model.JobsSelectorRange
 import org.sinou.pydia.openapi.model.ServiceQuery
 
 import com.squareup.moshi.Json
@@ -31,6 +32,7 @@ import com.squareup.moshi.JsonClass
  * @param label 
  * @param pathes 
  * @param query 
+ * @param range 
  * @param timeout 
  */
 
@@ -60,6 +62,9 @@ data class JobsNodesSelector (
 
     @Json(name = "Query")
     val query: ServiceQuery? = null,
+
+    @Json(name = "Range")
+    val range: JobsSelectorRange? = null,
 
     @Json(name = "Timeout")
     val timeout: kotlin.String? = null

@@ -22,20 +22,20 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: jSON,cSV,xLSX
+ * Values: JSON,CSV,XLSX
  */
 
 @JsonClass(generateAdapter = false)
 enum class ListLogRequestLogFormat(val value: kotlin.String) {
 
     @Json(name = "JSON")
-    jSON("JSON"),
+    JSON("JSON"),
 
     @Json(name = "CSV")
-    cSV("CSV"),
+    CSV("CSV"),
 
     @Json(name = "XLSX")
-    xLSX("XLSX");
+    XLSX("XLSX");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

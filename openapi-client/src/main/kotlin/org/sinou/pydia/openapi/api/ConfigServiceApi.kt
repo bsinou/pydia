@@ -44,6 +44,7 @@ import org.sinou.pydia.openapi.model.RestCreateStorageBucketResponse
 import org.sinou.pydia.openapi.model.RestDataSourceCollection
 import org.sinou.pydia.openapi.model.RestDeleteDataSourceResponse
 import org.sinou.pydia.openapi.model.RestDiscoveryResponse
+import org.sinou.pydia.openapi.model.RestError
 import org.sinou.pydia.openapi.model.RestListPeerFoldersRequest
 import org.sinou.pydia.openapi.model.RestListPeersAddressesResponse
 import org.sinou.pydia.openapi.model.RestListProcessesRequest
@@ -67,10 +68,12 @@ import org.sinou.pydia.openapi.infrastructure.ClientError
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.infrastructure.ServerError
 import org.sinou.pydia.openapi.infrastructure.MultiValueMap
+import org.sinou.pydia.openapi.infrastructure.PartConfig
 import org.sinou.pydia.openapi.infrastructure.RequestConfig
 import org.sinou.pydia.openapi.infrastructure.RequestMethod
 import org.sinou.pydia.openapi.infrastructure.ResponseType
 import org.sinou.pydia.openapi.infrastructure.Success
+import org.sinou.pydia.openapi.infrastructure.toMultiValue
 
 class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClient = ApiClient.defaultClient) : ApiClient(basePath, client) {
     companion object {
@@ -449,25 +452,25 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
      * enum for parameter storageType
      */
      enum class StorageTypeDeleteDataSource(val value: kotlin.String) {
-         @Json(name = "LOCAL") lOCAL("LOCAL"),
-         @Json(name = "S3") s3("S3"),
-         @Json(name = "SMB") sMB("SMB"),
-         @Json(name = "CELLS") cELLS("CELLS"),
-         @Json(name = "AZURE") aZURE("AZURE"),
-         @Json(name = "GCS") gCS("GCS"),
-         @Json(name = "B2") b2("B2"),
-         @Json(name = "MANTA") mANTA("MANTA"),
-         @Json(name = "SIA") sIA("SIA")
+         @Json(name = "LOCAL") LOCAL("LOCAL"),
+         @Json(name = "S3") S3("S3"),
+         @Json(name = "SMB") SMB("SMB"),
+         @Json(name = "CELLS") CELLS("CELLS"),
+         @Json(name = "AZURE") AZURE("AZURE"),
+         @Json(name = "GCS") GCS("GCS"),
+         @Json(name = "B2") B2("B2"),
+         @Json(name = "MANTA") MANTA("MANTA"),
+         @Json(name = "SIA") SIA("SIA")
      }
 
     /**
      * enum for parameter encryptionMode
      */
      enum class EncryptionModeDeleteDataSource(val value: kotlin.String) {
-         @Json(name = "CLEAR") cLEAR("CLEAR"),
-         @Json(name = "MASTER") mASTER("MASTER"),
-         @Json(name = "USER") uSER("USER"),
-         @Json(name = "USER_PWD") uSERPWD("USER_PWD")
+         @Json(name = "CLEAR") CLEAR("CLEAR"),
+         @Json(name = "MASTER") MASTER("MASTER"),
+         @Json(name = "USER") USER("USER"),
+         @Json(name = "USER_PWD") USER_PWD("USER_PWD")
      }
 
     /**
@@ -502,7 +505,7 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun deleteDataSource(name: kotlin.String, disabled: kotlin.Boolean? = null, storageType: StorageTypeDeleteDataSource? = StorageTypeDeleteDataSource.lOCAL, objectsServiceName: kotlin.String? = null, objectsHost: kotlin.String? = null, objectsPort: kotlin.Int? = null, objectsSecure: kotlin.Boolean? = null, objectsBucket: kotlin.String? = null, objectsBaseFolder: kotlin.String? = null, apiKey: kotlin.String? = null, apiSecret: kotlin.String? = null, peerAddress: kotlin.String? = null, watch: kotlin.Boolean? = null, flatStorage: kotlin.Boolean? = null, skipSyncOnRestart: kotlin.Boolean? = null, encryptionMode: EncryptionModeDeleteDataSource? = EncryptionModeDeleteDataSource.cLEAR, encryptionKey: kotlin.String? = null, versioningPolicyName: kotlin.String? = null, creationDate: kotlin.Int? = null, lastSynchronizationDate: kotlin.Int? = null) : RestDeleteDataSourceResponse {
+    fun deleteDataSource(name: kotlin.String, disabled: kotlin.Boolean? = null, storageType: StorageTypeDeleteDataSource? = StorageTypeDeleteDataSource.LOCAL, objectsServiceName: kotlin.String? = null, objectsHost: kotlin.String? = null, objectsPort: kotlin.Int? = null, objectsSecure: kotlin.Boolean? = null, objectsBucket: kotlin.String? = null, objectsBaseFolder: kotlin.String? = null, apiKey: kotlin.String? = null, apiSecret: kotlin.String? = null, peerAddress: kotlin.String? = null, watch: kotlin.Boolean? = null, flatStorage: kotlin.Boolean? = null, skipSyncOnRestart: kotlin.Boolean? = null, encryptionMode: EncryptionModeDeleteDataSource? = EncryptionModeDeleteDataSource.CLEAR, encryptionKey: kotlin.String? = null, versioningPolicyName: kotlin.String? = null, creationDate: kotlin.Int? = null, lastSynchronizationDate: kotlin.Int? = null) : RestDeleteDataSourceResponse {
         val localVarResponse = deleteDataSourceWithHttpInfo(name = name, disabled = disabled, storageType = storageType, objectsServiceName = objectsServiceName, objectsHost = objectsHost, objectsPort = objectsPort, objectsSecure = objectsSecure, objectsBucket = objectsBucket, objectsBaseFolder = objectsBaseFolder, apiKey = apiKey, apiSecret = apiSecret, peerAddress = peerAddress, watch = watch, flatStorage = flatStorage, skipSyncOnRestart = skipSyncOnRestart, encryptionMode = encryptionMode, encryptionKey = encryptionKey, versioningPolicyName = versioningPolicyName, creationDate = creationDate, lastSynchronizationDate = lastSynchronizationDate)
 
         return when (localVarResponse.responseType) {
@@ -960,25 +963,25 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
      * enum for parameter storageType
      */
      enum class StorageTypeGetDataSource(val value: kotlin.String) {
-         @Json(name = "LOCAL") lOCAL("LOCAL"),
-         @Json(name = "S3") s3("S3"),
-         @Json(name = "SMB") sMB("SMB"),
-         @Json(name = "CELLS") cELLS("CELLS"),
-         @Json(name = "AZURE") aZURE("AZURE"),
-         @Json(name = "GCS") gCS("GCS"),
-         @Json(name = "B2") b2("B2"),
-         @Json(name = "MANTA") mANTA("MANTA"),
-         @Json(name = "SIA") sIA("SIA")
+         @Json(name = "LOCAL") LOCAL("LOCAL"),
+         @Json(name = "S3") S3("S3"),
+         @Json(name = "SMB") SMB("SMB"),
+         @Json(name = "CELLS") CELLS("CELLS"),
+         @Json(name = "AZURE") AZURE("AZURE"),
+         @Json(name = "GCS") GCS("GCS"),
+         @Json(name = "B2") B2("B2"),
+         @Json(name = "MANTA") MANTA("MANTA"),
+         @Json(name = "SIA") SIA("SIA")
      }
 
     /**
      * enum for parameter encryptionMode
      */
      enum class EncryptionModeGetDataSource(val value: kotlin.String) {
-         @Json(name = "CLEAR") cLEAR("CLEAR"),
-         @Json(name = "MASTER") mASTER("MASTER"),
-         @Json(name = "USER") uSER("USER"),
-         @Json(name = "USER_PWD") uSERPWD("USER_PWD")
+         @Json(name = "CLEAR") CLEAR("CLEAR"),
+         @Json(name = "MASTER") MASTER("MASTER"),
+         @Json(name = "USER") USER("USER"),
+         @Json(name = "USER_PWD") USER_PWD("USER_PWD")
      }
 
     /**
@@ -1013,7 +1016,7 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getDataSource(name: kotlin.String, disabled: kotlin.Boolean? = null, storageType: StorageTypeGetDataSource? = StorageTypeGetDataSource.lOCAL, objectsServiceName: kotlin.String? = null, objectsHost: kotlin.String? = null, objectsPort: kotlin.Int? = null, objectsSecure: kotlin.Boolean? = null, objectsBucket: kotlin.String? = null, objectsBaseFolder: kotlin.String? = null, apiKey: kotlin.String? = null, apiSecret: kotlin.String? = null, peerAddress: kotlin.String? = null, watch: kotlin.Boolean? = null, flatStorage: kotlin.Boolean? = null, skipSyncOnRestart: kotlin.Boolean? = null, encryptionMode: EncryptionModeGetDataSource? = EncryptionModeGetDataSource.cLEAR, encryptionKey: kotlin.String? = null, versioningPolicyName: kotlin.String? = null, creationDate: kotlin.Int? = null, lastSynchronizationDate: kotlin.Int? = null) : ObjectDataSource {
+    fun getDataSource(name: kotlin.String, disabled: kotlin.Boolean? = null, storageType: StorageTypeGetDataSource? = StorageTypeGetDataSource.LOCAL, objectsServiceName: kotlin.String? = null, objectsHost: kotlin.String? = null, objectsPort: kotlin.Int? = null, objectsSecure: kotlin.Boolean? = null, objectsBucket: kotlin.String? = null, objectsBaseFolder: kotlin.String? = null, apiKey: kotlin.String? = null, apiSecret: kotlin.String? = null, peerAddress: kotlin.String? = null, watch: kotlin.Boolean? = null, flatStorage: kotlin.Boolean? = null, skipSyncOnRestart: kotlin.Boolean? = null, encryptionMode: EncryptionModeGetDataSource? = EncryptionModeGetDataSource.CLEAR, encryptionKey: kotlin.String? = null, versioningPolicyName: kotlin.String? = null, creationDate: kotlin.Int? = null, lastSynchronizationDate: kotlin.Int? = null) : ObjectDataSource {
         val localVarResponse = getDataSourceWithHttpInfo(name = name, disabled = disabled, storageType = storageType, objectsServiceName = objectsServiceName, objectsHost = objectsHost, objectsPort = objectsPort, objectsSecure = objectsSecure, objectsBucket = objectsBucket, objectsBaseFolder = objectsBaseFolder, apiKey = apiKey, apiSecret = apiSecret, peerAddress = peerAddress, watch = watch, flatStorage = flatStorage, skipSyncOnRestart = skipSyncOnRestart, encryptionMode = encryptionMode, encryptionKey = encryptionKey, versioningPolicyName = versioningPolicyName, creationDate = creationDate, lastSynchronizationDate = lastSynchronizationDate)
 
         return when (localVarResponse.responseType) {
@@ -1172,9 +1175,9 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
      * enum for parameter nodeDeletedStrategy
      */
      enum class NodeDeletedStrategyGetVersioningPolicy(val value: kotlin.String) {
-         @Json(name = "KeepAll") keepAll("KeepAll"),
-         @Json(name = "KeepLast") keepLast("KeepLast"),
-         @Json(name = "KeepNone") keepNone("KeepNone")
+         @Json(name = "KeepAll") KeepAll("KeepAll"),
+         @Json(name = "KeepLast") KeepLast("KeepLast"),
+         @Json(name = "KeepNone") KeepNone("KeepNone")
      }
 
     /**
@@ -1198,7 +1201,7 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getVersioningPolicy(uuid: kotlin.String, name: kotlin.String? = null, description: kotlin.String? = null, versionsDataSourceName: kotlin.String? = null, versionsDataSourceBucket: kotlin.String? = null, maxTotalSize: kotlin.String? = null, maxSizePerFile: kotlin.String? = null, ignoreFilesGreaterThan: kotlin.String? = null, nodeDeletedStrategy: NodeDeletedStrategyGetVersioningPolicy? = NodeDeletedStrategyGetVersioningPolicy.keepAll) : TreeVersioningPolicy {
+    fun getVersioningPolicy(uuid: kotlin.String, name: kotlin.String? = null, description: kotlin.String? = null, versionsDataSourceName: kotlin.String? = null, versionsDataSourceBucket: kotlin.String? = null, maxTotalSize: kotlin.String? = null, maxSizePerFile: kotlin.String? = null, ignoreFilesGreaterThan: kotlin.String? = null, nodeDeletedStrategy: NodeDeletedStrategyGetVersioningPolicy? = NodeDeletedStrategyGetVersioningPolicy.KeepAll) : TreeVersioningPolicy {
         val localVarResponse = getVersioningPolicyWithHttpInfo(uuid = uuid, name = name, description = description, versionsDataSourceName = versionsDataSourceName, versionsDataSourceBucket = versionsDataSourceBucket, maxTotalSize = maxTotalSize, maxSizePerFile = maxSizePerFile, ignoreFilesGreaterThan = ignoreFilesGreaterThan, nodeDeletedStrategy = nodeDeletedStrategy)
 
         return when (localVarResponse.responseType) {
@@ -1801,11 +1804,11 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
      * enum for parameter statusFilter
      */
      enum class StatusFilterListServices(val value: kotlin.String) {
-         @Json(name = "ANY") aNY("ANY"),
-         @Json(name = "STOPPED") sTOPPED("STOPPED"),
-         @Json(name = "STARTING") sTARTING("STARTING"),
-         @Json(name = "STOPPING") sTOPPING("STOPPING"),
-         @Json(name = "STARTED") sTARTED("STARTED")
+         @Json(name = "ANY") ANY("ANY"),
+         @Json(name = "STOPPED") STOPPED("STOPPED"),
+         @Json(name = "STARTING") STARTING("STARTING"),
+         @Json(name = "STOPPING") STOPPING("STOPPING"),
+         @Json(name = "STARTED") STARTED("STARTED")
      }
 
     /**
@@ -1821,7 +1824,7 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun listServices(statusFilter: StatusFilterListServices? = StatusFilterListServices.aNY) : RestServiceCollection {
+    fun listServices(statusFilter: StatusFilterListServices? = StatusFilterListServices.ANY) : RestServiceCollection {
         val localVarResponse = listServicesWithHttpInfo(statusFilter = statusFilter)
 
         return when (localVarResponse.responseType) {

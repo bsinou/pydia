@@ -23,7 +23,10 @@ import org.sinou.pydia.openapi.model.ActivityObject
 import org.sinou.pydia.openapi.model.ActivitySearchSubscriptionsRequest
 import org.sinou.pydia.openapi.model.ActivityStreamActivitiesRequest
 import org.sinou.pydia.openapi.model.ActivitySubscription
+import org.sinou.pydia.openapi.model.RestError
 import org.sinou.pydia.openapi.model.RestSubscriptionsCollection
+
+import com.squareup.moshi.Json
 
 import org.sinou.pydia.openapi.infrastructure.ApiClient
 import org.sinou.pydia.openapi.infrastructure.ApiResponse
@@ -32,10 +35,12 @@ import org.sinou.pydia.openapi.infrastructure.ClientError
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.infrastructure.ServerError
 import org.sinou.pydia.openapi.infrastructure.MultiValueMap
+import org.sinou.pydia.openapi.infrastructure.PartConfig
 import org.sinou.pydia.openapi.infrastructure.RequestConfig
 import org.sinou.pydia.openapi.infrastructure.RequestMethod
 import org.sinou.pydia.openapi.infrastructure.ResponseType
 import org.sinou.pydia.openapi.infrastructure.Success
+import org.sinou.pydia.openapi.infrastructure.toMultiValue
 
 class ActivityServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClient = ApiClient.defaultClient) : ApiClient(basePath, client) {
     companion object {

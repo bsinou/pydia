@@ -22,35 +22,35 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * Values: none,pause,resume,stop,delete,runOnce,inactive,active
+ * Values: None,Pause,Resume,Stop,Delete,RunOnce,Inactive,Active
  */
 
 @JsonClass(generateAdapter = false)
 enum class JobsCommand(val value: kotlin.String) {
 
     @Json(name = "None")
-    none("None"),
+    None("None"),
 
     @Json(name = "Pause")
-    pause("Pause"),
+    Pause("Pause"),
 
     @Json(name = "Resume")
-    resume("Resume"),
+    Resume("Resume"),
 
     @Json(name = "Stop")
-    stop("Stop"),
+    Stop("Stop"),
 
     @Json(name = "Delete")
-    delete("Delete"),
+    Delete("Delete"),
 
     @Json(name = "RunOnce")
-    runOnce("RunOnce"),
+    RunOnce("RunOnce"),
 
     @Json(name = "Inactive")
-    inactive("Inactive"),
+    Inactive("Inactive"),
 
     @Json(name = "Active")
-    active("Active");
+    Active("Active");
 
     /**
      * Override [toString()] to avoid using the enum variable name as the value, and instead use

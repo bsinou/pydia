@@ -33,7 +33,7 @@ import com.squareup.moshi.JsonClass
 data class LogListLogRequest (
 
     @Json(name = "Format")
-    val format: ListLogRequestLogFormat? = ListLogRequestLogFormat.jSON,
+    val format: ListLogRequestLogFormat? = ListLogRequestLogFormat.JSON,
 
     @Json(name = "Page")
     val page: kotlin.Int? = null,

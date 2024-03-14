@@ -34,7 +34,7 @@ import com.squareup.moshi.JsonClass
 data class JobsCtrlCommand (
 
     @Json(name = "Cmd")
-    val cmd: JobsCommand? = JobsCommand.none,
+    val cmd: JobsCommand? = JobsCommand.None,
 
     @Json(name = "JobId")
     val jobId: kotlin.String? = null,

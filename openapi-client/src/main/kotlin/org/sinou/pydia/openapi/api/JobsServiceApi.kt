@@ -25,10 +25,13 @@ import org.sinou.pydia.openapi.model.JobsDeleteTasksRequest
 import org.sinou.pydia.openapi.model.JobsDeleteTasksResponse
 import org.sinou.pydia.openapi.model.JobsListJobsRequest
 import org.sinou.pydia.openapi.model.LogListLogRequest
+import org.sinou.pydia.openapi.model.RestError
 import org.sinou.pydia.openapi.model.RestLogMessageCollection
 import org.sinou.pydia.openapi.model.RestUserJobRequest
 import org.sinou.pydia.openapi.model.RestUserJobResponse
 import org.sinou.pydia.openapi.model.RestUserJobsCollection
+
+import com.squareup.moshi.Json
 
 import org.sinou.pydia.openapi.infrastructure.ApiClient
 import org.sinou.pydia.openapi.infrastructure.ApiResponse
@@ -37,10 +40,12 @@ import org.sinou.pydia.openapi.infrastructure.ClientError
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.infrastructure.ServerError
 import org.sinou.pydia.openapi.infrastructure.MultiValueMap
+import org.sinou.pydia.openapi.infrastructure.PartConfig
 import org.sinou.pydia.openapi.infrastructure.RequestConfig
 import org.sinou.pydia.openapi.infrastructure.RequestMethod
 import org.sinou.pydia.openapi.infrastructure.ResponseType
 import org.sinou.pydia.openapi.infrastructure.Success
+import org.sinou.pydia.openapi.infrastructure.toMultiValue
 
 class JobsServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClient = ApiClient.defaultClient) : ApiClient(basePath, client) {
     companion object {

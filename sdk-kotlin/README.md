@@ -2,8 +2,7 @@
 
 ## Regenerate the SDK
 
-We use [swagger-codegen](https://swagger.io/docs/open-source-tools/swagger-codegen/) to generate the
-java client.
+We use [swagger-codegen](https://swagger.io/docs/open-source-tools/swagger-codegen/) to generate the Java client.
 
 For the time being, we rather clone the repository in a temp location to generate the new version of
 the code and then replace the `org.sinou.pydia.openapi` package in the local repository, to avoid
@@ -15,12 +14,17 @@ Note: you can check for new
 release [here](https://github.com/OpenAPITools/openapi-generator/releases).
 
 ```sh
+branch=sandbox
 mkdir -p /tmp/forSwagger
 cd /tmp/forSwagger
 git clone https://github.com/bsinou/pydia.git
-cd pydia/sdk-kotlin
+cd pydia
+git checkout $branch
+cd sdk-kotlin
 
-GENERATOR_VERSION=7.0.1
+cp ../../openapi-generator-cli.jar .
+# or
+GENERATOR_VERSION=7.4.0
 wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${GENERATOR_VERSION}/openapi-generator-cli-${GENERATOR_VERSION}.jar -O openapi-generator-cli.jar
 
 ```
@@ -39,7 +43,7 @@ Then generate the SDK
 
 ```sh
 # WARNING: Update
-SDK_DEFAULT_AGENT="PydioCells/v4.3.1/KotlinSDK/v0.1.1"
+SDK_DEFAULT_AGENT="PydioCells/v4.4.0-alpha2/KotlinSDK/v0.1.2"
 
 java -jar openapi-generator-cli.jar generate -g kotlin -i ./cellsapi-rest.swagger.yml -o /tmp/forSwagger/pydia/sdk-kotlin     --invoker-package org.sinou.pydia.openapi     --api-package org.sinou.pydia.openapi.api     --model-package org.sinou.pydia.openapi.model     --http-user-agent ${SDK_DEFAULT_AGENT}
 
@@ -48,7 +52,7 @@ rm -rf ./openapi/{model,api}
 mv /tmp/forSwagger/pydia/sdk-kotlin/src/main/kotlin/org/sinou/pydia/openapi/ .
 
 # Also copy used sagger file for later references
-export CELLS_VERSION=4.3.1
+export CELLS_VERSION=4.4.0-alpha2
 cp /tmp/forSwagger/pydia/sdk-kotlin/cellsapi-rest.swagger.yml $GITPATH/github.com/bsinou/pydia/sdk-kotlin/src/main/kotlin/org/sinou/pydia/openapi/cellsapi-rest-${CELLS_VERSION}.swagger.yml
 
 # For the record, more details about the possible options:

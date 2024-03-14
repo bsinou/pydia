@@ -65,12 +65,16 @@ fun NavGraph(
     )
 
     LaunchedEffect(key1 = initialAppState.intentID, key2 = initialAppState.route) {
-        Log.i(logTag, "... new appState: ${initialAppState.route} - ${initialAppState.stateID}")
+        Log.i(logTag, "... new appState: ${initialAppState.route} - ${initialAppState.stateID} - ${initialAppState.context}")
         initialAppState.context?.let {
             when (it) {
-                AuthService.LOGIN_CONTEXT_BROWSE, AuthService.LOGIN_CONTEXT_SHARE -> {
+                AuthService.LOGIN_CONTEXT_SHARE -> {
                     // This should terminate the current task and fallback to where we were before re-launching the OAuth process
                     emitActivityResult(Activity.RESULT_OK)
+                }
+                AuthService.LOGIN_CONTEXT_BROWSE -> {
+                    // Do nothing?
+                    Log.e(logTag, "... launched effect for browse context")
                 }
 
                 AuthService.LOGIN_CONTEXT_CREATE -> {

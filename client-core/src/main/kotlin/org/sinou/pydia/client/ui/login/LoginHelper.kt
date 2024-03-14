@@ -54,7 +54,7 @@ class LoginHelper(
         context: Context,
         stateID: StateID,
         skipVerify: Boolean = false,
-        loginContext: String = AuthService.LOGIN_CONTEXT_CREATE
+        loginContext: String, //  = AuthService.LOGIN_CONTEXT_CREATE
     ) {
         val intent = loginVM.getSessionView(stateID)?.let { sessionView ->
             // Re-authenticating an existing account

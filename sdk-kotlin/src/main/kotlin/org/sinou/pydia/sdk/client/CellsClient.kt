@@ -277,7 +277,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         val path = if (stateID.slug.isNullOrEmpty()) {
             throw SDKException(ErrorCodes.illegal_argument, "cannot stat at $stateID, define a WS")
         } else if (stateID.file.isNullOrEmpty()) {
-            "${stateID.slug}/"
+            "${stateID.slug}"
         } else {
             "${stateID.slug}/${stateID.file}"
         }

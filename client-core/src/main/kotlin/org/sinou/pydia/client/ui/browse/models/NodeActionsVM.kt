@@ -250,10 +250,10 @@ class NodeActionsVM(
                 nodeService.toggleBookmark(stateID, newState)
             } catch (e: Exception) {
                 val msg = "Cannot toggle ($newState) bookmark for $stateID, cause: ${e.message}"
+                e.printStackTrace()
                 val userMsg = if (newState) "Cannot add bookmark on $stateID"
                 else "Cannot remove bookmark on $stateID"
                 localDone(msg, userMsg)
-                e.printStackTrace()
             }
         }
     }

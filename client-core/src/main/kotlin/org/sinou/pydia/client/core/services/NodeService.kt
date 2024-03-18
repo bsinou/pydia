@@ -227,8 +227,8 @@ class NodeService(
             }
         }
         err?.let {
-            handleSdkException(stateID, "could not toggle bookmark for $stateID", it)
-            throw SDKException(it.code, "could not toggle bookmark for $stateID", it)
+            handleSdkException(stateID, "could not toggle bookmark to $newState for $stateID", it)
+            throw SDKException(it.code, "could not toggle bookmark to $newState for $stateID", it)
         }
     }
 

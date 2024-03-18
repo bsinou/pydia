@@ -763,7 +763,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     private fun doBookmark(uuid: String?) {
 
         val userMeta = IdmUserMeta(
-            uuid = uuid,
+            nodeUuid = uuid,
             namespace = "bookmark",
             jsonValue = "true",
             policies = listOf(
@@ -793,6 +793,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     override fun unbookmark(path: String) {
         try {
             val api = userMetaServiceApi()
+            getNodeUuid(path)?.let { listOf(it) }
 
             // Retrieve bookmark user meta with node UUID
             val searchRequest = IdmSearchUserMetaRequest(

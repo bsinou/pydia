@@ -746,21 +746,21 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     }
 
     @Throws(SDKException::class)
-    override fun bookmark(slug: String, file: String, isBookmarked: Boolean) {
-        if (isBookmarked) {
-            bookmark(slug, file)
+    override fun bookmark(path: String, newState: Boolean) {
+        if (newState) {
+            bookmark(path)
         } else {
-            unbookmark(slug, file)
+            unbookmark(path)
         }
     }
 
     @Throws(SDKException::class)
-    override fun bookmark(ws: String, file: String) {
-        bookmark(getNodeUuid(ws, file))
+    override fun bookmark(path: String) {
+        doBookmark(getNodeUuid(path))
     }
 
     @Throws(SDKException::class)
-    fun bookmark(uuid: String?) {
+    private fun doBookmark(uuid: String?) {
 
         val userMeta = IdmUserMeta(
             uuid = uuid,
@@ -790,14 +790,14 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     }
 
     @Throws(SDKException::class)
-    override fun unbookmark(ws: String, file: String) {
+    override fun unbookmark(path: String) {
         try {
             val api = userMetaServiceApi()
 
             // Retrieve bookmark user meta with node UUID
             val searchRequest = IdmSearchUserMetaRequest(
                 namespace = "bookmark",
-                nodeUuids = getNodeUuid(ws, file)?.let { listOf(it) }
+                nodeUuids = getNodeUuid(path)?.let { listOf(it) }
             )
 
             // Delete corresponding user meta
@@ -814,8 +814,8 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 
     @Throws(SDKException::class)
     override fun share(
-        workspace: String,
-        file: String,
+        // workspace: String,
+        path: String,
         wsLabel: String,
         isFolder: Boolean,
         wsDescription: String,
@@ -825,7 +825,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         canPreview: Boolean,
         canDownload: Boolean
     ): String {
-        val uuid = getNodeUuid(workspace, file)
+        val uuid = getNodeUuid(path)
 
         val n = TreeNode(
             uuid = uuid
@@ -843,7 +843,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             rootNodes = listOf(n),
             description = wsDescription,
             label = wsLabel,
-            viewTemplateName = "pydio_unique_strip"
+            viewTemplateName = SdkNames.SHARE_TEMPLATE_GALLERY
         )
 
         val request = RestPutShareLinkRequest(
@@ -1126,11 +1126,11 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //    }
 //
     @Throws(SDKException::class)
-    private fun getNodeUuid(ws: String, file: String): String? {
+    private fun getNodeUuid(path: String): String? {
         return try {
-            treeServiceApi().headNode(toTreeNodePath(ws, file)).node?.uuid
+            treeServiceApi().headNode(path).node?.uuid
         } catch (e: ClientException) {
-            throw SDKException("Cannot get UUID for $ws$file", e)
+            throw SDKException("Cannot get UUID for $path", e)
         }
     }
 

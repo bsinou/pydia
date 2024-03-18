@@ -71,7 +71,10 @@ interface Client {
     fun search(ws: String, dir: String, searchedText: String, h: (TreeNode) -> Unit)
 
     @Throws(SDKException::class)
-    fun copy(sources: List<StateID>, targetParent: StateID) // ws: String, files: Array<String>, folder: String)
+    fun copy(
+        sources: List<StateID>,
+        targetParent: StateID
+    ) // ws: String, files: Array<String>, folder: String)
 
     @Throws(SDKException::class)
     fun move(sources: List<StateID>, targetParent: StateID)
@@ -86,13 +89,13 @@ interface Client {
     fun emptyRecycleBin(ws: String)
 
     @Throws(SDKException::class)
-    fun bookmark(slug: String, file: String, isBookmarked: Boolean)
+    fun bookmark(path: String, newState: Boolean)
 
     @Throws(SDKException::class)
-    fun bookmark(ws: String, file: String)
+    fun bookmark(path: String)
 
     @Throws(SDKException::class)
-    fun unbookmark(ws: String, file: String)
+    fun unbookmark(path: String)
 
     @Throws(SDKException::class)
     fun getBookmarks(h: (TreeNode) -> Unit)
@@ -120,8 +123,7 @@ interface Client {
 
     @Throws(SDKException::class)
     fun share(
-        workspace: String,
-        file: String,
+        path: String,
         wsLabel: String,
         isFolder: Boolean,
         wsDescription: String,

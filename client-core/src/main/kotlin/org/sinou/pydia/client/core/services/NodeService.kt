@@ -25,7 +25,6 @@ import org.sinou.pydia.client.core.util.parseOrder
 import org.sinou.pydia.openapi.model.TreeNode
 import org.sinou.pydia.sdk.api.Client
 import org.sinou.pydia.sdk.api.ErrorCodes
-import org.sinou.pydia.sdk.api.HttpStatus
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.transport.StateID
@@ -209,19 +208,27 @@ class NodeService(
 
     @Throws(SDKException::class)
     suspend fun toggleBookmark(stateID: StateID, newState: Boolean) = withContext(ioDispatcher) {
-        try {
-            val node1 = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
-                ?: return@withContext // TODO throw an error ?
 
-            // TODO check nullity of slug and file
-            getNodesByUuid(stateID, node1.uuid).forEach { curr ->
-                getClient(stateID).bookmark(stateID.slug!!, stateID.file!!, newState)
+        var err: SDKException? = null
+        val node = nodeDB(stateID).treeNodeDao().getNode(stateID.id)
+            ?: return@withContext // TODO throw an error ?
+
+        val client = getClient(stateID)
+        getNodesByUuid(stateID, node.uuid).forEach { curr ->
+            val currID = curr.getStateID()
+            try {
+                // TODO check nullity of slug and file
+                client.bookmark(currID.path!!, newState)
                 curr.setBookmarked(newState)
                 treeNodeRepository.persistLocallyModified(curr, AppNames.LOCAL_MODIF_UPDATE)
+            } catch (se: SDKException) {
+                Log.e(logTag, "could not toggle bookmark to $newState for $currID: ${se.message}")
+                err = se
             }
-        } catch (se: SDKException) { // Could not retrieve thumb, failing silently for the end user
-            handleSdkException(stateID, "could not toggle bookmark for $stateID", se)
-            throw SDKException(se.code, "could not toggle bookmark for $stateID", se)
+        }
+        err?.let {
+            handleSdkException(stateID, "could not toggle bookmark for $stateID", it)
+            throw SDKException(it.code, "could not toggle bookmark for $stateID", it)
         }
     }
 

@@ -42,7 +42,7 @@ class CellsFileFetcher(private val model: String) : DataFetcher<ByteBuffer>, Koi
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in ByteBuffer>) {
         dlScope.launch {
             val (stateId, type) = decodeModel(model)
-            Log.e(logTag, "About to load data for $type item: $stateId")
+            Log.d(logTag, "About to load data for $type item: $stateId")
             try {
                 val file = transferService.getImageForDisplay(stateId, type, -1)
                 val bytes = file.readBytes()

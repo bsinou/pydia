@@ -209,7 +209,7 @@ class TransferService(
         when (currNetwork.serverConnection) {
             ServerConnection.OK
             -> {
-                Log.e(logTag, "... Got a connection, about to DL thumb for $stateID")
+//                Log.e(logTag, "... Got a connection, about to DL thumb for $stateID")
                 return@withContext downloadFile(stateID, rNode, type, parentJobID, null)
             }
 

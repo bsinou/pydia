@@ -27,7 +27,12 @@ open class SDKException : Exception {
         /**
          * Returns true if the current exception code is one of the well-known code for authorization issue
          */
-        get() = code == ErrorCodes.no_token_available || code == ErrorCodes.authentication_required || code == ErrorCodes.refresh_token_expired || code == ErrorCodes.token_expired || code == ErrorCodes.authentication_with_captcha_required || code == HttpStatus.UNAUTHORIZED.value
+        get() = code == ErrorCodes.no_token_available ||
+                code == ErrorCodes.authentication_required ||
+                code == ErrorCodes.refresh_token_expired ||
+                code == ErrorCodes.token_expired ||
+                code == ErrorCodes.authentication_with_captcha_required||
+                code == HttpStatus.UNAUTHORIZED.value
     val isNetworkError: Boolean
         get() = code == ErrorCodes.unreachable_host || code == ErrorCodes.no_internet || code == ErrorCodes.con_failed || code == ErrorCodes.con_closed || code == ErrorCodes.con_read_failed || code == ErrorCodes.con_write_failed || code == HttpStatus.BAD_GATEWAY.value || code == HttpStatus.SERVICE_UNAVAILABLE.value || code == HttpStatus.GATEWAY_TIMEOUT.value
 

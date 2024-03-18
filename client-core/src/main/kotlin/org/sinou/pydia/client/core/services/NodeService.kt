@@ -361,16 +361,16 @@ class NodeService(
 //        }
 //    }
 
-    @Throws(SDKException::class)
-    suspend fun removeFromCache(stateID: StateID) = withContext(ioDispatcher) {
-        try {
-            getNode(stateID)?.let { nodeDB(stateID).treeNodeDao().delete(stateID.id) }
-            cleanFilesFromLocalCache(stateID)
-        } catch (se: SDKException) {
-            se.printStackTrace()
-            throw SDKException("Could not delete $stateID", se)
-        }
-    }
+//    @Throws(SDKException::class)
+//    suspend fun removeFromCache(stateID: StateID) = withContext(ioDispatcher) {
+//        try {
+//            getNode(stateID)?.let { nodeDB(stateID).treeNodeDao().delete(stateID.id) }
+//            cleanFilesFromLocalCache(stateID)
+//        } catch (se: SDKException) {
+//            se.printStackTrace()
+//            throw SDKException("Could not delete $stateID", se)
+//        }
+//    }
 
     @Throws(SDKException::class)
     suspend fun cleanFilesFromLocalCache(stateID: StateID) = withContext(ioDispatcher) {

@@ -271,6 +271,8 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             return response.node
         } catch (e: ServerException) {
             throw SDKException.fromServerException(e)
+        } catch (e: ClientException) {
+            throw SDKException.fromClientException(e)
         } catch (e: Exception) {
             Log.e(logTag, "unexpected error when doing stat node for [$path]")
             e.printStackTrace()

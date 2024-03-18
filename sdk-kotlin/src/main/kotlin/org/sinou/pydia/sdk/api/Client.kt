@@ -75,10 +75,10 @@ interface Client {
     fun search(ws: String, dir: String, searchedText: String, h: (TreeNode) -> Unit)
 
     @Throws(SDKException::class)
-    fun copy(ws: String, files: Array<String>, folder: String)
+    fun copy(sources: List<StateID>, targetParent: StateID) // ws: String, files: Array<String>, folder: String)
 
     @Throws(SDKException::class)
-    fun move(ws: String, files: Array<String>, dstFolder: String)
+    fun move(sources: List<StateID>, targetParent: StateID)
 
     @Throws(SDKException::class)
     fun rename(ws: String, srcFile: String, newName: String)

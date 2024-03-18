@@ -5,12 +5,8 @@ import org.sinou.pydia.sdk.api.Server
 import org.sinou.pydia.sdk.api.Store
 import org.sinou.pydia.sdk.api.Transport
 import org.sinou.pydia.sdk.transport.CellsTransport
-import org.sinou.pydia.sdk.transport.ClientData
-import org.sinou.pydia.sdk.transport.ClientData.Companion.getInstance
-import org.sinou.pydia.sdk.transport.ClientData.Companion.updateInstance
 import org.sinou.pydia.sdk.transport.ServerFactory
 import org.sinou.pydia.sdk.transport.auth.CredentialService
-import org.sinou.pydia.sdk.utils.Log
 
 /**
  * Extends a server factory to manage client concepts.

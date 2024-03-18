@@ -42,10 +42,8 @@ import org.sinou.pydia.sdk.api.Transport
 import org.sinou.pydia.sdk.api.ui.PageOptions
 import org.sinou.pydia.sdk.api.ui.WorkspaceNode
 import org.sinou.pydia.sdk.client.model.DocumentRegistry
-import org.sinou.pydia.sdk.client.model.TreeNodeInfo
 import org.sinou.pydia.sdk.transport.CellsTransport
 import org.sinou.pydia.sdk.transport.StateID
-import org.sinou.pydia.sdk.utils.FileNodeUtils
 import org.sinou.pydia.sdk.utils.FileNodeUtils.toTreeNodePath
 import org.sinou.pydia.sdk.utils.IoHelpers
 import org.sinou.pydia.sdk.utils.Log
@@ -62,6 +60,8 @@ import java.util.Properties
 import javax.xml.parsers.ParserConfigurationException
 
 class CellsClient(transport: Transport, private val s3Client: S3Client) : Client, SdkNames {
+
+    private val logTag = "CellsClient"
 
     private val transport: CellsTransport
     private val gson = Gson()
@@ -95,7 +95,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         val (u, c) = transport.apiConf()
         return ShareServiceApi(u, c)
     }
-
 
     init {
         this.transport = transport as CellsTransport
@@ -183,7 +182,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     ): PageOptions {
         val request = RestGetBulkMetaRequest(
             nodePaths = listOf(
-                FileNodeUtils.toTreeNodePath(
+                toTreeNodePath(
                     slug,
                     if ("/" == path) "/*" else "$path/*"
                 )
@@ -247,31 +246,17 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
     }
 
-    //    @Throws(SDKException::class)
+    @Throws(SDKException::class)
     override fun delete(slug: String, paths: Array<String>, removePermanently: Boolean) {
-        val nodes = paths.map { TreeNode(path = FileNodeUtils.toTreeNodePath(slug, it)) }
+        val nodes = paths.map { TreeNode(path = toTreeNodePath(slug, it)) }
         val request = RestDeleteNodesRequest(nodes = nodes, removePermanently = removePermanently)
         try {
             treeServiceApi().deleteNodes(request)
         } catch (e: ServerException) {
-            e.printStackTrace()
             throw SDKException.fromServerException(e)
         }
     }
 
-    //    @Throws(SDKException::class)
-//    override fun statNode(file: String): TreeNode? {
-//        try {
-//            val response = treeServiceApi().headNode(file)
-//            return response.node
-//        } catch (e: ServerException) {
-//            throw SDKException.fromServerException(e)
-//        } catch (e: Exception) {
-//            Log.e(logTag, "unexpected error when doing stat node for [$file]")
-//            e.printStackTrace()
-//            throw SDKException(ErrorCodes.internal_error, "Cannot stat $file", e)
-//        }
-//    }
     @Throws(SDKException::class)
     override fun statNode(stateID: StateID): TreeNode? {
         val path = if (stateID.slug.isNullOrEmpty()) {
@@ -415,7 +400,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     override fun getNodeMeta(ws: String, file: String): TreeNode? {
         val request = RestGetBulkMetaRequest(
             allMetaProviders = true,
-            nodePaths = listOf(FileNodeUtils.toTreeNodePath(ws, file))
+            nodePaths = listOf(toTreeNodePath(ws, file))
         )
         val response: RestBulkMetaResponse = try {
             treeServiceApi().bulkStatNodes(request)
@@ -424,41 +409,12 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             throw SDKException(e)
         }
         if (response.nodes.isNullOrEmpty()) {
-            Log.w(logTag, "No node found for " + FileNodeUtils.toTreeNodePath(ws, file))
+            Log.w(logTag, "No node found for " + toTreeNodePath(ws, file))
             return null
         }
         return response.nodes?.let { it[0] }
     }
 
-    //
-//    @Throws(SDKException::class)
-//    override fun stats(ws: String, file: String, withHash: Boolean): Stats {
-//        val request = RestGetBulkMetaRequest()
-//        request.addNodePathsItem(FileNodeUtils.toTreeNodePath(ws, file))
-//        request.setAllMetaProviders(true)
-//        val api = TreeServiceApi(authenticatedClient())
-//        val response: RestBulkMetaResponse
-//        response = try {
-//            api.bulkStatNodes(request)
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException.fromApiException(e)
-//        }
-//        var stats: Stats? = null
-//        if (response.nodes != null) {
-//            val node = response.nodes[0]
-//            stats = Stats()
-//            stats.hash = node.etag
-//            if (node.getSize() != null) {
-//                stats.size = node.getSize().toLong()
-//            }
-//            if (node.mtime != null) {
-//                stats.setmTime(node.mtime.toLong())
-//            }
-//        }
-//        return stats!!
-//    }
-//
     @Throws(SDKException::class)
     override fun search(ws: String, dir: String, searchedText: String, h: (TreeNode) -> Unit) {
         val query = TreeQuery(
@@ -624,52 +580,42 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 //    }
 //
     @Throws(SDKException::class)
-    override fun copy(ws: String, files: Array<String>, folder: String) {
+    override fun copy(
+        sources: List<StateID>,
+        targetParent: StateID
+    ) { // ws: String, files: Array<String>, folder: String) {
         val nodes = mutableListOf<String>()
-        for (file in files) {
-            // String path = "/" + ws + file;
-            val path = ws + file
-            nodes.add(path)
-        }
-        val o = mutableMapOf<String, Any>()
-        o["nodes"] = nodes.toTypedArray()
-        o["target"] = ws + folder
-        o["targetParent"] = true
-        val request = RestUserJobRequest(
-            jsonParameters = gson.toJson(o)
-        )
-        // request.setJobName(CellsNames.JOB_ID_COPY)
+        sources.forEach { nodes.add(it.path!!) }
+        val params = mutableMapOf<String, Any>()
+        params["nodes"] = nodes.toTypedArray()
+        params["target"] = targetParent.path!!
+        params["targetParent"] = true
+        val request = RestUserJobRequest(jsonParameters = gson.toJson(params))
         try {
             jobsServiceApi().userCreateJob(SdkNames.JOB_ID_COPY, request)
         } catch (e: ClientException) {
-            e.printStackTrace()
             throw SDKException(e)
         }
     }
 
     @Throws(SDKException::class)
-    override fun move(ws: String, files: Array<String>, dstFolder: String) {
 
+    override fun move(
+        sources: List<StateID>,
+        targetParent: StateID
+    ) { // ws: String, files: Array<String>, dstFolder: String) {
         val nodes = mutableListOf<String>()
-        for (file in files) {
-            // String path = "/" + ws + file;
-            val path = ws + file
-            nodes.add(path)
+        for (source in sources) {
+            nodes.add(source.path!!)
         }
-        val o = mutableMapOf<String, Any>()
-        o["nodes"] = nodes.toTypedArray()
-        o["target"] = ws + dstFolder
-        o["targetParent"] = true
-
-        val request = RestUserJobRequest(
-            jsonParameters = gson.toJson(o)
-        )
-
-        // request.setJobName(CellsNames.JOB_ID_MOVE)
+        val param = mutableMapOf<String, Any>()
+        param["nodes"] = nodes.toTypedArray()
+        param["target"] = targetParent.path!!
+        param["targetParent"] = true
+        val request = RestUserJobRequest(jsonParameters = gson.toJson(param))
         try {
             jobsServiceApi().userCreateJob(SdkNames.JOB_ID_MOVE, request)
         } catch (e: ClientException) {
-            e.printStackTrace()
             throw SDKException(e)
         }
     }
@@ -700,7 +646,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             throw SDKException(e)
         }
     }
-
 
     /**
      * val nodes: MutableList<TreeNode> = ArrayList()
@@ -853,12 +798,11 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
                 nodeUuids = getNodeUuid(ws, file)?.let { listOf(it) }
             )
 
-            val (metadatas) = api.searchUserMeta(searchRequest)
-
             // Delete corresponding user meta
+            val (userMetas: List<IdmUserMeta>?) = api.searchUserMeta(searchRequest)
             val request = IdmUpdateUserMetaRequest(
                 operation = UpdateUserMetaRequestUserMetaOp.DELETE,
-                metaDatas = metadatas
+                metaDatas = userMetas
             )
             api.updateUserMeta(request)
         } catch (e: ClientException) {
@@ -866,7 +810,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
     }
 
-    //
     @Throws(SDKException::class)
     override fun share(
         workspace: String,
@@ -1183,7 +1126,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     @Throws(SDKException::class)
     private fun getNodeUuid(ws: String, file: String): String? {
         return try {
-            treeServiceApi().headNode(FileNodeUtils.toTreeNodePath(ws, file)).node?.uuid
+            treeServiceApi().headNode(toTreeNodePath(ws, file)).node?.uuid
         } catch (e: ClientException) {
             throw SDKException("Cannot get UUID for $ws$file", e)
         }
@@ -1198,13 +1141,13 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
     }
 
-    companion object {
-        private const val logTag = "CellsClient"
-        fun toTreeNodeInfo(node: TreeNode): TreeNodeInfo {
-            val isLeaf = node.type === TreeNodeType.LEAF
-            val size: Long = node.propertySize?.toLong() ?: -1
-            val lastEdit = node.mtime!!.toLong()
-            return TreeNodeInfo(node.etag!!, node.path!!, isLeaf, size, lastEdit)
-        }
-    }
+//    companion object {
+//        private const val logTag = "CellsClient"
+//        fun toTreeNodeInfo(node: TreeNode): TreeNodeInfo {
+//            val isLeaf = node.type === TreeNodeType.LEAF
+//            val size: Long = node.propertySize?.toLong() ?: -1
+//            val lastEdit = node.mtime!!.toLong()
+//            return TreeNodeInfo(node.etag!!, node.path!!, isLeaf, size, lastEdit)
+//        }
+//    }
 }

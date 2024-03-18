@@ -281,17 +281,7 @@ class NodeService(
     suspend fun copy(sources: List<StateID>, targetParent: StateID) =
         withContext(ioDispatcher) {
             try {
-                val srcFiles = mutableListOf<String>()
-                for (source in sources) {
-                    source.file?.let {
-                        srcFiles.add(it)
-                    }
-                }
-                getClient(targetParent).copy(
-                    targetParent.slug!!,
-                    srcFiles.toTypedArray(),
-                    targetParent.file!!
-                )
+                getClient(targetParent).copy(sources, targetParent)
             } catch (e: SDKException) {
                 val msg = "could not copy to $targetParent"
                 handleSdkException(targetParent, msg, e)
@@ -303,17 +293,7 @@ class NodeService(
     suspend fun move(sources: List<StateID>, targetParent: StateID) =
         withContext(ioDispatcher) {
             try {
-                val srcFiles = mutableListOf<String>()
-                for (source in sources) {
-                    source.file?.let {
-                        srcFiles.add(it)
-                    }
-                }
-                getClient(targetParent).move(
-                    targetParent.slug!!,
-                    srcFiles.toTypedArray(),
-                    targetParent.file!!
-                )
+                getClient(targetParent).move(sources, targetParent)
             } catch (e: SDKException) {
                 val msg = "could not move to $targetParent"
                 handleSdkException(targetParent, msg, e)
@@ -321,7 +301,6 @@ class NodeService(
             }
             return@withContext null
         }
-
 
     // Handle communication with the remote server to refresh locally stored data.
 

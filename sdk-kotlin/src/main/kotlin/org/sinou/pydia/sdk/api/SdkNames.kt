@@ -16,6 +16,7 @@ interface SdkNames {
         const val NODE_MIME_FOLDER = "pydio/nodes-list"
         const val NODE_MIME_RECYCLE = "pydio/recycle"
         const val NODE_MIME_DEFAULT = "application/octet-stream"
+        const val NODE_MIME_DEFAULT2 = "binary/octet-stream"
 
         // Workspaces types
         const val WS_TYPE_PERSONAL = "workspace-personal"

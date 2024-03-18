@@ -86,7 +86,7 @@ fun areWsNodeContentEquals(local: RWorkspace, remote: WorkspaceNode): Boolean {
 
     isEqual = local.type == remote.type
     if (!isEqual) {
-        Log.d(LOG_TAG, "Differ: Modification time are not equals")
+        Log.d(LOG_TAG, "Differ: node types are not equals")
         return false
     }
 
@@ -95,14 +95,16 @@ fun areWsNodeContentEquals(local: RWorkspace, remote: WorkspaceNode): Boolean {
 }
 
 fun isPreViewable(element: RTreeNode): Boolean {
-    return if (element.mime.startsWith("image/")) {
+    var mime = element.mime
+    // TODO remove this once the mime has been cleaned
+    if (mime.startsWith("\"")) {
+        Log.e(LOG_TAG, "Fixing mime: before [$mime]")
+        mime = mime.substring(1, mime.length - 2)
+        Log.e(LOG_TAG, "Fixing mime: after [$mime]")
+    }
+    return if (mime.startsWith("image/")) {
         true
-    } else if (element.mime.startsWith("\"image/")) {
-        Log.w(LOG_TAG, "We had to tweak mime")
-        Thread.dumpStack()
-        // TODO remove this once the mime has been cleaned
-        true
-    } else if (element.mime == SdkNames.NODE_MIME_DEFAULT || element.mime == "\"${SdkNames.NODE_MIME_DEFAULT}\"") {
+    } else if (mime == SdkNames.NODE_MIME_DEFAULT || mime == SdkNames.NODE_MIME_DEFAULT2) {
         val name = element.name.lowercase()
         name.endsWith(".jpg")
                 || name.endsWith(".jpeg")

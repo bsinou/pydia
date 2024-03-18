@@ -748,16 +748,17 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     @Throws(SDKException::class)
     override fun bookmark(path: String, newState: Boolean) {
         if (newState) {
-            bookmark(path)
+            doBookmark(getNodeUuid(path))
+//            bookmark(path)
         } else {
-            unbookmark(path)
+            unBookmark(path)
         }
     }
-
-    @Throws(SDKException::class)
-    override fun bookmark(path: String) {
-        doBookmark(getNodeUuid(path))
-    }
+//
+//    @Throws(SDKException::class)
+//    fun bookmark(path: String) {
+//        doBookmark(getNodeUuid(path))
+//    }
 
     @Throws(SDKException::class)
     private fun doBookmark(uuid: String?) {
@@ -790,7 +791,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     }
 
     @Throws(SDKException::class)
-    override fun unbookmark(path: String) {
+    fun unBookmark(path: String) {
         try {
             val api = userMetaServiceApi()
             getNodeUuid(path)?.let { listOf(it) }

@@ -90,12 +90,12 @@ interface Client {
 
     @Throws(SDKException::class)
     fun bookmark(path: String, newState: Boolean)
-
-    @Throws(SDKException::class)
-    fun bookmark(path: String)
-
-    @Throws(SDKException::class)
-    fun unbookmark(path: String)
+//
+//    @Throws(SDKException::class)
+//    fun bookmark(path: String)
+//
+//    @Throws(SDKException::class)
+//    fun unbookmark(path: String)
 
     @Throws(SDKException::class)
     fun getBookmarks(h: (TreeNode) -> Unit)

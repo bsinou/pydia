@@ -334,32 +334,32 @@ class NodeService(
         }
     }
 
-    suspend fun stillExists(stateID: StateID): Boolean = withContext(ioDispatcher) {
-        if (!accountService.isClientConnected(stateID)) { // Cannot check: we assume node is still there
-            return@withContext true
-        }
-        try {
-            getClient(stateID).statNode(stateID)
-//            stateID.path?.let {
-//                getClient(stateID).statNode(it)
-//            } ?: run {
+//    suspend fun stillExists(stateID: StateID): Boolean = withContext(ioDispatcher) {
+//        if (!accountService.isClientConnected(stateID)) { // Cannot check: we assume node is still there
+//            return@withContext true
+//        }
+//        try {
+//            getClient(stateID).statNode(stateID)
+////            stateID.path?.let {
+////                getClient(stateID).statNode(it)
+////            } ?: run {
+////                Log.w(logTag, "Node at $stateID has disappeared. About to delete from local cache")
+////                removeFromCache(stateID)
+////                return@withContext false
+////            }
+//            return@withContext true
+//        } catch (e: SDKException) {
+//            if (e.code == HttpStatus.NOT_FOUND.value) {
 //                Log.w(logTag, "Node at $stateID has disappeared. About to delete from local cache")
 //                removeFromCache(stateID)
 //                return@withContext false
 //            }
-            return@withContext true
-        } catch (e: SDKException) {
-            if (e.code == HttpStatus.NOT_FOUND.value) {
-                Log.w(logTag, "Node at $stateID has disappeared. About to delete from local cache")
-                removeFromCache(stateID)
-                return@withContext false
-            }
-            Log.e(logTag, "... Unexpected error #${e.code} while checking node at $stateID")
-            e.printStackTrace()
-            Log.e(logTag, "... Ignoring for the time being")
-            return@withContext false
-        }
-    }
+//            Log.e(logTag, "... Unexpected error #${e.code} while checking node at $stateID")
+//            e.printStackTrace()
+//            Log.e(logTag, "... Ignoring for the time being")
+//            return@withContext false
+//        }
+//    }
 
     @Throws(SDKException::class)
     suspend fun removeFromCache(stateID: StateID) = withContext(ioDispatcher) {

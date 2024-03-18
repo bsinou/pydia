@@ -12,10 +12,10 @@ import org.sinou.pydia.sdk.transport.StateID
 private const val LOG_TAG = "NodeUtils.kt"
 
 // Utility to make the stateID savable
-val stateIDSaver = Saver<StateID, String>(
-    save = { stateID -> stateID.id },
-    restore = { id -> StateID.fromId(id) },
-)
+//val stateIDSaver = Saver<StateID, String>(
+//    save = { stateID -> stateID.id },
+//    restore = { id -> StateID.fromId(id) },
+//)
 
 fun areNodeContentEquals(local: RTreeNode, remote: RTreeNode): Boolean {
     // TODO rather use this when debugging is over. Also adapt areWsNodeContentEquals(), see below

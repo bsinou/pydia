@@ -43,12 +43,8 @@ interface Client {
     fun statNode(stateID: StateID): TreeNode?
 
     /**
-     * @param node         The local FileNode with current object meta-data
-     * @param parentFolder Must be writable for the current process
-     * @param dim          The expected thumbnail dimension
      * @return the filename If a thumbnail has been correctly downloaded or generated or null otherwise
-     * @throws SDKException Wraps "known" exception with our error code
-     * and a local message to ease downstream management of the error.
+     * @throws SDKException Wraps "known" exception with our error code and a local message to ease downstream management of the error.
      */
     @Throws(SDKException::class)
     fun getThumbnail(

@@ -33,6 +33,17 @@ class WorkspaceNode(
         return slug.hashCode()
     }
 
+
+    // TODO we also used to handle these properties
+    //        we skipped them when moving to kotlin only...
+//        val id = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ID)
+//        val acl = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACL)
+//        val owner = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_OWNER)
+//        val crossCopy = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_CROSS_COPY)
+//        val accessType = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACCESS_TYPE)
+//        val metaSync = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_META_SYNC)
+
+
     /**
      * This is only used for diffs, for UI sorting we rather rely on the sort_name that is added
      * to the RWorkspace object upon creation - TODO double check

@@ -4,7 +4,6 @@ import org.sinou.pydia.sdk.api.Registry
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.api.ui.Plugin
 import org.sinou.pydia.sdk.api.ui.WorkspaceNode
-import org.sinou.pydia.sdk.utils.Log
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -17,19 +16,22 @@ import javax.xml.xpath.XPathFactory
 
 class DocumentRegistry : Registry {
 
+    private val logTag = "DocumentRegistry"
+
+    private val cellsPrefix = "pydio_registry"
+    private val userNodeName = "user"
+
+    private val repoXPath = "/user/repositories"
+    private val pydioRepoXPath = "/pydio_registry/user/repositories"
+    private val pluginsXPath = "/ajxp_registry/plugins"
+    //    private val ajxpActionsXPath = "/ajxp_registry/actions"
+
     private var prefix: String? = null
     private var userNode: Node? = null
     private val xmlDocument: Document?
     private var parsedWorkspaces: List<WorkspaceNode>? = null
     private var parsedPlugins: List<Plugin>? = null
-//    private var parsedActions: List<Action>? = null
-
-    private val ajxpRepositoriesXPath = "/user/repositories"
-
-    //    private val ajxpActionsXPath = "/ajxp_registry/actions"
-    private val ajxpPluginsXPath = "/ajxp_registry/plugins"
-    private val pydioRepositoriesXPath = "/pydio_registry/user/repositories"
-
+    //    private var parsedActions: List<Action>? = null
 
     constructor(xmlDocument: Document?) {
         this.xmlDocument = xmlDocument
@@ -53,14 +55,14 @@ class DocumentRegistry : Registry {
             if (it.hasChildNodes()) {
                 val root = it.childNodes.item(0)
 
-                prefix = if (root.nodeName == CELLS_PREFIX) {
-                    "/$CELLS_PREFIX/"
+                prefix = if (root.nodeName == cellsPrefix) {
+                    "/$cellsPrefix/"
                 } else throw RuntimeException("Unexpected root: " + root.nodeName)
 
                 if (root.hasChildNodes()) {
                     val children = root.childNodes
                     for (i in 0 until children.length) {
-                        if (USER_NODE_NAME == children.item(i).nodeName) {
+                        if (userNodeName == children.item(i).nodeName) {
                             userNode = children.item(i)
                             break
                         }
@@ -91,10 +93,10 @@ class DocumentRegistry : Registry {
         val xPath = XPathFactory.newInstance().newXPath()
         try {
             val workspaceNodes: MutableList<WorkspaceNode> = ArrayList()
-            var repositoriesNode = xPath.compile(ajxpRepositoriesXPath)
+            var repositoriesNode = xPath.compile(repoXPath)
                 .evaluate(xmlDocument, XPathConstants.NODESET) as NodeList
             if (repositoriesNode.length == 0) {
-                repositoriesNode = xPath.compile(pydioRepositoriesXPath)
+                repositoriesNode = xPath.compile(pydioRepoXPath)
                     .evaluate(xmlDocument, XPathConstants.NODESET) as NodeList
             }
             if (repositoriesNode.length > 0) {
@@ -156,7 +158,6 @@ class DocumentRegistry : Registry {
         }
 
         return if (SdkNames.hiddenWSLabels.contains(label)) {
-            Log.d(logTag, "... Skipping technical WS: $label")
             null
         } else {
             WorkspaceNode(
@@ -168,15 +169,6 @@ class DocumentRegistry : Registry {
                 props = nodeProps
             )
         }
-
-//        TODO we skip these properties since moving to kotlin only
-//        val id = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ID)
-//        val acl = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACL)
-//        val owner = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_OWNER)
-//        val crossCopy = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_CROSS_COPY)
-//        val accessType = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_ACCESS_TYPE)
-//        val metaSync = attrs.getNamedItem(SdkNames.WORKSPACE_PROPERTY_META_SYNC)
-//
     }
 
     override fun getPlugins(): List<Plugin> {
@@ -188,7 +180,7 @@ class DocumentRegistry : Registry {
         try {
             val plugins: MutableList<Plugin> = ArrayList()
             val pluginsNode =
-                xPath.compile(ajxpPluginsXPath).evaluate(xmlDocument, XPathConstants.NODE) as Node
+                xPath.compile(pluginsXPath).evaluate(xmlDocument, XPathConstants.NODE) as Node
             val repositoriesChildNodes = pluginsNode.childNodes
             for (i in 0 until repositoriesChildNodes.length) {
                 val node = repositoriesChildNodes.item(i)
@@ -240,12 +232,6 @@ class DocumentRegistry : Registry {
             }
         }
         return properties
-    }
-
-    companion object {
-        private const val logTag = "DocumentRegistry"
-        private const val CELLS_PREFIX = "pydio_registry"
-        private const val USER_NODE_NAME = "user"
     }
 
     //    override fun getActions(): List<Action> {

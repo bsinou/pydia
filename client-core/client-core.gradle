@@ -52,7 +52,6 @@ buildscript {
                 "androidx.datastore:datastore-preferences:1.0.0",
 
                 // Utils
-//                "commons-codec:commons-codec:$commons_codec_version",
                 "com.google.code.gson:gson:2.10.1",
                 // QRCode generation
                 "com.google.zxing:core:3.5.2",

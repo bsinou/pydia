@@ -17,7 +17,6 @@ include ':sdk-openapi'
 include ':sdk-kotlin'
 include ':client-core'
 
-
 /* Use custom names for the "client-sandbox.gradle" file of child modules */
 rootProject.children.each {
     it.buildFileName = it.name + '.gradle'

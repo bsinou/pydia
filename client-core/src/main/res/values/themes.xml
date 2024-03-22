@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="CellsTheme" parent="android:Theme.Material.NoActionBar" />
+    <style name="PydiaTheme" parent="android:Theme.Material.NoActionBar" />
 
     <!-- See  https://developer.android.com/develop/ui/views/launch/splash-screen
          and   https://developer.android.com/develop/ui/views/launch/splash-screen/migrate -->
-    <style name="CellsTheme.SplashScreen" parent="Theme.SplashScreen">
+    <style name="PydiaTheme.SplashScreen" parent="Theme.SplashScreen">
         <!-- Theme that must be applied once the app has started -->
-        <item name="postSplashScreenTheme">@style/CellsTheme</item>
+        <item name="postSplashScreenTheme">@style/PydiaTheme</item>
         <!-- The logo -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon</item>
     </style>

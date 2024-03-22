@@ -6,6 +6,7 @@
     <!-- Main Cells colors -->
     <!--    <color name="cells_blue">#00668B</color>-->
     <!--    Standard Cells Blue -->
+    <color name="logo_main_color">#FF5722</color>
     <color name="cells_blue">#444C66</color>
     <color name="cells_orange">#EE776C</color>
     <!-- Document icon colors -->

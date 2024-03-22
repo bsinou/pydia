@@ -23,7 +23,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_title"
         android:supportsRtl="true"
-        android:theme="@style/CellsTheme">
+        android:theme="@style/PydiaTheme">
 
         <!-- TODO: Add
                android:enableOnBackInvokedCallback="true"
@@ -36,7 +36,7 @@
         <activity
             android:name=".core.MainActivity"
             android:exported="true"
-            android:theme="@style/CellsTheme.SplashScreen">
+            android:theme="@style/PydiaTheme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

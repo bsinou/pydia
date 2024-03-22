@@ -13,7 +13,7 @@ rootProject.buildFileName = 'build.gradle'
 def timestamp = new Date().format( 'yyyyMMddHHmm' )
 println('[DEBUG] Starting init phase for ' + rootProject.name + ' at ' + timestamp)
 
-include ':openapi-client'
+include ':sdk-openapi'
 include ':sdk-kotlin'
 include ':client-core'
 

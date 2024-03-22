@@ -153,7 +153,7 @@ class MainActivity : ComponentActivity() {
         val processSelectedTarget: (StateID?) -> Unit = { stateID ->
             scope.launch {
                 stateID?.let {
-                    // preLaunchVM.shareAt(it)
+                    preLaunchVM.shareAt(it)
                 }
             }
         }

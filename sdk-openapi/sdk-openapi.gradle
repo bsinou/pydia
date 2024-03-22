@@ -6,8 +6,8 @@ plugins {
 group 'org.sinou.pydia'
 version '0.1-SNAPSHOT'
 
-def artifactID = 'openapi-client'
-def sdkSwaggerSpecVersion = '4.3.1'
+def artifactID = 'sdk-openapi'
+def sdkSwaggerSpecVersion = '4.4.0-rc1'
 
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17

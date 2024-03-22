@@ -116,7 +116,7 @@ android {
 
     composeOptions {
         // See https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.10"
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
 
     buildTypes {
@@ -191,7 +191,7 @@ dependencies {
     api project(":sdk-kotlin")
 
     // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
-    implementation platform('androidx.compose:compose-bom:2024.02.02')
+    implementation platform('androidx.compose:compose-bom:2024.03.00')
     implementation platform('io.insert-koin:koin-bom:3.5.3')
 
     kapt librariesKapt

@@ -47,9 +47,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import org.koin.androidx.compose.koinViewModel
+import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.AppNames
-import org.sinou.pydia.client.R
 import org.sinou.pydia.client.core.services.models.ConnectionState
 import org.sinou.pydia.client.ui.browse.composables.CreateFolder
 import org.sinou.pydia.client.ui.browse.composables.NodeAction
@@ -67,7 +68,6 @@ import org.sinou.pydia.client.ui.share.models.ShareVM
 import org.sinou.pydia.client.ui.theme.UseCellsTheme
 import org.sinou.pydia.sdk.transport.StateID
 import org.sinou.pydia.sdk.utils.Str
-import org.koin.androidx.compose.koinViewModel
 
 private const val LOG_TAG = "SelectFolder.kt"
 
@@ -135,7 +135,7 @@ fun SelectFolderScreen(
     }
 
     val interceptAction: (String, StateID) -> Unit = { action, currID ->
-        Log.e(LOG_TAG, "Intercepting $action for $currID")
+        Log.d(LOG_TAG, "Intercepting $action for $currID")
         if (AppNames.ACTION_CREATE_FOLDER == action) {
             navController.navigate(route(NodeAction.CreateFolder, currID))
         } else {
@@ -255,26 +255,51 @@ private fun SelectFolderList(
     )
     Box(modifier.pullRefresh(state)) {
         LazyColumn(Modifier.fillMaxWidth()) {
-            // For the time being we only support intra workspace copy / move
-            // We so reduce the "up" row visibility at the WS level when in such situation
-            if (Str.notEmpty(stateID.fileName) || action == AppNames.ACTION_UPLOAD) {
+            // Handle navigation to parent in various context
+            if (action == AppNames.ACTION_UPLOAD && stateID.path.isNullOrEmpty()) {
+                // Account Root
                 item {
-                    val parentDescription = when {
-                        Str.empty(stateID.path) -> stringResource(id = R.string.switch_account)
-                        Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
-                        else -> stringResource(R.string.parent_folder)
-                    }
-                    val targetID = if (Str.empty(stateID.slug)) {
-                        StateID.NONE
-                    } else {
-                        stateID.parent()
-                    }
                     M3BrowseUpListItem(
-                        parentDesc = parentDescription,
-                        modifier = Modifier.clickable { open(targetID) }
+                        parentDesc = stringResource(R.string.switch_account),
+                        modifier = Modifier.clickable { open(StateID.NONE) }
                     )
                 }
+            } else if (!stateID.path.isNullOrEmpty()) {
+                if (stateID.fileName.isNullOrEmpty()) {
+                    item {
+                        M3BrowseUpListItem(
+                            parentDesc = stringResource(R.string.switch_workspace),
+                            modifier = Modifier.clickable { open(stateID.parent()) }
+                        )
+                    }
+                } else if (!stateID.fileName.isNullOrEmpty()) {
+                    item {
+                        M3BrowseUpListItem(
+                            parentDesc = stringResource(R.string.parent_folder),
+                            modifier = Modifier.clickable { open(stateID.parent()) }
+                        )
+                    }
+                }
             }
+
+//            if (Str.notEmpty(stateID.fileName) || action == AppNames.ACTION_UPLOAD) {
+//                item {
+//                    val parentDescription = when {
+//                        Str.empty(stateID.path) -> stringResource(id = R.string.switch_account)
+//                        Str.empty(stateID.fileName) -> stringResource(id = R.string.switch_workspace)
+//                        else -> stringResource(R.string.parent_folder)
+//                    }
+//                    val targetID = if (Str.empty(stateID.slug)) {
+//                        StateID.NONE
+//                    } else {
+//                        stateID.parent()
+//                    }
+//                    M3BrowseUpListItem(
+//                        parentDesc = parentDescription,
+//                        modifier = Modifier.clickable { open(targetID) }
+//                    )
+//                }
+//            }
             items(children) { oneChild ->
                 val currModifier = if (isForbiddenTarget(oneChild)) {
                     Modifier.alpha(alpha)

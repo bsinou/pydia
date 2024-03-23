@@ -603,7 +603,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     }
 
     @Throws(SDKException::class)
-
     override fun move(
         sources: List<StateID>,
         targetParent: StateID
@@ -707,14 +706,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
     }
 
-    //    private fun toMultipleNode(nodes: MutableList<FileNode>, treeNode: TreeNode) {
-//        toMultipleNode({ node: Node? ->
-//            if (node is FileNode) nodes.add(
-//                node
-//            )
-//        }, treeNode)
-//    }
-//
     private fun toMultipleNode(h: (TreeNode) -> Unit, node: TreeNode) {
         try {
             val sources = node.appearsIn
@@ -751,16 +742,10 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     override fun bookmark(path: String, newState: Boolean) {
         if (newState) {
             doBookmark(getNodeUuid(path))
-//            bookmark(path)
         } else {
             unBookmark(path)
         }
     }
-//
-//    @Throws(SDKException::class)
-//    fun bookmark(path: String) {
-//        doBookmark(getNodeUuid(path))
-//    }
 
     @Throws(SDKException::class)
     private fun doBookmark(uuid: String?) {
@@ -818,11 +803,10 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
 
     @Throws(SDKException::class)
     override fun share(
-        // workspace: String,
         path: String,
-        wsLabel: String,
         isFolder: Boolean,
-        wsDescription: String,
+        linkLabel: String,
+        linkDesc: String,
         password: String?,
         expiration: Int,
         download: Int,
@@ -830,10 +814,8 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         canDownload: Boolean
     ): String {
         val uuid = getNodeUuid(path)
-
-        val n = TreeNode(
-            uuid = uuid
-        )
+            ?: run { throw SDKException("Cannot share, no UUID found for node at $path") }
+        val n = TreeNode(uuid = uuid)
         val permissions: MutableList<RestShareLinkAccessType> = ArrayList()
         if (canPreview) {
             permissions.add(RestShareLinkAccessType.Preview)
@@ -845,8 +827,8 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             policiesContextEditable = true,
             permissions = permissions,
             rootNodes = listOf(n),
-            description = wsDescription,
-            label = wsLabel,
+            description = linkDesc,
+            label = linkLabel,
             viewTemplateName = SdkNames.SHARE_TEMPLATE_GALLERY
         )
 
@@ -955,180 +937,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             defaultPrefix + linkUrl
         }
     }
-//
-//    override fun isLegacy(): Boolean {
-//        return false
-//    }
-//
-//    @Throws(SDKException::class)
-//    fun statNode(fullPath: String): TreeNodeInfo? {
-//        val node = internalStatNode(fullPath)
-//        return if (node != null) toTreeNodeinfo(node) else null
-//    }
-//
-//    @Throws(SDKException::class)
-//    fun changes(
-//        ws: String?,
-//        folder: String?,
-//        seq: Int,
-//        flatten: Boolean,
-//        cp: ChangeHandler?
-//    ): Long {
-//        // RestChangeRequest request = new RestChangeRequest();
-//        // request.setFlatten(flatten);
-//        // request.setSeqID(String.valueOf(seq));
-//        // request.setFilter("/" + ws + folder);
-//
-//        // this.getJWT();
-//        // ApiClient client = getApiClient();
-//        // client.addDefaultHeader("Authorization", "Bearer " + this.bearerValue);
-//        // ChangeServiceApi api = new ChangeServiceApi(client);
-//        // RestChangeCollection response;
-//
-//        // try {
-//        // response = api.getChanges(String.valueOf(seq), request);
-//        // } catch (ApiException e) {
-//        // throw SDKException.fromApiException(e);
-//        // }
-//
-//        // for (TreeSyncChange c : response.getChanges()) {
-//        // Change change = new Change();
-//        // change.setSeq(Long.parseLong(c.getSeq()));
-//        // change.setNodeId(c.getNodeId());
-//        // change.setType(c.getType().toString());
-//        // change.setSource(c.getSource());
-//        // change.setTarget(c.getTarget());
-//
-//        // ChangeNode node = new ChangeNode();
-//        // change.setNode(node);
-//
-//        // node.setSize(Long.parseLong(c.getNode().getBytesize()));
-//        // node.setMd5(c.getNode().getMd5());
-//        // node.setPath(c.getNode().getNodePath().replaceFirst("/" + ws, ""));
-//        // node.setWorkspace(ws);
-//        // node.setmTime(Long.parseLong(c.getNode().getMtime()));
-//
-//        // cp.onChange(change);
-//        // }
-//        // return Long.parseLong(response.getLastSeqId());
-//        throw RuntimeException("This must be reimplemented after API update")
-//    }
-//
-//    /**
-//     * Same as statNode() but rather return null than an [SDKException]
-//     * in case the node is not found
-//     */
-//    @Throws(SDKException::class)
-//    private fun statOptionalNode(fullPath: String): TreeNodeInfo? {
-//        var node: TreeNode? = null
-//        try {
-//            node = internalStatNode(fullPath)
-//        } catch (e: SDKException) {
-//            if (e.code != 404) {
-//                throw e
-//            }
-//        }
-//        return if (node != null) toTreeNodeinfo(node) else null
-//    }
-//
 
-    //
-//    /**
-//     * List children of the node at `fullPath`. Note that it does nothing if
-//     * no node is found at `fullPath`.
-//     */
-//    @Throws(SDKException::class)
-//    fun listChildren(fullPath: String, handler: TreeNodeHandler) {
-//        val request = RestGetBulkMetaRequest()
-//        request.addNodePathsItem("$fullPath/*")
-//        request.setAllMetaProviders(true)
-//        val api = TreeServiceApi(authenticatedClient())
-//        var response: RestBulkMetaResponse? = null
-//        try {
-//            response = api.bulkStatNodes(request)
-//        } catch (e: ApiException) {
-//            if (e.code != 404) {
-//                throw SDKException.fromApiException(e)
-//            }
-//        }
-//        if (response != null && response.nodes != null) {
-//            val nodes = response.nodes!!.iterator()
-//            while (nodes.hasNext()) {
-//                handler.onNode(nodes.next())
-//            }
-//        }
-//    }
-//
-//    @Throws(SDKException::class)
-//    fun mkfile(ws: String, name: String, folder: String) {
-//        val node = TreeNode()
-//        node.setPath("/$ws$folder/$name")
-//        node.setType(TreeNodeType.LEAF)
-//        val request = RestCreateNodesRequest()
-//        request.recursive(false)
-//        request.addNodesItem(node)
-//        val api = TreeServiceApi(authenticatedClient())
-//        val response: RestNodesCollection
-//        response = try {
-//            api.createNodes(request)
-//        } catch (e: ApiException) {
-//            e.printStackTrace()
-//            throw SDKException.fromApiException(e)
-//        }
-//    }
-//
-//    private fun newPolicy(
-//        nodeId: String?,
-//        action: ServiceResourcePolicyAction
-//    ): ServiceResourcePolicy {
-//        val policy = ServiceResourcePolicy()
-//        policy.setSubject("user:" + transport.username)
-//        policy.setResource(nodeId)
-//        policy.setEffect(ServiceResourcePolicyPolicyEffect.ALLOW)
-//        policy.setAction(action)
-//        return policy
-//    }
-//
-//    operator fun get(transport: Transport): CellsClient {
-//        return CellsClient(transport, s3Client)
-//    }
-//
-//    /* Transfer methods that use S3 */
-//    @Deprecated("")
-//    private fun fromURL(url: URL): String {
-//        return url.toString().replace(" ", "%20")
-//    }
-//
-//    @Throws(SDKException::class)
-//    private fun upload(
-//        f: File,
-//        mime: String,
-//        ws: String,
-//        path: String,
-//        name: String,
-//        tpl: ProgressListener
-//    ) {
-//        try {
-//            FileInputStream(f).use { `in` ->
-//                upload(
-//                    `in`,
-//                    f.length(),
-//                    mime,
-//                    ws,
-//                    path,
-//                    name,
-//                    true,
-//                    tpl
-//                )
-//            }
-//        } catch (e: FileNotFoundException) {
-//            throw SDKException.notFound(e)
-//        } catch (e: IOException) {
-//            val msg = "Could not upload to $ws$path/$name"
-//            throw SDKException(ErrorCodes.con_write_failed, msg, e)
-//        }
-//    }
-//
     @Throws(SDKException::class)
     private fun getNodeUuid(path: String): String? {
         return try {
@@ -1147,13 +956,4 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
         }
     }
 
-//    companion object {
-//        private const val logTag = "CellsClient"
-//        fun toTreeNodeInfo(node: TreeNode): TreeNodeInfo {
-//            val isLeaf = node.type === TreeNodeType.LEAF
-//            val size: Long = node.propertySize?.toLong() ?: -1
-//            val lastEdit = node.mtime!!.toLong()
-//            return TreeNodeInfo(node.etag!!, node.path!!, isLeaf, size, lastEdit)
-//        }
-//    }
 }

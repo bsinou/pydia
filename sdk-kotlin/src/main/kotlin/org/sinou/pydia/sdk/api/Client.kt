@@ -124,9 +124,9 @@ interface Client {
     @Throws(SDKException::class)
     fun share(
         path: String,
-        wsLabel: String,
         isFolder: Boolean,
-        wsDescription: String,
+        linkLabel: String,
+        linkDesc: String,
         password: String?,
         expiration: Int,
         download: Int,

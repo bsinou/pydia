@@ -1,4 +1,4 @@
-package org.sinou.pydia.client.core
+package org.sinou.pydia.client.ui
 
 import android.app.Activity
 import android.content.Intent
@@ -29,9 +29,9 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
 import org.koin.core.parameter.parametersOf
+import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.core.services.ConnectionService
 import org.sinou.pydia.client.core.util.currentTimestamp
-import org.sinou.pydia.client.ui.MainApp
 import org.sinou.pydia.client.ui.core.screens.AuthScreen
 import org.sinou.pydia.client.ui.core.screens.WhiteScreen
 import org.sinou.pydia.client.ui.system.models.PreLaunchState

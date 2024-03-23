@@ -77,14 +77,11 @@ fun NavGraphBuilder.localLoginGraph(
     composable(LoginDestinations.LaunchAuthProcessing.route) { nbsEntry ->
         val stateID = lazyStateID(nbsEntry)
         val skipVerify = lazySkipVerify(nbsEntry)
-        val lContext = lazyLoginContext(nbsEntry)
-        LaunchedEffect(key1 = stateID, key2 = lContext, key3 = skipVerify) {
-            Log.e(logTag, "... 1st compo login/launch-auth/$stateID/$skipVerify/$lContext")
-        }
+        val loginContext = lazyLoginContext(nbsEntry)
         LaunchOAuthFlow(
             stateID = stateID,
             skipVerify = skipVerify,
-            loginContext = lContext,
+            loginContext = loginContext,
             loginVM = loginVM,
             helper = helper,
         )

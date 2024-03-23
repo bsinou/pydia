@@ -590,6 +590,10 @@ class NodeService(
     suspend fun remoteQuery(stateID: StateID, query: String) = withContext(ioDispatcher) {
         try {
             val updateCount = AtomicInteger()
+
+            if (stateID.slug == null) {
+                return@withContext
+            }
             getClient(stateID).search(stateID.slug!!, stateID.file ?: "/", query) { currNode ->
                 if (!this.isActive) return@search
                 val tmp = fromTreeNode(stateID, currNode)

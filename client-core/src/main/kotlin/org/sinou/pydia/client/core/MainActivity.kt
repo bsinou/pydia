@@ -210,11 +210,15 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onPause() {
+        val msg = "... About to pause Main activity" //+
+        Log.e(logTag, msg)
         connectionService.pauseMonitoring()
         super.onPause()
     }
 
     override fun onResume() {
+        val msg = "... About to **resume** Main activity" //+
+        Log.e(logTag, msg)
         connectionService.relaunchMonitoring()
         super.onResume()
     }

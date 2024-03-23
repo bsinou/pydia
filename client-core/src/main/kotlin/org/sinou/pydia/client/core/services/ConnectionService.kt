@@ -173,7 +173,9 @@ class ConnectionService(
         connection: SessionState
     ): ConnectionState {
         val tmpLoading =
-            if (!connection.networkStatus.isConnected() || !connection.isServerReachable) {
+            if (loading == LoadingState.STARTING) {
+                LoadingState.STARTING
+            } else if (!connection.networkStatus.isConnected() || !connection.isServerReachable) {
                 LoadingState.IDLE
             } else {
                 loading

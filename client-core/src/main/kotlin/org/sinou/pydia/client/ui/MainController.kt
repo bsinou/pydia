@@ -176,7 +176,7 @@ private fun rememberSizeAwareDrawerState(isExpandedScreen: Boolean): DrawerState
 class StartingState(var stateID: StateID) {
     var route: String? = null
 
-    // OAuth credential flow call back
+    // OAuth credential flow callback
     var code: String? = null
     var state: String? = null
 

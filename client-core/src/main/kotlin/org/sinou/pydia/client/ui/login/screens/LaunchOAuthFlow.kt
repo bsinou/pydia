@@ -28,8 +28,9 @@ fun LaunchOAuthFlow(
     val context = LocalContext.current
 
     LaunchedEffect(key1 = stateID.id) {
-            Log.i(LOG_TAG, "... Launching auth process for $stateID, login context: $loginContext")
-            helper.launchAuth(context, stateID, skipVerify, loginContext)
+        Log.e(LOG_TAG, "... Launching auth process for $stateID - $loginContext - $skipVerify")
+
+        helper.launchAuth(context, stateID, skipVerify, loginContext)
     }
 
     AuthScreen(

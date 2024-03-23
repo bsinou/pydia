@@ -20,15 +20,6 @@ class BrowseRemoteVM(
 
     fun watch(newStateID: StateID, isForceRefresh: Boolean) {
         connectionService.setCurrentStateID(newStateID)
-//        Log.i(
-//            logTag, "... About to ${
-//                if (isForceRefresh) {
-//                    "force"
-//                } else ""
-//            } refresh for $newStateID"
-//        )
-//        viewModelScope.launch {
-//        }
         if (isForceRefresh) {
             connectionService.forceRefresh()
         }

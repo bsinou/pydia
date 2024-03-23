@@ -83,13 +83,12 @@ fun AppDrawer(
                 .verticalScroll(scrollState)
         ) {
             ConnectionStatus()
-
             val accID = accountID.value
 
-//             Offline, Bookmark, Transfers and Workspace roots accesses:
-//             This section is only relevant when we have a defined account
             if (accID != StateID.NONE) {
 
+                // Offline, Bookmark, Transfers and Workspace roots accesses:
+                // This section is only relevant when we have a defined account
                 AccountHeader(
                     username = accountID.value.username ?: "-",
                     address = accountID.value.serverUrl,
@@ -143,8 +142,7 @@ fun AppDrawer(
                 }
                 BottomSheetDivider()
 
-            } else { // Temporary fallback when no account is defined
-                // until all routes are hardened for all corner cases
+            } else {  // Fallback when no account is defined
                 AnonHeader(
                     createAccount = { cellsNavActions.navigateToNewAccount(); closeDrawer() },
                     modifier = Modifier

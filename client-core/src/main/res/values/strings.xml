@@ -197,8 +197,6 @@
     <string name="confirm_skip_verify_accept">Accept the risk and continue</string>
     <string name="confirm_skip_verify_cancel">Go back (recommended)</string>
     <string name="button_i_understand_the_risks">OK, I understand the risks</string>
-    <string name="p8_credentials_title">Pydio 8</string>
-    <string name="p8_credentials_desc">Please enter your credentials</string>
     <string name="oauth_code_flow_title">Processing</string>
     <string name="oauth_code_flow_desc">Please be patient.</string>
 

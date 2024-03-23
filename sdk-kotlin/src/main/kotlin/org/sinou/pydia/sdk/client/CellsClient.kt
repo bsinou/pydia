@@ -219,11 +219,13 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
             }
             return nextPageOptions
 
+        } catch (e: ClientException) {
+            val msg = "Could not list: " + e.message
+            throw SDKException(e.statusCode, msg, e)
         } catch (e: ServerException) {
             val msg = "Could not list: " + e.message
             throw SDKException(e.statusCode, msg, e)
         }
-
     }
 
     @Throws(SDKException::class)

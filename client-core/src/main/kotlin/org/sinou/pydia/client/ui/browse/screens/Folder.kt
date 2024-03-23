@@ -103,7 +103,7 @@ fun Folder(
         mutableStateOf(setOf())
     }
 
-    Log.e(LOG_TAG, "... Composing folder with state: ${connectionState.value}")
+    Log.e(LOG_TAG, "... Composing folder $folderID with state: ${connectionState.value}")
     // State for the more Menus
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val nodeMoreMenuData: MutableState<Pair<NodeMoreMenuType, Set<StateID>>> = remember {

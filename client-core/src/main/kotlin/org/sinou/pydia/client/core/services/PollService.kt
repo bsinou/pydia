@@ -40,7 +40,7 @@ class PollService(
     private var pollJob: Job? = null
 
     private val _currStateID: MutableStateFlow<StateID> = MutableStateFlow(StateID.NONE)
-    private val _loadingFlag = MutableStateFlow(LoadingState.IDLE)
+    private val _loadingFlag = MutableStateFlow(LoadingState.STARTING)
     val loadingFlag: StateFlow<LoadingState> = _loadingFlag
 
     private var wasActive = false
@@ -62,11 +62,18 @@ class PollService(
 
     fun pause(oldID: StateID) {
         if (oldID == currStateID) {
-            Log.i(logTag, "... Pause remote watching for [${currStateID}]")
             setActive(false)
-            _loadingFlag.value = LoadingState.IDLE
-        } else {
-            Log.d(logTag, "Received pause for [$oldID] but currID is [${currStateID}]")
+            serviceScope.launch {
+                // We add a delay before impacting the loading status,
+                // otherwise we see the idle state before the loading state at each page change
+                delay(1200L)
+                if (oldID == currStateID) {
+                    Log.i(logTag, "... Pause remote watching for [${currStateID}]")
+                    _loadingFlag.value = LoadingState.IDLE
+                } else {
+                    Log.d(logTag, "Received pause for [$oldID] but currID is now [${currStateID}]")
+                }
+           }
         }
     }
 

@@ -3,6 +3,7 @@ package org.sinou.pydia.client.ui.core.nav
 import androidx.navigation.NavHostController
 import org.sinou.pydia.client.core.AppKeys
 import org.sinou.pydia.client.ui.core.encodeStateForRoute
+import org.sinou.pydia.client.ui.login.LoginDestinations
 import org.sinou.pydia.sdk.transport.StateID
 
 /**
@@ -44,6 +45,13 @@ class CellsNavigationActions(private val navController: NavHostController) {
             popUpTo(CellsDestinations.Accounts.route) {
 //                saveState = true
             }
+            launchSingleTop = true
+        }
+    }
+
+    val navigateToNewAccount: () -> Unit = {
+        navController.navigate(LoginDestinations.AskUrl.createRoute()) {
+            popUpTo(CellsDestinations.Accounts.route) { }
             launchSingleTop = true
         }
     }

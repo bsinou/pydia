@@ -138,6 +138,7 @@
     <string name="confirm_reset_all_message">Danger: you are about to erase all local data, including the configured accounts.\n\nAre you sure you want to proceed?</string>
     <string name="confirm_cache_deletion_title">Clear cache</string>
     <string name="create_account">Create an account</string>
+    <string name="register_new_server">Register a new server</string>
     <string name="content_description_media">Preview of the content</string>
     <string name="dialog_create_folder_title">Create folder</string>
     <string name="dialog_create_folder_positive_btn">Create</string>
@@ -184,6 +185,7 @@
     <string name="roaming_connection">Using a roaming connection</string>
 
     <!-- Authentication process  -->
+    <string name="no_account_defined">No account defined</string>
     <string name="ask_url_title">Register a new account</string>
     <string name="ask_url_desc">Please, enter your server address</string>
     <string name="ask_url_example">e.g: https://files.example.com</string>
@@ -290,7 +292,6 @@
     <string name="migration_message">Migrating legacy data, please wait…</string>
     <string name="post_migration_title">Successfully Upgraded to New Version!</string>
     <string name="post_migration_sync_message">You have one or more items marked as offline, this migration requires a full re-download now. Do you want to proceed? You can skip it and synchronize later.</string>
-
 
     <!-- Settings / Preferences -->
     <!-- Lists -->

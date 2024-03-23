@@ -82,22 +82,21 @@ fun AppPermanentDrawer(
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
         ) {
+
             ConnectionStatus()
 
-            AccountRailHeader(
-                username = accountID.value?.username ?: stringResource(R.string.ask_url_title),
-                address = accountID.value?.serverUrl ?: "",
-                openAccounts = { cellsNavActions.navigateToAccounts() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(defaultPadding)
-                    .padding(vertical = dimensionResource(id = R.dimen.margin))
-            )
-
-            // TOOD this must be injected when everything is modular
             val accID = accountID.value
-
             if (accID != StateID.NONE) {
+
+                AccountRailHeader(
+                    username = accountID.value.username ?: "",
+                    address = accountID.value.serverUrl,
+                    openAccounts = { cellsNavActions.navigateToAccounts() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(defaultPadding)
+                        .padding(vertical = dimensionResource(id = R.dimen.margin))
+                )
 
                 MyNavigationRailItem(
                     label = stringResource(R.string.action_open_offline_roots),
@@ -141,6 +140,7 @@ fun AppPermanentDrawer(
                         onClick = { browseNavActions.toBrowse(it.getStateID()) },
                     )
                 }
+                BottomSheetDivider()
             } else { // Temporary fallback when no account is defined
                 // until all routes are hardened for all corner cases
                 MyNavigationRailItem(
@@ -149,9 +149,15 @@ fun AppPermanentDrawer(
                     selected = CellsDestinations.Accounts.route == currRoute,
                     onClick = { cellsNavActions.navigateToAccounts() },
                 )
+                AnonRailHeader(
+                    createAccount = { cellsNavActions.navigateToNewAccount() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(defaultPadding)
+                        .padding(vertical = dimensionResource(id = R.dimen.margin))
+                )
             }
 
-            BottomSheetDivider()
 
             MenuTitleText(stringResource(R.string.my_account), defaultTitleModifier)
             MyNavigationRailItem(
@@ -160,8 +166,7 @@ fun AppPermanentDrawer(
                 selected = SystemDestinations.Settings.route == currRoute,
                 onClick = { systemNavActions.navigateToSettings() },
             )
-            accountID.value?.let { accID -> // We also temporarily disable this when no account is defined
-                // TODO Remove the check once the "clear cache" / housekeeping strategy has been refined
+            if (accID != StateID.NONE) {
                 MyNavigationRailItem(
                     label = stringResource(R.string.action_house_keeping),
                     icon = CellsIcons.EmptyRecycle,

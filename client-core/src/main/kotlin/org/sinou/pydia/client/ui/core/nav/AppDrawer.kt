@@ -1,10 +1,15 @@
 package org.sinou.pydia.client.ui.core.nav
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -50,7 +55,7 @@ fun AppDrawer(
 ) {
 
     val showDebugTools = prefReadOnlyVM.showDebugTools.collectAsState(initial = false)
-    // FIXME understand why this dos not work ?
+    // TODO why this does not work ?
     // val accountID by connectionService.currAccountID.collectAsState(StateID.NONE)
     val accountID = connectionService.currAccountID.collectAsState(StateID.NONE)
     val wss = connectionService.wss.collectAsState(listOf())
@@ -79,22 +84,21 @@ fun AppDrawer(
         ) {
             ConnectionStatus()
 
-            AccountHeader(
-                username = accountID.value.username ?: stringResource(R.string.ask_url_title),
-                address = accountID.value.serverUrl,
-                openAccounts = { cellsNavActions.navigateToAccounts(); closeDrawer() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(defaultPadding)
-                    .padding(vertical = dimensionResource(id = R.dimen.margin_medium))
-            )
+            val accID = accountID.value
 
 //             Offline, Bookmark, Transfers and Workspace roots accesses:
 //             This section is only relevant when we have a defined account
-// FIXME
-            val accID = accountID.value
-
             if (accID != StateID.NONE) {
+
+                AccountHeader(
+                    username = accountID.value.username ?: "-",
+                    address = accountID.value.serverUrl,
+                    openAccounts = { cellsNavActions.navigateToAccounts(); closeDrawer() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(defaultPadding)
+                        .padding(vertical = dimensionResource(id = R.dimen.margin_medium))
+                )
                 MyNavigationDrawerItem(
                     label = stringResource(R.string.action_open_offline_roots),
                     icon = CellsIcons.KeepOffline,
@@ -137,17 +141,18 @@ fun AppDrawer(
                         onClick = { browseNavActions.toBrowse(it.getStateID()); closeDrawer() },
                     )
                 }
+                BottomSheetDivider()
+
             } else { // Temporary fallback when no account is defined
                 // until all routes are hardened for all corner cases
-                MyNavigationDrawerItem(
-                    label = stringResource(id = R.string.choose_account),
-                    icon = Icons.Filled.Group,
-                    selected = CellsDestinations.Accounts.route == currRoute,
-                    onClick = { cellsNavActions.navigateToAccounts();closeDrawer() },
+                AnonHeader(
+                    createAccount = { cellsNavActions.navigateToNewAccount(); closeDrawer() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(defaultPadding)
+                        .padding(vertical = dimensionResource(id = R.dimen.margin_medium))
                 )
             }
-
-            BottomSheetDivider()
 
             MenuTitleText(stringResource(R.string.my_account), defaultTitleModifier)
             MyNavigationDrawerItem(

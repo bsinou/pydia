@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.sinou.pydia.client.R
@@ -63,7 +64,7 @@ fun AccountHeader(
             modifier = Modifier
                 .size(dimensionResource(R.dimen.default_button_size))
                 .clip(RoundedCornerShape(15))
-                .clickable { openAccounts() }
+//                .clickable { openAccounts() }
                 .background(
                     SolidColor(MaterialTheme.colorScheme.secondaryContainer),
                     RoundedCornerShape(15),
@@ -81,6 +82,59 @@ fun AccountHeader(
         }
     }
 }
+
+@Composable
+fun AnonHeader(
+    createAccount: () -> Unit,
+    modifier: Modifier,
+) {
+    Row(
+        modifier = modifier.clickable { createAccount() },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.card_padding),
+                    vertical = dimensionResource(R.dimen.margin_xsmall)
+                )
+                .wrapContentWidth(Alignment.Start)
+        ) {
+            Text(
+                text = stringResource(R.string.no_account_defined),
+                style = MaterialTheme.typography.titleMedium,
+            )
+//            Text(
+//                text = address,
+//                style = MaterialTheme.typography.bodyMedium,
+//            )
+        }
+
+        IconButton(
+            onClick = {  createAccount()  },
+            modifier = Modifier
+                .size(dimensionResource(R.dimen.default_button_size))
+                .clip(RoundedCornerShape(15))
+//                .clickable {  createAccount()  }
+                .background(
+                    SolidColor(MaterialTheme.colorScheme.secondaryContainer),
+                    RoundedCornerShape(15),
+                    1f
+                )
+        ) {
+            Icon(
+                imageVector = CellsIcons.Add,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier
+                    .padding(all = dimensionResource(R.dimen.margin_xxsmall))
+                    .size(dimensionResource(R.dimen.default_button_inner_size))
+            )
+        }
+    }
+}
+
 
 @Composable
 fun AccountRailHeader(
@@ -110,7 +164,7 @@ fun AccountRailHeader(
                         end = dimensionResource(R.dimen.margin_xxsmall),
                         bottom = dimensionResource(R.dimen.margin_medium),
                     )
-                    .clickable { openAccounts() }
+//                    .clickable { openAccounts() }
                     .size(dimensionResource(R.dimen.default_button_size))
                     .clip(CircleShape)
                     .background(
@@ -131,6 +185,55 @@ fun AccountRailHeader(
             text = address,
             style = MaterialTheme.typography.bodyMedium,
         )
+    }
+}
+@Composable
+fun AnonRailHeader(
+    createAccount: () -> Unit,
+    modifier: Modifier,
+) {
+    Column(
+        modifier = modifier,
+    ) {
+        Row(
+            verticalAlignment = Alignment.Bottom,
+        ) {
+
+            Text(
+                text = stringResource(R.string.no_account_defined),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(
+                onClick = { createAccount() },
+                modifier = Modifier
+                    .padding(
+                        top = dimensionResource(R.dimen.margin_xxsmall),
+                        start = dimensionResource(R.dimen.margin_xxsmall),
+                        end = dimensionResource(R.dimen.margin_xxsmall),
+                        bottom = dimensionResource(R.dimen.margin_medium),
+                    )
+//                    .clickable { createAccount() }
+                    .size(dimensionResource(R.dimen.default_button_size))
+                    .clip(CircleShape)
+                    .background(
+                        SolidColor(MaterialTheme.colorScheme.secondaryContainer),
+                        CircleShape,
+                        0.8f
+                    )
+            ) {
+                Icon(
+                    imageVector = CellsIcons.SwitchAccount,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.size(dimensionResource(R.dimen.default_button_inner_size))
+                )
+            }
+        }
+//        Text(
+//            text = address,
+//            style = MaterialTheme.typography.bodyMedium,
+//        )
     }
 }
 

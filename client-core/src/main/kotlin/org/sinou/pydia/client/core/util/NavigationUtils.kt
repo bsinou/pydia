@@ -10,7 +10,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentManager
 import org.sinou.pydia.client.BuildConfig
 import org.sinou.pydia.client.R
-import org.sinou.pydia.client.core.PydiaSimpleApp
+import org.sinou.pydia.client.ui.PydiaSimpleApp
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.sdk.api.SdkNames
 import org.sinou.pydia.sdk.utils.Str

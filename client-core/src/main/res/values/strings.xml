@@ -18,8 +18,8 @@
     <string name="version_code_display">Version code: %s</string>
     <string name="last_update_time_display">Last update on: %s</string>
     <string name="about_page_get_help">If you cannot get this application to work correctly, please check us on github or on the forum.</string>
-    <string name="help_button_support">Contact Pydio Support</string>
-    <string name="open_website_button">More info on pydio.com</string>
+    <string name="help_button_support">Contact Support</string>
+    <string name="open_website_button">More info</string>
 
     <!-- GENERIC MESSAGES -->
 

@@ -6,14 +6,10 @@ import org.sinou.pydia.sdk.api.ErrorCodes.Companion.toMessage
 import java.io.IOException
 
 /**
- * Generic exception for the java SDK that is server type agnostic and supports both Pydio Cells and the legacy Pydio 8 server.
- * It cannot yet extend the swagger generated API exception that is specific to Cells.
- *
- *
- * This can be changed when we stop supporting Pydio 8.
- *
  *
  * // TODO smelly code, refactor with a clean generic error handling strategy.
+ * Generic exception for the SDK that is server type agnostic and supports both Pydio Cells and the legacy Pydio 8 server.
+ * It cannot yet extend the swagger generated API exception that is specific to Cells.
  */
 open class SDKException : Exception {
     var code = 0

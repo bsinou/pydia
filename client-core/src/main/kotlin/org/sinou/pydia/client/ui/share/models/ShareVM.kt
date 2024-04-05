@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.ListType
-import org.sinou.pydia.client.core.PydiaSimpleApp
+import org.sinou.pydia.client.ui.PydiaSimpleApp
 import org.sinou.pydia.client.core.db.nodes.RTreeNode
 import org.sinou.pydia.client.core.services.JobService
 import org.sinou.pydia.client.core.services.NodeService

@@ -1,4 +1,4 @@
-package org.sinou.pydia.client.core
+package org.sinou.pydia.client.ui
 
 import android.app.Application
 import android.content.pm.PackageInfo

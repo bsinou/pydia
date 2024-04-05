@@ -15,11 +15,11 @@ version '0.1-SNAPSHOT'
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
-def vendorName = "Bruno Sinou"
-def sdkJavaRepoURL = 'https://github.com/bsinou/pydia.git'
-def artifactID = 'sdk-kotlin'
-def sdkSwaggerSpecVersion = '4.4.0-rc1'
-def sdkKotlinVersion = ownVersions['kotlin.sdk']
+//def vendorName = "Bruno Sinou"
+//def sdkKotlinRepoURL = 'https://github.com/bsinou/pydia.git'
+//def artifactID = 'sdk-kotlin'
+//def sdkSwaggerSpecVersion = '4.4.0-rc1'
+//def sdkKotlinVersion = ownVersions['kotlin.sdk']
 
 // Also publish sources and Javadoc
 java {
@@ -54,9 +54,9 @@ compileTestKotlin {
 //
 //            pom.withXml {
 //                def root = asNode()
-//                root.appendNode('description', 'Provide base java libraries to communicate with the Pydio Cells stack')
-//                root.appendNode('name', 'Cells SDK for Java')
-//                root.appendNode('url', 'https://pydio.com')
+//                root.appendNode('description', 'Provide base Kotlin libraries to communicate with Pydio Cells servers')
+//                root.appendNode('name', 'Cells SDK for Kotlin')
+//                root.appendNode('url', 'https://github.com/bsinou/pydia')
 //
 //                root.children().last() + rootProject.getBasePom(sdkJavaRepoURL)
 //            }
@@ -76,10 +76,10 @@ compileTestKotlin {
 //}
 
 dependencies {
-    // Set of carefully chosen third-party libraries, do not update lightly.
 
     api project(':sdk-openapi')
 
+    // Set of carefully chosen third-party libraries, do not update lightly.
     implementation 'io.swagger:swagger-annotations:1.6.13'
     implementation 'com.metaparadigm:json-rpc:1.0'
     implementation 'javax.annotation:javax.annotation-api:1.3.2'

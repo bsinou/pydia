@@ -4,12 +4,12 @@
     <string name="application_title" translatable="false">Pydia Next!</string>
     <string name="app_name" translatable="false">AndroidClient</string>
     <string name="app_persistence_key" translatable="false">pydia</string>
-    <string name="main_website" translatable="false">https://lylo.berlin</string>
+    <string name="main_website" translatable="false">https://github.com/bsinou/pydia</string>
     <string name="copyright_string" translatable="false">© Bruno Sinou 2024</string>
     <string name="app_info" translatable="false">App instance details: \n\n\tPydio Version #%1$s: %2$s \n\tInstalled on %3$s \n\tAndroid OS: %4$s \n</string>
     <string name="support_email" translatable="false">contact@lylo.berlin</string>
     <string name="support_email_subject" translatable="false">Pydia In-App Support Request</string>
 
-    <!-- client ID is used during OAuth process and must be authorized and correctly configured in your server instance -->
+    <!-- client ID is used during OAuth process and must be authorized and correctly configured in the target server instances -->
     <string name="client_id" translatable="false">cells-mobile</string>
 </resources>

@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import org.sinou.pydia.client.core.AppNames
 import org.sinou.pydia.client.core.JobStatus
 import org.sinou.pydia.client.core.ListType
-import org.sinou.pydia.client.core.PydiaSimpleApp
+import org.sinou.pydia.client.ui.PydiaSimpleApp
 import org.sinou.pydia.client.core.ServerConnection
 import org.sinou.pydia.client.core.db.nodes.RTransfer
 import org.sinou.pydia.client.core.db.nodes.RTreeNode

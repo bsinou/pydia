@@ -17,7 +17,7 @@
     <uses-sdk tools:overrideLibrary="androidx.core.splashscreen" />
 
     <application
-        android:name=".core.PydiaSimpleApp"
+        android:name=".ui.PydiaSimpleApp"
         android:allowBackup="true"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"

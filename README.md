@@ -26,4 +26,5 @@ An complete list can be found in the main [build.gradle](https://github.com/bsin
 
 The code is licensed under [Apache2](https://github.com/bsinou/pydia/blob/main/LICENSE) and offers no guaranty, _not even the fact that is might be useful for any particular purpose_. 
 
-(C) Copyright 2024 Bruno SINOU and Abstrium SAS.
+(C) Copyright 2024 Bruno Sinou for all Kotlin code.
+(C) Copyright 2023 Abstrium SAS for legacy Java work... and the server / API code.

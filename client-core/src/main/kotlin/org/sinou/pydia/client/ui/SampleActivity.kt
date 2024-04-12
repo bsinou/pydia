@@ -1,4 +1,4 @@
-package org.sinou.pydia.client.core
+package org.sinou.pydia.client.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -50,7 +50,7 @@ import org.sinou.pydia.client.R
 import org.sinou.pydia.client.ui.theme.UseCellsTheme
 
 /**
- * Test new components should not be enabled when shipping to production
+ * Test new components. This should not be enabled when shipping to production.
  */
 class SampleActivity : ComponentActivity() {
 

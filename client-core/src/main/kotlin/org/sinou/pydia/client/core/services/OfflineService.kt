@@ -38,7 +38,7 @@ class OfflineService(
     private val ioDispatcher = coroutineService.ioDispatcher
 
     fun getSyncTemplateId(stateID: StateID): String {
-        return "${AppNames.JOB_TEMPLATE_RESYNC}-$stateID"
+        return "${AppNames.JOB_TEMPLATE_SYNC}-$stateID"
     }
 
     // CRUD For the Offline Roots
@@ -110,7 +110,7 @@ class OfflineService(
     suspend fun runFullSync(caller: String): Long = withContext(ioDispatcher) {
 
         val label = "Full sync requested by $caller"
-        val template = AppNames.JOB_TEMPLATE_FULL_RESYNC
+        val template = AppNames.JOB_TEMPLATE_FULL_SYNC
 
         if (hasExistingJob(label, template, 120)) {
             throw SDKException(
@@ -313,7 +313,7 @@ class OfflineService(
         }
 
         val label = "Sync for $stateID launched by $caller"
-        val currJobTemplate = String.format(AppNames.JOB_TEMPLATE_RESYNC, stateID.toString())
+        val currJobTemplate = String.format(AppNames.JOB_TEMPLATE_SYNC, stateID.toString())
 
         // We first check if a sync is not already running for this account
         if (hasExistingJob(label, currJobTemplate, 120)) {
@@ -419,7 +419,7 @@ class OfflineService(
     }
 
     private fun getSyncTemplateIdForAccount(accountID: StateID): String {
-        return String.format(AppNames.JOB_TEMPLATE_RESYNC, accountID.toString())
+        return String.format(AppNames.JOB_TEMPLATE_SYNC, accountID.toString())
     }
 
     private suspend fun hasExistingJob(

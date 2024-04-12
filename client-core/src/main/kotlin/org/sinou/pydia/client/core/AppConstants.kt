@@ -1,9 +1,5 @@
 package org.sinou.pydia.client.core
 
-//enum class RemoteType {
-//    P8, CELLS
-//}
-
 enum class Status {
     OK, WARNING, DANGER
 }
@@ -31,8 +27,7 @@ enum class NetworkStatus {
 }
 
 enum class LoadingState {
-    // TODO we should be able to remove the server unreachable state
-    STARTING, PROCESSING, IDLE, SERVER_UNREACHABLE;
+    STARTING, PROCESSING, IDLE;
 
     fun isRunning(): Boolean {
         return when (this) {
@@ -43,9 +38,9 @@ enum class LoadingState {
 
 }
 
-enum class SessionStatus {
-    NO_INTERNET, CAPTIVE, SERVER_UNREACHABLE, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
-}
+//enum class SessionStatus {
+//    NO_INTERNET, CAPTIVE, SERVER_UNREACHABLE, NOT_LOGGED_IN, CAN_RELOG, ROAMING, METERED, OK
+//}
 
 enum class LoginStatus(val id: String) {
     Undefined("undefined"),
@@ -65,7 +60,7 @@ enum class LoginStatus(val id: String) {
 
     companion object {
         fun fromId(id: String): LoginStatus {
-            return values().find { it.id == id }
+            return entries.find { it.id == id }
                 ?: throw IllegalArgumentException("Invalid LoginStatus id: $id")
         }
     }
@@ -88,7 +83,7 @@ enum class ListContext(val id: String) {
 enum class JobStatus(val id: String) {
     NEW("new"),
     PROCESSING("processing"),
-    CANCELLING("cancelling"),
+//    CANCELLING("cancelling"),
     PAUSING("pausing"),
     CANCELLED("cancelled"),
     DONE("done"),

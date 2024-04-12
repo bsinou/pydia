@@ -71,8 +71,8 @@ public interface AppNames {
     String JOB_OWNER_WORKER = "Worker";
     // String JOB_OWNER_SYSTEM = "Android System";
     // Known Templates
-    String JOB_TEMPLATE_FULL_RESYNC = "full-sync";
-    String JOB_TEMPLATE_RESYNC = "sync-%s";
+    String JOB_TEMPLATE_FULL_SYNC = "full-sync";
+    String JOB_TEMPLATE_SYNC = "sync-%s";
     String JOB_TEMPLATE_MIGRATION_V2 = "migration-v2";
     // String JOB_TEMPLATE_CLEAN = "clean";
     String JOB_TEMPLATE_SHARE = "share";

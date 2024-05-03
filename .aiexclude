@@ -1,0 +1,3 @@
+# Intentionally empty, an empty .aiexclude file blocks all files in its directory
+# and all sub-directories, recursively.
+# https://developer.android.com/studio/preview/gemini/data-and-privacy#aiexclude

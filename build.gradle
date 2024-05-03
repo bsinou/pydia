@@ -4,6 +4,8 @@ buildscript {
         // Global variables: build plugins
         kotlin_version = '1.9.23'
         gradle_build_tools_version = '8.3.1'
+        ksp_version = '1.9.23-1.0.20'
+        room_version = '2.6.1'
     }
 
     repositories {
@@ -15,6 +17,11 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.android.tools.build:gradle:$gradle_build_tools_version"
     }
+}
+
+plugins {
+    id 'com.google.devtools.ksp' version "$ksp_version" apply false
+    id 'androidx.room' version "$room_version" apply false
 }
 
 // Retrieve local context

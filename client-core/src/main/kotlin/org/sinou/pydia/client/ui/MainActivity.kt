@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
         var appIsReady = false
         val splashTimeout = currentTimestamp() + 1
 
-        // Keep the splash screen visible while loading
+        // Mimic Android 12+ behaviour for older models
         installSplashScreen().apply {
             setKeepOnScreenCondition {
                 // Logic to determine if the splash screen should still be shown

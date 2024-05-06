@@ -95,18 +95,12 @@ android {
 }
 
 dependencies {
-
     api project(":sdk-kotlin")
 
-    // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
-    implementation platform('androidx.compose:compose-bom:2024.05.00')
-
-    // Enable custom data loader for glide library (display images)
-    // annotationProcessor 'com.github.bumptech.glide:compiler:5.0.0-rc01'
-    ksp "com.github.bumptech.glide:ksp:5.0.0-rc01"
-    ksp "com.github.bumptech.glide:compiler:5.0.0-rc01"
-
-    // Main libraries
+    // Kotlin standard library and coroutines
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.23"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
     // Dependency injection with Koin https://insert-koin.io/ , we now use the Koin BOM
     implementation platform('io.insert-koin:koin-bom:3.5.3')
@@ -115,11 +109,7 @@ dependencies {
     implementation "io.insert-koin:koin-androidx-workmanager"
     implementation "io.insert-koin:koin-androidx-navigation"
     implementation "io.insert-koin:koin-androidx-compose"
-
-    // Kotlin standard library and coroutines
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.23"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    testImplementation platform('io.insert-koin:koin-bom:3.5.3')
 
     // Android UI and appcompat
     implementation "androidx.core:core-ktx:1.13.1"
@@ -136,7 +126,6 @@ dependencies {
 
     // Files
     implementation "com.amazonaws:aws-android-sdk-s3:2.75.0"
-    implementation "com.github.bumptech.glide:glide:5.0.0-rc01"
     // Preferences
     implementation "androidx.datastore:datastore-preferences:1.1.1"
     // Utils
@@ -144,6 +133,8 @@ dependencies {
     // QRCode generation
     implementation "com.google.zxing:core:3.5.2"
 
+    // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
+    implementation platform('androidx.compose:compose-bom:2024.05.00')
     // Jetpack Compose libraries, we rely on the BOM to provide correct versions.
     implementation "androidx.compose.runtime:runtime"
     implementation "androidx.compose.ui:ui"
@@ -167,7 +158,11 @@ dependencies {
 
     // Include extensions that permit integration of Compose with extra 3rd party libraries.
     implementation "androidx.navigation:navigation-compose:2.7.7"
-    implementation "com.github.bumptech.glide:compose:1.0.0-beta01"
 
-    testImplementation platform('io.insert-koin:koin-bom:3.5.3')
+    // Enable custom data loader for glide library (display images)
+    // annotationProcessor 'com.github.bumptech.glide:compiler:5.0.0-rc01'
+    implementation "com.github.bumptech.glide:glide:5.0.0-rc01"
+    implementation "com.github.bumptech.glide:compose:1.0.0-beta01"
+    ksp "com.github.bumptech.glide:ksp:5.0.0-rc01"
+    ksp "com.github.bumptech.glide:compiler:5.0.0-rc01"
 }

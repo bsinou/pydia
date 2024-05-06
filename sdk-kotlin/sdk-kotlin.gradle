@@ -19,7 +19,6 @@ java.targetCompatibility = JavaVersion.VERSION_17
 //def sdkKotlinRepoURL = 'https://github.com/bsinou/pydia.git'
 //def artifactID = 'sdk-kotlin'
 //def sdkSwaggerSpecVersion = '4.4.0-rc1'
-//def sdkKotlinVersion = ownVersions['kotlin.sdk']
 
 // Also publish sources and Javadoc
 java {

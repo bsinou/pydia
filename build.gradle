@@ -29,9 +29,6 @@ def localProperties = new Properties()
 localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 retrieveFromEnv(localProperties) // There must be a more elegant way to do this...
 
-def versionProperties = new Properties()
-versionProperties.load(new FileInputStream(rootProject.file("versions.properties")))
-
 // Manage optional local submodules
 def sdkKotlinCheck = new File('sdk-kotlin/sdk-kotlin.gradle')
 def openApiClientCheck = new File('openapi-client/openapi-client.gradle')
@@ -42,7 +39,6 @@ ext {
 
     // Expose properties retrieved from files to child projects
     configs = localProperties
-    ownVersions = versionProperties
 
     useLocalSdkKotlin = sdkKotlinCheck.exists()
     useLocalOpenapiClient = openApiClientCheck.exists()

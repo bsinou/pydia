@@ -587,7 +587,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     override fun copy(
         sources: List<StateID>,
         targetParent: StateID
-    ) { // ws: String, files: Array<String>, folder: String) {
+    ) {
         val nodes = mutableListOf<String>()
         sources.forEach { nodes.add(it.path!!) }
         val params = mutableMapOf<String, Any>()
@@ -606,7 +606,7 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     override fun move(
         sources: List<StateID>,
         targetParent: StateID
-    ) { // ws: String, files: Array<String>, dstFolder: String) {
+    ) {
         val nodes = mutableListOf<String>()
         for (source in sources) {
             nodes.add(source.path!!)
@@ -626,7 +626,6 @@ class CellsClient(transport: Transport, private val s3Client: S3Client) : Client
     @Throws(SDKException::class)
     override fun rename(ws: String, srcFile: String, newName: String) {
         val nodes = listOf(ws + srcFile)
-
         val parent = File(srcFile).parentFile.path
         val dstFile = if ("/" == parent) {
             parent + newName

@@ -27,7 +27,7 @@ android {
 
     composeOptions {
         // See https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.11"
+        kotlinCompilerExtensionVersion = "1.5.13"
     }
 
     buildTypes {
@@ -71,7 +71,7 @@ android {
         main {
             kotlin.srcDir 'src/main/kotlin'
             // Include Java source dir if you have mixed Java and Kotlin code
-            java.srcDir 'src/main/java'
+//            java.srcDir 'src/main/java'
         }
     }
 
@@ -103,13 +103,13 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
     // Dependency injection with Koin https://insert-koin.io/ , we now use the Koin BOM
-    implementation platform('io.insert-koin:koin-bom:3.5.3')
+    implementation platform('io.insert-koin:koin-bom:3.5.5')
     implementation "io.insert-koin:koin-core"
     implementation "io.insert-koin:koin-android"
     implementation "io.insert-koin:koin-androidx-workmanager"
     implementation "io.insert-koin:koin-androidx-navigation"
     implementation "io.insert-koin:koin-androidx-compose"
-    testImplementation platform('io.insert-koin:koin-bom:3.5.3')
+    testImplementation platform('io.insert-koin:koin-bom:3.5.5')
 
     // Android UI and appcompat
     implementation "androidx.core:core-ktx:1.13.1"

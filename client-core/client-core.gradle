@@ -99,8 +99,8 @@ dependencies {
 
     // Kotlin standard library and coroutines
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.23"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
 
     // Dependency injection with Koin https://insert-koin.io/ , we now use the Koin BOM
     implementation platform('io.insert-koin:koin-bom:3.5.5')
@@ -115,7 +115,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.13.1"
     implementation "androidx.core:core-splashscreen:1.0.1"
     // ViewModel
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1"
     // Material UI => we still need this to build custom palette based on remote server custom primary color
     implementation "com.google.android.material:material:1.12.0"
 
@@ -131,7 +131,7 @@ dependencies {
     // Utils
     implementation "com.google.code.gson:gson:2.10.1"
     // QRCode generation
-    implementation "com.google.zxing:core:3.5.2"
+    implementation "com.google.zxing:core:3.5.3"
 
     // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
     implementation platform('androidx.compose:compose-bom:2024.05.00')

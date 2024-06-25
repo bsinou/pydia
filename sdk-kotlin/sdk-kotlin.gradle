@@ -1,8 +1,5 @@
 plugins {
-    // Build kotlin project
-//    id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
-    // id 'kotlin-kapt'
 
     // Publish the generated resources as Maven Artifacts
     // See: https://docs.gradle.org/5.0/userguide/publishing_overview.html#publishing_overview

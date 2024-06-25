@@ -3,7 +3,7 @@ buildscript {
     ext {
         // Global variables: build plugins
         kotlin_version = '1.9.23'
-        gradle_build_tools_version = '8.4.1'
+        gradle_build_tools_version = '8.5.0'
         ksp_version = '1.9.23-1.0.20'
         room_version = '2.6.1'
     }

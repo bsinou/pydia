@@ -28,9 +28,8 @@ object TestUtils {
      */
     @Throws(SDKException::class)
     fun getTransport(factory: ServerFactory, conf: RemoteServerConfig): Transport? {
-        val sURL: ServerURL
-        sURL = try {
-            fromAddress(conf.serverURL!!, conf.skipVerify)
+        val sURL: ServerURL = try {
+            fromAddress(conf.serverURL, conf.skipVerify)
         } catch (mue: MalformedURLException) {
             throw SDKException(
                 ErrorCodes.configuration_error,
@@ -39,13 +38,13 @@ object TestUtils {
             )
         }
         val server = factory.registerServer(sURL)
-        val credentials: Credentials = LegacyPasswordCredentials(conf.username!!, conf.pwd!!)
+        val credentials: Credentials = LegacyPasswordCredentials(conf.username, conf.pwd!!)
         factory.registerAccountCredentials(sURL, credentials)
         return factory.getTransport(accountID(conf.username, server))
     }
 
     /* Optimistic helper to get a unique string */
-    fun randomString(length: Int): String {
+    private fun randomString(length: Int): String {
         val sb = StringBuilder()
         val rand = Random()
         for (i in 0 until length) {

@@ -7,7 +7,6 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -40,14 +39,14 @@ fun MainApp(
     initialAppState: AppState,
     processSelectedTarget: (StateID?) -> Unit,
     emitActivityResult: (Int) -> Unit,
-    widthSizeClass: WindowWidthSizeClass,
+//    widthSizeClass: WindowWidthSizeClass,
 ) {
     //Twister()
     MainController(
         initialAppState = initialAppState,
         processSelectedTarget = processSelectedTarget,
         emitActivityResult = emitActivityResult,
-        widthSizeClass = widthSizeClass,
+//        widthSizeClass = widthSizeClass,
     )
 }
 
@@ -57,7 +56,7 @@ fun MainController(
     initialAppState: AppState,
     processSelectedTarget: (StateID?) -> Unit,
     emitActivityResult: (Int) -> Unit,
-    widthSizeClass: WindowWidthSizeClass,
+//    widthSizeClass: WindowWidthSizeClass,
     connectionService: ConnectionService = koinInject(),
 ) {
     val scope = rememberCoroutineScope()
@@ -95,7 +94,10 @@ fun MainController(
     }
 
     val customColor = connectionService.customColor.collectAsState(null)
-    val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
+    // FIXME we do not support detecting if we have touch screen
+    // FIXME lost when migrating to version catalogs
+    val isExpandedScreen = false
+//    val isExpandedScreen = widthSizeClass == WindowWidthSizeClass.Expanded
     val sizeAwareDrawerState = rememberSizeAwareDrawerState(isExpandedScreen)
 
     UseCellsTheme(

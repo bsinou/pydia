@@ -10,9 +10,9 @@ import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+//import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+//import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+//import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
     private val logTag = "MainActivity"
     private val connectionService: ConnectionService by inject()
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+//    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         var appIsReady = false
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             // Prepare the BaseUiState: should probably not be handled here
-            val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
+//            val widthSizeClass = calculateWindowSizeClass(mainActivity).widthSizeClass
             KoinContext {
                 val showContent = rememberSaveable { mutableStateOf(false) }
                 LaunchedEffect(key1 = true) {
@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                 if (showContent.value) {
                     AppBinding(
                         intentID = intentIdentifier(),
-                        widthSizeClass = widthSizeClass,
+//                        widthSizeClass = widthSizeClass,
                     ) {
                         appIsReady = true
                     }
@@ -130,7 +130,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AppBinding(
         intentID: String,
-        widthSizeClass: WindowWidthSizeClass,
+//        widthSizeClass: WindowWidthSizeClass,
         readyCallback: () -> Unit,
     ) {
 
@@ -186,7 +186,7 @@ class MainActivity : ComponentActivity() {
                         initialAppState = appState,
                         processSelectedTarget = processSelectedTarget,
                         emitActivityResult = emitActivityResult,
-                        widthSizeClass = widthSizeClass,
+//                        widthSizeClass = widthSizeClass,
                     )
 
                 PreLaunchState.PROCESSING,

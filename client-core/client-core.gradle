@@ -1,13 +1,10 @@
 plugins {
-    alias libs.plugins.android.application
-//    id 'com.android.application'
+    alias libs.plugins.ksp.devtools
     alias libs.plugins.compose.compiler
-
+    alias libs.plugins.android.application
+    alias libs.plugins.androidx.room
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-parcelize'
-//    id 'com.google.devtools.ksp'
-    alias libs.plugins.ksp.devtools
-    alias libs.plugins.androidx.room
 }
 
 android {

@@ -1,9 +1,11 @@
 plugins {
-    id 'com.android.application'
+    alias libs.plugins.android.application
+//    id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-parcelize'
-    id 'com.google.devtools.ksp'
-    id 'androidx.room'
+//    id 'com.google.devtools.ksp'
+    alias libs.plugins.ksp.devtools
+    alias libs.plugins.androidx.room
 }
 
 android {
@@ -100,7 +102,7 @@ dependencies {
     implementation libs.kotlinx.coroutines.core
     implementation libs.kotlinx.coroutines.android
 
-    // Dependency injection with Koin https://insert-koin.io/ , we now use the Koin BOM
+    // Dependency injection with Koin https://insert-koin.io/
     implementation platform(libs.koin.bom)
     implementation libs.koin.core
     implementation libs.koin.android

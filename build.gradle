@@ -1,18 +1,17 @@
 buildscript {
 
-
     // Migration in progress - see:
     // https://android-developers.googleblog.com/2024/04/jetpack-compose-compiler-moving-to-kotlin-repository.html
     // And
     // https://developer.android.com/build/migrate-to-catalogs
 
-    ext {
-        // Global variables: build plugins
-        kotlin_version = '1.9.23'
-        gradle_build_tools_version = '8.5.0'
-        ksp_version = '1.9.23-1.0.20'
-        room_version = '2.6.1'
-    }
+//    ext {
+//        // Global variables: build plugins
+//        kotlin_version = '1.9.23'
+//        gradle_build_tools_version = '8.5.0'
+//        ksp_version = '1.9.23-1.0.20'
+//        room_version = '2.6.1'
+//    }
 
     repositories {
         google()
@@ -20,14 +19,16 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.android.tools.build:gradle:$gradle_build_tools_version"
+        classpath libs.gradle
+        classpath libs.kotlin.gradle.plugin
     }
 }
 
 plugins {
-    id 'com.google.devtools.ksp' version "$ksp_version" apply false
-    id 'androidx.room' version "$room_version" apply false
+//    id 'com.google.devtools.ksp' version "$ksp_version" apply false
+    alias libs.plugins.ksp.devtools apply false
+    alias libs.plugins.android.application apply false
+    alias libs.plugins.androidx.room apply false
 }
 
 // Retrieve local context

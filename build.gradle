@@ -1,5 +1,11 @@
 buildscript {
 
+
+    // Migration in progress - see:
+    // https://android-developers.googleblog.com/2024/04/jetpack-compose-compiler-moving-to-kotlin-repository.html
+    // And
+    // https://developer.android.com/build/migrate-to-catalogs
+
     ext {
         // Global variables: build plugins
         kotlin_version = '1.9.23'

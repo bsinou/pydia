@@ -98,71 +98,75 @@ dependencies {
     api project(":sdk-kotlin")
 
     // Kotlin standard library and coroutines
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.23"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
 
     // Dependency injection with Koin https://insert-koin.io/ , we now use the Koin BOM
-    implementation platform('io.insert-koin:koin-bom:3.5.5')
-    implementation "io.insert-koin:koin-core"
-    implementation "io.insert-koin:koin-android"
-    implementation "io.insert-koin:koin-androidx-workmanager"
-    implementation "io.insert-koin:koin-androidx-navigation"
-    implementation "io.insert-koin:koin-androidx-compose"
-    testImplementation platform('io.insert-koin:koin-bom:3.5.5')
+    implementation platform(libs.koin.bom)
+    implementation libs.koin.core
+    implementation libs.koin.android
+    implementation libs.koin.androidx.workmanager
+    implementation libs.koin.androidx.navigation
+    implementation libs.koin.androidx.compose
+//    implementation libs.androidx.material3.window.sizeclazz.android
+
+    testImplementation platform(libs.koin.bom)
 
     // Android UI and appcompat
-    implementation "androidx.core:core-ktx:1.13.1"
-    implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.core.splashscreen
     // ViewModel
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1"
+    implementation libs.androidx.lifecycle.viewmodel.ktx
     // Material UI => we still need this to build custom palette based on remote server custom primary color
-    implementation "com.google.android.material:material:1.12.0"
+    implementation libs.material
 
     // Room for database, work for background
-    implementation "androidx.room:room-ktx:$room_version"
+    implementation libs.androidx.room.ktx
     ksp "androidx.room:room-compiler:$room_version"
-    implementation "androidx.work:work-runtime-ktx:2.9.0"
+
+
+    implementation libs.androidx.work.runtime.ktx
 
     // Files
-    implementation "com.amazonaws:aws-android-sdk-s3:2.75.0"
+    implementation libs.aws.android.sdk.s3
     // Preferences
-    implementation "androidx.datastore:datastore-preferences:1.1.1"
+    implementation libs.datastore.preferences
     // Utils
-    implementation "com.google.code.gson:gson:2.10.1"
+    implementation libs.gson
     // QRCode generation
-    implementation "com.google.zxing:core:3.5.3"
+    implementation libs.zxing
 
     // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
-    implementation platform('androidx.compose:compose-bom:2024.05.00')
+    implementation platform(libs.compose.bom)
     // Jetpack Compose libraries, we rely on the BOM to provide correct versions.
-    implementation "androidx.compose.runtime:runtime"
-    implementation "androidx.compose.ui:ui"
-    implementation "androidx.compose.ui:ui-util"
-    implementation "androidx.compose.ui:ui-tooling"
-    implementation "androidx.compose.foundation:foundation"
-    implementation "androidx.compose.foundation:foundation-layout"
-    implementation "androidx.compose.material3:material3"
+    implementation libs.androidx.runtime
+    implementation libs.androidx.ui
+    implementation libs.androidx.ui.util
+    implementation libs.androidx.ui.tooling
+    implementation libs.androidx.foundation
+    implementation libs.androidx.foundation.layout
+    implementation libs.androidx.material3
     implementation "androidx.compose.material3:material3-window-size-class"
 
     // We use material 3, so remove remaining code that depend on this and remove the dep.
-    implementation "androidx.compose.material:material"
+    implementation libs.androidx.material
     // This library is also provided as an API dependency by androidx.compose.material:material.
     // We specify it explicitly so that we won't break when we finally remove material lib from
     // the explicit dependency tree
-    implementation "androidx.compose.material:material-icons-core"
+    implementation libs.androidx.material.icons.core
     // this separate library, the full set of Material icons. Due to the very large size of this lib,
     // Make sure to use R8/Proguard to strip unused icons when including this as a direct dependency.
     // See https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary
-    implementation "androidx.compose.material:material-icons-extended"
+    implementation libs.androidx.material.icons.extended
 
     // Include extensions that permit integration of Compose with extra 3rd party libraries.
-    implementation "androidx.navigation:navigation-compose:2.7.7"
+    implementation libs.androidx.navigation.compose
 
     // Enable custom data loader for glide library (display images)
     // annotationProcessor 'com.github.bumptech.glide:compiler:5.0.0-rc01'
-    implementation "com.github.bumptech.glide:glide:5.0.0-rc01"
-    implementation "com.github.bumptech.glide:compose:1.0.0-beta01"
-    ksp "com.github.bumptech.glide:ksp:5.0.0-rc01"
-    ksp "com.github.bumptech.glide:compiler:5.0.0-rc01"
+    implementation libs.glide
+    implementation libs.glide.compose
+    ksp libs.glide.ksp
+    ksp libs.glide.compiler
 }

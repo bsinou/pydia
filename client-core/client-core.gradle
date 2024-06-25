@@ -47,7 +47,7 @@ android {
 //            // See https://developer.android.com/build/shrink-code#android_gradle_plugin_version_41_or_later
 //            // And you must have this installed in Android Studio https://developer.android.com/studio/projects/install-ndk
 //            // to also generate and upload the file that enable understanding stack traces seen in production
-//            // The generated mapping.txt file can than be uploaded on the store followin this:
+//            // The generated mapping.txt file can than be uploaded on the store following this:
 //            // https://support.google.com/googleplay/android-developer/answer/9848633#upload_file&zippy=%2Cupload-files-using-play-console
 //            ndk {
 //                debugSymbolLevel 'FULL'
@@ -70,8 +70,6 @@ android {
     sourceSets {
         main {
             kotlin.srcDir 'src/main/kotlin'
-            // Include Java source dir if you have mixed Java and Kotlin code
-//            java.srcDir 'src/main/java'
         }
     }
 
@@ -109,9 +107,25 @@ dependencies {
     implementation libs.koin.androidx.workmanager
     implementation libs.koin.androidx.navigation
     implementation libs.koin.androidx.compose
-//    implementation libs.androidx.material3.window.sizeclazz.android
 
-    testImplementation platform(libs.koin.bom)
+    // Files
+    implementation libs.aws.android.sdk.s3
+
+    // Utils
+    implementation libs.gson
+
+    // Preferences
+    implementation libs.datastore.preferences
+    // QRCode generation
+    implementation libs.zxing
+
+    // Room for database, work for background
+    ksp libs.androidx.room.compiler
+    implementation libs.androidx.room.ktx
+    implementation libs.androidx.work.runtime.ktx
+
+    // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
+    implementation platform(libs.compose.bom)
 
     // Android UI and appcompat
     implementation libs.androidx.core.ktx
@@ -121,24 +135,6 @@ dependencies {
     // Material UI => we still need this to build custom palette based on remote server custom primary color
     implementation libs.material
 
-    // Room for database, work for background
-    implementation libs.androidx.room.ktx
-    ksp "androidx.room:room-compiler:$room_version"
-
-
-    implementation libs.androidx.work.runtime.ktx
-
-    // Files
-    implementation libs.aws.android.sdk.s3
-    // Preferences
-    implementation libs.datastore.preferences
-    // Utils
-    implementation libs.gson
-    // QRCode generation
-    implementation libs.zxing
-
-    // Latest version can be found here: https://developer.android.com/jetpack/compose/bom
-    implementation platform(libs.compose.bom)
     // Jetpack Compose libraries, we rely on the BOM to provide correct versions.
     implementation libs.androidx.runtime
     implementation libs.androidx.ui
@@ -147,7 +143,7 @@ dependencies {
     implementation libs.androidx.foundation
     implementation libs.androidx.foundation.layout
     implementation libs.androidx.material3
-    implementation "androidx.compose.material3:material3-window-size-class"
+    implementation libs.androidx.material3.windowsizeclass
 
     // We use material 3, so remove remaining code that depend on this and remove the dep.
     implementation libs.androidx.material
@@ -169,4 +165,8 @@ dependencies {
     implementation libs.glide.compose
     ksp libs.glide.ksp
     ksp libs.glide.compiler
+
+    /*   Tests */
+    //
+    testImplementation platform(libs.koin.bom)
 }

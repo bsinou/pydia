@@ -5,14 +5,6 @@ buildscript {
     // And
     // https://developer.android.com/build/migrate-to-catalogs
 
-//    ext {
-//        // Global variables: build plugins
-//        kotlin_version = '1.9.23'
-//        gradle_build_tools_version = '8.5.0'
-//        ksp_version = '1.9.23-1.0.20'
-//        room_version = '2.6.1'
-//    }
-
     repositories {
         google()
         mavenCentral()
@@ -25,7 +17,6 @@ buildscript {
 }
 
 plugins {
-//    id 'com.google.devtools.ksp' version "$ksp_version" apply false
     alias libs.plugins.ksp.devtools apply false
     alias libs.plugins.android.application apply false
     alias libs.plugins.androidx.room apply false
@@ -38,7 +29,7 @@ retrieveFromEnv(localProperties) // There must be a more elegant way to do this.
 
 // Manage optional local submodules
 def sdkKotlinCheck = new File('sdk-kotlin/sdk-kotlin.gradle')
-def openApiClientCheck = new File('openapi-client/openapi-client.gradle')
+def openApiClientCheck = new File('sdk-openapi/sdk-openapi.gradle')
 
 // Expose custom properties to all modules in the project.
 ext {

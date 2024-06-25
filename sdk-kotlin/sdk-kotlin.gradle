@@ -94,6 +94,7 @@ dependencies {
     implementation libs.kotlin.reflect
 
     // Use JUnit test framework
+    // TODO this might be dynamic
     testImplementation project(':sdk-openapi')
     testImplementation libs.junit
     // When running with android these are provided by the platform

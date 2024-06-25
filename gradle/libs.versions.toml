@@ -1,5 +1,11 @@
 [versions]
+aws-java-sdk-core-version = "1.11.1030"
+aws-java-sdk-s3-version = "1.11.1030"
+commons-codec = "1.17.0"
 compose-bom-version = "2024.06.00"
+gson-fire-version = "1.9.0"
+javax-annotation-api-version = "1.3.2"
+json-rpc-version = "1.0"
 koin-bom-version = "3.5.6"
 
 aws-android-sdk-s3-version = "2.75.0"
@@ -34,6 +40,8 @@ okhttp-version = "4.12.0"
 palette-ktx-version = "1.0.0"
 room-runtime-version = "2.6.1"
 room-version = "2.6.1"
+swagger-annotations-version = "1.6.13"
+threetenbp-version = "1.6.8"
 work-runtime-ktx-version = "2.9.0"
 work-version = "2.9.0"
 
@@ -71,6 +79,13 @@ junit-ktx-version = "1.2.0"
 
 [libraries]
 
+androidx-material3-windowsizeclass = { module = "androidx.compose.material3:material3-window-size-class" }
+aws-java-sdk-core = { module = "com.amazonaws:aws-java-sdk-core", version.ref = "aws-java-sdk-core-version" }
+aws-java-sdk-s3 = { module = "com.amazonaws:aws-java-sdk-s3", version.ref = "aws-java-sdk-s3-version" }
+commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
+gson-fire = { module = "io.gsonfire:gson-fire", version.ref = "gson-fire-version" }
+javax-annotation-api = { module = "javax.annotation:javax.annotation-api", version.ref = "javax-annotation-api-version" }
+json-rpc = { module = "com.metaparadigm:json-rpc", version.ref = "json-rpc-version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin-reflect-version" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin-stdlib-version" }
 kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin-stdlib-jdk8-version" }
@@ -142,6 +157,8 @@ palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "palette-
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences-version" }
 
 # QRCode generation
+swagger-annotations = { module = "io.swagger:swagger-annotations", version.ref = "swagger-annotations-version" }
+threetenbp = { module = "org.threeten:threetenbp", version.ref = "threetenbp-version" }
 zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing-version" }
 
 # Tests

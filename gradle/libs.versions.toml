@@ -3,6 +3,7 @@
 # Plugins
 android-gradle-plugin = "8.5.0"
 gradle = "8.5.0"
+kotlin = "2.0.0"
 kotlin-gradle-plugin = "1.9.23"
 ksp-devtools-version ="1.9.23-1.0.20"
 androidx-room-version = "2.6.1"
@@ -161,5 +162,9 @@ androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 ksp-devtools = { id = "com.google.devtools.ksp", version.ref = "ksp-devtools-version" }
+
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+# Add the Compose Compiler Gradle plugin, the version matches the Kotlin plugin
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 androidx-room = { id = "androidx.room", version.ref = "androidx-room-version" }

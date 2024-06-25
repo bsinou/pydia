@@ -1,6 +1,8 @@
 plugins {
     alias libs.plugins.android.application
 //    id 'com.android.application'
+    alias libs.plugins.compose.compiler
+
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-parcelize'
 //    id 'com.google.devtools.ksp'
@@ -27,10 +29,10 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
-    composeOptions {
-        // See https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.13"
-    }
+//    composeOptions {
+//        // See https://developer.android.com/jetpack/androidx/releases/compose-kotlin
+//        kotlinCompilerExtensionVersion = "1.5.13"
+//    }
 
     buildTypes {
 
@@ -162,7 +164,6 @@ dependencies {
     implementation libs.androidx.navigation.compose
 
     // Enable custom data loader for glide library (display images)
-    // annotationProcessor 'com.github.bumptech.glide:compiler:5.0.0-rc01'
     implementation libs.glide
     implementation libs.glide.compose
     ksp libs.glide.ksp

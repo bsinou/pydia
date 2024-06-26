@@ -82,7 +82,12 @@ moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi-kotlin-version" }
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom-version" }
+
 koin-core = { module = "io.insert-koin:koin-core" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
+koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation" }
+koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager" }
 
 aws-java-sdk-core = { module = "com.amazonaws:aws-java-sdk-core", version.ref = "aws-java-sdk-core-version" }
 aws-java-sdk-s3 = { module = "com.amazonaws:aws-java-sdk-s3", version.ref = "aws-java-sdk-s3-version" }
@@ -92,10 +97,6 @@ gson-fire = { module = "io.gsonfire:gson-fire", version.ref = "gson-fire-version
 json-rpc = { module = "com.metaparadigm:json-rpc", version.ref = "json-rpc-version" }
 
 
-koin-android = { module = "io.insert-koin:koin-android" }
-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
-koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation" }
-koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager" }
 
 
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

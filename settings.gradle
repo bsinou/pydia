@@ -21,4 +21,3 @@ include ':client-core'
 rootProject.children.each {
     it.buildFileName = it.name + '.gradle'
 }
-include ':mylibrary'

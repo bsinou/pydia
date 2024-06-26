@@ -66,6 +66,8 @@ zxing-version = "3.5.3"
 #junit-ktx-version = "1.2.0"
 
 [libraries]
+## Base libraries
+
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin-stdlib-version" }
@@ -76,10 +78,20 @@ gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 javax-annotation-api = { module = "javax.annotation:javax.annotation-api", version.ref = "javax-annotation-api-version" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-test-version" }
-
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "logging-interceptor-version" }
+
+# OpenAPI
 moshi-adapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "moshi-adapters-version" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi-kotlin-version" }
+
+## Koin
+
+## Room
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-runtime-version" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room-runtime-version" }
+# androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room-runtime-version" }
+
+
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom-version" }
 
@@ -96,9 +108,6 @@ commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons
 gson-fire = { module = "io.gsonfire:gson-fire", version.ref = "gson-fire-version" }
 json-rpc = { module = "com.metaparadigm:json-rpc", version.ref = "json-rpc-version" }
 
-
-
-
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp-version" }
 
@@ -106,9 +115,6 @@ compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-
 
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-test-version" }
 
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-runtime-version" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room-runtime-version" }
-# androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room-runtime-version" }
 
 androidx-runtime = { module = "androidx.compose.runtime:runtime" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work-runtime-ktx-version" }

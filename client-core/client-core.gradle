@@ -26,11 +26,6 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
-//    composeOptions {
-//        // See https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-//        kotlinCompilerExtensionVersion = "1.5.13"
-//    }
-
     buildTypes {
 
 //        release {
@@ -87,7 +82,8 @@ android {
         schemaDirectory "$projectDir/schemas"
     }
 
-    // We do not want that the linter makes builds fail. It is quite extremist by default.
+    // TODO recheck this:
+    //  We do not want that the linter makes builds fail. It is quite extremist by default.
     lintOptions {
         abortOnError false
     }
@@ -167,6 +163,5 @@ dependencies {
     ksp libs.glide.compiler
 
     /*   Tests */
-    //
     testImplementation platform(libs.koin.bom)
 }

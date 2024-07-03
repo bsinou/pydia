@@ -98,6 +98,7 @@ dependencies {
     testImplementation project(':sdk-openapi')
     testImplementation libs.junit
     // When running with android these are provided by the platform
+    // TODO check where this is used
     testImplementation libs.aws.java.sdk.core
     testImplementation libs.aws.java.sdk.s3
 }

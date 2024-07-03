@@ -346,7 +346,7 @@
     <string name="node_add_button_description">Create or import</string>
     <string name="exit_description">Exit the application</string>
     <string name="switch_account_description">Choose another remote server</string>
-    <string name="logo_description">Pydio application logo</string>
+    <string name="logo_description">Application logo</string>
 
     <string name="loading_description">Current item is being refreshed</string>
     <string name="thumb_description">Small content preview</string>

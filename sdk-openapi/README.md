@@ -42,12 +42,11 @@ This is a manual tedious process:
 - Use Edit / convert to OpenAPI v3
 - Paste back the resulting specifications in the sdk-kotlin root folder in cellsapi-rest.swagger.yml
 
-
-Then generate the SDK
+Then generate the SDK:
 
 ```sh
 # WARNING: Update
-SDK_DEFAULT_AGENT="PydioCells/v4.4.0-rc1/KotlinSDK/v0.1.2"
+SDK_DEFAULT_AGENT="PydioCells/v4.4.3/KotlinSDK/v0.1.2"
 
 java -jar openapi-generator-cli.jar generate -g kotlin -i ./cellsapi-rest.swagger.yml -o /tmp/forSwagger/pydia/sdk-openapi --invoker-package org.sinou.pydia.openapi     --api-package org.sinou.pydia.openapi.api     --model-package org.sinou.pydia.openapi.model     --http-user-agent ${SDK_DEFAULT_AGENT}
 
@@ -56,7 +55,7 @@ rm -rf ./openapi/{model,api}
 mv /tmp/forSwagger/pydia/sdk-openapi/src/main/kotlin/org/sinou/pydia/openapi/{model,api} ./openapi/
 
 # Also copy used sagger file for later references
-export CELLS_VERSION=4.4.0-rc1
+export CELLS_VERSION=4.4.3
 cp /tmp/forSwagger/pydia/sdk-openapi/cellsapi-rest.swagger.yml $GITPATH/github.com/bsinou/pydia/sdk-openapi/src/main/kotlin/org/sinou/pydia/openapi/cellsapi-rest-${CELLS_VERSION}.swagger.yml
 
 # For the record, more details about the possible options:

@@ -31,5 +31,8 @@ data class RestListPeersAddressesResponse (
     @Json(name = "PeerAddresses")
     val peerAddresses: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

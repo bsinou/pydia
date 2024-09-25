@@ -32,5 +32,8 @@ data class RestDeleteNodesResponse (
     @Json(name = "DeleteJobs")
     val deleteJobs: kotlin.collections.List<RestBackgroundJobResult>? = null
 
-)
+) {
+
+
+}
 

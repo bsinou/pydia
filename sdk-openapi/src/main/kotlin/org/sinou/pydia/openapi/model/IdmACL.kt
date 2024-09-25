@@ -48,5 +48,8 @@ data class IdmACL (
     @Json(name = "WorkspaceID")
     val workspaceID: kotlin.String? = null
 
-)
+) {
+
+
+}
 

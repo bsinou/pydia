@@ -135,5 +135,8 @@ data class LogLogMessage (
     @Json(name = "WsUuid")
     val wsUuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

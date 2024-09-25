@@ -35,5 +35,8 @@ data class RestListProcessesRequest (
     @Json(name = "ServiceName")
     val serviceName: kotlin.String? = null
 
-)
+) {
+
+
+}
 

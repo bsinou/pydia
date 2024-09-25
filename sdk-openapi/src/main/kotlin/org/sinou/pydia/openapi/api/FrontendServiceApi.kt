@@ -19,7 +19,6 @@ import java.io.IOException
 import okhttp3.OkHttpClient
 import okhttp3.HttpUrl
 
-import org.sinou.pydia.openapi.model.RestError
 import org.sinou.pydia.openapi.model.RestFrontBinaryResponse
 import org.sinou.pydia.openapi.model.RestFrontBootConfResponse
 import org.sinou.pydia.openapi.model.RestFrontEnrollAuthRequest
@@ -31,8 +30,6 @@ import org.sinou.pydia.openapi.model.RestFrontSessionResponse
 import org.sinou.pydia.openapi.model.RestFrontStateResponse
 import org.sinou.pydia.openapi.model.RestSettingsMenuResponse
 
-import com.squareup.moshi.Json
-
 import org.sinou.pydia.openapi.infrastructure.ApiClient
 import org.sinou.pydia.openapi.infrastructure.ApiResponse
 import org.sinou.pydia.openapi.infrastructure.ClientException
@@ -40,12 +37,10 @@ import org.sinou.pydia.openapi.infrastructure.ClientError
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.infrastructure.ServerError
 import org.sinou.pydia.openapi.infrastructure.MultiValueMap
-import org.sinou.pydia.openapi.infrastructure.PartConfig
 import org.sinou.pydia.openapi.infrastructure.RequestConfig
 import org.sinou.pydia.openapi.infrastructure.RequestMethod
 import org.sinou.pydia.openapi.infrastructure.ResponseType
 import org.sinou.pydia.openapi.infrastructure.Success
-import org.sinou.pydia.openapi.infrastructure.toMultiValue
 
 class FrontendServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClient = ApiClient.defaultClient) : ApiClient(basePath, client) {
     companion object {

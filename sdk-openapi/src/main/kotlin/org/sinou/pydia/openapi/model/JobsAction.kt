@@ -132,5 +132,8 @@ data class JobsAction (
     @Json(name = "UsersSelector")
     val usersSelector: JobsUsersSelector? = null
 
-)
+) {
+
+
+}
 

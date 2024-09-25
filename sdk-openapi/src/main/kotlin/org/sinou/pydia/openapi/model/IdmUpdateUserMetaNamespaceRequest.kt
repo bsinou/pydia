@@ -37,5 +37,8 @@ data class IdmUpdateUserMetaNamespaceRequest (
     @Json(name = "Operation")
     val operation: UpdateUserMetaNamespaceRequestUserMetaNsOp? = UpdateUserMetaNamespaceRequestUserMetaNsOp.PUT
 
-)
+) {
+
+
+}
 

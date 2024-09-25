@@ -62,5 +62,8 @@ data class ServiceQuery (
     @Json(name = "groupBy")
     val groupBy: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

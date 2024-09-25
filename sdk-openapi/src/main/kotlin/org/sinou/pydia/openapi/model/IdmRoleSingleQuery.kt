@@ -55,5 +55,8 @@ data class IdmRoleSingleQuery (
     @Json(name = "not")
     val not: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

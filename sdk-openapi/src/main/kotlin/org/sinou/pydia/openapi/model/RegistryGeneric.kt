@@ -32,5 +32,8 @@ data class RegistryGeneric (
     @Json(name = "type")
     val type: RegistryItemType? = RegistryItemType.ALL
 
-)
+) {
+
+
+}
 

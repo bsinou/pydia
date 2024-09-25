@@ -40,5 +40,8 @@ data class JobsTriggerFilter (
     @Json(name = "Query")
     val query: ServiceQuery? = null
 
-)
+) {
+
+
+}
 

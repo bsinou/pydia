@@ -70,5 +70,8 @@ data class ActivityStreamActivitiesRequest (
     @Json(name = "UnreadCountOnly")
     val unreadCountOnly: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

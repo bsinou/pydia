@@ -65,5 +65,8 @@ data class SetRoleRequest (
     @Json(name = "UserRole")
     val userRole: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

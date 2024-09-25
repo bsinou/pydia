@@ -59,5 +59,8 @@ data class RestGetBulkMetaRequest (
     @Json(name = "Versions")
     val versions: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

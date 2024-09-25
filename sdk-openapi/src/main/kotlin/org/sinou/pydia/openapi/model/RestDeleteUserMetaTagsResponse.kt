@@ -31,5 +31,8 @@ data class RestDeleteUserMetaTagsResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

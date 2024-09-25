@@ -36,5 +36,8 @@ data class RegistryListRequest (
     @Json(name = "options")
     val options: RegistryOptions? = null
 
-)
+) {
+
+
+}
 

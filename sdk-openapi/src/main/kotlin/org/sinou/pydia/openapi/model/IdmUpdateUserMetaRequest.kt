@@ -37,5 +37,8 @@ data class IdmUpdateUserMetaRequest (
     @Json(name = "Operation")
     val operation: UpdateUserMetaRequestUserMetaOp? = UpdateUserMetaRequestUserMetaOp.PUT
 
-)
+) {
+
+
+}
 

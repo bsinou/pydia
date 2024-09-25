@@ -39,5 +39,8 @@ data class RestResetPasswordRequest (
     @Json(name = "UserLogin")
     val userLogin: kotlin.String? = null
 
-)
+) {
+
+
+}
 

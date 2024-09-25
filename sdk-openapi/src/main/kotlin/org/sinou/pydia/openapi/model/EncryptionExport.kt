@@ -35,5 +35,8 @@ data class EncryptionExport (
     @Json(name = "Date")
     val date: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

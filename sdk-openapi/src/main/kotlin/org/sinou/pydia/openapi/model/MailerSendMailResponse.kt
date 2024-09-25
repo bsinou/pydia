@@ -31,5 +31,8 @@ data class MailerSendMailResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

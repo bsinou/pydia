@@ -31,5 +31,8 @@ data class JobsCtrlCommandResponse (
     @Json(name = "Msg")
     val msg: kotlin.String? = null
 
-)
+) {
+
+
+}
 

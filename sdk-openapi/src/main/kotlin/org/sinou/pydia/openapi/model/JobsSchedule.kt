@@ -36,5 +36,8 @@ data class JobsSchedule (
     @Json(name = "Iso8601Schedule")
     val iso8601Schedule: kotlin.String? = null
 
-)
+) {
+
+
+}
 

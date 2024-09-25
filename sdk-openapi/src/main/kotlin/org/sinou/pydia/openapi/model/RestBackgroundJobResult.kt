@@ -39,5 +39,8 @@ data class RestBackgroundJobResult (
     @Json(name = "Uuid")
     val uuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

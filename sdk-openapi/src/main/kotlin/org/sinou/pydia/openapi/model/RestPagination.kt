@@ -55,5 +55,8 @@ data class RestPagination (
     @Json(name = "TotalPages")
     val totalPages: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

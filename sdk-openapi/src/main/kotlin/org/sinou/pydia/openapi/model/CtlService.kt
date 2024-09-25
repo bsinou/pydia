@@ -61,5 +61,8 @@ data class CtlService (
     @Json(name = "Version")
     val version: kotlin.String? = null
 
-)
+) {
+
+
+}
 

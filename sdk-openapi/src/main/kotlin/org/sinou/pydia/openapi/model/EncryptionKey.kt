@@ -52,5 +52,8 @@ data class EncryptionKey (
     @Json(name = "Owner")
     val owner: kotlin.String? = null
 
-)
+) {
+
+
+}
 

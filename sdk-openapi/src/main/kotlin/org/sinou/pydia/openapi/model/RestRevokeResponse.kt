@@ -35,5 +35,8 @@ data class RestRevokeResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

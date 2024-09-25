@@ -36,5 +36,8 @@ data class RestUpdateSharePoliciesRequest (
     @Json(name = "Uuid")
     val uuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

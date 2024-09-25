@@ -73,5 +73,8 @@ data class TreeListNodesRequest (
     @Json(name = "WithVersions")
     val withVersions: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

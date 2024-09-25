@@ -44,5 +44,8 @@ data class JobsDeleteTasksRequest (
     @Json(name = "TaskID")
     val taskID: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

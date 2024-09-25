@@ -40,5 +40,8 @@ data class RestUpdateSharePoliciesResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

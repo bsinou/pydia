@@ -40,5 +40,8 @@ data class RestControlServiceRequest (
     @Json(name = "ServiceName")
     val serviceName: kotlin.String? = null
 
-)
+) {
+
+
+}
 

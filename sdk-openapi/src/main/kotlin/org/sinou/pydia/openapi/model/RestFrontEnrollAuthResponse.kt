@@ -31,5 +31,8 @@ data class RestFrontEnrollAuthResponse (
     @Json(name = "Info")
     val info: kotlin.collections.Map<kotlin.String, kotlin.String>? = null
 
-)
+) {
+
+
+}
 

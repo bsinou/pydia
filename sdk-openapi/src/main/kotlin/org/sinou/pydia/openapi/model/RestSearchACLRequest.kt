@@ -53,5 +53,8 @@ data class RestSearchACLRequest (
     @Json(name = "Queries")
     val queries: kotlin.collections.List<IdmACLSingleQuery>? = null
 
-)
+) {
+
+
+}
 

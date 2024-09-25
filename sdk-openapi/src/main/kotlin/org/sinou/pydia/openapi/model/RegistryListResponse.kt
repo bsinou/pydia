@@ -32,5 +32,8 @@ data class RegistryListResponse (
     @Json(name = "items")
     val items: kotlin.collections.List<RegistryItem>? = null
 
-)
+) {
+
+
+}
 

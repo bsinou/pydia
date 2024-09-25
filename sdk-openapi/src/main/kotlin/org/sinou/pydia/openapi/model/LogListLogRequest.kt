@@ -44,5 +44,8 @@ data class LogListLogRequest (
     @Json(name = "Size")
     val propertySize: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

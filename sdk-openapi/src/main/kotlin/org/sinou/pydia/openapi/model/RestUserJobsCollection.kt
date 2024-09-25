@@ -32,5 +32,8 @@ data class RestUserJobsCollection (
     @Json(name = "Jobs")
     val jobs: kotlin.collections.List<JobsJob>? = null
 
-)
+) {
+
+
+}
 

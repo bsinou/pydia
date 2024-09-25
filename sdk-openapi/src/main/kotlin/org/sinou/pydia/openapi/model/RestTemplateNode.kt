@@ -36,5 +36,8 @@ data class RestTemplateNode (
     @Json(name = "Node")
     val node: TreeNode? = null
 
-)
+) {
+
+
+}
 

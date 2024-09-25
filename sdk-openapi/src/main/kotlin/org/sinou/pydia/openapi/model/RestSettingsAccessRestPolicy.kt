@@ -35,5 +35,8 @@ data class RestSettingsAccessRestPolicy (
     @Json(name = "Resource")
     val resource: kotlin.String? = null
 
-)
+) {
+
+
+}
 

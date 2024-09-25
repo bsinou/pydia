@@ -55,5 +55,8 @@ data class RestProcess (
     @Json(name = "StartTag")
     val startTag: kotlin.String? = null
 
-)
+) {
+
+
+}
 

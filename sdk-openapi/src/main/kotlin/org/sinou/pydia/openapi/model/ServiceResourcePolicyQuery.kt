@@ -39,5 +39,8 @@ data class ServiceResourcePolicyQuery (
     @Json(name = "Subjects")
     val subjects: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

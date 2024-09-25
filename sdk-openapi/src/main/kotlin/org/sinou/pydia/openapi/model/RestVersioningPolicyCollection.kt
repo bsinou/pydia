@@ -32,5 +32,8 @@ data class RestVersioningPolicyCollection (
     @Json(name = "Policies")
     val policies: kotlin.collections.List<TreeVersioningPolicy>? = null
 
-)
+) {
+
+
+}
 

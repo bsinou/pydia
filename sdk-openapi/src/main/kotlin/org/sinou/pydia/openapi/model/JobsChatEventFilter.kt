@@ -40,5 +40,8 @@ data class JobsChatEventFilter (
     @Json(name = "Query")
     val query: ServiceQuery? = null
 
-)
+) {
+
+
+}
 

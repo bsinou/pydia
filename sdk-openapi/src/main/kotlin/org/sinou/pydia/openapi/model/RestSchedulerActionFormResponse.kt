@@ -31,5 +31,8 @@ data class RestSchedulerActionFormResponse (
     @Json(name = "ActionName")
     val actionName: kotlin.String? = null
 
-)
+) {
+
+
+}
 

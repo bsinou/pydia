@@ -40,5 +40,8 @@ data class RestDeleteNodesRequest (
     @Json(name = "RemovePermanently")
     val removePermanently: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

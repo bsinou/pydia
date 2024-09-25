@@ -32,5 +32,8 @@ data class RestListSitesResponse (
     @Json(name = "Sites")
     val sites: kotlin.collections.List<InstallProxyConfig>? = null
 
-)
+) {
+
+
+}
 

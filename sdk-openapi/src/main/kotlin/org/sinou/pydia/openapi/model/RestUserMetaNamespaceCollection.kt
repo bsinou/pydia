@@ -32,5 +32,8 @@ data class RestUserMetaNamespaceCollection (
     @Json(name = "Namespaces")
     val namespaces: kotlin.collections.List<IdmUserMetaNamespace>? = null
 
-)
+) {
+
+
+}
 

@@ -32,5 +32,8 @@ data class RestListTemplatesResponse (
     @Json(name = "Templates")
     val templates: kotlin.collections.List<RestTemplate>? = null
 
-)
+) {
+
+
+}
 

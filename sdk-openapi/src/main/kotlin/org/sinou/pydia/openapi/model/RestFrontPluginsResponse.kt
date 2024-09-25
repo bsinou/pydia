@@ -31,5 +31,8 @@ data class RestFrontPluginsResponse (
     @Json(name = "Data")
     val `data`: kotlin.ByteArray? = null
 
-)
+) {
+
+
+}
 

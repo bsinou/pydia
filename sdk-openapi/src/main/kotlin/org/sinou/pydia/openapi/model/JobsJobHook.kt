@@ -48,5 +48,8 @@ data class JobsJobHook (
     @Json(name = "PresetParameters")
     val presetParameters: kotlin.collections.Map<kotlin.String, kotlin.String>? = null
 
-)
+) {
+
+
+}
 

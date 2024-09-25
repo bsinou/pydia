@@ -31,5 +31,8 @@ data class RestDeleteShareLinkResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

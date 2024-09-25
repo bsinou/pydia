@@ -31,5 +31,8 @@ data class RestMetaNamespaceRequest (
     @Json(name = "Namespace")
     val namespace: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

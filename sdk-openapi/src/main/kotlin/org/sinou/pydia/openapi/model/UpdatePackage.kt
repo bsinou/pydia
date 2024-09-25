@@ -100,5 +100,8 @@ data class UpdatePackage (
     @Json(name = "Version")
     val version: kotlin.String? = null
 
-)
+) {
+
+
+}
 

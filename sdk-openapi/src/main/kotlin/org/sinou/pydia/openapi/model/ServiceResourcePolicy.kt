@@ -53,5 +53,8 @@ data class ServiceResourcePolicy (
     @Json(name = "id")
     val id: kotlin.String? = null
 
-)
+) {
+
+
+}
 

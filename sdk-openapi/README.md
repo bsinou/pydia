@@ -19,17 +19,17 @@ Note: you can check for new
 release [here](https://github.com/OpenAPITools/openapi-generator/releases).
 
 ```sh
-branch=sandbox
+branch=main
 mkdir -p /tmp/forSwagger
 cd /tmp/forSwagger
 git clone https://github.com/bsinou/pydia.git
 cd pydia
 git checkout $branch
-cd openapi-client
+cd sdk-openapi
 
 cp ../../openapi-generator-cli.jar .
 # or
-GENERATOR_VERSION=7.4.0
+GENERATOR_VERSION=7.8.0
 wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${GENERATOR_VERSION}/openapi-generator-cli-${GENERATOR_VERSION}.jar -O openapi-generator-cli.jar
 ```
 
@@ -40,13 +40,13 @@ This is a manual tedious process:
 - Copy/paste specification file at: https://editor-next.swagger.io/
 - Use Edit / convert to YAML
 - Use Edit / convert to OpenAPI v3
-- Paste back the resulting specifications in the sdk-kotlin root folder in cellsapi-rest.swagger.yml
+- Paste back the resulting specifications in the sdk-openapi root folder in cellsapi-rest.swagger.yml
 
 Then generate the SDK:
 
 ```sh
 # WARNING: Update
-SDK_DEFAULT_AGENT="PydioCells/v4.4.3/KotlinSDK/v0.1.2"
+SDK_DEFAULT_AGENT="PydioCells/v4.4.5/KotlinSDK/v0.1.3"
 
 java -jar openapi-generator-cli.jar generate -g kotlin -i ./cellsapi-rest.swagger.yml -o /tmp/forSwagger/pydia/sdk-openapi --invoker-package org.sinou.pydia.openapi     --api-package org.sinou.pydia.openapi.api     --model-package org.sinou.pydia.openapi.model     --http-user-agent ${SDK_DEFAULT_AGENT}
 
@@ -55,7 +55,7 @@ rm -rf ./openapi/{model,api}
 mv /tmp/forSwagger/pydia/sdk-openapi/src/main/kotlin/org/sinou/pydia/openapi/{model,api} ./openapi/
 
 # Also copy used sagger file for later references
-export CELLS_VERSION=4.4.3
+export CELLS_VERSION=4.4.5
 cp /tmp/forSwagger/pydia/sdk-openapi/cellsapi-rest.swagger.yml $GITPATH/github.com/bsinou/pydia/sdk-openapi/src/main/kotlin/org/sinou/pydia/openapi/cellsapi-rest-${CELLS_VERSION}.swagger.yml
 
 # For the record, more details about the possible options:
@@ -73,4 +73,11 @@ cd $GITPATH/github.com/bsinou/pydia/sdk-openapi/src/main/kotlin/org
 mv /tmp/forSwagger/pydia/sdk-openapi/src/main/kotlin/org/openapitools .
 ```
 
-- refactor in our package: we must rename package `org/openapitools/infrastructure` to `org/sinou/pydia/openapi/infrastructure`
+We must then refactor the openapitools/infrastructure package to be back in our layers:
+a.k.a from `org/openapitools/infrastructure` to `org/sinou/pydia/openapi/infrastructure`
+
+To do so:
+
+- remove org/sinou/pydia/openapi/infrastructure
+- delete compiled code under sdk-openapi/bin/main, or it block the refactoring
+- launch the refactor via click in the IDE

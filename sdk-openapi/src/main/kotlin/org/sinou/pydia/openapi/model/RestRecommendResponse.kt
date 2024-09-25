@@ -32,5 +32,8 @@ data class RestRecommendResponse (
     @Json(name = "Nodes")
     val nodes: kotlin.collections.List<TreeNode>? = null
 
-)
+) {
+
+
+}
 

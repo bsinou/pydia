@@ -31,5 +31,8 @@ data class ResetPasswordTokenRequest (
     @Json(name = "Create")
     val create: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

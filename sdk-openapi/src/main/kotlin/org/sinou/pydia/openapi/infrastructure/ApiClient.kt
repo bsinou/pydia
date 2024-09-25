@@ -6,19 +6,12 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.ResponseBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
-import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.MultipartBody
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.Response
-import java.io.BufferedWriter
 import java.io.File
-import java.io.FileWriter
-import java.io.IOException
 import java.net.URLConnection
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,9 +19,10 @@ import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.OffsetTime
 import java.util.Locale
+import java.util.regex.Pattern
 import com.squareup.moshi.adapter
 
- val EMPTY_REQUEST: RequestBody = ByteArray(0).toRequestBody()
+val EMPTY_REQUEST: RequestBody = ByteArray(0).toRequestBody()
 
 open class ApiClient(val baseUrl: String, val client: OkHttpClient = defaultClient) {
     companion object {
@@ -120,14 +114,52 @@ open class ApiClient(val baseUrl: String, val client: OkHttpClient = defaultClie
         }
 
     @OptIn(ExperimentalStdlibApi::class)
-    protected inline fun <reified T: Any?> responseBody(body: ResponseBody?, mediaType: String? = JsonMediaType): T? {
+    protected inline fun <reified T: Any?> responseBody(response: Response, mediaType: String? = JsonMediaType): T? {
+        val body = response.body
         if(body == null) {
             return null
         }
         if (T::class.java == File::class.java) {
             // return tempFile
+            val contentDisposition = response.header("Content-Disposition")
+
+            val fileName = if (contentDisposition != null) {
+                // Get filename from the Content-Disposition header.
+                val pattern = Pattern.compile("filename=['\"]?([^'\"\\s]+)['\"]?")
+                val matcher = pattern.matcher(contentDisposition)
+                if (matcher.find()) {
+                    matcher.group(1)
+                        ?.replace(".*[/\\\\]", "")
+                        ?.replace(";", "")
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+
+            var prefix: String?
+            val suffix: String?
+            if (fileName == null) {
+                prefix = "download"
+                suffix = ""
+            } else {
+                val pos = fileName.lastIndexOf(".")
+                if (pos == -1) {
+                    prefix = fileName
+                    suffix = null
+                } else {
+                    prefix = fileName.substring(0, pos)
+                    suffix = fileName.substring(pos)
+                }
+                // Files.createTempFile requires the prefix to be at least three characters long
+                if (prefix.length < 3) {
+                    prefix = "download"
+                }
+            }
+
             // Attention: if you are developing an android app that supports API Level 25 and bellow, please check flag supportAndroidApiLevel25AndBelow in https://openapi-generator.tech/docs/generators/kotlin#config-options
-            val tempFile = java.nio.file.Files.createTempFile("tmp.org.openapitools.client", null).toFile()
+            val tempFile = java.nio.file.Files.createTempFile(prefix, suffix).toFile()
             tempFile.deleteOnExit()
             body.byteStream().use { inputStream ->
                 tempFile.outputStream().use { tempFileOutputStream ->
@@ -202,33 +234,35 @@ open class ApiClient(val baseUrl: String, val client: OkHttpClient = defaultClie
 
         // TODO: handle specific mapping types. e.g. Map<int, Class<?>>
         @Suppress("UNNECESSARY_SAFE_CALL")
-        return when {
-            response.isRedirect -> Redirection(
-                response.code,
-                response.headers.toMultimap()
-            )
-            response.isInformational -> Informational(
-                response.message,
-                response.code,
-                response.headers.toMultimap()
-            )
-            response.isSuccessful -> Success(
-                responseBody(response.body, accept),
-                response.code,
-                response.headers.toMultimap()
-            )
-            response.isClientError -> ClientError(
-                response.message,
-                response.body?.string(),
-                response.code,
-                response.headers.toMultimap()
-            )
-            else -> ServerError(
-                response.message,
-                response.body?.string(),
-                response.code,
-                response.headers.toMultimap()
-            )
+        return response.use {
+            when {
+                it.isRedirect -> Redirection(
+                    it.code,
+                    it.headers.toMultimap()
+                )
+                it.isInformational -> Informational(
+                    it.message,
+                    it.code,
+                    it.headers.toMultimap()
+                )
+                it.isSuccessful -> Success(
+                    responseBody(it, accept),
+                    it.code,
+                    it.headers.toMultimap()
+                )
+                it.isClientError -> ClientError(
+                    it.message,
+                    it.body?.string(),
+                    it.code,
+                    it.headers.toMultimap()
+                )
+                else -> ServerError(
+                    it.message,
+                    it.body?.string(),
+                    it.code,
+                    it.headers.toMultimap()
+                )
+            }
         }
     }
 

@@ -32,5 +32,8 @@ data class IdmUpdateUserMetaResponse (
     @Json(name = "MetaDatas")
     val metaDatas: kotlin.collections.List<IdmUserMeta>? = null
 
-)
+) {
+
+
+}
 

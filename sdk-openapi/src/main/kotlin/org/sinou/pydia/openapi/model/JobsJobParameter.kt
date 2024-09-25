@@ -51,5 +51,8 @@ data class JobsJobParameter (
     @Json(name = "Value")
     val `value`: kotlin.String? = null
 
-)
+) {
+
+
+}
 

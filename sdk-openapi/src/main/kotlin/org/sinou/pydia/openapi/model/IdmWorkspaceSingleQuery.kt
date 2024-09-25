@@ -68,5 +68,8 @@ data class IdmWorkspaceSingleQuery (
     @Json(name = "uuid")
     val uuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

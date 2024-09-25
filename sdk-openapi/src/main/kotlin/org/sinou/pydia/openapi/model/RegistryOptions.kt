@@ -57,5 +57,8 @@ data class RegistryOptions (
     @Json(name = "types")
     val types: kotlin.collections.List<RegistryItemType>? = null
 
-)
+) {
+
+
+}
 

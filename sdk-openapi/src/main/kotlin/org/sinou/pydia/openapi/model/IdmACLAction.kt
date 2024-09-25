@@ -35,5 +35,8 @@ data class IdmACLAction (
     @Json(name = "Value")
     val `value`: kotlin.String? = null
 
-)
+) {
+
+
+}
 

@@ -47,5 +47,8 @@ data class RestError (
     @Json(name = "Title")
     val title: kotlin.String? = null
 
-)
+) {
+
+
+}
 

@@ -74,5 +74,8 @@ data class IdmWorkspace (
     @Json(name = "UUID")
     val UUID: kotlin.String? = null
 
-)
+) {
+
+
+}
 

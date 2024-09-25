@@ -35,5 +35,8 @@ data class TreeGeoPoint (
     @Json(name = "Lon")
     val lon: kotlin.Double? = null
 
-)
+) {
+
+
+}
 

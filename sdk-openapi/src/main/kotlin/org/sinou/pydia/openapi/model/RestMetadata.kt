@@ -35,5 +35,8 @@ data class RestMetadata (
     @Json(name = "Namespace")
     val namespace: kotlin.String? = null
 
-)
+) {
+
+
+}
 

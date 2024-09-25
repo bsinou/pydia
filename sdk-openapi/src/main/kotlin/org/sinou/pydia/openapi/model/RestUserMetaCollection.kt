@@ -32,5 +32,8 @@ data class RestUserMetaCollection (
     @Json(name = "Metadatas")
     val metadatas: kotlin.collections.List<IdmUserMeta>? = null
 
-)
+) {
+
+
+}
 

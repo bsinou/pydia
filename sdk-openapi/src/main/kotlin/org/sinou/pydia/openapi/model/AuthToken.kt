@@ -43,5 +43,8 @@ data class AuthToken (
     @Json(name = "RefreshToken")
     val refreshToken: kotlin.String? = null
 
-)
+) {
+
+
+}
 

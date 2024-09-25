@@ -35,5 +35,8 @@ data class RestResetPasswordResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

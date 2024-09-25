@@ -36,5 +36,8 @@ data class RestUserStateResponse (
     @Json(name = "WorkspacesAccesses")
     val workspacesAccesses: kotlin.collections.Map<kotlin.String, kotlin.String>? = null
 
-)
+) {
+
+
+}
 

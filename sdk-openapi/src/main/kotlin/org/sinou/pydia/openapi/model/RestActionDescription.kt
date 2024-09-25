@@ -80,5 +80,8 @@ data class RestActionDescription (
     @Json(name = "Tint")
     val tint: kotlin.String? = null
 
-)
+) {
+
+
+}
 

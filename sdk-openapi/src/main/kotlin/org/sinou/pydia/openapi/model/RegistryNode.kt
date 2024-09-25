@@ -43,5 +43,8 @@ data class RegistryNode (
     @Json(name = "machine")
     val machine: kotlin.String? = null
 
-)
+) {
+
+
+}
 

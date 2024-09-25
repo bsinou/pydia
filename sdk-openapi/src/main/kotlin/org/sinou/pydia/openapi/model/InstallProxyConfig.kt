@@ -62,5 +62,8 @@ data class InstallProxyConfig (
     @Json(name = "SelfSigned")
     val selfSigned: InstallTLSSelfSigned? = null
 
-)
+) {
+
+
+}
 

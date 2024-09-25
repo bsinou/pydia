@@ -40,5 +40,8 @@ data class RestSettingsAccess (
     @Json(name = "Policies")
     val policies: kotlin.collections.List<RestSettingsAccessRestPolicy>? = null
 
-)
+) {
+
+
+}
 

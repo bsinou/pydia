@@ -40,5 +40,8 @@ data class RestUsersCollection (
     @Json(name = "Users")
     val users: kotlin.collections.List<IdmUser>? = null
 
-)
+) {
+
+
+}
 

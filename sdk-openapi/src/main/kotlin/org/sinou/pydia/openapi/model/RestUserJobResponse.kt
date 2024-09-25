@@ -31,5 +31,8 @@ data class RestUserJobResponse (
     @Json(name = "JobUuid")
     val jobUuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

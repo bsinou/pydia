@@ -39,5 +39,8 @@ data class InstallTLSLetsEncrypt (
     @Json(name = "StagingCA")
     val stagingCA: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

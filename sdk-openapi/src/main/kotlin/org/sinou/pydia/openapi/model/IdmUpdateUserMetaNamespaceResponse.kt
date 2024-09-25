@@ -32,5 +32,8 @@ data class IdmUpdateUserMetaNamespaceResponse (
     @Json(name = "Namespaces")
     val namespaces: kotlin.collections.List<IdmUserMetaNamespace>? = null
 
-)
+) {
+
+
+}
 

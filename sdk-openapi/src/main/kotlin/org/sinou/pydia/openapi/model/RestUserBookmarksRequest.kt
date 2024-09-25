@@ -31,5 +31,8 @@ data class RestUserBookmarksRequest (
     @Json(name = "All")
     val all: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

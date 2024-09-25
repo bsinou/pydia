@@ -48,5 +48,8 @@ data class JobsCtrlCommand (
     @Json(name = "TaskId")
     val taskId: kotlin.String? = null
 
-)
+) {
+
+
+}
 

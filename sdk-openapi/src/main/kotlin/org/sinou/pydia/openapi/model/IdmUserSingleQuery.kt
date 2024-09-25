@@ -84,5 +84,8 @@ data class IdmUserSingleQuery (
     @Json(name = "not")
     val not: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

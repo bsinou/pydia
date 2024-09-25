@@ -35,5 +35,8 @@ data class RestDeleteResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

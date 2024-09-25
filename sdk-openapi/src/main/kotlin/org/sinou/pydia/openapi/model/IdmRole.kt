@@ -69,5 +69,8 @@ data class IdmRole (
     @Json(name = "Uuid")
     val uuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

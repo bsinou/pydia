@@ -57,5 +57,8 @@ data class IdmPolicy (
     @Json(name = "subjects")
     val subjects: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

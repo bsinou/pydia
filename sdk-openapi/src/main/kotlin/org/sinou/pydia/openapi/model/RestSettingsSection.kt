@@ -44,5 +44,8 @@ data class RestSettingsSection (
     @Json(name = "LABEL")
     val LABEL: kotlin.String? = null
 
-)
+) {
+
+
+}
 

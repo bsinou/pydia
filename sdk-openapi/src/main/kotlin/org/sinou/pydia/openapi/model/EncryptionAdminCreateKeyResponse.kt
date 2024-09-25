@@ -31,5 +31,8 @@ data class EncryptionAdminCreateKeyResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

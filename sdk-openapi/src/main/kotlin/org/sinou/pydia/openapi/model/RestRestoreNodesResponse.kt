@@ -32,5 +32,8 @@ data class RestRestoreNodesResponse (
     @Json(name = "RestoreJobs")
     val restoreJobs: kotlin.collections.List<RestBackgroundJobResult>? = null
 
-)
+) {
+
+
+}
 

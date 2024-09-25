@@ -32,5 +32,8 @@ data class InstallInstallRequest (
     @Json(name = "config")
     val config: InstallInstallConfig? = null
 
-)
+) {
+
+
+}
 

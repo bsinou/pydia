@@ -35,5 +35,8 @@ data class RestFrontEnrollAuthRequest (
     @Json(name = "EnrollType")
     val enrollType: kotlin.String? = null
 
-)
+) {
+
+
+}
 

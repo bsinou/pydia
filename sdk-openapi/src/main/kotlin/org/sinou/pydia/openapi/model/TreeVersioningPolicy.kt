@@ -69,5 +69,8 @@ data class TreeVersioningPolicy (
     @Json(name = "VersionsDataSourceName")
     val versionsDataSourceName: kotlin.String? = null
 
-)
+) {
+
+
+}
 

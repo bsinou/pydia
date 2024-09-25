@@ -43,5 +43,8 @@ data class JobsSelectorRange (
     @Json(name = "OrderDir")
     val orderDir: kotlin.String? = null
 
-)
+) {
+
+
+}
 

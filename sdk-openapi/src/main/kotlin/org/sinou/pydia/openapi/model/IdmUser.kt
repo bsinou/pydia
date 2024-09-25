@@ -78,5 +78,8 @@ data class IdmUser (
     @Json(name = "Uuid")
     val uuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

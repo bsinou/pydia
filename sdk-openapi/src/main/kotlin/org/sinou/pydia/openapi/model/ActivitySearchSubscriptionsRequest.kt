@@ -40,5 +40,8 @@ data class ActivitySearchSubscriptionsRequest (
     @Json(name = "UserIds")
     val userIds: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

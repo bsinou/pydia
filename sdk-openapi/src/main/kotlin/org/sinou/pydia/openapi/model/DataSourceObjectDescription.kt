@@ -109,5 +109,8 @@ data class DataSourceObjectDescription (
     @Json(name = "Watch")
     val watch: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

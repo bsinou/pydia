@@ -47,5 +47,8 @@ data class RestSettingsEntryMeta (
     @Json(name = "props")
     val props: kotlin.String? = null
 
-)
+) {
+
+
+}
 

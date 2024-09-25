@@ -31,5 +31,8 @@ data class RestDeleteCellResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

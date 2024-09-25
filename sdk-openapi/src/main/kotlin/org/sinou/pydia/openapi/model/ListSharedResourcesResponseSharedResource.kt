@@ -42,5 +42,8 @@ data class ListSharedResourcesResponseSharedResource (
     @Json(name = "Node")
     val node: TreeNode? = null
 
-)
+) {
+
+
+}
 

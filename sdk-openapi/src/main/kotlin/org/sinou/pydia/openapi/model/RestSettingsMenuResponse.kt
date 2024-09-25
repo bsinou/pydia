@@ -37,5 +37,8 @@ data class RestSettingsMenuResponse (
     @Json(name = "__metadata__")
     val metadata: RestSettingsEntryMeta? = null
 
-)
+) {
+
+
+}
 

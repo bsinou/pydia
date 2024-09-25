@@ -35,5 +35,8 @@ data class IdmPolicyCondition (
     @Json(name = "type")
     val type: kotlin.String? = null
 
-)
+) {
+
+
+}
 

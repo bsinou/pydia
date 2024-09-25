@@ -22,7 +22,6 @@ import okhttp3.HttpUrl
 import org.sinou.pydia.openapi.model.IdmWorkspace
 import org.sinou.pydia.openapi.model.PutWorkspaceRequest
 import org.sinou.pydia.openapi.model.RestDeleteResponse
-import org.sinou.pydia.openapi.model.RestError
 import org.sinou.pydia.openapi.model.RestSearchWorkspaceRequest
 import org.sinou.pydia.openapi.model.RestWorkspaceCollection
 
@@ -35,7 +34,6 @@ import org.sinou.pydia.openapi.infrastructure.ClientError
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.infrastructure.ServerError
 import org.sinou.pydia.openapi.infrastructure.MultiValueMap
-import org.sinou.pydia.openapi.infrastructure.PartConfig
 import org.sinou.pydia.openapi.infrastructure.RequestConfig
 import org.sinou.pydia.openapi.infrastructure.RequestMethod
 import org.sinou.pydia.openapi.infrastructure.ResponseType
@@ -57,7 +55,16 @@ class WorkspaceServiceApi(basePath: kotlin.String = defaultBasePath, client: OkH
          @Json(name = "ANY") ANY("ANY"),
          @Json(name = "ADMIN") ADMIN("ADMIN"),
          @Json(name = "ROOM") ROOM("ROOM"),
-         @Json(name = "LINK") LINK("LINK")
+         @Json(name = "LINK") LINK("LINK");
+
+        /**
+         * Override [toString()] to avoid using the enum variable name as the value, and instead use
+         * the actual value defined in the API spec file.
+         *
+         * This solves a problem when the variable name and its value are different, and ensures that
+         * the client sends the correct enum values to the server always.
+         */
+        override fun toString(): kotlin.String = "$value"
      }
 
     /**

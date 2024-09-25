@@ -43,5 +43,8 @@ data class RestRecommendRequest (
     @Json(name = "Segment")
     val segment: kotlin.String? = null
 
-)
+) {
+
+
+}
 

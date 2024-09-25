@@ -31,5 +31,8 @@ data class UpdateApplyUpdateRequest (
     @Json(name = "PackageName")
     val packageName: kotlin.String? = null
 
-)
+) {
+
+
+}
 

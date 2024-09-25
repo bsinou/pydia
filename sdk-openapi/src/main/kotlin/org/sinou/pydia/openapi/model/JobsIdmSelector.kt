@@ -70,5 +70,8 @@ data class JobsIdmSelector (
     @Json(name = "Type")
     val type: JobsIdmSelectorType? = JobsIdmSelectorType.User
 
-)
+) {
+
+
+}
 

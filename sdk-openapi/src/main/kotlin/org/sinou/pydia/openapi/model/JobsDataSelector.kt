@@ -56,5 +56,8 @@ data class JobsDataSelector (
     @Json(name = "Timeout")
     val timeout: kotlin.String? = null
 
-)
+) {
+
+
+}
 

@@ -22,7 +22,6 @@ import okhttp3.HttpUrl
 import org.sinou.pydia.openapi.model.RestCell
 import org.sinou.pydia.openapi.model.RestDeleteCellResponse
 import org.sinou.pydia.openapi.model.RestDeleteShareLinkResponse
-import org.sinou.pydia.openapi.model.RestError
 import org.sinou.pydia.openapi.model.RestListSharedResourcesRequest
 import org.sinou.pydia.openapi.model.RestListSharedResourcesResponse
 import org.sinou.pydia.openapi.model.RestPutCellRequest
@@ -31,8 +30,6 @@ import org.sinou.pydia.openapi.model.RestShareLink
 import org.sinou.pydia.openapi.model.RestUpdateSharePoliciesRequest
 import org.sinou.pydia.openapi.model.RestUpdateSharePoliciesResponse
 
-import com.squareup.moshi.Json
-
 import org.sinou.pydia.openapi.infrastructure.ApiClient
 import org.sinou.pydia.openapi.infrastructure.ApiResponse
 import org.sinou.pydia.openapi.infrastructure.ClientException
@@ -40,12 +37,10 @@ import org.sinou.pydia.openapi.infrastructure.ClientError
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.infrastructure.ServerError
 import org.sinou.pydia.openapi.infrastructure.MultiValueMap
-import org.sinou.pydia.openapi.infrastructure.PartConfig
 import org.sinou.pydia.openapi.infrastructure.RequestConfig
 import org.sinou.pydia.openapi.infrastructure.RequestMethod
 import org.sinou.pydia.openapi.infrastructure.ResponseType
 import org.sinou.pydia.openapi.infrastructure.Success
-import org.sinou.pydia.openapi.infrastructure.toMultiValue
 
 class ShareServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClient = ApiClient.defaultClient) : ApiClient(basePath, client) {
     companion object {

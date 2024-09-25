@@ -32,5 +32,8 @@ data class RestLogMessageCollection (
     @Json(name = "Logs")
     val logs: kotlin.collections.List<LogLogMessage>? = null
 
-)
+) {
+
+
+}
 

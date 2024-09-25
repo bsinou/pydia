@@ -44,5 +44,8 @@ data class RestListSharedResourcesResponse (
     @Json(name = "Total")
     val total: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

@@ -31,5 +31,8 @@ data class EncryptionAdminDeleteKeyRequest (
     @Json(name = "KeyID")
     val keyID: kotlin.String? = null
 
-)
+) {
+
+
+}
 

@@ -70,5 +70,8 @@ data class PutWorkspaceRequest (
     @Json(name = "UUID")
     val UUID: kotlin.String? = null
 
-)
+) {
+
+
+}
 

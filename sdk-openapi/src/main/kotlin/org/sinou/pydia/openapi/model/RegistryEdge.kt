@@ -31,5 +31,8 @@ data class RegistryEdge (
     @Json(name = "vertices")
     val vertices: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

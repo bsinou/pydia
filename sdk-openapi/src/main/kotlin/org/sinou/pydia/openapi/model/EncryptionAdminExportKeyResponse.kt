@@ -32,5 +32,8 @@ data class EncryptionAdminExportKeyResponse (
     @Json(name = "Key")
     val key: EncryptionKey? = null
 
-)
+) {
+
+
+}
 

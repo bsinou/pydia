@@ -31,5 +31,8 @@ data class InstallTLSSelfSigned (
     @Json(name = "Hostnames")
     val hostnames: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

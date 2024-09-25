@@ -73,5 +73,8 @@ data class RegistryItem (
     @Json(name = "service")
     val service: RegistryService? = null
 
-)
+) {
+
+
+}
 

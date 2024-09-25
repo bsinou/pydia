@@ -74,5 +74,8 @@ data class UserCanRepresentEitherAUserOrAGroup (
     @Json(name = "Uuid")
     val uuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

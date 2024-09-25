@@ -35,5 +35,8 @@ data class EncryptionImport (
     @Json(name = "Date")
     val date: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

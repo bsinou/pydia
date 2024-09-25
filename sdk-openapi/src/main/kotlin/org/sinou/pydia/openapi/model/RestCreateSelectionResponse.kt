@@ -36,5 +36,8 @@ data class RestCreateSelectionResponse (
     @Json(name = "SelectionUUID")
     val selectionUUID: kotlin.String? = null
 
-)
+) {
+
+
+}
 

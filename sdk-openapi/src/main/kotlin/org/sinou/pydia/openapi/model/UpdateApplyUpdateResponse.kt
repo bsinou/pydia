@@ -35,5 +35,8 @@ data class UpdateApplyUpdateResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

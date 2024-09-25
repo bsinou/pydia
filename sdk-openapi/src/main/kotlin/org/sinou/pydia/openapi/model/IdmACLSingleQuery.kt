@@ -48,5 +48,8 @@ data class IdmACLSingleQuery (
     @Json(name = "not")
     val not: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

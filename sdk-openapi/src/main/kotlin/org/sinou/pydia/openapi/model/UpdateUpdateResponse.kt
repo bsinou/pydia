@@ -36,5 +36,8 @@ data class UpdateUpdateResponse (
     @Json(name = "Channel")
     val channel: kotlin.String? = null
 
-)
+) {
+
+
+}
 

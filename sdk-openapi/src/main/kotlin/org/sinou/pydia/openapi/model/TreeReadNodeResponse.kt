@@ -36,5 +36,8 @@ data class TreeReadNodeResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

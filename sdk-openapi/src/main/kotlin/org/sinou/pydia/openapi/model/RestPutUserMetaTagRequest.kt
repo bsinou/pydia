@@ -31,5 +31,8 @@ data class RestPutUserMetaTagRequest (
     @Json(name = "Tag")
     val tag: kotlin.String? = null
 
-)
+) {
+
+
+}
 

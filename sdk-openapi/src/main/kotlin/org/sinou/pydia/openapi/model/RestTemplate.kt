@@ -49,5 +49,8 @@ data class RestTemplate (
     @Json(name = "UUID")
     val UUID: kotlin.String? = null
 
-)
+) {
+
+
+}
 

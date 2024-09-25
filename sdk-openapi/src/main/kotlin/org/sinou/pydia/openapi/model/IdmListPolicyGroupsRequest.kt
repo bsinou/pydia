@@ -31,5 +31,8 @@ data class IdmListPolicyGroupsRequest (
     @Json(name = "Filter")
     val filter: kotlin.String? = null
 
-)
+) {
+
+
+}
 

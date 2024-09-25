@@ -56,5 +56,8 @@ data class TreeSearchRequest (
     @Json(name = "StatFlags")
     val statFlags: kotlin.collections.List<kotlin.Long>? = null
 
-)
+) {
+
+
+}
 

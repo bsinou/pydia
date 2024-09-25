@@ -37,5 +37,8 @@ data class RestBulkMetaResponse (
     @Json(name = "Pagination")
     val pagination: RestPagination? = null
 
-)
+) {
+
+
+}
 

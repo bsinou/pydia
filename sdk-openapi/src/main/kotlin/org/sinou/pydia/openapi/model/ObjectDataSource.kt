@@ -113,5 +113,8 @@ data class ObjectDataSource (
     @Json(name = "Watch")
     val watch: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

@@ -37,5 +37,8 @@ data class EncryptionKeyInfo (
     @Json(name = "Imports")
     val imports: kotlin.collections.List<EncryptionImport>? = null
 
-)
+) {
+
+
+}
 

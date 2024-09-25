@@ -35,5 +35,8 @@ data class EncryptionAdminExportKeyRequest (
     @Json(name = "StrPassword")
     val strPassword: kotlin.String? = null
 
-)
+) {
+
+
+}
 

@@ -55,5 +55,8 @@ data class UpdateUpdateRequest (
     @Json(name = "ServiceName")
     val serviceName: kotlin.String? = null
 
-)
+) {
+
+
+}
 

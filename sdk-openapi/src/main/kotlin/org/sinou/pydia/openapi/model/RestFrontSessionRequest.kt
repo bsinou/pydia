@@ -39,5 +39,8 @@ data class RestFrontSessionRequest (
     @Json(name = "Logout")
     val logout: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

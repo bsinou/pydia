@@ -39,5 +39,8 @@ data class InstallCheckResult (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

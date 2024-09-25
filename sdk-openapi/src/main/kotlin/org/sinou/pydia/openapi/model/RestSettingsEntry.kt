@@ -61,5 +61,8 @@ data class RestSettingsEntry (
     @Json(name = "METADATA")
     val METADATA: RestSettingsEntryMeta? = null
 
-)
+) {
+
+
+}
 

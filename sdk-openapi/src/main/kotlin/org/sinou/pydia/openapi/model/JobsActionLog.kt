@@ -41,5 +41,8 @@ data class JobsActionLog (
     @Json(name = "OutputMessage")
     val outputMessage: JobsActionMessage? = null
 
-)
+) {
+
+
+}
 

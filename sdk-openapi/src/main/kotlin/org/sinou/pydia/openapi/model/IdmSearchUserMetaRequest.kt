@@ -48,5 +48,8 @@ data class IdmSearchUserMetaRequest (
     @Json(name = "ResourceSubjectOwner")
     val resourceSubjectOwner: kotlin.String? = null
 
-)
+) {
+
+
+}
 

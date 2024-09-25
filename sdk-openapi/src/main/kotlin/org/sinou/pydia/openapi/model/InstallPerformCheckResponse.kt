@@ -32,5 +32,8 @@ data class InstallPerformCheckResponse (
     @Json(name = "Result")
     val result: InstallCheckResult? = null
 
-)
+) {
+
+
+}
 

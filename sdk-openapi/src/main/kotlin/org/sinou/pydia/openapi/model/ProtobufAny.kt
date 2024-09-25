@@ -32,5 +32,8 @@ data class ProtobufAny (
     @Json(name = "@type")
     val atType: kotlin.String? = null
 
-) : kotlin.collections.HashMap<String, kotlin.Any>()
+) : kotlin.collections.HashMap<String, kotlin.Any>() {
+
+
+}
 

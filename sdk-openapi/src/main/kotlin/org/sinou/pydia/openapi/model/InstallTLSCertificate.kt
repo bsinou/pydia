@@ -39,5 +39,8 @@ data class InstallTLSCertificate (
     @Json(name = "KeyFile")
     val keyFile: kotlin.String? = null
 
-)
+) {
+
+
+}
 

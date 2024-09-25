@@ -51,5 +51,8 @@ data class RestDiscoveryResponse (
     @Json(name = "Version")
     val version: kotlin.String? = null
 
-)
+) {
+
+
+}
 

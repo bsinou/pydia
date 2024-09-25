@@ -40,5 +40,8 @@ data class RestCreateNodesRequest (
     @Json(name = "TemplateUUID")
     val templateUUID: kotlin.String? = null
 
-)
+) {
+
+
+}
 

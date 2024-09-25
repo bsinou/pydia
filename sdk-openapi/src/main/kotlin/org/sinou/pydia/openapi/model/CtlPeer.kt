@@ -43,5 +43,8 @@ data class CtlPeer (
     @Json(name = "Port")
     val port: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

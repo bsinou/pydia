@@ -276,5 +276,8 @@ data class ActivityObject (
     @Json(name = "width")
     val width: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

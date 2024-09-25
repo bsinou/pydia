@@ -45,5 +45,8 @@ data class JobsContextMetaFilter (
     @Json(name = "Type")
     val type: JobsContextMetaFilterType? = JobsContextMetaFilterType.RequestMeta
 
-)
+) {
+
+
+}
 

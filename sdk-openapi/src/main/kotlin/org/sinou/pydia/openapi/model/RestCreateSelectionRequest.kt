@@ -40,5 +40,8 @@ data class RestCreateSelectionRequest (
     @Json(name = "TargetAction")
     val targetAction: kotlin.String? = null
 
-)
+) {
+
+
+}
 

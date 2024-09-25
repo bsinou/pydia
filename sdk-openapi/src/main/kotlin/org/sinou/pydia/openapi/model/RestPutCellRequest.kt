@@ -36,5 +36,8 @@ data class RestPutCellRequest (
     @Json(name = "Room")
     val room: RestCell? = null
 
-)
+) {
+
+
+}
 

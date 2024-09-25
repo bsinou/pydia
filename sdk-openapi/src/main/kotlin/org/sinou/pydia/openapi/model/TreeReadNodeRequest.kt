@@ -48,5 +48,8 @@ data class TreeReadNodeRequest (
     @Json(name = "WithExtendedStats")
     val withExtendedStats: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

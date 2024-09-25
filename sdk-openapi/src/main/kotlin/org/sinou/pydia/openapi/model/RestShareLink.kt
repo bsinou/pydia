@@ -107,5 +107,8 @@ data class RestShareLink (
     @Json(name = "ViewTemplateName")
     val viewTemplateName: kotlin.String? = null
 
-)
+) {
+
+
+}
 

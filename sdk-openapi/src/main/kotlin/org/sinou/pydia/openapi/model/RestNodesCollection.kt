@@ -36,5 +36,8 @@ data class RestNodesCollection (
     @Json(name = "Parent")
     val parent: TreeNode? = null
 
-)
+) {
+
+
+}
 

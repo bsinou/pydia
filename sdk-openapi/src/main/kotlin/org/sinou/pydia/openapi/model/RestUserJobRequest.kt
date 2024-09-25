@@ -31,5 +31,8 @@ data class RestUserJobRequest (
     @Json(name = "JsonParameters")
     val jsonParameters: kotlin.String? = null
 
-)
+) {
+
+
+}
 

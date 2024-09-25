@@ -31,5 +31,8 @@ data class RestFrontMessagesResponse (
     @Json(name = "Messages")
     val messages: kotlin.collections.Map<kotlin.String, kotlin.String>? = null
 
-)
+) {
+
+
+}
 

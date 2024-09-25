@@ -59,5 +59,8 @@ data class TreeSearchFacet (
     @Json(name = "Term")
     val term: kotlin.String? = null
 
-)
+) {
+
+
+}
 

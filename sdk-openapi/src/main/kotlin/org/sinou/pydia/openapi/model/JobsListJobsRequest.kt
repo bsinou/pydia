@@ -56,5 +56,8 @@ data class JobsListJobsRequest (
     @Json(name = "TimersOnly")
     val timersOnly: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

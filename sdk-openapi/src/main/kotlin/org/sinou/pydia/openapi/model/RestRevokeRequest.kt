@@ -31,5 +31,8 @@ data class RestRevokeRequest (
     @Json(name = "TokenId")
     val tokenId: kotlin.String? = null
 
-)
+) {
+
+
+}
 

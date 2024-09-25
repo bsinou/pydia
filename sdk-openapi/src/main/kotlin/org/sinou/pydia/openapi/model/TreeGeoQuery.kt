@@ -45,5 +45,8 @@ data class TreeGeoQuery (
     @Json(name = "TopLeft")
     val topLeft: TreeGeoPoint? = null
 
-)
+) {
+
+
+}
 

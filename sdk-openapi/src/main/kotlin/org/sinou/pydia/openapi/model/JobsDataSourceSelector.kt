@@ -65,5 +65,8 @@ data class JobsDataSourceSelector (
     @Json(name = "Type")
     val type: JobsDataSourceSelectorType? = JobsDataSourceSelectorType.DataSource
 
-)
+) {
+
+
+}
 

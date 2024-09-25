@@ -32,5 +32,8 @@ data class RestCreateStorageBucketRequest (
     @Json(name = "DataSource")
     val dataSource: ObjectDataSource? = null
 
-)
+) {
+
+
+}
 

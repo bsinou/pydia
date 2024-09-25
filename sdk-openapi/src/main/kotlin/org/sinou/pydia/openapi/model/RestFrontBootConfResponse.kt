@@ -31,5 +31,8 @@ data class RestFrontBootConfResponse (
     @Json(name = "JsonData")
     val jsonData: kotlin.collections.Map<kotlin.String, kotlin.String>? = null
 
-)
+) {
+
+
+}
 

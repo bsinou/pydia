@@ -31,5 +31,8 @@ data class RestListUserMetaTagsResponse (
     @Json(name = "Tags")
     val tags: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

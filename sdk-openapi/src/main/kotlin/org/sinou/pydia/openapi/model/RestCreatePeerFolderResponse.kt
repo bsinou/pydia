@@ -36,5 +36,8 @@ data class RestCreatePeerFolderResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

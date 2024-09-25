@@ -77,5 +77,8 @@ data class JobsTask (
     @Json(name = "TriggerOwner")
     val triggerOwner: kotlin.String? = null
 
-)
+) {
+
+
+}
 

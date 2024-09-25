@@ -32,5 +32,8 @@ data class InstallGetDefaultsResponse (
     @Json(name = "config")
     val config: InstallInstallConfig? = null
 
-)
+) {
+
+
+}
 

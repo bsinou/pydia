@@ -32,5 +32,8 @@ data class RestListProcessesResponse (
     @Json(name = "Processes")
     val processes: kotlin.collections.List<RestProcess>? = null
 
-)
+) {
+
+
+}
 

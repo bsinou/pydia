@@ -58,5 +58,8 @@ data class RestSearchRoleRequest (
     @Json(name = "ResourcePolicyQuery")
     val resourcePolicyQuery: RestResourcePolicyQuery? = null
 
-)
+) {
+
+
+}
 

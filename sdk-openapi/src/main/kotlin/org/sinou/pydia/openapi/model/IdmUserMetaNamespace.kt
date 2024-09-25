@@ -56,5 +56,8 @@ data class IdmUserMetaNamespace (
     @Json(name = "PoliciesContextEditable")
     val policiesContextEditable: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

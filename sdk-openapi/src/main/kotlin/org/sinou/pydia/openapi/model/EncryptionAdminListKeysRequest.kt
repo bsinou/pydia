@@ -31,5 +31,8 @@ data class EncryptionAdminListKeysRequest (
     @Json(name = "All")
     val all: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

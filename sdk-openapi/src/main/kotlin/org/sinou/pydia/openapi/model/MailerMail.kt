@@ -92,5 +92,8 @@ data class MailerMail (
     @Json(name = "sendErrors")
     val sendErrors: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

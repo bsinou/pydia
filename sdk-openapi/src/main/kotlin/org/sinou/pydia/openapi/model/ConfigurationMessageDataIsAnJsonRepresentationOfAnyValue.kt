@@ -31,5 +31,8 @@ data class ConfigurationMessageDataIsAnJsonRepresentationOfAnyValue (
     @Json(name = "Data")
     val `data`: kotlin.String? = null
 
-)
+) {
+
+
+}
 

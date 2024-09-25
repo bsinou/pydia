@@ -31,5 +31,8 @@ data class InstallInstallEventsResponse (
     @Json(name = "Success")
     val success: kotlin.Boolean? = null
 
-)
+) {
+
+
+}
 

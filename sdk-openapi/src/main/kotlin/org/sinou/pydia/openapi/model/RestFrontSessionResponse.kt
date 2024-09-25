@@ -56,5 +56,8 @@ data class RestFrontSessionResponse (
     @Json(name = "TriggerInfo")
     val triggerInfo: kotlin.collections.Map<kotlin.String, kotlin.String>? = null
 
-)
+) {
+
+
+}
 

@@ -32,5 +32,8 @@ data class EncryptionAdminListKeysResponse (
     @Json(name = "Keys")
     val propertyKeys: kotlin.collections.List<EncryptionKey>? = null
 
-)
+) {
+
+
+}
 

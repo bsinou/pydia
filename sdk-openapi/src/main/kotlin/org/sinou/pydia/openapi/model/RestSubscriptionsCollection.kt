@@ -32,5 +32,8 @@ data class RestSubscriptionsCollection (
     @Json(name = "subscriptions")
     val subscriptions: kotlin.collections.List<ActivitySubscription>? = null
 
-)
+) {
+
+
+}
 

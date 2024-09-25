@@ -70,5 +70,8 @@ data class TreeNode (
     @Json(name = "Uuid")
     val uuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

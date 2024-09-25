@@ -40,5 +40,8 @@ data class RegistryService (
     @Json(name = "version")
     val version: kotlin.String? = null
 
-)
+) {
+
+
+}
 

@@ -102,5 +102,8 @@ data class TreeQuery (
     @Json(name = "UUIDs")
     val uuIDs: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

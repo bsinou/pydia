@@ -31,5 +31,8 @@ data class InstallGetAgreementResponse (
     @Json(name = "Text")
     val text: kotlin.String? = null
 
-)
+) {
+
+
+}
 

@@ -62,5 +62,8 @@ data class RestCell (
     @Json(name = "Uuid")
     val uuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

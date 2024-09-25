@@ -36,5 +36,8 @@ data class RestDataSourceCollection (
     @Json(name = "Total")
     val total: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

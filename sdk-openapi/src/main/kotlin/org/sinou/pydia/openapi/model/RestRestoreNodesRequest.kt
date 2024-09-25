@@ -32,5 +32,8 @@ data class RestRestoreNodesRequest (
     @Json(name = "Nodes")
     val nodes: kotlin.collections.List<TreeNode>? = null
 
-)
+) {
+
+
+}
 

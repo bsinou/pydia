@@ -31,5 +31,8 @@ data class RestDocumentAccessTokenResponse (
     @Json(name = "AccessToken")
     val accessToken: kotlin.String? = null
 
-)
+) {
+
+
+}
 

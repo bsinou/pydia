@@ -32,5 +32,8 @@ data class RestHeadNodeResponse (
     @Json(name = "Node")
     val node: TreeNode? = null
 
-)
+) {
+
+
+}
 

@@ -35,5 +35,8 @@ data class RestDocumentAccessTokenRequest (
     @Json(name = "Path")
     val path: kotlin.String? = null
 
-)
+) {
+
+
+}
 

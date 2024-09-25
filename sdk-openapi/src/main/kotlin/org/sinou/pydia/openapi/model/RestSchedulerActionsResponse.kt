@@ -32,5 +32,8 @@ data class RestSchedulerActionsResponse (
     @Json(name = "Actions")
     val actions: kotlin.collections.Map<kotlin.String, RestActionDescription>? = null
 
-)
+) {
+
+
+}
 

@@ -36,5 +36,8 @@ data class RestRolesCollection (
     @Json(name = "Total")
     val total: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

@@ -36,5 +36,8 @@ data class InstallPerformCheckRequest (
     @Json(name = "Name")
     val name: kotlin.String? = null
 
-)
+) {
+
+
+}
 

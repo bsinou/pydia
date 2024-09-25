@@ -36,5 +36,8 @@ data class RestResourcePolicyQuery (
     @Json(name = "UserId")
     val userId: kotlin.String? = null
 
-)
+) {
+
+
+}
 

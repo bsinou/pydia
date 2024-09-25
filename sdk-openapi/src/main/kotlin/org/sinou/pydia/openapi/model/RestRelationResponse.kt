@@ -37,5 +37,8 @@ data class RestRelationResponse (
     @Json(name = "SharedCells")
     val sharedCells: kotlin.collections.List<IdmWorkspace>? = null
 
-)
+) {
+
+
+}
 

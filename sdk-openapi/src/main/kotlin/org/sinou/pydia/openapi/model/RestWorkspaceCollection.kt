@@ -36,5 +36,8 @@ data class RestWorkspaceCollection (
     @Json(name = "Workspaces")
     val workspaces: kotlin.collections.List<IdmWorkspace>? = null
 
-)
+) {
+
+
+}
 

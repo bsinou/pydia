@@ -35,5 +35,8 @@ data class TreeVersioningKeepPeriod (
     @Json(name = "MaxNumber")
     val maxNumber: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

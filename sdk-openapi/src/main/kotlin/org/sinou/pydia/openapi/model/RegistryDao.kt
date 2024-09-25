@@ -35,5 +35,8 @@ data class RegistryDao (
     @Json(name = "dsn")
     val dsn: kotlin.String? = null
 
-)
+) {
+
+
+}
 

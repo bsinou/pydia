@@ -54,5 +54,8 @@ data class RestCellAcl (
     @Json(name = "User")
     val user: IdmUser? = null
 
-)
+) {
+
+
+}
 

@@ -72,5 +72,8 @@ data class JobsActionMessage (
     @Json(name = "Workspaces")
     val workspaces: kotlin.collections.List<IdmWorkspace>? = null
 
-)
+) {
+
+
+}
 

@@ -60,5 +60,8 @@ data class JobsActionOutput (
     @Json(name = "Vars")
     val vars: kotlin.collections.Map<kotlin.String, kotlin.String>? = null
 
-)
+) {
+
+
+}
 

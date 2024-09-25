@@ -44,7 +44,6 @@ import org.sinou.pydia.openapi.model.RestCreateStorageBucketResponse
 import org.sinou.pydia.openapi.model.RestDataSourceCollection
 import org.sinou.pydia.openapi.model.RestDeleteDataSourceResponse
 import org.sinou.pydia.openapi.model.RestDiscoveryResponse
-import org.sinou.pydia.openapi.model.RestError
 import org.sinou.pydia.openapi.model.RestListPeerFoldersRequest
 import org.sinou.pydia.openapi.model.RestListPeersAddressesResponse
 import org.sinou.pydia.openapi.model.RestListProcessesRequest
@@ -68,12 +67,10 @@ import org.sinou.pydia.openapi.infrastructure.ClientError
 import org.sinou.pydia.openapi.infrastructure.ServerException
 import org.sinou.pydia.openapi.infrastructure.ServerError
 import org.sinou.pydia.openapi.infrastructure.MultiValueMap
-import org.sinou.pydia.openapi.infrastructure.PartConfig
 import org.sinou.pydia.openapi.infrastructure.RequestConfig
 import org.sinou.pydia.openapi.infrastructure.RequestMethod
 import org.sinou.pydia.openapi.infrastructure.ResponseType
 import org.sinou.pydia.openapi.infrastructure.Success
-import org.sinou.pydia.openapi.infrastructure.toMultiValue
 
 class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttpClient = ApiClient.defaultClient) : ApiClient(basePath, client) {
     companion object {
@@ -460,7 +457,16 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
          @Json(name = "GCS") GCS("GCS"),
          @Json(name = "B2") B2("B2"),
          @Json(name = "MANTA") MANTA("MANTA"),
-         @Json(name = "SIA") SIA("SIA")
+         @Json(name = "SIA") SIA("SIA");
+
+        /**
+         * Override [toString()] to avoid using the enum variable name as the value, and instead use
+         * the actual value defined in the API spec file.
+         *
+         * This solves a problem when the variable name and its value are different, and ensures that
+         * the client sends the correct enum values to the server always.
+         */
+        override fun toString(): kotlin.String = "$value"
      }
 
     /**
@@ -470,7 +476,16 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
          @Json(name = "CLEAR") CLEAR("CLEAR"),
          @Json(name = "MASTER") MASTER("MASTER"),
          @Json(name = "USER") USER("USER"),
-         @Json(name = "USER_PWD") USER_PWD("USER_PWD")
+         @Json(name = "USER_PWD") USER_PWD("USER_PWD");
+
+        /**
+         * Override [toString()] to avoid using the enum variable name as the value, and instead use
+         * the actual value defined in the API spec file.
+         *
+         * This solves a problem when the variable name and its value are different, and ensures that
+         * the client sends the correct enum values to the server always.
+         */
+        override fun toString(): kotlin.String = "$value"
      }
 
     /**
@@ -971,7 +986,16 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
          @Json(name = "GCS") GCS("GCS"),
          @Json(name = "B2") B2("B2"),
          @Json(name = "MANTA") MANTA("MANTA"),
-         @Json(name = "SIA") SIA("SIA")
+         @Json(name = "SIA") SIA("SIA");
+
+        /**
+         * Override [toString()] to avoid using the enum variable name as the value, and instead use
+         * the actual value defined in the API spec file.
+         *
+         * This solves a problem when the variable name and its value are different, and ensures that
+         * the client sends the correct enum values to the server always.
+         */
+        override fun toString(): kotlin.String = "$value"
      }
 
     /**
@@ -981,7 +1005,16 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
          @Json(name = "CLEAR") CLEAR("CLEAR"),
          @Json(name = "MASTER") MASTER("MASTER"),
          @Json(name = "USER") USER("USER"),
-         @Json(name = "USER_PWD") USER_PWD("USER_PWD")
+         @Json(name = "USER_PWD") USER_PWD("USER_PWD");
+
+        /**
+         * Override [toString()] to avoid using the enum variable name as the value, and instead use
+         * the actual value defined in the API spec file.
+         *
+         * This solves a problem when the variable name and its value are different, and ensures that
+         * the client sends the correct enum values to the server always.
+         */
+        override fun toString(): kotlin.String = "$value"
      }
 
     /**
@@ -1177,7 +1210,16 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
      enum class NodeDeletedStrategyGetVersioningPolicy(val value: kotlin.String) {
          @Json(name = "KeepAll") KeepAll("KeepAll"),
          @Json(name = "KeepLast") KeepLast("KeepLast"),
-         @Json(name = "KeepNone") KeepNone("KeepNone")
+         @Json(name = "KeepNone") KeepNone("KeepNone");
+
+        /**
+         * Override [toString()] to avoid using the enum variable name as the value, and instead use
+         * the actual value defined in the API spec file.
+         *
+         * This solves a problem when the variable name and its value are different, and ensures that
+         * the client sends the correct enum values to the server always.
+         */
+        override fun toString(): kotlin.String = "$value"
      }
 
     /**
@@ -1808,7 +1850,16 @@ class ConfigServiceApi(basePath: kotlin.String = defaultBasePath, client: OkHttp
          @Json(name = "STOPPED") STOPPED("STOPPED"),
          @Json(name = "STARTING") STARTING("STARTING"),
          @Json(name = "STOPPING") STOPPING("STOPPING"),
-         @Json(name = "STARTED") STARTED("STARTED")
+         @Json(name = "STARTED") STARTED("STARTED");
+
+        /**
+         * Override [toString()] to avoid using the enum variable name as the value, and instead use
+         * the actual value defined in the API spec file.
+         *
+         * This solves a problem when the variable name and its value are different, and ensures that
+         * the client sends the correct enum values to the server always.
+         */
+        override fun toString(): kotlin.String = "$value"
      }
 
     /**

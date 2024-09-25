@@ -35,5 +35,8 @@ data class EncryptionAdminCreateKeyRequest (
     @Json(name = "Label")
     val label: kotlin.String? = null
 
-)
+) {
+
+
+}
 

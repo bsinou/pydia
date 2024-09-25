@@ -31,5 +31,8 @@ data class JobsDeleteTasksResponse (
     @Json(name = "Deleted")
     val deleted: kotlin.collections.List<kotlin.String>? = null
 
-)
+) {
+
+
+}
 

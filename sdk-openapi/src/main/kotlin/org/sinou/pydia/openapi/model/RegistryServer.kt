@@ -31,5 +31,8 @@ data class RegistryServer (
     @Json(name = "protocol")
     val protocol: kotlin.String? = null
 
-)
+) {
+
+
+}
 

@@ -185,5 +185,8 @@ data class InstallInstallConfig (
     @Json(name = "licenseString")
     val licenseString: kotlin.String? = null
 
-)
+) {
+
+
+}
 

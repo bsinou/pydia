@@ -48,5 +48,8 @@ data class RestPutShareLinkRequest (
     @Json(name = "UpdatePassword")
     val updatePassword: kotlin.String? = null
 
-)
+) {
+
+
+}
 

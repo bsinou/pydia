@@ -47,5 +47,8 @@ data class TreeWorkspaceRelativePath (
     @Json(name = "WsUuid")
     val wsUuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

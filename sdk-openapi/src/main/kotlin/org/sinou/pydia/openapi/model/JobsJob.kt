@@ -160,5 +160,8 @@ data class JobsJob (
     @Json(name = "VersionMeta")
     val versionMeta: kotlin.collections.Map<kotlin.String, kotlin.String>? = null
 
-)
+) {
+
+
+}
 

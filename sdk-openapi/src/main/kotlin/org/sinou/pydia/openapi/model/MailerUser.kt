@@ -43,5 +43,8 @@ data class MailerUser (
     @Json(name = "Uuid")
     val uuid: kotlin.String? = null
 
-)
+) {
+
+
+}
 

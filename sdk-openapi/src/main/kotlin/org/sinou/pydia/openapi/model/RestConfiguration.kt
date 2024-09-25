@@ -35,5 +35,8 @@ data class RestConfiguration (
     @Json(name = "FullPath")
     val fullPath: kotlin.String? = null
 
-)
+) {
+
+
+}
 

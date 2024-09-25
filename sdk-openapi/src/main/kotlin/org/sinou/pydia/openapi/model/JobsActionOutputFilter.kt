@@ -40,5 +40,8 @@ data class JobsActionOutputFilter (
     @Json(name = "Query")
     val query: ServiceQuery? = null
 
-)
+) {
+
+
+}
 

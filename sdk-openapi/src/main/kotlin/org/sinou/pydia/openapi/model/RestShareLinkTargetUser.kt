@@ -35,5 +35,8 @@ data class RestShareLinkTargetUser (
     @Json(name = "DownloadCount")
     val downloadCount: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

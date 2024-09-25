@@ -53,5 +53,8 @@ data class TreeNodeChangeEvent (
     @Json(name = "Type")
     val type: TreeNodeChangeEventEventType? = TreeNodeChangeEventEventType.CREATE
 
-)
+) {
+
+
+}
 

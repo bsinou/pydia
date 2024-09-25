@@ -48,5 +48,8 @@ data class RestListSharedResourcesRequest (
     @Json(name = "Subject")
     val subject: kotlin.String? = null
 
-)
+) {
+
+
+}
 

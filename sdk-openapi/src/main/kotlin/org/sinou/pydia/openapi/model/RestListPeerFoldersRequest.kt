@@ -31,5 +31,8 @@ data class RestListPeerFoldersRequest (
     @Json(name = "Path")
     val path: kotlin.String? = null
 
-)
+) {
+
+
+}
 

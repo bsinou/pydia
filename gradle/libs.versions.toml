@@ -1,8 +1,8 @@
 [versions]
 
 # Plugins
-android-gradle-plugin = "8.5.0"
-gradle = "8.5.0"
+android-gradle-plugin = "8.6.1"
+gradle = "8.6.1"
 kotlin = "2.0.0"
 kotlin-reflect-version = "2.0.0"
 kotlin-stdlib-jdk8-version = "2.0.0"
@@ -155,7 +155,7 @@ junit = { module = "junit:junit", version.ref = "junit" }
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 ksp-devtools = { id = "com.google.devtools.ksp", version.ref = "ksp-devtools-version" }
 
-org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+# org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 # Add the Compose Compiler Gradle plugin, the version matches the Kotlin plugin
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 

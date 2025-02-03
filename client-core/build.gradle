@@ -11,7 +11,7 @@ android {
 
     namespace 'org.sinou.pydia.client'
 
-    compileSdk 34
+    compileSdk 35
 
     // Gather overrides in a distinct folder for easier maintenance
     sourceSets.main.res.srcDir 'src/main/res-overrides'
@@ -19,7 +19,7 @@ android {
     defaultConfig {
         applicationId "org.sinou.pydia.client.next"
         minSdk 24
-        targetSdk 34
+        targetSdk 35
         versionCode 10
         versionName "0.2.1"
 

@@ -2,12 +2,9 @@ package org.sinou.pydia.sdk.transport
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.annotations.Expose
 import org.sinou.pydia.sdk.api.ErrorCodes
 import org.sinou.pydia.sdk.api.SDKException
 import org.sinou.pydia.sdk.api.ServerURL
-import org.sinou.pydia.sdk.client.security.CertificateTrust
-import org.sinou.pydia.sdk.client.security.CertificateTrustManager
 import org.sinou.pydia.sdk.utils.Log
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -17,11 +14,9 @@ import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
 import java.security.KeyManagementException
-import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
-import java.util.Arrays
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
@@ -156,20 +151,20 @@ class ServerURLImpl private constructor(
         }
     }
 
-    override fun getSslContext(): SSLContext? {
-        return sslContext ?: run {
-            try {
-                val tmpContext = SSLContext.getInstance("TLS")
-                tmpContext.init(null, arrayOf(trustManager()), null)
-                // tmpContext.socketFactory
-                sslContext = tmpContext
-                tmpContext
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return null
-            }
-        }
-    }
+//    override fun getSslContext(): SSLContext? {
+//        return sslContext ?: run {
+//            try {
+//                val tmpContext = SSLContext.getInstance("TLS")
+//                tmpContext.init(null, arrayOf(trustManager()), null)
+//                // tmpContext.socketFactory
+//                sslContext = tmpContext
+//                tmpContext
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//                return null
+//            }
+//        }
+//    }
 
     // TODO tweak until we rework the self signed.
     override fun getSslSocketFactory(): SSLSocketFactory? {
@@ -207,44 +202,44 @@ class ServerURLImpl private constructor(
         }
     }
 
-    private fun trustManager(): TrustManager {
-        return CertificateTrustManager(getTrustHelper())
-    }
-
-    private var field: CertificateTrust.Helper? = null
-    private fun getTrustHelper(): CertificateTrust.Helper? {
-
-        if (field == null) {
-            object : CertificateTrust.Helper {
-                override fun isServerTrusted(chain: Array<X509Certificate>): Boolean {
-                    for (c in chain) {
-                        certificateChain?.let {
-                            for (trusted in it) {
-                                try {
-                                    c.checkValidity()
-                                    val hash = MessageDigest.getInstance("MD5")
-                                    val c1 = hash.digest(trusted)
-                                    val c2 = hash.digest(c.encoded)
-                                    if (Arrays.equals(c1, c2)) {
-                                        return true
-                                    }
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
-                            }
-                        }
-                    }
-                    return false
-                }
-
-                override fun getAcceptedIssuers(): Array<X509Certificate> {
-                    return arrayOf()
-                }
-            }.also { field = it }
-        }
-        return field
-    }
-
+//     private fun trustManager(): TrustManager {
+//         return CertificateTrustManager(getTrustHelper())
+//     }
+//
+//     private var field: CertificateTrust.Helper? = null
+//     private fun getTrustHelper(): CertificateTrust.Helper? {
+//
+//         if (field == null) {
+//             object : CertificateTrust.Helper {
+//                 override fun isServerTrusted(chain: Array<X509Certificate>): Boolean {
+//                     for (c in chain) {
+//                         certificateChain?.let {
+//                             for (trusted in it) {
+//                                 try {
+//                                     c.checkValidity()
+//                                     val hash = MessageDigest.getInstance("MD5")
+//                                     val c1 = hash.digest(trusted)
+//                                     val c2 = hash.digest(c.encoded)
+//                                     if (Arrays.equals(c1, c2)) {
+//                                         return true
+//                                     }
+//                                 } catch (e: Exception) {
+//                                     e.printStackTrace()
+//                                 }
+//                             }
+//                         }
+//                     }
+//                     return false
+//                 }
+//
+//                 override fun getAcceptedIssuers(): Array<X509Certificate> {
+//                     return arrayOf()
+//                 }
+//             }.also { field = it }
+//         }
+//         return field
+//     }
+//
     companion object {
         private const val logTag = "ServerURLImpl"
 

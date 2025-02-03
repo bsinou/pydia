@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 
-/* Insure the name stays constants, even if the root directory name changes */
+/* Ensure the name stays constants, even if the root directory name changes */
 rootProject.name = 'pydia'
 rootProject.buildFileName = 'build.gradle'
 
@@ -18,6 +18,6 @@ include ':sdk-kotlin'
 include ':client-core'
 
 /* Use custom names for the "client-sandbox.gradle" file of child modules */
-rootProject.children.each {
-    it.buildFileName = it.name + '.gradle'
-}
+//rootProject.children.each {
+//    it.buildFileName = it.name + '.gradle'
+// }

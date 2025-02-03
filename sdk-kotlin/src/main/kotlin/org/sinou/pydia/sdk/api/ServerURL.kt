@@ -79,7 +79,7 @@ interface ServerURL {
 
     fun getSslSocketFactory(): SSLSocketFactory?
 
-    fun getSslContext(): SSLContext?
+//     fun getSslContext(): SSLContext?
 
     fun skipVerify(): Boolean
     fun toJson(): String?

@@ -93,10 +93,12 @@ dependencies {
     implementation libs.kotlin.stdlib.jdk8
     implementation libs.kotlin.reflect
 
-    // Use JUnit test framework
-    // TODO this might be dynamic
+
     testImplementation project(':sdk-openapi')
+
+    // Use JUnit test framework
     testImplementation libs.junit
+
     // When running with android these are provided by the platform
     // TODO check where this is used
     testImplementation libs.aws.java.sdk.core

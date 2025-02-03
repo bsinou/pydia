@@ -25,7 +25,7 @@ import java.io.IOException
 /**
  * AWS4 signer implementation for AWS S3 forked and adapted to work with Cells v4.1
  *
- * We don't use double-url-encode path elements; S3 expects path elements to be  encoded only once in the canonical URI.
+ * We don't use double-url-encode path elements; S3 expects path elements to be encoded only once in the canonical URI.
  */
 class CellsSigner : AWS4Signer(false) {
 

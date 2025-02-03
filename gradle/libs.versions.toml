@@ -1,8 +1,8 @@
 [versions]
 
 # Plugins
-android-gradle-plugin = "8.7.0"
-gradle = "8.7.0"
+android-gradle-plugin = "8.8.0"
+gradle = "8.8.0"
 kotlin = "2.0.0"
 kotlin-reflect-version = "2.0.0"
 kotlin-stdlib-jdk8-version = "2.0.0"

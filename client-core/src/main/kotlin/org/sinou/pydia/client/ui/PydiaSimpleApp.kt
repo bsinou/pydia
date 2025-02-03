@@ -77,7 +77,7 @@ class PydiaSimpleApp : Application(), KoinComponent {
         // this is the date when the app has been updated, not the timestamp of the current release
         instance.lastUpdateTime = packageInfo.lastUpdateTime
         // TODO also add a timestamp when releasing
-        instance.version = packageInfo.versionName
+        instance.version = packageInfo.versionName ?: "0.0.1-dev"
         instance.versionCode = compatVersionCode(packageInfo)
         instance.platform = getAndroidVersion()
         ClientData.updateInstance(instance)
